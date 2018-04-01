@@ -57,3 +57,13 @@ typings/
 # dotenv environment variables file
 .env
 
+####################################################
+# local bat files such as cmd.bat
+*.bat
+
+## casbah private folders - contains user data & files
+database/*.db
+uploads/
+
+
+

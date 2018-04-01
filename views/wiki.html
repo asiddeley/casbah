@@ -1,0 +1,81 @@
+
+<script type='text/javascript'>
+//default global parameters required for this page
+$PP.fetch("$wiki_articles", "1");
+//WORK ON THIS crazy conversion
+$PP.$wiki_articles=JSON.parse("[" + $PP.$wiki_articles + "]");
+//console.log("wiki articles:", $PP.$wiki_articles, " type:", typeof($PP.$wiki_articles));
+
+Handlebars.registerHelper("badgeTags", function(str, options){
+	var html="&nbsp;";
+	for (var tag in str.split(",")){html+="<span class='badge'>"+tag+"</span>";}
+	return html;
+});
+
+///// TableViews
+
+var wiki={};
+
+wiki.add=function(el){
+	console.log("wiki articles:", $PP.$wiki_articles, " type:", typeof($PP.$wiki_articles));
+	wiki.tv.add( function(result){
+	
+		//update local list of wiki articles with new article
+		//$PP.$wiki_articles=$PP.$wiki_articles + "," + result.rows[0].rowid;
+		$PP.$wiki_articles.unshift(result.rows[0].rowid);
+		
+		$PP.store("$wiki_articles", $PP.$wiki_articles ); 
+		
+		//JSON.parse(result.rows[0].comment_ids)
+		
+		//console.log("wiki articles updated:", $PP.$wiki_articles);
+		wiki.tv.refresh();
+	});
+};
+
+
+wiki.tv=new casbah.TableView(casbah.tables.wiki($PP), {
+	refresh:function(result, delta){
+		//console.log("delta",delta);
+		casbah.array_rowidorder(result.rows, $PP.$wiki_articles); 
+		casbah.renderFX("wiki-placeholder", wiki.template, result, delta);
+	}}
+);
+
+wiki.template=Handlebars.compile($("#wiki-template").html());
+
+wiki.tv.refresh();
+
+</script>
+
+
+
+<!-- TEMPLATES -->
+<!-- FYI, must use script tag if there are partials {{> partial }}  -->
+<!-- FYI, ensure rowid={{rowid}} is present for grand reveal & sendoff FX to work -->
+<template id='wiki-template' type="text/x-handlebars-template">
+	<br>
+	{{#each rows}}
+	<div class="row" >
+	<div class="thumbnail"  rowid="{{rowid}}">
+		<img src="..." alt="...">
+		<h3>{{title}} <span class="label label-default">{{rowid}}</span></h3>
+		<div>{{{badgeTags this.tags}}}</div>		
+		<p>{{intro}}</p>
+
+		<a href="#" class="btn btn-default" role="button">
+		<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>&nbsp;{{votesup}}
+		</a>&nbsp;
+		
+		<a href="#" class="btn btn-default" role="button">		
+		<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>&nbsp;{{votesdn}}
+		</a>
+	</div>
+	</div>		
+	{{/each}}
+</template>
+
+
+
+<div id="wiki-placeholder" class="container"></div>
+

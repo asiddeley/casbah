@@ -1,0 +1,32 @@
+{
+  "name": "casbah",
+  "version": "0.0.1",
+  "description": "Contract Administration Site * Be Architecural Heroes *",
+  "main": "cazbar.js",
+  "scripts": {
+    "cas": "node casbah_server.js",
+    "bah": "iexplore http://localhost:8080/"
+  },
+  "keywords": [
+    "Architect",
+    "Architectural Technologist",
+    "Contract Administration",
+    "Contract Management",
+    "Change Management",
+    "Deficiency Tracking",
+    "Punch-list",
+    "Photo Management",
+    "Site Resident",
+    "Site Visit Report"
+  ],
+  "author": "Andrew Siddeley",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "express-fileupload": "^0.4.0",
+    "jquery": "^3.2.1",
+    "jquery-ui": "^1.12.1",
+    "sqlite3": "^3.1.13"
+  }
+}

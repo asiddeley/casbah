@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id='browserTab' >casbah</title>
+
+<script type='text/javascript' src="offline/jquery.js"></script>
+<script type='text/javascript' src="offline/jquery-ui.js"></script>
+
+<link rel="stylesheet" type="text/css" href="offline/jquery-ui.theme.css">
+<link rel="stylesheet" type="text/css" href="offline/jquery-ui.structure.css">
+<link rel="stylesheet" type="text/css" href="offline/jquery-ui.css">
+
+
+<!-- bootstrap Libraries after jQuery -->
+<script type='text/javascript' src="offline/bootstrap.min.js"></script>
+<link rel="stylesheet" href="offline/bootstrap.min.css">
+
+<!-- casbah libraries & CSS -->
+<script type="text/javascript" src="client/casbah.js"></script>
+<script type="text/javascript" src="client/tables.js"></script>
+<script type="text/javascript" src="client/tableview.js"></script>
+<link rel="stylesheet" type="text/css" href="views/casbah.css">
+
+<!-- Handlebars Template engine -->
+<script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
+
+
+
+<script type="text/javascript">
+//Global parameters
+var $PP=casbah.parameters;
+
+//prevent accidental image drop
+$(window).on({
+	"drop": function(e){ e=e||event; e.preventDefault(); false;},
+	"dragover":function(e){ e=e||event; e.preventDefault(); false;}
+});
+
+//inhibit the browser's right-click context menu
+$(document).on("contextmenu", false);
+
+//READY
+$(function() { 
+
+	// Setup Handlebars
+	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
+	//Handlebars.registerHelper("split", function(str, options){return str.split(",");});
+
+	
+	//bumper shoves the top of the dock-area down to prevent the static navbar from covering it
+	$("#BUMPER").height($("#NAVBAR").innerHeight());
+
+	$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
+
+	casbah.view("welcome.html");
+}); 
+
+
+</script>
+
+</head>
+<body class="user-select-none">
+<nav id="NAVBAR" class="navbar navbar-default navbar-fixed-top" >
+<!-- nav id="zbar" class="navbar navbar-default navbar-static-top " -->
+	<div class="container-fluid">
+
+		<center class="logobox cazbar col-md-2">
+		<div>* C-A *</div>
+		<div>S B A H</div>
+		</center><br>
+
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs">
+		
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Action<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Action items</a></li>
+			<li class="disabled"><a href="#">Project status</a></li>
+			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
+			<li class="disabled"><a href="#">Outstanding Shops</a></li>
+		</ul>
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Billing<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Allowance Authorization Letters</a></li>
+			<li class="disabled"><a href="#">Billing (GC progress draws)</a></li>
+			<li class="disabled"><a href="#">Certificates of Payment</a></li>
+			<li class="disabled"><a href="#">Progress Summary</a></li>
+		</ul>
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Contract<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Contract</a></li>
+			<li class="disabled"><a href="#">Addendums</a></li>
+			<li class="disabled"><a href="#">Bidders Q&amp;A</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">Drawings</a></li>
+			<li class="disabled"><a href="#">Specifications</a></li>
+			<li class="disabled"><a href="#">Schedule</a></li>	
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">Change Log</a></li>
+			<li class="disabled"><a href="#">Change Contemplated</a></li>
+			<li class="disabled"><a href="#">Change Order</a></li>
+			<li class="disabled"><a href="#">Change Directive</a></li>
+		</ul>
+		</li>
+	
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Gallery<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Gallery (featured photos)</a></li>
+			<li class="disabled"><a href="#">Photo (current)</a></li>
+			<li class="disabled"><a href="#">Photos Log</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">Sketch (current)</a></li>
+			<li class="disabled"><a href="#">Sketch Log</a></li>
+		</ul>
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Letters<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Conformance Letter</a></li>
+			<li class="disabled"><a href="#">Conformance Letter Log</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">Site Memo</a></li>
+			<li class="disabled"><a href="#">Site Memo Log</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">Supplemental Instructions</a></li>
+			<li class="disabled"><a href="#">Supplemental Instruction Log</a></li>
+		</ul>
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Meetings<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Action Items</a></li>
+			<li class="disabled"><a href="#">OAC Meeting Minutes (current)</a></li>
+			<li class="disabled"><a href="#">OAC Meeting Minutes Log</a></li>
+		</ul>		
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Reports<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li onclick="casbah.view('site_visit_report.html')"><a href="#"
+			>Site Visit Report</a></li>
+			<li onclick="casbah.view('site_visit_report_log.html')"><a href="#"
+			>Site Visit Report Log</a></li>
+			<li class="divider"><li>
+			<li class="disabled" id="rpl-btn"><a href="#">Room Punch List</a></li>
+			<li class="disabled" id="rpllog-btn"><a href="#">Room Punch List Log</a></li>
+			<li class="divider"><li>
+			<li class="disabled" id="rfi-btn"><a href="#">RFI</a></li>	
+			<li class="disabled" id="rfilog-btn"><a href="#">RFI Log</a></li>
+		</ul>	
+		</li>
+		
+		<li class="dropdown">
+		<a id="shopstab" class="dropdown-toggle" href="#" data-toggle="dropdown"
+		>Shops<span class="caret"></span></a>
+		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Submittal</a></li>
+			<li class="disabled"><a href="#">Submittal Log</a></li>
+			<li class="disabled"><a href="#">O &amp; M Manual Review</a></li>
+		</ul>
+		</li>
+
+		<li class="dropdown">
+		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown" 
+		onclick="casbah.view('welcome.html');"
+		>Welcome<span class="caret"></span></a>
+			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+			<li class="disabled"><a href="#">About</a></li>
+			<li class="disabled"><a href="#">Help</a></li>
+			<li onclick="casbah.view('project_log.html');"><a href="#"
+			>Projects</a></li>
+			<li onclick="casbah.view('wiki.html');casbah.tool('wikitools.html')"><a href="#">Wiki</a></li>		
+			</ul>			
+		</li>
+		
+		</ul>
+	</div>
+
+
+</nav>
+<div id="BUMPER" >bumper</div>
+<div id="VIEW"></div>
+
+</body>
+
+</html>
+
