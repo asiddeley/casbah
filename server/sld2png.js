@@ -47,10 +47,56 @@ exports.convert=function(sld){
 		console.log("signature", buf.toString("ascii", 0, 13))
 		console.log("width:", buf.readUInt16LE(19))
 		console.log("height:", buf.readUInt16LE(21))
-
-	
+		console.log("1234 test:", buf.readUInt16LE(29))
+		
+		var a,b,x,y;
+		var i=31, t=0, step=0, len=buf.length, exit=false;
+		while (i<len-step || !exit){
+			t=buf.readUIntBE(i+1, 1); 
+			if(t>= 0x00 && t<= 0x7F){
+				console.log("Vector", 
+				buf.readUInt16LE(i+2),
+				buf.readUInt16LE(i+4),
+				buf.readUInt16LE(i+6),
+				buf.readUInt16LE(i+8));
+				i+=10;
+			} 
+			else if (t>= 0x80 && t<=0xFA ) {
+				//console.log("Reserved");
+				i+=2;
+			}
+			else if (t==0xFB ){
+				console.log("Offset vector");
+				i+=2;
+			}
+			else if (t==0XFC){
+				console.log("End of file");
+				exit=true;
+				i+=2;
+			}
+			else if (t==0XFD){
+				console.log("Solid fill");
+				a=buf.readUInt16LE(i+2);
+				b=buf.readUInt16LE(i+4); //ignore
+				i+=6;
+				while (a>0){
+					x=buf.readUInt16LE(i);
+					y=buf.readUInt16LE(i+2);
+					a-=1;
+					i+=4;
+				}				
+			}
+			else if (t==0XFE){
+				console.log("Common endpoint vector");
+				i+=5;
+			}
+			else if (t==0XFF){
+				console.log("New colour");
+				console.log(buf.readUIntLE(i));
+				i+=2;
+			}
+		}	
 	})
-
 }
 
 /**************
@@ -70,131 +116,33 @@ Field 			Bytes 	Description
 ID string 		17		"AutoCAD Slide" CR LF ^Z NUL
 Type indicator 	1		Currently set to 56 (decimal)
 Level indicator 1		Currently set to 2
-High X dot
-	
+High X dot		2		width of the graphics area: 1, in pixels
+High Y dot		2		Height of the graphics area: 1, in pixels
+Aspect ratio	4		Graphics area aspect ratio (horizontal size/vertical size in inches), scaled by 10,000,000. This value is always written with the least significant byte first.
+Hardware fill	2		Either 0 or 2 (value is unimportant)
+Test number		2		A number (1234 hex) used to determine whether all 2-byte values in the slide were written with the high-order byte first (Intel 8086-family CPUs) or the low-order byte first (Motorola 68000-family CPUs)
+TOTAL			31
 
-2
-	
-
-Width of the graphics area: 1, in pixels
-
-High Y dot
-	
-
-2
-	
-
-Height of the graphics area: 1, in pixels
-
-Aspect ratio
-	
-
-4
-	
-
-Graphics area aspect ratio (horizontal size/vertical size in inches), scaled by 10,000,000. This value is always written with the least significant byte first.
-
-Hardware fill
-	
-
-2
-	
-
-Either 0 or 2 (value is unimportant)
-
-Test number
-	
-
-2
-	
-
-A number (1234 hex) used to determine whether all 2-byte values in the slide were written with the high-order byte first (Intel 8086-family CPUs) or the low-order byte first (Motorola 68000-family CPUs)
 
 Data records follow the header. Each data record begins with a 2-byte field whose high-order byte is the record type. The remainder of the record may be composed of 1-byte or 2-byte fields as described in the following table. To determine whether the 2-byte fields are written with the high-order byte first or the low-order byte first, examine the Test number field of the header that is described earlier.
-Slide file data records
-Record type
-(hex) 	
-Bytes 	
-Meaning 	
-Description
 
-00-7F
-	
+Slide file data records	Record 
 
-8
-	
+type(hex) 	Bytes	Meaning			Description
 
-Vector
-	
+00-7F		8		Vector			The from-X coordinate for an ordinary vector. From-Y, to-X, and to-Y follow in that order as 2-byte values. The from point is saved as the last point.
 
-The from-X coordinate for an ordinary vector. From-Y, to-X, and to-Y follow in that order as 2-byte values. The from point is saved as the last point.
+80-FA		--		Undefined		Reserved for future use.
 
-80-FA
-	
+FB			5		Offset vector	The low-order byte and the following three bytes specify the endpoints (from-X, from-Y, to-X, to-Y) of a vector, in terms of offsets (-128 to +127) from the saved last point. The adjusted from point is saved as the last point for use by subsequent vectors.
 
---
-	
+FC			2		End of file		The low-order byte is 00.
 
-Undefined
-	
+FD			6		Solid fill		The low-order byte is always zero. The following two 2-byte values specify the X and Y coordinates of one vertex of a polygon to be solid filled. Three to ten such records occur in sequence. A Solid fill record with a negative Y coordinate indicates the start or end of such a flood sequence. In the start record, the X coordinate indicates the number of vertex records to follow.
 
-Reserved for future use.
+FE			3		Common endpoint vector	This is a vector starting at the last point. The low-order byte and the following byte specify to-X and to-Y in terms of offsets (-128 to +127) from the saved last point. The adjusted to point is saved as the last point for use by subsequent vectors.
 
-FB
-	
-
-5
-	
-
-Offset vector
-	
-
-The low-order byte and the following three bytes specify the endpoints (from-X, from-Y, to-X, to-Y) of a vector, in terms of offsets (-128 to +127) from the saved last point. The adjusted from point is saved as the last point for use by subsequent vectors.
-
-FC
-	
-
-2
-	
-
-End of file
-	
-
-The low-order byte is 00.
-
-FD
-	
-
-6
-	
-
-Solid fill
-	
-
-The low-order byte is always zero. The following two 2-byte values specify the X and Y coordinates of one vertex of a polygon to be solid filled. Three to ten such records occur in sequence. A Solid fill record with a negative Y coordinate indicates the start or end of such a flood sequence. In the start record, the X coordinate indicates the number of vertex records to follow.
-
-FE
-	
-
-3
-	
-
-Common
-endpoint vector
-	
-
-This is a vector starting at the last point. The low-order byte and the following byte specify to-X and to-Y in terms of offsets (-128 to +127) from the saved last point. The adjusted to point is saved as the last point for use by subsequent vectors.
-
-FF
-	
-
-2
-	
-
-New color
-	
-
-Subsequent vectors are to be drawn using the color number indicated by the low-order byte.
+FF			2		New color		Subsequent vectors are to be drawn using the color number indicated by the low-order byte.
 
 If a slide contains any vectors at all, a New color record will be the first data record. The order of the vectors in a slide, and the order of the endpoints of those vectors, may vary.
 
@@ -213,7 +161,7 @@ For example, the following is an annotated hex dump of a simple slide file creat
 3C 02 24 01 00 00 00 00   Vector from 572,292 to 0,0. 572,292 becomes
                           "last" point
 3 FF                      New color (3 = green)
-0F 00 32 00 0F 00 13 00   Vector from 15,50 to 15,19. \x1115,50 becomes
+0F 00 32 00 0F 00 13 00   Vector from 15,50 to 15,19. 15,50 becomes
                           "last" point
 01 FF                     New color (1 = red)
 12 FB E7 12 CE            Offset vector from 15+18,50-25 (33,25) to 15+18,50-
