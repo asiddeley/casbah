@@ -42,26 +42,36 @@ exports.convert=function(sld){
 		const buf = Buffer.from(data)
 		//buf.readUIntBE(offset, byteLength[, noAssert])
 		//buf.readUIntLE(offset, byteLength[, noAssert])
-			
-		//console.log("signature:", buf.readUIntBE(0, 17))
-		console.log("signature", buf.toString("ascii", 0, 13))
+		console.log("HEADER")
+		console.log("ID (AutoCAD Slide):", buf.toString("ascii", 0, 13))
+		console.log("check (ascii A = 65):", buf.readUInt8(0))
+		console.log("always 56:", buf.readUInt8(17).toString(16)) //to hexadecimal
+		console.log("level indicator (2):", buf.readUInt8(18))
 		console.log("width:", buf.readUInt16LE(19))
 		console.log("height:", buf.readUInt16LE(21))
-		console.log("1234 test:", buf.readUInt16LE(29))
+		console.log("aspect ratio:", buf.readUInt32LE(23)/10000000) //least sig first
+		console.log("hardware fill (0 or 2):", buf.readUInt16BE(27)) 
+		console.log("LE test (1234):", buf.readUInt16LE(29).toString(16))
+		console.log("BE test (3412):", buf.readUInt16BE(29).toString(16))
+		console.log("LE test binary:", buf.readUInt16LE(29).toString(2))
+		console.log("BE test binary:", buf.readUInt16BE(29).toString(2))
+
+		console.log("----------")
 		
 		var a,b,x,y;
 		var i=31, t=0, step=0, len=buf.length, exit=false;
 		while (i<len-step || !exit){
-			t=buf.readUIntBE(i+1, 1); 
-			if(t>= 0x00 && t<= 0x7F){
-				console.log("Vector", 
+			t=buf.readUInt8(i); 
+			u=buf.readUInt8(i+1); 
+			if(t<= 0x7F){
+				console.log((t).toString(16), (u).toString(16), "Vector",
 				buf.readUInt16LE(i+2),
-				buf.readUInt16LE(i+4),
-				buf.readUInt16LE(i+6),
-				buf.readUInt16LE(i+8));
+				buf.readUInt16LE(i+4).toString(10),
+				buf.readUInt16LE(i+6).toString(10),
+				buf.readUInt16LE(i+8).toString(10));
 				i+=10;
 			} 
-			else if (t>= 0x80 && t<=0xFA ) {
+			else if (t<=0xFA ) {
 				//console.log("Reserved");
 				i+=2;
 			}
@@ -92,7 +102,7 @@ exports.convert=function(sld){
 			}
 			else if (t==0XFF){
 				console.log("New colour");
-				console.log(buf.readUIntLE(i));
+				console.log(buf.readUInt(i));
 				i+=2;
 			}
 		}	
@@ -112,7 +122,7 @@ A slide file consists of a header portion (31 bytes) and one or more data record
 Slide file header
 
 Field 			Bytes 	Description
-
+/////// note - Start with byte index 1 (not 0)
 ID string 		17		"AutoCAD Slide" CR LF ^Z NUL
 Type indicator 	1		Currently set to 56 (decimal)
 Level indicator 1		Currently set to 2
