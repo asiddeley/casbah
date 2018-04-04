@@ -37,39 +37,37 @@ exports.convert=function(sld){
 	console.log("dest:",png);
 	
 	
-	fs.readFile(sld, "utf8", function(err, data){
+	fs.readFile(sld, function(err, data){
 		if (err) {console.log(err.message); return;}
 		const buf = Buffer.from(data)
 		//buf.readUIntBE(offset, byteLength[, noAssert])
 		//buf.readUIntLE(offset, byteLength[, noAssert])
 		console.log("HEADER")
 		console.log("ID (AutoCAD Slide):", buf.toString("ascii", 0, 13))
-		console.log("check (ascii A = 65):", buf.readUInt8(0))
+		//console.log("check (ascii A = 65):", buf.readUInt8(0))
 		console.log("always 56:", buf.readUInt8(17).toString(16)) //to hexadecimal
 		console.log("level indicator (2):", buf.readUInt8(18))
 		console.log("width:", buf.readUInt16LE(19))
 		console.log("height:", buf.readUInt16LE(21))
 		console.log("aspect ratio:", buf.readUInt32LE(23)/10000000) //least sig first
-		console.log("hardware fill (0 or 2):", buf.readUInt16BE(27)) 
+		console.log("hardware fill (0 or 2):", buf.readUInt16LE(27)) 
 		console.log("LE test (1234):", buf.readUInt16LE(29).toString(16))
-		console.log("BE test (3412):", buf.readUInt16BE(29).toString(16))
-		console.log("LE test binary:", buf.readUInt16LE(29).toString(2))
-		console.log("BE test binary:", buf.readUInt16BE(29).toString(2))
-
+		console.log("BE test (1234):", buf.readUInt16BE(29).toString(16))
 		console.log("----------")
 		
 		var a,b,x,y;
-		var i=31, t=0, step=0, len=buf.length, exit=false;
-		while (i<len-step || !exit){
-			t=buf.readUInt8(i); 
-			u=buf.readUInt8(i+1); 
-			if(t<= 0x7F){
-				console.log((t).toString(16), (u).toString(16), "Vector",
+		var i=31, t=0, exit=false, lob, len=buf.length;
+		while (i<len || !exit){
+			t=buf.readUInt8(i+1);  //High order byte indicates record type
+			lob=buf.readUInt8(i); //low order byte
+			//console.log("lob/rec:",(lob).toString(16),(t).toString(16))
+			if(t <= 0x7F){
+				console.log("Vector",
+				buf.readUInt16LE(i),
 				buf.readUInt16LE(i+2),
-				buf.readUInt16LE(i+4).toString(10),
-				buf.readUInt16LE(i+6).toString(10),
-				buf.readUInt16LE(i+8).toString(10));
-				i+=10;
+				buf.readUInt16LE(i+4),
+				buf.readUInt16LE(i+6));
+				i+=8;
 			} 
 			else if (t<=0xFA ) {
 				//console.log("Reserved");
@@ -85,24 +83,25 @@ exports.convert=function(sld){
 				i+=2;
 			}
 			else if (t==0XFD){
-				console.log("Solid fill");
-				a=buf.readUInt16LE(i+2);
-				b=buf.readUInt16LE(i+4); //ignore
+				a=buf.readInt16LE(i+2);
+				b=buf.readInt16LE(i+4); 
+				console.log("Solid fill:", a, b);
 				i+=6;
 				while (a>0){
-					x=buf.readUInt16LE(i);
-					y=buf.readUInt16LE(i+2);
+					x=buf.readInt16LE(i);
+					y=buf.readInt16LE(i+2);
+					console.log("vert:", x, y);
 					a-=1;
 					i+=4;
-				}				
+				}
+				i+=8;	//these bytes make no sense.  Not documented, just ignore
 			}
 			else if (t==0XFE){
 				console.log("Common endpoint vector");
 				i+=5;
 			}
 			else if (t==0XFF){
-				console.log("New colour");
-				console.log(buf.readUInt(i));
+				console.log("New colour", lob);
 				i+=2;
 			}
 		}	

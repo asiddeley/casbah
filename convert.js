@@ -25,6 +25,6 @@ SOFTWARE.
 
 const sp = require(__dirname+"\\server\\sld2png")
 
-sp.convert(__dirname+"\\uploads\\wiki\\sld\\caddeley.sld")
+sp.convert(__dirname+"\\uploads\\wiki\\sld\\test.sld")
 
 
