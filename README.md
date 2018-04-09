@@ -47,12 +47,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 + Drawings
 + Specifications
 + Schedule
+
+## Delta
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
 + Change Log
 + Change Contemplated
 + Change Directive
 + Change Order
 
-## Gallery
+## Exhibits
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
 + Gallery (featured photos)
 + Photo (current)
@@ -90,7 +94,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 + Submittal Log
 + O & M Manual Review
 
-## Welcome
+## Wiki
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 + About
 + Help
