@@ -291,6 +291,25 @@ casbah.Editor=function (){
 	
 };
 
+casbah.getRoomDeficSheets=function(path, callback){
+	//callback -- function(result){...}
+	//result -- {msg:"txt", rows:[], delta:} 
+	
+	$.ajax({
+		url: '/getRoomDeficSheets',
+		type: 'POST',
+		data: jQuery.param({path:path}),
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		success:function(result){ 
+			if(typeof result.files=="undefined") result.files=[];
+			if (typeof callback=="function") callback(result);
+		},
+		error:function(err){console.log("Error getting room defic sheets:",err);}
+	});	
+	
+}
+
+
 ////////////////////////////////
 // Highlighter
 // 

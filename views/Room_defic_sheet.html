@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id='browserTab' >Room Defic Form</title>
+
+
+<script type='text/javascript'>
+
+Handlebars.registerHelper("RDSSheader", function(str, options){
+	var html="&nbsp;";
+	//for (var tag in str.split(",")){html+="<span class='badge'>"+tag+"</span>";}
+	return html;
+});
+Handlebars.registerHelper("RDSSchecklist", function(str, options){
+	var html="&nbsp;";
+	for (var tag in str.split(",")){html+="<span class='badge'>"+tag+"</span>";}
+	return html;
+});
+Handlebars.registerHelper("RDSScomments", function(str, options){
+	var html="&nbsp;";
+	for (var tag in str.split(",")){html+="<span class='badge'>"+tag+"</span>";}
+	return html;
+});
+
+
+refresh=function(template){
+	//read room images
+	casbah.getRoomDeficSheets("/uploads/reports/RoomDeficSheets/PCT-04", function(result){
+		var html=template(result);
+		$("#room_defic_sheets_placeholder").html(html);
+
+	});
+};
+
+
+///// READY
+$(function() { 
+
+	// Setup Handlebars
+	Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
+	
+	rdt=Handlebars.compile($("#room_defic_template").html());
+	
+	//render report table which renders dependent comments and issues table-views also
+	refresh(rdt);
+	
+}); //READY
+
+
+
+</script>
+
+</head>
+
+
+<body>
+
+<div id="room_defic_sheets_placeholder"></div>
+
+
+<!-- TEMPLATES  -->
+<template id='room_defic_template' type="text/x-handlebars-template">
+
+	<div class="container">
+
+	{{#each files}}
+	
+	<img src="{{this}}" >
+	{{/each}}	
+	
+	
+	<div>
+</template>
+
+
+</body>
+</html>
+
