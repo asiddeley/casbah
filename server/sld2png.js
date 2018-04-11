@@ -23,11 +23,10 @@ SOFTWARE.
 ********************************/
 
 const fs=require("fs")
-//const {createCanvas, loadImage} = require("canvas");  //as shown in canvas readme, doesn't work 
-Canvas = require("canvas")
+const Canvas = require("canvas")
 
+//colour index to rgb string
 const cix2rgb=function(c){
-	
 	switch (c){
 	case 0: return "rgb(0,0,0)"; break; //black
 	case 1: return "rgb(255,0,0)"; break; //red
@@ -40,18 +39,17 @@ const cix2rgb=function(c){
 	case 8: return "rgb(128,128,128)"; break; //lightest grey
 	case 9: return "rgb(64,64,64)"; break; //grey
 	case 10: return "rgb(32,32,32)"; break; //grey
-	case 11: return "rgb(16,16,16)"; break; //medium grey
+	case 11: return "rgb(16,16,16)"; break; //grey
 	case 12: return "rgb(8,8,8)"; break; //grey
 	case 13: return "rgb(4,4,4)"; break; //grey
 	case 14: return "rgb(2,2,2)"; break; //darkest grey
-	default: return "rgb(0,0,0)"; break; //medium grey
+	default: return "rgb(0,0,0)"; break; //black
 	}
 }
 
 
 exports.make_png=function(sld, background){
 	//sld - filename of source acad sld file to convert eg. '/uploads/test.sld'
-	//png 
 
 	var i = sld.indexOf(".")
 	if (i != -1 ) {var png=sld.substring(0,i)+".png"} 
@@ -70,7 +68,7 @@ exports.make_png=function(sld, background){
 		console.log(sld)
 		console.log("HEADER")
 		console.log("ID (AutoCAD Slide):", buf.toString("ascii", 0, 13))
-		console.log("always 56:", buf.readUInt8(17).toString(16)) //to hexadecimal
+		console.log("always 56:", buf.readUInt8(17).toString(16))
 		console.log("level indicator (2):", buf.readUInt8(18))
 
 		const width=buf.readUInt16LE(19)
@@ -80,61 +78,64 @@ exports.make_png=function(sld, background){
 
 		const canvas = new Canvas(width, height)
 		const ctx = canvas.getContext('2d')
+		ctx.translate(width, height)
+		ctx.rotate(Math.PI);
+
 		ctx.fillStyle=cix2rgb(background);
+
 		ctx.fillRect(0,0,width, height);
 
-		console.log("aspect ratio:", buf.readUInt32LE(23)/10000000) //least sig first
+		console.log("aspect ratio:", buf.readUInt32LE(23)/10000000)
 		console.log("hardware fill (0 or 2):", buf.readUInt16LE(27)) 
 		console.log("LE test (1234):", buf.readUInt16LE(29).toString(16))
 		console.log("BE test (1234):", buf.readUInt16BE(29).toString(16))
 		console.log("----------")
 		i+=31; //advance index
 
-		var a,b,v=0,x,y;
-		var exit=false, first=true, hob, lob;
-		while (i<buf.length || !exit){
-			hob=buf.readUInt8(i+1); //High order byte indicates record type
+		var x,y;
+		var eof=false, first=false, hob, lob;
+		while (i<buf.length && !eof){
+			//RECORD TYPE
+			hob=buf.readUInt8(i+1); //High order 
 			lob=buf.readUInt8(i); //low order byte
-			//console.log("lob/rec:",(lob).toString(16),(t).toString(16))
+			//VECTOR
 			if(hob <= 0x7F){
-				//console.log("Vector");
 				ctx.moveTo(buf.readUInt16LE(i),	buf.readUInt16LE(i+2));
 				ctx.lineTo(buf.readUInt16LE(i+4),buf.readUInt16LE(i+6));
 				ctx.stroke();
-				i+=8; v+=1;
+				i+=8; 
 			} 
-			else if (hob <= 0xFA ) {
-				//console.log("Reserved");
-				i+=2;
-			}
+			//RESERVED
+			else if (hob <= 0xFA ) {i+=2;}
+			//OFFSET VECTOR
 			else if (hob == 0xFB ){
 				console.log("Offset vector");
 				i+=2;
 			}
+			//END OF FILE
 			else if (hob == 0XFC){
 				console.log("End of file");
-				exit=true;
+				eof=true;
 				i+=2;
 			}
+			//FILL
 			else if (hob == 0XFD){
-				//fill header
-				a=buf.readInt16LE(i+2);
-				b=buf.readInt16LE(i+4); 
-				console.log("Solid fill:", a, b);
-				i+=6; first=true;
-				while (a>0){
-					//fill vertices
-					x=buf.readInt16LE(i);
-					y=buf.readInt16LE(i+2);
-					if (first) {ctx.moveTo(x,y); first=false;}
-					else {ctx.lineTo(x,y);}
-					console.log("vert:", x, y);
-					a-=1;
-					i+=4;
+				x=buf.readInt16LE(i+2);
+				y=buf.readInt16LE(i+4); 
+				console.log("Solid fill:", x, y);
+				i+=6; 
+				if (y<0){
+					//start of fill
+					if (first==false){first=true;}
+					//end of fill
+					else {ctx.closePath();ctx.fill(ctx);}
 				}
-				ctx.stroke();
-				//i+=8;	//these 8 bytes make no sense, not documented, just ignore
+				else {
+					if (first==true){ctx.beginPath();ctx.moveTo(x,y);first=false;}
+					else {ctx.lineTo(x,y);}
+				}				
 			}
+			//COMMON ENDPOINT VECTOR
 			else if (hob==0XFE){
 				console.log("Common endpoint vector");
 				i+=5;
@@ -142,11 +143,12 @@ exports.make_png=function(sld, background){
 			else if (hob==0XFF){
 				//console.log("New colour", lob);
 				ctx.strokeStyle=cix2rgb(lob);
+				ctx.fillStyle=cix2rgb(lob);
 				i+=2;
 			}
-		} //while	
+		} //while not eof
 		//write
-		console.log("Vector count:",v)
+
 		var out = fs.createWriteStream(png);
 		var stream = canvas.pngStream();
 		stream.on('data', function(chunk){ out.write(chunk);});
@@ -235,5 +237,19 @@ DF FE 00                  Common-endpoint vector from 33,25 to 33-33,25+0
 
 00 FC                     End of file 
 
+
+
+
+
+				while (a>0){
+					//fill vertices
+					x=buf.readInt16LE(i);
+					y=buf.readInt16LE(i+2);
+					if (first) {ctx.moveTo(x,y); first=false;}
+					else {ctx.lineTo(x,y);}
+					console.log("vert:", x, y);
+					a-=1;
+					i+=4;
+				}
 
 *******************/
