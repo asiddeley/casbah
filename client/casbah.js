@@ -291,12 +291,12 @@ casbah.Editor=function (){
 	
 };
 
-casbah.getRoomDeficSheets=function(path, callback){
+casbah.deficiencySheets=function(path, callback){
 	//callback -- function(result){...}
 	//result -- {msg:"txt", rows:[], delta:} 
 	
 	$.ajax({
-		url: '/getRoomDeficSheets',
+		url: '/deficiencySheets',
 		type: 'POST',
 		data: jQuery.param({path:path}),
 		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',

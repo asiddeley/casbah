@@ -96,27 +96,7 @@ app.post('/database', function (req, res) {
 
 })
 
-app.post('/getRoomDeficSheets', function (req, res) {
-	console.log("Room Defic Sheets request:", req.body.path)
-	console.log("__dirname:", __dirname, __dirname.length)
-	const pth=req.body.path;
- 
-	try {
-		var files=fsp.walkSync(__dirname+pth);
-		//console.log("files:", files)
-		var f=[];
-		//remove __dirname from each, leaving just path
-		for (var i=0; i<files.length; i++){
-			console.log("file:", files[i])
-			console.log("shortened:", files[i].substring(__dirname.length))
-	
-			files[i]=files[i].substring(__dirname.length);
-			//console.log ("shortened files:",f)
-		}
-		res.json({files:files});
-	} 
-	catch(err) {console.log(err); }
-})
+app.post('/deficiencySheets', require(__dirname+"/server/reports").deficiencySheets))
 
 /////////////////////////// 
 // File Upload

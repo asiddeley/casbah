@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id='browserTab' >Deficiency Sheets</title>
+
+
+<script type='text/javascript'>
+
+Handlebars.registerPartial("deficiencySheetsHead", $("#deficinecy_sheets_head").html());
+Handlebars.registerPartial("deficiencySheetsChecks", $("#deficinecy_sheets_checks").html());
+Handlebars.registerPartial("deficiencySheetsTblock", $("#deficinecy_sheets_tblock").html());
+
+
+
+refresh=function(template){
+	//read room images
+	casbah.getRoomDeficSheets("/uploads/reports/deficiencySheets/PCT-04", function(result){
+		var html=template(result);
+		$("#deficiency_sheets_placeholder").html(html);
+
+	});
+};
+
+
+///// READY
+$(function() { 
+
+	// Setup Handlebars
+	Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
+	
+	rdt=Handlebars.compile($("#deficiency_sheets").html());
+	
+	//render report table which renders dependent comments and issues table-views also
+	refresh(rdt);
+	
+}); //READY
+
+
+
+</script>
+
+</head>
+
+
+<body>
+
+<div id="deficiency_sheets_placeholder"></div>
+
+
+<!-- TEMPLATES  -->
+<template id='deficiency_sheets' type="text/x-handlebars-template">
+
+	<div class="container">
+
+	{{#each files}}
+	
+	<img src="{{this}}" >
+	{{/each}}	
+	
+	
+	<div>
+</template>
+
+<template id='deficiency_sheet_head' type="text/x-handlebars-template">
+
+</template>
+
+<template id='deficiency_sheet_head' type="text/x-handlebars-template">
+
+</template>
+
+<template id='deficiency_sheet_head' type="text/x-handlebars-template">
+
+</template>
+
+</body>
+</html>
+
