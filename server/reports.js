@@ -26,23 +26,24 @@ SOFTWARE.
 
 ********************************/
 
-const fsp = require(__dirname+"/server/fs+");
+const fsp = require(__dirname+"\\fs+");
 
 
 exports.deficiencySheets=function (req, res) {
 	console.log("deficiency Sheets:", req.body.path)
 	//console.log("__dirname:", __dirname, __dirname.length)
 	const pth=req.body.path;
+	const cdir=__dirname.substring(0,__dirname.lastIndexOf("\\")); 
  
 	try {
-		var files=fsp.walkSync(__dirname+pth);
+		var files=fsp.walkSync(cdir+pth);
 		//console.log("files:", files)
 		var f=[];
 		//remove __dirname from each, leaving just path
 		for (var i=0; i<files.length; i++){
 			//console.log("file:", files[i])
 			//console.log("shortened:", files[i].substring(__dirname.length))
-			files[i]=files[i].substring(__dirname.length);
+			files[i]=files[i].substring(cdir.length);
 			//console.log ("shortened files:",f)
 		}
 		res.json({files:files});

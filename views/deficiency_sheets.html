@@ -5,18 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title id='browserTab' >Deficiency Sheets</title>
 
+<style>
+.picBox{ max-height:400px; max-width:100%;}
+.columns2{column-count:2;}
+.columns4{column-count:4;}
+.checklistArch{column-count:4; line-height: 120%;font-size:10pt;}
+.topMarginZero{margin-top:0;}
+@media print {
+   div.panel, div.panel-default {
+        page-break-after: always !important;
+   }
+}
+.segoe, h1, h2, h3, h4{font-family:segoe UI, sans-serif;}
+
+</style>
 
 <script type='text/javascript'>
 
-Handlebars.registerPartial("deficiencySheetsHead", $("#deficinecy_sheets_head").html());
-Handlebars.registerPartial("deficiencySheetsChecks", $("#deficinecy_sheets_checks").html());
-Handlebars.registerPartial("deficiencySheetsTblock", $("#deficinecy_sheets_tblock").html());
 
+Handlebars.registerHelper("chopExtension", function(str, options){
+	str=str.substring(0,str.indexOf("."));
+	str=str.substring(str.lastIndexOf("\\")+1);
+	return str;
+});
+
+Handlebars.registerHelper("deficiencySheetsHead", function(str, options){
+	var html=$("#deficiency_sheets_head").html();
+	console.log(html);
+	return html
+});
+ 
+Handlebars.registerHelper("deficiencySheetsChecks", function(str, options){
+	return $("#deficiency_sheets_checks").html();
+});
+
+Handlebars.registerHelper("deficiencySheetsTblock", function(str, options){
+	return $("#deficiency_sheets_tblock").html();
+
+});
+
+Handlebars.registerHelper("deficiencySheetsComments", function(str, options){
+	return $("#deficiency_sheets_comments").html();
+});
 
 
 refresh=function(template){
 	//read room images
-	casbah.getRoomDeficSheets("/uploads/reports/deficiencySheets/PCT-04", function(result){
+	casbah.deficiencySheets("/uploads/reports/deficiencySheets/PCT-07", function(result){
 		var html=template(result);
 		$("#deficiency_sheets_placeholder").html(html);
 
@@ -55,24 +90,76 @@ $(function() {
 	<div class="container">
 
 	{{#each files}}
-	
-	<img src="{{this}}" >
-	{{/each}}	
-	
-	
-	<div>
+	<div class="panel panel-default page">
+	{{{deficiencySheetsHead}}}
+	<div class="panel-heading"><h4>{{{chopExtension this}}}</h4></div>
+	<div class="panel-body">
+	{{{deficiencySheetsTblock}}}
+	{{{deficiencySheetsChecks}}}
+	{{{deficiencySheetsComments}}}
+	<h3 class="topMarginZero">Plan</h3>
+	<div class="col-xs-10"><img class="picBox" src="{{this}}" ></img></div>
+	</div>
+	<!-- div class="panel-footer"></div-->
+	</div>
+	{{/each}}
+	</div>
 </template>
 
-<template id='deficiency_sheet_head' type="text/x-handlebars-template">
+
+<template id='deficiency_sheets_head' type="text/x-handlebars-template">
+	<div class="row">
+	<div class="col-xs-9"><img src='/uploads/logo.png'></div>	
+	<div class="col-xs-3"><h2 class="topMarginZero segoe">DEFICIENCIES</h2></div>
+	</div>
+</template>
+
+<template id='deficiency_sheets_checks' type="text/x-handlebars-template">
+<h3 class="topMarginZero">Checklist</h3>
+<div class="checklistArch">
+[ ] Floor<BR>
+[ ] Baseboard<BR>
+[ ] Walls<BR>
+[ ] Wall protection<BR>
+[ ] Ceiling<BR>
+[ ] Window frame<BR>
+[ ] Window glass<BR>
+[ ] Smart glass<BR>
+[ ] Caulking<BR>
+[ ] Paint<BR>
+[ ] Door leaf<BR>
+[ ] Door hardware<BR>
+[ ] Sink(s)<BR>
+[ ] Toilet<BR>
+[ ] Drain<br>
+[ ] Construction clean<BR>
+[ ] Headwall<br>
+[ ] Pannelling<br>
+[ ] Sprinkler head(s)<br>
+</div>
+
 
 </template>
 
-<template id='deficiency_sheet_head' type="text/x-handlebars-template">
-
+<template id='deficiency_sheets_tblock' type="text/x-handlebars-template">
+<div class="row">
+<span class="col-xs-3">NORR:</span>
+<span class="col-xs-3">BCCL:</span>
+<span class="col-xs-3">SMH:</span>
+<span class="col-xs-3">DATE:</span>
+</div>
 </template>
 
-<template id='deficiency_sheet_head' type="text/x-handlebars-template">
-
+<template id='deficiency_sheets_comments' type="text/x-handlebars-template">
+<h3 class="topMarginZero">Comments</h3>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
 </template>
 
 </body>
