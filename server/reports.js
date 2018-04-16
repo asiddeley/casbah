@@ -26,27 +26,44 @@ SOFTWARE.
 
 ********************************/
 
+const fs = require("fs");
 const fsp = require(__dirname+"\\fs+");
+const path = require("path");
 
 
 exports.deficiencySheets=function (req, res) {
-	console.log("deficiency Sheets:", req.body.path)
-	//console.log("__dirname:", __dirname, __dirname.length)
-	const pth=req.body.path;
-	const cdir=__dirname.substring(0,__dirname.lastIndexOf("\\")); 
+	const p=path.join(
+		global.appRoot, 
+		"uploads\\reports\\deficiencySheets",
+		req.body.arg
+	);
  
 	try {
-		var files=fsp.walkSync(cdir+pth);
-		//console.log("files:", files)
-		var f=[];
-		//remove __dirname from each, leaving just path
+		console.log("Request for deficiencySheets:", p);
+		var files=fsp.walkSync(p);
+		//remove app root dir from each file, uploads/reports/... part of path
 		for (var i=0; i<files.length; i++){
-			//console.log("file:", files[i])
-			//console.log("shortened:", files[i].substring(__dirname.length))
-			files[i]=files[i].substring(cdir.length);
-			//console.log ("shortened files:",f)
+			files[i]=files[i].substring(global.appRoot.length);
 		}
 		res.json({files:files});
 	} 
 	catch(err) {console.log(err); }
+}
+
+exports.deficiencySheetsLog=function (req, res) {
+	//what about project?
+	const p=path.join(global.appRoot,"uploads\\reports\\deficiencySheets");
+	
+	switch (req.body.action){
+	case "ADD":
+		console.log("Request to add deficiencySheets dir to:", p);
+		try {fs.mkdirSync(path.join(p, req.body.arg));res.json({dirs:fsp.getDirsSync(p)});}
+		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(p), err:err}); }; 
+	break;	
+	case "DIRS":
+		console.log("Request for deficiencySheetsLog:", p);
+		try {res.json({dirs:fsp.getDirsSync(p)});} 
+		catch(err) {console.log(err);res.json({dirs:[], err:err}); }; 
+	break;
+	}
 }

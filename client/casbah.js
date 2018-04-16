@@ -290,15 +290,14 @@ casbah.Editor=function (){
 	});
 	
 };
-
-casbah.deficiencySheets=function(path, callback){
+/********************
+casbah.deficiencySheets=function(action, arg, callback){
 	//callback -- function(result){...}
 	//result -- {msg:"txt", rows:[], delta:} 
-	
 	$.ajax({
 		url: '/deficiencySheets',
 		type: 'POST',
-		data: jQuery.param({path:path}),
+		data: jQuery.param({action:action, arg:arg}),
 		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 		success:function(result){ 
 			if(typeof result.files=="undefined") result.files=[];
@@ -306,10 +305,25 @@ casbah.deficiencySheets=function(path, callback){
 		},
 		error:function(err){console.log("Error getting room defic sheets:",err);}
 	});	
-	
 }
 
 
+casbah.deficiencySheetsLog=function(action, arg, callback){
+	//callback -- function(result){...}
+	//result -- {msg:"txt", rows:[], delta:} 
+	$.ajax({
+		url:"/deficiencySheetsLog",
+		type:"POST",
+		data:jQuery.param({action:action, arg:arg}),
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		success:function(result){ 
+			if(typeof result.files=="undefined") result.files=[];
+			if (typeof callback=="function") callback(result);
+		},
+		error:function(err){console.log("Error getting deficiency sheets log:",err);}
+	});	
+}
+*********************/
 ////////////////////////////////
 // Highlighter
 // 
@@ -426,25 +440,59 @@ casbah.selectFolder=function (e) {
     alert(folder[0]);
 };
 
+casbah.ViewDial=function(options){
+	//Sets up triggers for calling views
+	//options - {[elid:"TOOLBAR", ev:"toolchange", views:[]],[]...}
+	//to call - $(document).trigger("toolchange", "view.html")
+	if (typeof options == "undefined"){
+		options=[
+			{id:"TOOLBAR", ev:"toolchange", views:[
+				"wikitools.html"
+			]},
+			{id:"NAVBAR", ev:"viewchange", views:[
+				"deficiency_sheets.html",
+				"project_log.html",			
+			]}
+		];		
+	}
+	var loaded=[];
+	var that=this;
+	for (var o in options){
+		var ev=options[o].ev;
+		var data=options[o]; //bound now
+		$(document).on(ev, data, function(ev, view){
+			//view is from the trigger argument
+			//ev.data - list of views
+			if (loaded.indexOf(view)!=-1){
+				//already loaded so just hide others and show div with view
+			} 
+			else {
+				loaded.push(view);
+				//hide others
+				//load
+				
+			}			
+		})		
+	}
+};
+
+
 //////////////////////////////
 casbah.tool=function(htmlfile){
 	console.log("toolchange");	
 	//heads up - close open editors etc
-	$(document).trigger("toolchange");
-	var id="TOOLBAR";
+	//$(document).trigger("toolchange", htmlfile);
+	const id="TOOLBAR";
 	if (!$("#"+id).length){
-		//var el=$("<div></div>").addr("id",id);
 		$("#NAVBAR").append($("<div class='container'></div>").attr("id",id));		
 	}
-	//if (pageid.indexOf("#")==-1) {pageid="#"+pageid;}
-	//$(".dock").hide();
-	//$(pageid).show().load(url);
-	$("#"+id).load("tools/"+htmlfile);
+	if (typeof htmlfile == "undefined"){$("#"+id).hide();}
+	else {$("#"+id).show().load("views/"+htmlfile);}
 };
 
 
 casbah.view=function(htmlfile){
-	console.log("viewchange");	
+	console.log("viewchange:", htmlfile);	
 	//heads up - close open editors etc
 	$(document).trigger("viewchange");
 	var id="VIEW";
@@ -452,11 +500,7 @@ casbah.view=function(htmlfile){
 		//var el=$("<div></div>").addr("id",id);
 		$("body").append($("<div></div>").attr("id",id));		
 	}
-	//if (pageid.indexOf("#")==-1) {pageid="#"+pageid;}
-	//$(".dock").hide();
-	//$(pageid).show().load(url);
 	$("#"+id).load("views/"+htmlfile);
 };
 
 
-//}); //load

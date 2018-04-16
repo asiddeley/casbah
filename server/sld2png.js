@@ -24,6 +24,7 @@ SOFTWARE.
 
 const fs=require("fs")
 const Canvas = require("canvas")
+const path=require("path")
 
 //colour index to rgb string
 const cix2rgb=function(c){
@@ -78,8 +79,9 @@ exports.make_png=function(sld, background){
 
 		const canvas = new Canvas(width, height)
 		const ctx = canvas.getContext('2d')
-		ctx.translate(width, height)
-		ctx.rotate(Math.PI);
+		ctx.translate(0, height)
+		ctx.scale(1,-1);
+		//ctx.rotate(Math.PI);
 
 		ctx.fillStyle=cix2rgb(background);
 
@@ -100,6 +102,7 @@ exports.make_png=function(sld, background){
 			lob=buf.readUInt8(i); //low order byte
 			//VECTOR
 			if(hob <= 0x7F){
+				//console.log("Vector");
 				ctx.moveTo(buf.readUInt16LE(i),	buf.readUInt16LE(i+2));
 				ctx.lineTo(buf.readUInt16LE(i+4),buf.readUInt16LE(i+6));
 				ctx.stroke();
@@ -122,13 +125,13 @@ exports.make_png=function(sld, background){
 			else if (hob == 0XFD){
 				x=buf.readInt16LE(i+2);
 				y=buf.readInt16LE(i+4); 
-				console.log("Solid fill:", x, y);
+				//console.log("Solid fill:", x, y);
 				i+=6; 
 				if (y<0){
 					//start of fill
 					if (first==false){first=true;}
 					//end of fill
-					else {ctx.closePath();ctx.fill(ctx);}
+					else {ctx.closePath(ctx);ctx.fill(ctx);}
 				}
 				else {
 					if (first==true){ctx.beginPath();ctx.moveTo(x,y);first=false;}
@@ -237,19 +240,12 @@ DF FE 00                  Common-endpoint vector from 33,25 to 33-33,25+0
 
 00 FC                     End of file 
 
-
-
-
-
-				while (a>0){
-					//fill vertices
-					x=buf.readInt16LE(i);
-					y=buf.readInt16LE(i+2);
-					if (first) {ctx.moveTo(x,y); first=false;}
-					else {ctx.lineTo(x,y);}
-					console.log("vert:", x, y);
-					a-=1;
-					i+=4;
-				}
-
 *******************/
+
+
+
+
+
+
+
+

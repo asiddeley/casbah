@@ -1,9 +1,4 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title id='browserTab' >Deficiency Sheets</title>
 
 <style>
 .picBox{ max-height:400px; max-width:100%;}
@@ -43,48 +38,49 @@ Handlebars.registerHelper("deficiencySheetsTblock", function(str, options){
 	return $("#deficiency_sheets_tblock").html();
 
 });
-
 Handlebars.registerHelper("deficiencySheetsComments", function(str, options){
 	return $("#deficiency_sheets_comments").html();
 });
 
+Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
 
-refresh=function(template){
+var deficiency_sheets={};
+
+deficiency_sheets.ajax=function(action, arg, callback){
+	//callback -- function(result){...}
+	//result -- {files:["img1.png", "img2.png" ..], err:"error message if applicable"} 
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: jQuery.param({action:action, arg:arg}),
+		error:function(err){console.log("Error getting room defic sheets:",err);},
+		success:function(result){ 
+			if(typeof result.files=="undefined") result.files=[];
+			if (typeof callback=="function") callback(result);
+		},
+		type: "POST",
+		url: "/deficiencySheets"		
+	});	
+}
+
+deficiency_sheets.refresh=function(){
 	//read room images
-	casbah.deficiencySheets("/uploads/reports/deficiencySheets/PCT-07", function(result){
-		var html=template(result);
+	deficiency_sheets.ajax("FILES", $PP.get("deficiencySheetsName"), function(result){
+		var html=deficiency_sheets.template(result);
 		$("#deficiency_sheets_placeholder").html(html);
-
 	});
 };
 
-
-///// READY
-$(function() { 
-
-	// Setup Handlebars
-	Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
 	
-	rdt=Handlebars.compile($("#deficiency_sheets").html());
-	
-	//render report table which renders dependent comments and issues table-views also
-	refresh(rdt);
-	
-}); //READY
+deficiency_sheets.template=Handlebars.compile($("#deficiency_sheets").html());
 
-
+deficiency_sheets.refresh();
 
 </script>
 
-</head>
-
-
-<body>
 
 <div id="deficiency_sheets_placeholder"></div>
 
 
-<!-- TEMPLATES  -->
 <template id='deficiency_sheets' type="text/x-handlebars-template">
 
 	<div class="container">
@@ -117,25 +113,29 @@ $(function() {
 <template id='deficiency_sheets_checks' type="text/x-handlebars-template">
 <h3 class="topMarginZero">Checklist</h3>
 <div class="checklistArch">
-[ ] Floor<BR>
-[ ] Baseboard<BR>
-[ ] Walls<BR>
-[ ] Wall protection<BR>
-[ ] Ceiling<BR>
-[ ] Window frame<BR>
-[ ] Window glass<BR>
-[ ] Smart glass<BR>
-[ ] Caulking<BR>
-[ ] Paint<BR>
-[ ] Door leaf<BR>
-[ ] Door hardware<BR>
-[ ] Sink(s)<BR>
-[ ] Toilet<BR>
-[ ] Drain<br>
-[ ] Construction clean<BR>
-[ ] Headwall<br>
-[ ] Pannelling<br>
-[ ] Sprinkler head(s)<br>
+[ ] construction clean<BR>
+[ ] flooring<BR>
+[ ] baseboard<BR>
+[ ] gypsum finish paint<BR>
+[ ] wall protection<BR>
+[ ] wall pannelling<br>
+[ ] rails BR CR HR<br>
+[ ] frames<BR>
+[ ] glass<BR>
+[ ] caulking<BR>
+[ ] door leaf<BR>
+[ ] door HW<BR>
+[ ] WR accessories<br>
+[ ] WR drain<br>
+[ ] WR grab-bars<br>
+[ ] WR sink<BR>
+[ ] WR toilet<BR>
+[ ] WR tile<br>
+[ ] headwall<br>
+[ ] ceiling tiles<BR>
+[ ] lights<BR>
+[ ] exit-signs strobes<BR>
+[ ] sprinklers<br>
 </div>
 
 
@@ -162,6 +162,4 @@ $(function() {
 <hr>
 </template>
 
-</body>
-</html>
 

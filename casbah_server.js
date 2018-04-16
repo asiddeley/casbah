@@ -35,26 +35,12 @@ const bodyParser=require("body-parser")
 const fileUpload = require('express-fileupload')
 
 
-
 const app = express()
-
-const dbname="casbah.db"
-const dirdb = __dirname + '/database'
-const dirup = __dirname + '/uploads'
-const dircd = __dirname + '/uploads/contractDocs'
-const dirphoto = __dirname + '/uploads/photos'
-const dirwiki = __dirname + '/uploads/wiki'
-//Create directories if not already
-try {fs.mkdirSync(dirdb, 0744); console.log("Created: "+dirdb);}catch(er){console.log("Dir OK")}
-try {fs.mkdirSync(dirup, 0744); console.log("Created: "+dirup);}catch(er){console.log("Dir OK")}
-try {fs.mkdirSync(dircd, 0744); console.log("Created: "+dirpcd);}catch(er){console.log("Dir OK")}
-try {fs.mkdirSync(dirphoto, 0744); console.log("Created: "+dirphoto);}catch(er){console.log("Dir OK")}
-try {fs.mkdirSync(dirwiki, 0744); console.log("Created: "+dirwiki);}catch(er){console.log("Dir OK")}
-
+global.appRoot = path.resolve(__dirname);
 
 //Open database
-const db=new sqlite.Database(dirdb + "/" + dbname)
-var databasecount=1
+const db=new sqlite.Database(path.join(__dirname,"database","casbah.db"))
+//var databasecount=1
 
 process.on("exit", function(){db.close();console.log("Database closed.");})
 
@@ -63,31 +49,27 @@ process.on("exit", function(){db.close();console.log("Database closed.");})
 app.get('/', function (req, res) {res.sendFile(path.join(__dirname + "/views/casbah.html"));})
 
 //Static file server.  Use '../' to get parent path
-app.use(express.static(path.join(__dirname)));
+//app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname));
 
 //Logger
 app.use(function(req, res, next){console.log("LOG...",req.url);	next();});
 
-//Database form handler and required middleware parsers
+//Database form handler and middleware parsers
 app.use( bodyParser.urlencoded({extended: true}));
 app.use( bodyParser.json());
 
 app.post('/database', function (req, res) {
 
 	const rows=[]	
-	databasecount+=1
+	//databasecount+=1
 	const sql=req.body.SQL
-	//console.log("SQLs to process...", sqls.length)
-	
-	//console.log("SQLs...", sqls);
 	try {
 		db.serialize( function () {
-			//this substitution may be redundant since already done client side
-			//db.all(strmod.substitute(sql, req.body), function(err, rows){
 			db.all(sql, function(err, rows){
 				console.log("SQL:",sql)
 				var stat=(err==null)?"OK":"Error - "+err
-				console.log("database query#"+databasecount.toString() + " " + stat)
+				//console.log("database query#"+databasecount.toString() + " " + stat)
 				res.json({err:err, rows:rows})
 			})		
 		})
@@ -97,6 +79,8 @@ app.post('/database', function (req, res) {
 })
 
 app.post('/deficiencySheets', require(__dirname+"\\server\\reports").deficiencySheets);
+app.post('/deficiencySheetsLog', require(__dirname+"\\server\\reports").deficiencySheetsLog);
+
 
 /////////////////////////// 
 // File Upload
