@@ -36,7 +36,7 @@ deficiency_sheets_log.ajax=function(action, arg, callback){
 			if(typeof callback=="function") callback(result);
 		},
 		type:"POST",
-		url:"/deficiencySheetsLog",
+		url:"/deficiencySheetsLog"
 	});	
 };
 
@@ -61,13 +61,37 @@ deficiency_sheets_log.add=function(){
 			$("#deficiency_sheets_log_placeholder").html(html);
 		});
 	}
-}
+};
 
 deficiency_sheets_log.goto=function(name){
 	//alert("going to deficiency sheetset " + name);
 	$PP.set("deficiencySheetsName", name);
 	casbah.view("deficiency_sheets.html");
+};
+
+deficiency_sheets_log.drop=function(ev, name){
+	console.log('File(s) dropped');
+	ev.preventDefault();
+	var files=[];
+	if (ev.dataTransfer.items) {
+		for (var i=0; i<ev.dataTransfer.items.length; i++) {
+			// If dropped items aren't files, reject them
+			if (ev.dataTransfer.items[i].kind === 'file') {
+				files.push(ev.dataTransfer.items[i].getAsFile());
+			};
+		}
+	} 
+	else {files=ev.dataTransfer.files;} 
+
+	this.ajax("UPLOAD", {sheetset:name, files:files}, function(res){
+		console.log("upload callback:",res);
+	});
+};
+
+deficiency_sheets_log.dragover=function(ev, name){
+	console.log("dragover");
 }
+
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
 
@@ -90,10 +114,11 @@ deficiency_sheets_log.refresh();
 	<ul class="list-group">
 	{{#each dirs}}
 	<li class="list-group-item"
-		deficiencySheetsName={{this}}
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
 		onclick="deficiency_sheets_log.goto($(this).text());"
+		ondrop="deficiency_sheets_log.drop(event, $(this).text());"
+		ondragover="deficiency_sheets_log.dagover(event);"
 	>{{this}}</li>
 	{{/each}}
 	</ul>

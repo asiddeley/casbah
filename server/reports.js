@@ -29,6 +29,7 @@ SOFTWARE.
 const fs = require("fs");
 const fsp = require(__dirname+"\\fs+");
 const path = require("path");
+const fileUpload = require('express-fileupload')
 
 
 exports.deficiencySheets=function (req, res) {
@@ -65,5 +66,30 @@ exports.deficiencySheetsLog=function (req, res) {
 		try {res.json({dirs:fsp.getDirsSync(p)});} 
 		catch(err) {console.log(err);res.json({dirs:[], err:err}); }; 
 	break;
+	
+	
+	
 	}
 }
+
+exports.deficiencySheetsUpload=function(req, res) {
+	console.log("Uploading files:", JSON.stringify(req.files)); // the uploaded file object
+	if (!req.files) {return res.status(400).send('No files were uploaded.');}
+ 
+	// The name of the input field (i.e. "uploadee") is used to retrieve the uploaded file
+	//var uploadee = req.files.uploadee;
+	//var keys=Object.keys(req.files);
+	var file, dest;
+	for (var f in req.files){
+		// Use the mv() method to place the file somewhere on your server
+		file=req.files[f];
+		dest=path.join(__dirname, "uploads", "reports", "deficiencySheets", req.sheetsetName, file);
+		file.mv(dest, function(err) {
+			if (err) {return res.status(500).send(err);}
+			res.send('File uploaded!');
+		})
+	}	
+}
+
+
+

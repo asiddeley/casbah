@@ -78,29 +78,11 @@ app.post('/database', function (req, res) {
 
 })
 
-app.post('/deficiencySheets', require(__dirname+"\\server\\reports").deficiencySheets);
-app.post('/deficiencySheetsLog', require(__dirname+"\\server\\reports").deficiencySheetsLog);
 
-
-/////////////////////////// 
-// File Upload
 app.use(fileUpload());
-app.post('/upload', function(req, res) {
-	console.log("Uploading files:", JSON.stringify(req.files)); // the uploaded file object
-	if (!req.files)
-    return res.status(400).send('No files were uploaded.');
- 
-	// The name of the input field (i.e. "uploadee") is used to retrieve the uploaded file
-	let uploadee = req.files.uploadee;
- 
-	// Use the mv() method to place the file somewhere on your server
-	uploadee.mv("./upload/"+uploadee.name, function(err) {
-    if (err)
-      return res.status(500).send(err);
- 
-    res.send('File uploaded!');
-  });
-});
+app.post('/deficiencySheets', require(path.join(__dirname,"server","reports.js")).deficiencySheets);
+app.post('/deficiencySheetsLog', require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog);
+
 
 
 //start serving
