@@ -26,7 +26,7 @@ Handlebars.registerHelper("chopExtension", function(str, options){
 
 Handlebars.registerHelper("deficiencySheetsHead", function(str, options){
 	var html=$("#deficiency_sheets_head").html();
-	console.log(html);
+	//console.log(html);
 	return html
 });
  
@@ -46,28 +46,25 @@ Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+
 
 var deficiency_sheets={};
 
-deficiency_sheets.ajax=function(action, arg, callback){
-	//callback -- function(result){...}
-	//result -- {files:["img1.png", "img2.png" ..], err:"error message if applicable"} 
+deficiency_sheets.refresh=function(){
+	//get images for deficiencySheets then
+	//refresh with success function()...
+	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: jQuery.param({action:action, arg:arg}),
-		error:function(err){console.log("Error getting room defic sheets:",err);},
+		data: jQuery.param({
+			action:"IMAGES", 
+			deficiencySheetsName:$PP.get("deficiencySheetsName")
+		}),
+		error:function(err){console.log("Error getting deficiencySheets:",err);},
 		success:function(result){ 
-			if(typeof result.files=="undefined") result.files=[];
-			if (typeof callback=="function") callback(result);
+			if(typeof result.images=="undefined") result.images=[];
+			var html=deficiency_sheets.template(result);
+			$("#deficiency_sheets_placeholder").html(html);
 		},
 		type: "POST",
 		url: "/deficiencySheets"		
 	});	
-}
-
-deficiency_sheets.refresh=function(){
-	//read room images
-	deficiency_sheets.ajax("FILES", $PP.get("deficiencySheetsName"), function(result){
-		var html=deficiency_sheets.template(result);
-		$("#deficiency_sheets_placeholder").html(html);
-	});
 };
 
 	
@@ -85,7 +82,7 @@ deficiency_sheets.refresh();
 
 	<div class="container">
 
-	{{#each files}}
+	{{#each images}}
 	<div class="panel panel-default page">
 	{{{deficiencySheetsHead}}}
 	<div class="panel-heading"><h4>{{{chopExtension this}}}</h4></div>
@@ -105,7 +102,7 @@ deficiency_sheets.refresh();
 
 <template id='deficiency_sheets_head' type="text/x-handlebars-template">
 	<div class="row">
-	<div class="col-xs-9"><img src='/uploads/logo.png'></div>	
+	<div class="col-xs-9"><img src="/uploads/logo.png"></div>	
 	<div class="col-xs-3"><h2 class="topMarginZero segoe">DEFICIENCIES</h2></div>
 	</div>
 </template>

@@ -25,10 +25,17 @@ Handlebars.registerHelper("deficiencySheetsLogHead", function(str, options){
 
 var deficiency_sheets_log={};
 
-deficiency_sheets_log.ajax=function(action, arg, callback){
+deficiency_sheets_log.ajax=function(action, argo, callback){
 	//call to server for information...
+	//action = "ADD"|"DIRS"|"UPLOAD"
+	//arg = "name"|{name:}
+	//arg0 = {arg:"name", arg1:files_obj}
+	//var p={action:action, arg:arg}
+	var p=$.extend({action:action}, argo);
+	
+	
 	$.ajax({	
-		data:jQuery.param({action:action, arg:arg}),
+		data:jQuery.param(p, true),
 		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 		error:function(err){console.log("Error getting deficiency sheets log:",err);},
 		success:function(result){ 
@@ -45,7 +52,7 @@ deficiency_sheets_log.hi=new casbah.Highlighter("highlite");
 deficiency_sheets_log.refresh=function(){
 	//read room images
 	//casbah.deficiencySheetsLog("DIRS", null, function(result){
-	this.ajax("DIRS", null, function(result){
+	this.ajax("DIRS", {}, function(result){
 		//result = {dirs:["name1","name2"...]}
 		var html=deficiency_sheets_log.template(result);
 		$("#deficiency_sheets_log_placeholder").html(html);
@@ -56,41 +63,48 @@ deficiency_sheets_log.add=function(){
 	var name=prompt("Name of new deficiency sheet-set");
 	if (name!="" && name !=null){
 		//casbah.deficiencySheetsLog("ADD", name, function(result){
-		this.ajax("ADD", name, function(result){
+		this.ajax("ADD", {arg:name}, function(result){
 			var html=deficiency_sheets_log.template(result);
 			$("#deficiency_sheets_log_placeholder").html(html);
 		});
 	}
 };
 
-deficiency_sheets_log.goto=function(name){
+deficiency_sheets_log.goto=function(ev){
 	//alert("going to deficiency sheetset " + name);
+	var name=$(ev.target).text();
 	$PP.set("deficiencySheetsName", name);
 	casbah.view("deficiency_sheets.html");
 };
 
-deficiency_sheets_log.drop=function(ev, name){
-	console.log('File(s) dropped');
+deficiency_sheets_log.drop=function(ev){
+
 	ev.preventDefault();
-	var files=[];
-	if (ev.dataTransfer.items) {
-		for (var i=0; i<ev.dataTransfer.items.length; i++) {
-			// If dropped items aren't files, reject them
-			if (ev.dataTransfer.items[i].kind === 'file') {
-				files.push(ev.dataTransfer.items[i].getAsFile());
-			};
-		}
-	} 
-	else {files=ev.dataTransfer.files;} 
+	var lim=10; //limit number of files
+	var folder=$(ev.target).text();	//ie. deficiency sheetset name
 
-	this.ajax("UPLOAD", {sheetset:name, files:files}, function(res){
-		console.log("upload callback:",res);
-	});
+	var fd=new FormData();
+	for (var i = 0; i < ev.dataTransfer.files.length && i < lim; i++) {
+		console.log("name:", ev.dataTransfer.files[i].name);
+		console.log("filetype:", ev.dataTransfer.files[i].type);
+		//fd.append("files", ev.dataTransfer.files[i], ev.dataTransfer.files[i].name);
+		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+	}
+	fd.append("action","UPLOAD");
+	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	//Also, to prevent error 'append called on an object that does not implement interface FormData', add processData:false
+	fd.append("deficiencySheetsName", folder);
+	fd.append("upload_file",true);
+	$.ajax({	
+		data:fd,
+		contentType:false,
+		error:function(err){console.log("Error uploading:",err);},
+		processData:false, 
+		success:function(result){ console.log("Success uploading");},
+		type:"POST",
+		url:"/deficiencySheetsLog"
+	});	
 };
-
-deficiency_sheets_log.dragover=function(ev, name){
-	console.log("dragover");
-}
 
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
@@ -116,14 +130,17 @@ deficiency_sheets_log.refresh();
 	<li class="list-group-item"
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
-		onclick="deficiency_sheets_log.goto($(this).text());"
-		ondrop="deficiency_sheets_log.drop(event, $(this).text());"
-		ondragover="deficiency_sheets_log.dagover(event);"
+		ondragover="deficiency_sheets_log.hi.light(this);" 
+		ondragleave="deficiency_sheets_log.hi.dark(this);"	
+		onclick="deficiency_sheets_log.goto(event);"
+		ondrop="deficiency_sheets_log.drop(event);"
+		
 	>{{this}}</li>
 	{{/each}}
 	</ul>
 	</div>
 	</div>
+   
 </template>
 
 
@@ -133,5 +150,6 @@ deficiency_sheets_log.refresh();
 	<div class="col-xs-4"><h2 class="topMarginZero segoe">DEFICIENCY SHEETS LOG</h2></div>
 	</div>
 </template>
+
 
 

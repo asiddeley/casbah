@@ -339,7 +339,7 @@ casbah.Highlighter=function(hiclass){
 	};
 
 	this.dark=function(element){$(element).removeClass(that.hiclass); }
-	
+
 	this.light=function(element){
 		//element can be this of a DOM element or a jquery id selector
 		if (typeof element=="string"){that.selector=element; element=$(element);}
@@ -350,7 +350,7 @@ casbah.Highlighter=function(hiclass){
 	}
 	
 	this.rowid=function(){	return Number(that.__rowid);};	
-	
+
 	this.row=function(){
 		//return all {name:vals}
 		var f$, name;

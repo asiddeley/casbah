@@ -24,68 +24,56 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 **/
-const express = require('express')
-const fs = require('fs')
-const fsp=require(__dirname+"\\server\\fs+")
-const url = require('url')
-const path = require('path')
-const sqlite=require('sqlite3').verbose()
-const bodyParser=require("body-parser") 
+const express = require("express")
+const path = require("path")
+const fs = require("fs")
+const fsp = require(path.join(__dirname,"server","fs+"))
+const url = require("url")
+//const sqlite=require("sqlite3").verbose()
+const casbahdat = require(path.join(__dirname,"server","casbahdat.js"))
+const bodyParser = require("body-parser") 
 //const strmod=require("./server/strmod.js")
-const fileUpload = require('express-fileupload')
-
+const fileUpload = require("express-fileupload")
 
 const app = express()
 global.appRoot = path.resolve(__dirname);
 
-//Open database
-const db=new sqlite.Database(path.join(__dirname,"database","casbah.db"))
-//var databasecount=1
-
-process.on("exit", function(){db.close();console.log("Database closed.");})
-
+//Database setup
+casbahdat.init();
+process.on("exit", casbahdat.close)
 
 //Main entry
-app.get('/', function (req, res) {res.sendFile(path.join(__dirname + "/views/casbah.html"));})
+app.get('/', function (req, res) {res.sendFile(path.join(__dirname,"views","casbah.html"));})
 
-//Static file server.  Use '../' to get parent path
-//app.use(express.static(path.join(__dirname)));
+//File server
 app.use(express.static(__dirname));
 
 //Logger
 app.use(function(req, res, next){console.log("LOG...",req.url);	next();});
 
-//Database form handler and middleware parsers
-app.use( bodyParser.urlencoded({extended: true}));
-app.use( bodyParser.json());
+//Middleware parsers for database queries and uploads
+app.use( bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 10000}));
+app.use( bodyParser.json({limit: '50mb'}));
 
-app.post('/database', function (req, res) {
+//Database queries
+app.post('/database', casbahdat.query);
 
-	const rows=[]	
-	//databasecount+=1
-	const sql=req.body.SQL
-	try {
-		db.serialize( function () {
-			db.all(sql, function(err, rows){
-				console.log("SQL:",sql)
-				var stat=(err==null)?"OK":"Error - "+err
-				//console.log("database query#"+databasecount.toString() + " " + stat)
-				res.json({err:err, rows:rows})
-			})		
-		})
-	} 
-	catch(err) {console.log("SQLITE ERROR...", err)}
+//Uploader
+app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));
 
-})
-
-
-app.use(fileUpload());
-app.post('/deficiencySheets', require(path.join(__dirname,"server","reports.js")).deficiencySheets);
-app.post('/deficiencySheetsLog', require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog);
+//Routes for various reports
+app.post(
+	"/deficiencySheets", 
+	require(path.join(__dirname,"server","reports.js")).deficiencySheets
+);
+app.post(
+	"/deficiencySheetsLog", 
+	require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog
+);
 
 
 
-//start serving
-app.listen(8080, function () {console.log('casbah serving on port 8080!')});
+//Start serving...
+app.listen(8080, function () {console.log("casbah serving on http://localhost:8080/")});
 
 

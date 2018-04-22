@@ -26,70 +26,79 @@ SOFTWARE.
 
 ********************************/
 
-const fs = require("fs");
-const fsp = require(__dirname+"\\fs+");
-const path = require("path");
+const path = require("path")
+const fs = require("fs")
+const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
 
 
 exports.deficiencySheets=function (req, res) {
-	const p=path.join(
-		global.appRoot, 
-		"uploads\\reports\\deficiencySheets",
-		req.body.arg
-	);
+	
+	var name=req.body.deficiencySheetsName
+	const p=path.join(global.appRoot,"uploads","reports","deficiencySheets", name)
  
 	try {
-		console.log("Request for deficiencySheets:", p);
-		var files=fsp.walkSync(p);
+		console.log("deficiencySheets request for images in:", name)
+		var files=fsp.walkSync(p)
+		var images=[]
+		var ext
 		//remove app root dir from each file, uploads/reports/... part of path
 		for (var i=0; i<files.length; i++){
-			files[i]=files[i].substring(global.appRoot.length);
+			ext=path.extname(files[i]).toUpperCase()
+			if (ext == ".PNG" || ext==".JPG"){
+				//files[i]=files[i].substring(global.appRoot.length)
+				images.push(files[i].substring(global.appRoot.length))
+			}
 		}
-		res.json({files:files});
+		//res.json({files:files})
+		res.json({images:images})
 	} 
-	catch(err) {console.log(err); }
+	catch(err) {console.log(err)}
 }
 
 exports.deficiencySheetsLog=function (req, res) {
 	//what about project?
-	const p=path.join(global.appRoot,"uploads\\reports\\deficiencySheets");
-	
-	switch (req.body.action){
-	case "ADD":
-		console.log("Request to add deficiencySheets dir to:", p);
-		try {fs.mkdirSync(path.join(p, req.body.arg));res.json({dirs:fsp.getDirsSync(p)});}
-		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(p), err:err}); }; 
-	break;	
-	case "DIRS":
-		console.log("Request for deficiencySheetsLog:", p);
-		try {res.json({dirs:fsp.getDirsSync(p)});} 
-		catch(err) {console.log(err);res.json({dirs:[], err:err}); }; 
-	break;
-	
-	
-	
+	const p=path.join(global.appRoot,"uploads","reports","deficiencySheets")
+	//UPLOAD
+	if (req.files){
+		console.log("Upload file(s):", Object.keys(req.files))
+		console.log("to folder:", req.body.deficiencySheetsName)
+		try {
+			var dest, file;
+			for (var f in req.files){
+				file=req.files[f]
+				dest=path.join(p, req.body.deficiencySheetsName, file.name)
+				//mv method added by app.use(fileUpload())
+				file.mv(dest, function(err) {
+					if (err) {
+						console.log ("failed to move:", dest)
+						//return res.status(500).send(err)
+						//res.json({status:"failed to upload:"+file.name})
+					} 
+					else {
+						//res.send('File uploaded!')
+						console.log ("file uploaded as:", dest)
+						//res.json({status:"Success uploading:"+file.name})
+					}
+				})
+			}			
+		}
+		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
+	} 
+	//ADD sheetset ie create new folder on server 
+	else if (req.body.action == "ADD"){
+		console.log("Request to add defic Sheetset to:", p)
+		try {fs.mkdirSync(path.join(p, req.body.arg)); res.json({dirs:fsp.getDirsSync(p)})}
+		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(p), err:err}) } 
+	}
+	//DIRS return list of sheetsets or folders
+	else if (req.body.action == "DIRS"){
+		console.log("Request for Sheetsets Log:", p)
+		try {res.json({dirs:fsp.getDirsSync(p)})} 
+		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
 	}
 }
 
-exports.deficiencySheetsUpload=function(req, res) {
-	console.log("Uploading files:", JSON.stringify(req.files)); // the uploaded file object
-	if (!req.files) {return res.status(400).send('No files were uploaded.');}
- 
-	// The name of the input field (i.e. "uploadee") is used to retrieve the uploaded file
-	//var uploadee = req.files.uploadee;
-	//var keys=Object.keys(req.files);
-	var file, dest;
-	for (var f in req.files){
-		// Use the mv() method to place the file somewhere on your server
-		file=req.files[f];
-		dest=path.join(__dirname, "uploads", "reports", "deficiencySheets", req.sheetsetName, file);
-		file.mv(dest, function(err) {
-			if (err) {return res.status(500).send(err);}
-			res.send('File uploaded!');
-		})
-	}	
-}
 
 
 
