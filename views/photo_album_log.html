@@ -1,0 +1,144 @@
+<!doctype html>
+
+
+<style>
+.picBox{ max-height:400px; max-width:100%;}
+.columns2{column-count:2;}
+.columns4{column-count:4;}
+.checklistArch{column-count:4; line-height: 120%;font-size:10pt;}
+.topMarginZero{margin-top:0;}
+@media print {
+   div.panel, div.panel-default {
+        page-break-after: always !important;
+   }
+}
+.segoe, h1, h2, h3, h4{font-family:segoe UI, sans-serif;}
+
+</style>
+
+<script type='text/javascript'>
+
+
+Handlebars.registerHelper("photo_album_log_head", function(str, options){
+	return $("#photo_album_log_head").html();
+});
+
+var photo_album_log={};
+
+photo_album_log.hi=new casbah.Highlighter("highlite");
+
+photo_album_log.refresh=function(){
+
+	$.ajax({	
+		data:jQuery.param({order:"photo_album_names"}),
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		error:function(err){console.log("Error getting photo album names:",err);},
+		success:function(result){ 
+			if(typeof result.files=="undefined") result.names=[];
+			var html=photo_album_log.template(result);
+			$("#photo_album_log_placeholder").html(html);
+		},
+		type:"POST",
+		url:"/deficiencySheetsLog"
+	});	
+};
+
+photo_log.add=function(){
+	var name=prompt("Name of new photo album");
+	if (name!="" && name !=null){
+	
+	
+	
+	
+	
+	
+		this.ajax("ADD", {arg:name}, function(result){
+			var html=deficiency_sheets_log.template(result);
+			$("#deficiency_sheets_log_placeholder").html(html);
+		});
+	}
+};
+
+photo_log.goto=function(ev){
+	//alert("going to deficiency sheetset " + name);
+	var name=$(ev.target).text();
+	$PP.set("deficiencySheetsName", name);
+	casbah.view("deficiency_sheets.html");
+};
+
+photo_log.drop=function(ev){
+
+	ev.preventDefault();
+	var lim=10; //limit number of files
+	var folder=$(ev.target).text();	//ie. deficiency sheetset name
+
+	var fd=new FormData();
+	for (var i = 0; i < ev.dataTransfer.files.length && i < lim; i++) {
+		console.log("name:", ev.dataTransfer.files[i].name);
+		console.log("filetype:", ev.dataTransfer.files[i].type);
+		//fd.append("files", ev.dataTransfer.files[i], ev.dataTransfer.files[i].name);
+		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+	}
+	fd.append("action","UPLOAD");
+	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	//Also, to prevent error 'append called on an object that does not implement interface FormData', add processData:false
+	fd.append("deficiencySheetsName", folder);
+	fd.append("upload_file",true);
+	$.ajax({	
+		data:fd,
+		contentType:false,
+		error:function(err){console.log("Error uploading:",err);},
+		processData:false, 
+		success:function(result){ console.log("Success uploading");},
+		type:"POST",
+		url:"/deficiencySheetsLog"
+	});	
+};
+
+
+photo_log.template=Handlebars.compile($("#photo_log").html());
+
+
+photo_log.refresh();
+
+
+</script>
+
+<div id="photo_log_placeholder"></div>
+
+<template id="photo_log" type="text/x-handlebars-template">
+	<div class="container">{{{photoLogHead}}}
+	<div class="panel panel-default page">
+	<div class="panel-heading"  >project name</div>
+	<div class="panel-body">
+	The following is a list of photograph collections for this project.  Click on each one to open.  Drop image files on each one to ammend.  Click <a onclick="photo_album_log.add();">here</a> to create a new sheet-set. 
+	</div>	
+	<!-- List group -->
+	<ul class="list-group">
+	{{#each dirs}}
+	<li class="list-group-item"
+		onmouseenter="photo_album_log.hi.light(this);" 
+		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		ondragover="deficiency_sheets_log.hi.light(this);" 
+		ondragleave="deficiency_sheets_log.hi.dark(this);"	
+		onclick="deficiency_sheets_log.goto(event);"
+		ondrop="deficiency_sheets_log.drop(event);"
+		
+	>{{this}}</li>
+	{{/each}}
+	</ul>
+	</div>
+	</div>
+   
+</template>
+
+
+<template id='deficiency_sheets_log_head' type="text/x-handlebars-template">
+	<div class="row">
+	<div class="col-xs-8"><img src='/uploads/logo.png'></div>	
+	<div class="col-xs-4"><h2 class="topMarginZero segoe">DEFICIENCY SHEETS LOG</h2></div>
+	</div>
+</template>
+
+
+
