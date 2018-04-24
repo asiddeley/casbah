@@ -31,77 +31,78 @@ const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
 
+exports.collection=function (req, res) {
 
-exports.gallery_collection_images=function (req, res) {
-
-	var gccname=req.body.gallery_collection_name
-	var pnum=req.body.project_num
-	const p=path.join(global.appRoot,"uploads", pnum, "gallery", gccname)
- 
-	try {
-		console.log("request for images in:", gccname)
-		var files=fsp.walkSync(p)
-		var images=[]
-		var ext
-		//remove app root dir from each file, uploads/reports/... part of path
-		for (var i=0; i<files.length; i++){
-			ext=path.extname(files[i]).toUpperCase()
-			if (ext == ".PNG" || ext==".JPG"){
-				//files[i]=files[i].substring(global.appRoot.length)
-				images.push(files[i].substring(global.appRoot.length))
-			}
-		}
-		//res.json({files:files})
-		res.json({images:images})
-	} 
-	catch(err) {console.log(err)}
-}
-
-exports.gallery_collection_log=function (req, res) {
-	//what about project?
-	var name=req.body.photo_album_name
-	var pnum=req.body.project_num
+	//var gccn=req.body.gallery_collection_name
+	var pnum=req.body.project_number
 	
 	const p=path.join(global.appRoot,"uploads", pnum, "gallery", )
-	//UPLOAD
-	if (req.files){
+	
+
+	switch (body.req.order){
+		
+	case("UPLOAD"):
+		//UPLOAD images to collection	
+		if (!req.files){break;}
 		console.log("Upload file(s):", Object.keys(req.files))
-		console.log("to folder:", req.body.deficiencySheetsName)
+		console.log("to folder:", req.body.collection_name)
 		try {
 			var dest, file;
 			for (var f in req.files){
 				file=req.files[f]
-				dest=path.join(p, req.body.deficiencySheetsName, file.name)
+				dest=path.join(p, req.body.collection_Name, file.name)
 				//mv method added by app.use(fileUpload())
 				file.mv(dest, function(err) {
-					if (err) {
-						console.log ("failed to move:", dest)
-						//return res.status(500).send(err)
-						//res.json({status:"failed to upload:"+file.name})
-					} 
-					else {
-						//res.send('File uploaded!')
-						console.log ("file uploaded as:", dest)
-						//res.json({status:"Success uploading:"+file.name})
-					}
+					if (err) {console.log ("failed to move:", dest)} 
+					else {console.log ("file uploaded as:", dest)}
 				})
 			}			
 		}
 		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
-	} 
-	//ADD sheetset ie create new folder on server 
-	else if (req.body.action == "ADD"){
-		console.log("Request to add album to:", p)
+	break;
+	
+	case ("NEW"):
+		//Make new collection ie create new folder on server 
+		console.log("Request to add collection to:", p)
 		try {
-			fs.mkdirSync(path.join(p, req.body.new_photo_album_name));
-			res.json({dirs:fsp.getDirsSync(p)})}
-		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(p), err:err}) } 
-	}
-	//DIRS return list of sheetsets or folders
-	else if (req.body.action == "DIRS"){
-		console.log("Request for Sheetsets Log:", p)
-		try {res.json({dirs:fsp.getDirsSync(p)})} 
-		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
+			fs.mkdirSync(path.join(p, req.body.collection_name));
+			res.json({collection_names:fsp.getDirsSync(p)})}
+		catch(err) {
+			console.log(err);
+			res.json({collection_names:fsp.getDirsSync(p), err:err})
+		} 
+	break;
+	
+	//DIRS return list of folders
+	case ("LOG"):
+		console.log("Request for collection Log:", p)
+		try {res.json({collection_names:fsp.getDirsSync(p)})} 
+		catch(err) {
+			console.log(err);
+			res.json({collection_names:[], err:err}) 
+		}
+	break;
+	
+	case ("IMAGES"):
+		var pnum=req.body.project_num
+		var cnam=req.body.collection_name
+		const p=path.join(global.appRoot,"uploads", pnum, "gallery", cnam)
+	 
+		try {
+			console.log("request for images in:", cnam)
+			var files=fsp.walkSync(p)
+			var images=[]
+			var ext
+			//remove root part of path, returning only, uploads/reports/... 
+			for (var i=0; i<files.length; i++){
+				ext=path.extname(files[i]).toUpperCase()
+				if (ext == ".PNG" || ext==".JPG"){
+					images.push(files[i].substring(global.appRoot.length))
+				}
+			}
+			res.json({images:images})
+		} 
+		catch(err) {console.log(err)}	break;
 	}
 }
 

@@ -18,75 +18,75 @@
 <script type='text/javascript'>
 
 
-Handlebars.registerHelper("chopExtension", function(str, options){
+Handlebars.registerHelper("chop_extension", function(str, options){
 	str=str.substring(0,str.indexOf("."));
 	str=str.substring(str.lastIndexOf("\\")+1);
 	return str;
 });
 
-Handlebars.registerHelper("photo_album_head", function(str, options){
+Handlebars.registerHelper("collection_head", function(str, options){
 	var html=$("#photo_album_head").html();
 	//console.log(html);
 	return html
 });
  
 
-Handlebars.registerHelper("photo_album_title", function(str, options){
+Handlebars.registerHelper("collection_title", function(str, options){
 	return $("#photo_album_title").html();
-
 });
 
-Handlebars.registerHelper("photo_album_comment", function(str, options){
+Handlebars.registerHelper("collection_comment", function(str, options){
 	return $("#photo_album_comment").html();
 });
 
 Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
 
-var photo_album={};
+var collection={};
 
-photo_album.refresh=function(){
+collection.refresh=function(){
 	//get images for deficiencySheets then
 	//refresh with success function()...
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: jQuery.param({
-			action:"IMAGES", 
-			deficiencySheetsName:$PP.get("photo_album_name")
+			order:"IMAGES", 
+			collection_name:localStorage("collection_name")
 		}),
-		error:function(err){console.log("Error getting photo album:",err);},
+		error:function(err){console.log("Error getting collection:",err);},
 		success:function(result){ 
 			if(typeof result.images=="undefined") result.images=[];
-			var html=photo_album.template(result);
-			$("#photo_album_placeholder").html(html);
+			var html=collection.template(result);
+			$("#collection_placeholder").html(html);
 		},
 		type: "POST",
-		url: "/photo_album"		
+		url: "/gallery"		
 	});	
 };
 
 	
-photo_album.template=Handlebars.compile($("#_photo_album").html());
+collection.template=Handlebars.compile($("#collection_item_template").html());
 
-photo_album.refresh();
+//hello world
+collection.refresh();
 
 </script>
 
 
-<div id="deficiency_sheets_placeholder"></div>
+<div id="collection_placeholder"></div>
 
 
-<template id="photo_album" type="text/x-handlebars-template">
+<template id="collection_item_template" type="text/x-handlebars-template">
 
 	<div class="container">
 
 	{{#each images}}
 	<div class="panel panel-default page">
-	{{{photo_album_head}}}
-	<div class="panel-heading"><h4>{{{chopExtension this}}}</h4></div>
+	{{{collection_head}}}
+	<div class="panel-heading"><h4>{{{chop_extension this}}}</h4></div>
 	<div class="panel-body">
-	{{{photo_album_title}}}
-	{{{photo_album_comment}}}
+	{{{collection_item_title}}}
+	{{{collection_item_comment}}}
 	<h3 class="topMarginZero">Plan</h3>
 	<div class="col-xs-10"><img class="picBox" src="{{this}}" ></img></div>
 	</div>
@@ -97,24 +97,24 @@ photo_album.refresh();
 </template>
 
 
-<template id="photo_album_head" type="text/x-handlebars-template">
+<template id="collection_item_head" type="text/x-handlebars-template">
 	<div class="row">
 	<div class="col-xs-9"><img src="/uploads/logo.png"></div>	
-	<div class="col-xs-3"><h2 class="topMarginZero segoe">Photos</h2></div>
+	<div class="col-xs-3"><h2 class="topMarginZero segoe">Collection</h2></div>
 	</div>
 </template>
 
 
-<template id="photo_album_title" type="text/x-handlebars-template">
+<template id="collection_item_title" type="text/x-handlebars-template">
 <div class="row">
-<span class="col-xs-3">NORR:</span>
-<span class="col-xs-3">BCCL:</span>
-<span class="col-xs-3">SMH:</span>
-<span class="col-xs-3">DATE:</span>
+<span class="col-xs-3"> </span>
+<span class="col-xs-3"> </span>
+<span class="col-xs-3"> </span>
+<span class="col-xs-3"> </span>
 </div>
 </template>
 
-<template id="photo_album_comment" type="text/x-handlebars-template">
+<template id="collection_item_comment" type="text/x-handlebars-template">
 <h3 class="topMarginZero">Comment</h3>
 <hr>
 <hr>
