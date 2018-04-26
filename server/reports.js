@@ -99,6 +99,79 @@ exports.deficiencySheetsLog=function (req, res) {
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
+exports.handler=function (req, res) {
+	//what about project?
+	var pnum=req.body.project_number;
+	const reports_root=path.join(global.appRoot,"uploads",pnum,"reports");
 
+	switch (req.body.action){
+
+	case "UPLOAD":
+		if (!req.files) {console.log("Missing files for upload"); break;}
+		//prerequisites: req.body.report_type, req.body.report_name
+		console.log("Request to upload file(s):", Object.keys(req.files))
+		console.log("to:", report_root, req.report_type, req.report_name)
+		try {
+			var dest, file;
+			for (var f in req.files){
+				file=req.files[f]
+				dest=path.join(reports_root, req.body.report_type, req.body.report_name, file.name)
+				//mv method added by app.use(fileUpload())
+				file.mv(dest, function(err) {
+					if (err) {console.log ("Failed to move:", dest)} 
+					else {console.log ("File uploaded as:", dest)}
+				})
+			}			
+		}
+		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
+	break; 
+	
+	case "ADD":
+		//prerequisites: req.body.report_type, req.body.report_name
+		console.log("Request to add:", req.body.report_name);
+		console.log("to:", report_root, req.report_type);
+		try {
+			fs.mkdirSync(path.join(reports_root, req.body.report_type, req.body.report_name));
+			res.json({dirs:fsp.getDirsSync(path.join(reports_root, req.body.report_type))});
+		}
+		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(p), err:err}) } 
+	break;
+	
+	case "LOG":
+		//prerequisites: req.body.report_type
+		console.log("Request for a report log of:", report_root, req.report_type);
+		try {
+			res.json( {dirs:fsp.getDirsSync(path.join(report_root, report_type))});
+		} 
+		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
+	break;
+	
+	case "IMAGES":
+		//var name=req.body.deficiencySheetsName
+		//const p=path.join(global.appRoot,"uploads","reports","deficiencySheets", name)
+ 
+		try {
+			
+			
+			console.log("deficiencySheets request for images in:", name)
+			var files=fsp.walkSync(p)
+			var images=[]
+			var ext
+			//remove app root dir from each file, uploads/reports/... part of path
+			for (var i=0; i<files.length; i++){
+				ext=path.extname(files[i]).toUpperCase()
+				if (ext == ".PNG" || ext==".JPG"){
+					//files[i]=files[i].substring(global.appRoot.length)
+					images.push(files[i].substring(global.appRoot.length))
+				}
+			}
+			res.json({images:images})
+		} 
+		catch(err) {console.log(err)}
+	break;
+	}
+	
+}
 

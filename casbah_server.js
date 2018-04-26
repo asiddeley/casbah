@@ -71,7 +71,8 @@ app.post(
 	require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog
 );
 
-
+//GALLERY
+app.post("/gallery", require(path.join(__dirname, "server", "gallery.js")).handler);
 
 //Start serving...
 app.listen(8080, function () {console.log("casbah serving on http://localhost:8080/")});

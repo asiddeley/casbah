@@ -64,6 +64,8 @@ typings/
 ## casbah private folders - contains user data & files
 database/*.db
 uploads/
+wiki/
+
 
 
 

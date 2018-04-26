@@ -31,7 +31,7 @@ const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
 
-exports.collection=function (req, res) {
+exports.handler=function (req, res) {
 
 	//var gccn=req.body.gallery_collection_name
 	var pnum=req.body.project_number
@@ -39,9 +39,9 @@ exports.collection=function (req, res) {
 	const p=path.join(global.appRoot,"uploads", pnum, "gallery", )
 	
 
-	switch (body.req.order){
+	switch (body.req.command){
 		
-	case("UPLOAD"):
+	case "UPLOAD":
 		//UPLOAD images to collection	
 		if (!req.files){break;}
 		console.log("Upload file(s):", Object.keys(req.files))
@@ -61,7 +61,7 @@ exports.collection=function (req, res) {
 		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
 	break;
 	
-	case ("NEW"):
+	case "ADD":
 		//Make new collection ie create new folder on server 
 		console.log("Request to add collection to:", p)
 		try {
@@ -74,7 +74,7 @@ exports.collection=function (req, res) {
 	break;
 	
 	//DIRS return list of folders
-	case ("LOG"):
+	case "LOG":
 		console.log("Request for collection Log:", p)
 		try {res.json({collection_names:fsp.getDirsSync(p)})} 
 		catch(err) {
@@ -83,14 +83,14 @@ exports.collection=function (req, res) {
 		}
 	break;
 	
-	case ("IMAGES"):
+	case "IMAGES":
 		var pnum=req.body.project_num
 		var cnam=req.body.collection_name
-		const p=path.join(global.appRoot,"uploads", pnum, "gallery", cnam)
+		//const p=path.join(global.appRoot,"uploads", pnum, "gallery", cnam)
 	 
 		try {
 			console.log("request for images in:", cnam)
-			var files=fsp.walkSync(p)
+			var files=fsp.walkSync(path.join(p, cnam))
 			var images=[]
 			var ext
 			//remove root part of path, returning only, uploads/reports/... 
