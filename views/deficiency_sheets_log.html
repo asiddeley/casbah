@@ -18,12 +18,12 @@
 
 <script type='text/javascript'>
 
-
-Handlebars.registerHelper("deficiencySheetsLogHead", function(str, options){
-	return $("#deficiency_sheets_log_head").html();
-});
-
 var deficiency_sheets_log={};
+
+deficiency_sheets_log.head=$("#deficiency_sheets_log_head").html();
+Handlebars.registerHelper("deficiencySheetsLogHead", function(str, options){
+	return deficiency_sheets_log.head;
+});
 
 deficiency_sheets_log.ajax=function(action, argo, callback){
 	//call to server for information...
@@ -31,10 +31,15 @@ deficiency_sheets_log.ajax=function(action, argo, callback){
 	//arg = "name"|{name:}
 	//arg0 = {arg:"name", arg1:files_obj}
 	//var p={action:action, arg:arg}
-	var p=$.extend({action:action}, argo);
+	var pnum=localStorage.getItem("project_number");
+	if (typeof pnum=="undefined" || pnum==null){
+		pnum = prompt("Project number required");
+		localStorage.setItem("project_number", pnum);
+	}
 	
+	var p=$.extend({action:action, project_number:pnum}, argo);
 	
-	$.ajax({	
+	$.ajax({
 		data:jQuery.param(p, true),
 		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 		error:function(err){console.log("Error getting deficiency sheets log:",err);},
@@ -43,7 +48,8 @@ deficiency_sheets_log.ajax=function(action, argo, callback){
 			if(typeof callback=="function") callback(result);
 		},
 		type:"POST",
-		url:"/deficiencySheetsLog"
+		//url:"/deficiencySheetsLog"
+		url:"/reports"
 	});	
 };
 
@@ -52,7 +58,7 @@ deficiency_sheets_log.hi=new casbah.Highlighter("highlite");
 deficiency_sheets_log.refresh=function(){
 	//read room images
 	//casbah.deficiencySheetsLog("DIRS", null, function(result){
-	this.ajax("DIRS", {}, function(result){
+	this.ajax("LOG", {report_type:"deficiency_sheets"}, function(result){
 		//result = {dirs:["name1","name2"...]}
 		var html=deficiency_sheets_log.template(result);
 		$("#deficiency_sheets_log_placeholder").html(html);
@@ -80,21 +86,22 @@ deficiency_sheets_log.goto=function(ev){
 deficiency_sheets_log.drop=function(ev){
 
 	ev.preventDefault();
-	var lim=10; //limit number of files
-	var folder=$(ev.target).text();	//ie. deficiency sheetset name
 
 	var fd=new FormData();
-	for (var i = 0; i < ev.dataTransfer.files.length && i < lim; i++) {
+	//load up form data with dropped files...
+	for (var i = 0; i < ev.dataTransfer.files.length; i++) {
 		console.log("name:", ev.dataTransfer.files[i].name);
 		console.log("filetype:", ev.dataTransfer.files[i].type);
-		//fd.append("files", ev.dataTransfer.files[i], ev.dataTransfer.files[i].name);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
 	fd.append("action","UPLOAD");
+	fd.append("project_number",localStorage.getItem("project_number"));
+	fd.append("report_type","deficiency_sheets");
+	fd.append("report_name", $(ev.target).text()); //get from DIV element
 	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
 	//Also, to prevent error 'append called on an object that does not implement interface FormData', add processData:false
-	fd.append("deficiencySheetsName", folder);
 	fd.append("upload_file",true);
+	
 	$.ajax({	
 		data:fd,
 		contentType:false,
@@ -102,7 +109,8 @@ deficiency_sheets_log.drop=function(ev){
 		processData:false, 
 		success:function(result){ console.log("Success uploading");},
 		type:"POST",
-		url:"/deficiencySheetsLog"
+		//url:"/deficiencySheetsLog"
+		url:"/reports"
 	});	
 };
 

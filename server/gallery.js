@@ -83,26 +83,33 @@ exports.handler=function (req, res) {
 		}
 	break;
 	
-	case "IMAGES":
-		var pnum=req.body.project_num
-		var cnam=req.body.collection_name
-		//const p=path.join(global.appRoot,"uploads", pnum, "gallery", cnam)
-	 
+	case "FILES":
+		//Prerequisites
+		//req.body.project_number
+		//req.body.report_type
+		//req.body.report_name
+		//req.body.extension
 		try {
-			console.log("request for images in:", cnam)
-			var files=fsp.walkSync(path.join(p, cnam))
-			var images=[]
+			console.log("Request for files in:", req.body.report_root, req.body.report_type, req.body.report_name)
+			var files=fsp.walkSync(path.join(req.body.report_root, req.body.report_type, req.body.report_name))
+			var filtered_files=[]
 			var ext
-			//remove root part of path, returning only, uploads/reports/... 
+			//remove app root dir from each file, uploads/reports/... part of path
 			for (var i=0; i<files.length; i++){
 				ext=path.extname(files[i]).toUpperCase()
-				if (ext == ".PNG" || ext==".JPG"){
-					images.push(files[i].substring(global.appRoot.length))
+				//if (ext == ".PNG" || ext==".JPG"){
+				if (ext == req.body.extension.toUpperCase()){	
+					//files[i]=files[i].substring(global.appRoot.length)
+					filtered_files.push(files[i].substring(global.appRoot.length))
 				}
 			}
-			res.json({images:images})
+			res.json({files:filtered_files})
 		} 
-		catch(err) {console.log(err)}	break;
+		catch(err) {
+			console.log(err)
+			res.json({files:[], err:err}) //return empty on failure
+		}
+	break;
 	}
 }
 

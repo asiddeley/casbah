@@ -62,16 +62,11 @@ app.post('/database', casbahdat.query);
 app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));
 
 //Routes for various reports
-app.post(
-	"/deficiencySheets", 
-	require(path.join(__dirname,"server","reports.js")).deficiencySheets
-);
-app.post(
-	"/deficiencySheetsLog", 
-	require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog
-);
+//app.post("/deficiencySheets", require(path.join(__dirname,"server","reports.js")).deficiencySheets);
+//app.post("/deficiencySheetsLog", require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog);
 
-//GALLERY
+//Routes for CASBAH tabs
+app.post("/reports", require(path.join(__dirname, "server", "reports.js")).handler);
 app.post("/gallery", require(path.join(__dirname, "server", "gallery.js")).handler);
 
 //Start serving...

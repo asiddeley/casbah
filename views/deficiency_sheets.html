@@ -17,6 +17,7 @@
 
 <script type='text/javascript'>
 
+var deficiency_sheets={};
 
 Handlebars.registerHelper("chopExtension", function(str, options){
 	str=str.substring(0,str.indexOf("."));
@@ -24,27 +25,27 @@ Handlebars.registerHelper("chopExtension", function(str, options){
 	return str;
 });
 
-Handlebars.registerHelper("deficiencySheetsHead", function(str, options){
-	var html=$("#deficiency_sheets_head").html();
-	//console.log(html);
-	return html
-});
- 
-Handlebars.registerHelper("deficiencySheetsChecks", function(str, options){
-	return $("#deficiency_sheets_checks").html();
+deficiency_sheets.head=$("#deficiency_sheets_head").html();
+Handlebars.registerHelper("deficiency_sheets_head", function(str, options){
+	return deficiency_sheets.head;
 });
 
-Handlebars.registerHelper("deficiencySheetsTblock", function(str, options){
-	return $("#deficiency_sheets_tblock").html();
-
+deficiency_sheets.check=$("#deficiency_sheets_checks").html();
+Handlebars.registerHelper("deficiency_sheets_checks", function(str, options){
+	return deficiency_sheets.check;
 });
-Handlebars.registerHelper("deficiencySheetsComments", function(str, options){
-	return $("#deficiency_sheets_comments").html();
+
+deficiency_sheets.tblock=$("#deficiency_sheets_tblock").html();
+Handlebars.registerHelper("deficiency_sheets_tblock", function(str, options){
+	return deficiency_sheets.tblock;
+});
+
+deficiency_sheets.comments=$("#deficiency_sheets_comments").html();
+Handlebars.registerHelper("deficiency_sheets_comments", function(str, options){
+	return deficiency_sheets.comments;
 });
 
 Handlebars.registerHelper("plusOne", function(val,options){return parseInt(val)+1;});
-
-var deficiency_sheets={};
 
 deficiency_sheets.refresh=function(){
 	//get images for deficiencySheets then
@@ -53,12 +54,15 @@ deficiency_sheets.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: jQuery.param({
-			action:"IMAGES", 
-			deficiencySheetsName:$PP.get("deficiencySheetsName")
+			action:"FILES",
+			extension:"PNG",
+			report_type:"deficiency_sheets",
+			//deficiencySheetsName:$PP.get("deficiencySheetsName")
+			report_name:"localStorage.getItem("report_name")
 		}),
-		error:function(err){console.log("Error getting deficiencySheets:",err);},
+		error:function(err){console.log("Error, ",err);},
 		success:function(result){ 
-			if(typeof result.images=="undefined") result.images=[];
+			if(typeof result.files=="undefined") result.files=[];
 			var html=deficiency_sheets.template(result);
 			$("#deficiency_sheets_placeholder").html(html);
 		},
@@ -77,19 +81,17 @@ deficiency_sheets.refresh();
 
 <div id="deficiency_sheets_placeholder"></div>
 
-
 <template id='deficiency_sheets' type="text/x-handlebars-template">
 
 	<div class="container">
-
-	{{#each images}}
+	{{#each files}}
 	<div class="panel panel-default page">
-	{{{deficiencySheetsHead}}}
-	<div class="panel-heading"><h4>{{{chopExtension this}}}</h4></div>
+	{{{deficiency_sheets_head}}}
+	<div class="panel-heading"><h4>{{{chop_extension this}}}</h4></div>
 	<div class="panel-body">
-	{{{deficiencySheetsTblock}}}
-	{{{deficiencySheetsChecks}}}
-	{{{deficiencySheetsComments}}}
+	{{{deficiency_sheets_tblock}}}
+	{{{deficiency_sheets_checks}}}
+	{{{deficiency_sheets_comments}}}
 	<h3 class="topMarginZero">Plan</h3>
 	<div class="col-xs-10"><img class="picBox" src="{{this}}" ></img></div>
 	</div>

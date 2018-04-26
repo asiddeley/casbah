@@ -102,9 +102,16 @@ exports.deficiencySheetsLog=function (req, res) {
 //////////////////////////////////////////////////////////////////////////////
 
 exports.handler=function (req, res) {
-	//what about project?
-	var pnum=req.body.project_number;
-	const reports_root=path.join(global.appRoot,"uploads",pnum,"reports");
+	//prerequisites 
+	//to be passed in ajax data:
+	//req.body.action
+	//req.body.project_number
+	//req.body.report_type
+	//req.body.report_name
+	//req.body.extension
+	//req.files - prepared by middle-ware
+	var project_number=req.body.project_number;
+	const reports_root=path.join(global.appRoot,"uploads",project_number,"reports");
 
 	switch (req.body.action){
 
@@ -131,7 +138,7 @@ exports.handler=function (req, res) {
 	case "ADD":
 		//prerequisites: req.body.report_type, req.body.report_name
 		console.log("Request to add:", req.body.report_name);
-		console.log("to:", report_root, req.report_type);
+		console.log("to:", report_root, req.body.report_type);
 		try {
 			fs.mkdirSync(path.join(reports_root, req.body.report_type, req.body.report_name));
 			res.json({dirs:fsp.getDirsSync(path.join(reports_root, req.body.report_type))});
@@ -141,35 +148,40 @@ exports.handler=function (req, res) {
 	
 	case "LOG":
 		//prerequisites: req.body.report_type
-		console.log("Request for a report log of:", report_root, req.report_type);
+		console.log("Request for a report log of:", report_root, req.body.report_type);
 		try {
-			res.json( {dirs:fsp.getDirsSync(path.join(report_root, report_type))});
+			
+			res.json( {dirs:fsp.getDirsSync(path.join(report_root, req.body.report_type))});
 		} 
 		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
 	break;
 	
-	case "IMAGES":
-		//var name=req.body.deficiencySheetsName
-		//const p=path.join(global.appRoot,"uploads","reports","deficiencySheets", name)
- 
+	case "FILES":
+		//Prerequisites
+		//req.body.project_number
+		//req.body.report_type
+		//req.body.report_name
+		//req.body.extension
 		try {
-			
-			
-			console.log("deficiencySheets request for images in:", name)
-			var files=fsp.walkSync(p)
-			var images=[]
+			console.log("Request for files in:", req.body.report_root, req.body.report_type, req.body.report_name)
+			var files=fsp.walkSync(path.join(req.body.report_root, req.body.report_type, req.body.report_name));
+			var filtered_files=[]
 			var ext
 			//remove app root dir from each file, uploads/reports/... part of path
 			for (var i=0; i<files.length; i++){
 				ext=path.extname(files[i]).toUpperCase()
-				if (ext == ".PNG" || ext==".JPG"){
+				//if (ext == ".PNG" || ext==".JPG"){
+				if (ext == req.body.extension.toUpperCase()){	
 					//files[i]=files[i].substring(global.appRoot.length)
-					images.push(files[i].substring(global.appRoot.length))
+					filtered_files.push(files[i].substring(global.appRoot.length))
 				}
 			}
-			res.json({images:images})
+			res.json({files:filtered_files})
 		} 
-		catch(err) {console.log(err)}
+		catch(err) {
+			console.log(err)
+			res.json({files:[], err:err}) //return empty on failure
+		}
 	break;
 	}
 	
