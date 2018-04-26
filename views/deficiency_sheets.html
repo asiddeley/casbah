@@ -17,9 +17,15 @@
 
 <script type='text/javascript'>
 
+//ensure project number set.  What about empty uploads folder ie. uninitialized 
+if (typeof localStorage.getItem("project_number")=="undefined") {
+ var pnum=prompt("Project number");
+ if (pnum!=="" && pnum!=null) {localStorage.getItem("project_number", pnum)}
+}
+
 var deficiency_sheets={};
 
-Handlebars.registerHelper("chopExtension", function(str, options){
+Handlebars.registerHelper("chop_extension", function(str, options){
 	str=str.substring(0,str.indexOf("."));
 	str=str.substring(str.lastIndexOf("\\")+1);
 	return str;
@@ -53,21 +59,22 @@ deficiency_sheets.refresh=function(){
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: jQuery.param({
+		data: $.param({
 			action:"FILES",
-			extension:"PNG",
+			extension:".PNG",
+			project_number:localStorage.getItem("project_number"),
 			report_type:"deficiency_sheets",
-			//deficiencySheetsName:$PP.get("deficiencySheetsName")
-			report_name:"localStorage.getItem("report_name")
+			report_name:localStorage.getItem("report_name")
 		}),
-		error:function(err){console.log("Error, ",err);},
-		success:function(result){ 
+		error:function(err){console.log("Error:",err.message);},
+		success:function(result){
+			console.log("result,", JSON.stringify(result));
 			if(typeof result.files=="undefined") result.files=[];
 			var html=deficiency_sheets.template(result);
 			$("#deficiency_sheets_placeholder").html(html);
 		},
 		type: "POST",
-		url: "/deficiencySheets"		
+		url: "/reports"		
 	});	
 };
 

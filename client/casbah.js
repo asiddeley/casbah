@@ -396,6 +396,25 @@ casbah.parameters={
 };
 
 
+casbah.project_select=function(){
+	var pnum=prompt("Project number");
+	if (pnum !== "" && pnum != null){
+		localStorage.setItem("project_number", pnum);
+		$("#browser_tab").text("CASBAH ("+pnum+")");
+	};	
+};
+
+casbah.project_check=function(){
+	//ensure project number set.  
+	var pnum=localStorage.getItem("project_number");
+	if (typeof pnum != "string") {
+		casbah.project_select();
+		return;
+	} 
+	$("#browser_tab").text("CASBAH ("+pnum+")");
+};
+
+
 
 
 ///////////////

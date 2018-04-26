@@ -33,11 +33,7 @@ const fileUpload = require('express-fileupload')
 
 exports.handler=function (req, res) {
 
-	//var gccn=req.body.gallery_collection_name
-	var pnum=req.body.project_number
-	
-	const p=path.join(global.appRoot,"uploads", pnum, "gallery", )
-	
+	const gallery_root=path.join(global.appRoot,"uploads", req.body.project_number, "gallery")
 
 	switch (body.req.command){
 		
@@ -50,7 +46,7 @@ exports.handler=function (req, res) {
 			var dest, file;
 			for (var f in req.files){
 				file=req.files[f]
-				dest=path.join(p, req.body.collection_Name, file.name)
+				dest=path.join(gallery_root, req.body.collection_Name, file.name)
 				//mv method added by app.use(fileUpload())
 				file.mv(dest, function(err) {
 					if (err) {console.log ("failed to move:", dest)} 
@@ -63,9 +59,9 @@ exports.handler=function (req, res) {
 	
 	case "ADD":
 		//Make new collection ie create new folder on server 
-		console.log("Request to add collection to:", p)
+		console.log("Request to add collection to:", gallery_root)
 		try {
-			fs.mkdirSync(path.join(p, req.body.collection_name));
+			fs.mkdirSync(path.join(gallery_root, req.body.collection_name));
 			res.json({collection_names:fsp.getDirsSync(p)})}
 		catch(err) {
 			console.log(err);
@@ -75,8 +71,8 @@ exports.handler=function (req, res) {
 	
 	//DIRS return list of folders
 	case "LOG":
-		console.log("Request for collection Log:", p)
-		try {res.json({collection_names:fsp.getDirsSync(p)})} 
+		console.log("Request for collection Log:", gallery_root)
+		try {res.json({collection_names:fsp.getDirsSync(gallery_root)})} 
 		catch(err) {
 			console.log(err);
 			res.json({collection_names:[], err:err}) 
@@ -86,12 +82,11 @@ exports.handler=function (req, res) {
 	case "FILES":
 		//Prerequisites
 		//req.body.project_number
-		//req.body.report_type
-		//req.body.report_name
+		//req.body.collection_name
 		//req.body.extension
 		try {
-			console.log("Request for files in:", req.body.report_root, req.body.report_type, req.body.report_name)
-			var files=fsp.walkSync(path.join(req.body.report_root, req.body.report_type, req.body.report_name))
+			console.log("Request for files in:", gallery_root, req.body.collection_name)
+			var files=fsp.walkSync(path.join(gallery_root, req.body.collection_name))
 			var filtered_files=[]
 			var ext
 			//remove app root dir from each file, uploads/reports/... part of path

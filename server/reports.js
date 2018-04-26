@@ -136,9 +136,12 @@ exports.handler=function (req, res) {
 	break; 
 	
 	case "ADD":
-		//prerequisites: req.body.report_type, req.body.report_name
+		//prerequisites: 
+		//reg.body.project_number
+		//req.body.report_type, 
+		//req.body.report_name
 		console.log("Request to add:", req.body.report_name);
-		console.log("to:", report_root, req.body.report_type);
+		console.log("to:", reports_root, req.body.report_type);
 		try {
 			fs.mkdirSync(path.join(reports_root, req.body.report_type, req.body.report_name));
 			res.json({dirs:fsp.getDirsSync(path.join(reports_root, req.body.report_type))});
@@ -148,10 +151,9 @@ exports.handler=function (req, res) {
 	
 	case "LOG":
 		//prerequisites: req.body.report_type
-		console.log("Request for a report log of:", report_root, req.body.report_type);
+		console.log("Request for a report log of:", reports_root, req.body.report_type);
 		try {
-			
-			res.json( {dirs:fsp.getDirsSync(path.join(report_root, req.body.report_type))});
+			res.json( {dirs:fsp.getDirsSync(path.join(reports_root, req.body.report_type))});
 		} 
 		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
 	break;
@@ -163,8 +165,8 @@ exports.handler=function (req, res) {
 		//req.body.report_name
 		//req.body.extension
 		try {
-			console.log("Request for files in:", req.body.report_root, req.body.report_type, req.body.report_name)
-			var files=fsp.walkSync(path.join(req.body.report_root, req.body.report_type, req.body.report_name));
+			console.log("Request for files in:", reports_root, req.body.report_type, req.body.report_name)
+			var files=fsp.walkSync(path.join(reports_root, req.body.report_type, req.body.report_name));
 			var filtered_files=[]
 			var ext
 			//remove app root dir from each file, uploads/reports/... part of path
