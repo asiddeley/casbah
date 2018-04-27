@@ -44,7 +44,7 @@ deficiency_sheets_log.refresh=function(){
 			action:"LOG",
 			project_number:localStorage.getItem("project_number"),
 			report_type:"deficiency_sheets",
-			extension:".png"
+			extension:".PNG"
 		}),
 		//data: fd,
 		//contentType: false,
@@ -98,35 +98,35 @@ deficiency_sheets_log.project_select=function(ev){
 };
 
 deficiency_sheets_log.drop=function(ev){
+	/***
+	https://msdn.microsoft.com/en-us/ie/ms536929(v=vs.94)
+	You must cancel the default action for ondragenter and ondragover in order for ondrop to fire. In the case of a div, the default action is not to drop. This can be contrasted with the case of an input type=text element, where the default action is to drop. In order to allow a drag-and-drop action on a div, you must cancel the default action by specifying window.event.returnValue=false in both the ondragenter and ondragover event handlers. Only then will ondrop fire.
+	
+	https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	Re. processData:false solves 'append called on an object that does not implement interface FormData'
 
-	ev.preventDefault();
-
+	***/
+	//ev.preventDefault();
+	
 	var fd=new FormData();
-	var dat={};
 	//load up form data with dropped files...
 	for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-		console.log("name:", ev.dataTransfer.files[i].name);
-		console.log("filetype:", ev.dataTransfer.files[i].type);
+		//console.log("name:", ev.dataTransfer.files[i].name);
+		//console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
-		dat[ev.dataTransfer.files[i].name]=ev.dataTransfer.files[i];
 	}
 	fd.append("action","UPLOAD");
 	fd.append("project_number",localStorage.getItem("project_number"));
+	//fd.append("folder_tier1",localStorage.getItem("project_number"));
 	fd.append("report_type","deficiency_sheets");
-	fd.append("report_name", $(ev.target).text()); //get from DIV element
+	//fd.append("folder_tier2","deficiency_sheets");
+	fd.append("report_name", $(ev.target).text());
+	//fd.append("folder_tier3",$(ev.target).text());
+
 	fd.append("upload_file",true);
-	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
-	//processData:false solves 'append called on an object that does not implement interface FormData'
 	
 	$.ajax({	
 		data:fd,
-		//data:$.param($.extend(dat,{
-		//	action:"UPLOAD",
-		//	upload_file:true,
-		//	project_number:localStorage.getItem("project_number"),
-		//	report_type:"deficiency_sheets",
-		//	report_name:$(ev.target).text()
-		//})),
 		contentType:false,
 		error:function(err){console.log("Error uploading:",err);},
 		processData:false, 
@@ -154,7 +154,7 @@ deficiency_sheets_log.refresh();
 	<div class="panel-body">
 	The following is a list of deficiency sheet-sets for this project.  Click on each one to open.  Drop image files on each one to ammend.<br>
 	<a onclick="deficiency_sheets_log.add();">Add a new sheet-set...</a><br> 
-	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a>  
+	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a> 
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">
@@ -162,11 +162,11 @@ deficiency_sheets_log.refresh();
 	<li class="list-group-item"
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
-		ondragover="deficiency_sheets_log.hi.light(this);" 
-		ondragleave="deficiency_sheets_log.hi.dark(this);"	
 		onclick="deficiency_sheets_log.goto(event);"
+		ondragenter="event.preventDefault();deficiency_sheets_log.hi.light(this);"
+		ondragover="event.preventDefault();" 
+		ondragleave="event.preventDefault();deficiency_sheets_log.hi.dark(this);"	
 		ondrop="deficiency_sheets_log.drop(event);"
-		
 	>{{this}}</li>
 	{{/each}}
 	</ul>
