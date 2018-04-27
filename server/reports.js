@@ -119,7 +119,7 @@ exports.handler=function (req, res) {
 		if (!req.files) {console.log("Missing files for upload"); break;}
 		//prerequisites: req.body.report_type, req.body.report_name
 		console.log("Request to upload file(s):", Object.keys(req.files))
-		console.log("to:", report_root, req.report_type, req.report_name)
+		console.log("to:", reports_root, req.report_type, "/",req.report_name)
 		try {
 			var dest, file;
 			for (var f in req.files){

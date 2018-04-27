@@ -31,12 +31,12 @@ deficiency_sheets_log.hi=new casbah.Highlighter("highlite");
 
 deficiency_sheets_log.refresh=function(){
 
-	var fd=new FormData();
-	fd.append("action", "LOG");
-	fd.append("project_number", localStorage.getItem("project_number"));
-	fd.append("report_type", "deficiency_sheets");
-	fd.append("extension", ".png");
-	console.log("refresh", fd);
+	//var fd=new FormData();
+	//fd.append("action", "LOG");
+	//fd.append("project_number", localStorage.getItem("project_number"));
+	//fd.append("report_type", "deficiency_sheets");
+	//fd.append("extension", ".png");
+	//console.log("refresh", fd);
 
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -61,11 +61,11 @@ deficiency_sheets_log.refresh=function(){
 deficiency_sheets_log.add=function(){
 	var name=prompt("Name of new deficiency sheet-set");
 	if (name == "" || name == null){return;}
-	var fd=new FormData();
-	fd.append("action","ADD");
-	fd.append("project_number", localStorage.getItem("project_number"));
-	fd.append("report_type","deficiency_sheets");
-	fd.append("report_name", name);
+	//var fd=new FormData();
+	//fd.append("action","ADD");
+	//fd.append("project_number", localStorage.getItem("project_number"));
+	//fd.append("report_type","deficiency_sheets");
+	//fd.append("report_name", name);
 	
 	$.ajax({
 		//data:fd, //in ie triggers jquery argument not optional error 
@@ -102,22 +102,31 @@ deficiency_sheets_log.drop=function(ev){
 	ev.preventDefault();
 
 	var fd=new FormData();
+	var dat={};
 	//load up form data with dropped files...
 	for (var i = 0; i < ev.dataTransfer.files.length; i++) {
 		console.log("name:", ev.dataTransfer.files[i].name);
 		console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+		dat[ev.dataTransfer.files[i].name]=ev.dataTransfer.files[i];
 	}
 	fd.append("action","UPLOAD");
 	fd.append("project_number",localStorage.getItem("project_number"));
 	fd.append("report_type","deficiency_sheets");
 	fd.append("report_name", $(ev.target).text()); //get from DIV element
-	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
-	//Also, to prevent error 'append called on an object that does not implement interface FormData', add processData:false
 	fd.append("upload_file",true);
+	//SEE https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	//processData:false solves 'append called on an object that does not implement interface FormData'
 	
 	$.ajax({	
 		data:fd,
+		//data:$.param($.extend(dat,{
+		//	action:"UPLOAD",
+		//	upload_file:true,
+		//	project_number:localStorage.getItem("project_number"),
+		//	report_type:"deficiency_sheets",
+		//	report_name:$(ev.target).text()
+		//})),
 		contentType:false,
 		error:function(err){console.log("Error uploading:",err);},
 		processData:false, 
