@@ -36,41 +36,22 @@ const fileUpload = require('express-fileupload')
 
 exports.handler=function (req, res) {
 	//Prerequisites (to be passed in ajax data):
-	//req.body.action
-	//req.body.project_number
+	//req.body.action... ADD, DIR, FILES, UPLOAD, 
+	//req.body.project_number... 
 	//req.body.tab... Gallery | reports
 	//req.body.folder... Collection | deficiency Sheet set
 	//req.body.subfolder... 2018-04-27 photos | level-04
 	//req.body.extension
 	//req.files... populated by middle-ware from ajaxed formData
-	var project_number=project_number;
-	if typeof project_number == "undefined") {
-		console.log("Upload Handler err: project_number undefined"); 
+	var project_number=req.body.project_number;
+	if (typeof project_number == "undefined") {
+		console.log("Upload handler error: project_number undefined"); 
 		return;
 	}
 	const root=path.join(global.appRoot,"uploads", req.body.project_number);
 
 	switch (req.body.action){
 
-	case "UPLOAD":
-		if (!req.files) {console.log("Missing files for upload"); break;}
-		console.log("Upload request file(s):", Object.keys(req.files))
-		console.log("TO:", path.join(root, req.body.tab, req.body.folder, req.body.subfolder)
-		try {
-			var dest, file;
-			for (var f in req.files){
-				file=req.files[f]
-				dest=path.join(root, req.body.tab, req.body.folder, req.body.subfolder, req.body.file.name)
-				//.mv function added by 'express-fileupload' middleware
-				file.mv(dest, function(err) {
-					if (err) {console.log ("Failed to move:", dest, JSON.stringify(err))} 
-					else {console.log ("File uploaded as:", dest)}
-				})
-			}			
-		}
-		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
-	break; 
-	
 	case "ADD":
 		//prerequisites: 
 		//reg.body.project_number
@@ -80,19 +61,39 @@ exports.handler=function (req, res) {
 		console.log("Request to add:", req.body.subfolder);
 		console.log("to:", path.join(root, req.body.tab, req.body.folder));
 		try {
-			fs.mkdirSync(path.join(root, req.body.folder, req.body.subfolder));
-			res.json({dirs:fsp.getDirsSync(path.join(root, req.body.folder))});
+			fs.mkdirSync(path.join(root, req.body.tab, req.body.folder, req.body.subfolder));
+			res.json({
+				dirs:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
+				project_number:req.body.project_number
+			});
 		}
-		catch(err) {console.log(err);res.json({dirs:fsp.getDirsSync(root), err:err}) } 
+		catch(err) {
+			console.log(err);
+			res.json({
+				dirs:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 
 	break;
 	
-	case "LOG":
+	case "DIR":
 		//prerequisites: req.body.report_type
 		console.log("Request for a report log of:", root, req.body.tab, req.body.folder);
 		try {
-			res.json( {dirs:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder))});
+			res.json({
+				dirs:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
+				project_number:req.body.project_number
+			});
 		} 
-		catch(err) {console.log(err);res.json({dirs:[], err:err}) }
+		catch(err) {
+			console.log(err);
+			res.json({
+				dirs:[], 
+				err:err, 
+				project_number:req.body.project_number
+			});
+		}
 	break;
 	
 	case "FILES":
@@ -104,7 +105,7 @@ exports.handler=function (req, res) {
 		try {
 			console.log("Request for files in:", path.join(root, req.body.tab, req.body.folder))
 			var files=fsp.walkSync(path.join(
-				reports_root, 
+				root, 
 				req.body.tab, 
 				req.body.folder,
 				req.body.subfolder
@@ -120,13 +121,44 @@ exports.handler=function (req, res) {
 					filtered_files.push(files[i].substring(global.appRoot.length))
 				}
 			}
-			res.json({files:filtered_files})
+			res.json({
+				files:filtered_files,
+				project_number:req.body.project_number,
+				folder:req.body.folder,
+				subfolder:req.body.subfolder
+			})
 		} 
 		catch(err) {
 			console.log(err)
-			res.json({files:[], err:err}) //return empty on failure
+			res.json({
+				files:[], 
+				err:err,
+				project_number:req.body.project_number,
+				folder:req.body.folder,
+				subfolder:req.body.subfolder
+			})
 		}
 	break;
+	
+	case "UPLOAD":
+		if (!req.files) {console.log("Missing files for upload"); break;}
+		console.log("Upload request file(s):", Object.keys(req.files))
+		console.log("TO:", path.join(root, req.body.tab, req.body.folder, req.body.subfolder))
+		try {
+			var dest, file;
+			for (var f in req.files){
+				file=req.files[f]
+				dest=path.join(root, req.body.tab, req.body.folder, req.body.subfolder, req.body.file.name)
+				//.mv function added by 'express-fileupload' middleware
+				file.mv(dest, function(err) {
+					if (err) {console.log ("Failed to move:", dest, JSON.stringify(err))} 
+					else {console.log ("File uploaded as:", dest)}
+				})
+			}			
+		}
+		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
+	break; 	
+	
 	}
 	
 }

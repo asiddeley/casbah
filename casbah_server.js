@@ -66,8 +66,10 @@ app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));
 //app.post("/deficiencySheetsLog", require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog);
 
 //Routes for CASBAH tabs
-app.post("/reports", require(path.join(__dirname, "server", "reports.js")).handler);
-app.post("/gallery", require(path.join(__dirname, "server", "gallery.js")).handler);
+//app.post("/reports", require(path.join(__dirname, "server", "reports.js")).handler);
+//app.post("/gallery", require(path.join(__dirname, "server", "gallery.js")).handler);
+app.post("/uploads", require(path.join(__dirname, "server", "uploads.js")).handler);
+
 
 //Start serving...
 app.listen(8080, function () {console.log("casbah serving on http://localhost:8080/")});
