@@ -79,7 +79,7 @@ exports.handler=function (req, res) {
 	
 	case "DIR":
 		//prerequisites: req.body.report_type
-		console.log("Request for a report log of:", root, req.body.tab, req.body.folder);
+		console.log("Request for log:", root, req.body.tab, req.body.folder);
 		try {
 			res.json({
 				dirs:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
@@ -139,6 +139,22 @@ exports.handler=function (req, res) {
 			})
 		}
 	break;
+	
+	case "project_numbers":
+		console.log("Request for project numbers:", root);
+		
+		try {
+			var ro={};
+			var bin=(typeof req.body.backin =="undefined")?"dirs":req.body.backin;
+			//getDirsSync returns an array of folders.  Each is just a short name, not path
+			ro[bin]=fsp.getDirsSync(root);
+			res.json(ro);
+		} 
+		catch(err) {
+			console.log(err);
+			res.json({dirs:[],err:err});
+		}	
+		break;	
 	
 	case "UPLOAD":
 		if (!req.files) {console.log("Missing files for upload"); break;}

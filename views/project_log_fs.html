@@ -2,61 +2,19 @@
 
 <script type='text/javascript'>
 
-//ensure these parameters are available for this page
-//$PP.fetch("$dnum", "SVR-A01"); //.get(param_name, param_default_value);
-//$PP.fetch("$pnum", "BLDG-001"); 
-//$PP.store("$dtype", "Project Log");
-//var pnum=localStorage.getItem("pnum");
-if (typeof localStorage.getItem("pnum")=="undefined"){
-	//var pnum=
-}
 
 var project={};
 
 //action that starts text editor
 project.click=function(el){
 	project.ed.text(el, function(){
-		project.tv.update(project.ed.row(), project.ed.rowid(), true); 
-		project.ed.hide();
+		//dblclick handler - save edit
+		//project.tv.update(project.ed.row(), project.ed.rowid(), true); 
+		//project.ed.hide();
 	});
 };
 
-project.refresh(){
-	//read upload folder
-	$.ajax({	
-		data:$param({client:""}),
-		contentType:false,
-		error:function(err){console.log("Error getting projects:",err);},
-		processData:false, 
-		success:function(result){ 
-			//result - [{pnum:"", pname:"", ...},{...},{...}...]
-			//console.log("Success");
-			//casbah.renderFX("project_content", project.content, result, delta);
-			$("#project_content").html(this.compiled(result));		
-		},
-		type:"POST",
-		url:"/project_log"
-	});	
-}
 
-
-//Main TableView
-project.tv=new TableView(casbah.tv.projects($PP),{
-	//select all projects
-	filter:" pnum = pnum", 
-	refresh:function(result, delta){
-		//console.log("project.tv:",JSON.stringify(result.rows));
-		//casbah.renderFX("project-content", project.content, result, delta);
-		$("#project_content").html(this.compiled(result));
-	}
-});
-
-//Menu action
-project.open=function(){
-	//set pnum to selected project
-	var n=$("[rowid="+project.hi.rowid()+"]").find("[field=pnum]").text();
-	$PP.store("$pnum",n);
-};
 
 // text editor
 project.ed=new casbah.Editor();
@@ -64,33 +22,70 @@ project.ed=new casbah.Editor();
 // highligher
 project.hi=new casbah.Highlighter("highlite");
 
-// initialize context menu...
-project.menu=$("#project-menu").menu().css("position","absolute", "width", "200px").hide();
+project.refresh=function(){
+	//read upload folder
+	
+	$.ajax({	
+		data:$.param({
+			action:"project_numbers",
+			backin:"log"
+		}),
+		contentType:false,
+		error:function(err){console.log("Error:",err);},
+		processData:false, 
+		success:function(result){ 
+			//result - [{pnum:"", pname:"", ...},{...},{...}...]
+			//console.log("Success");
+			//casbah.renderFX("project_content", project.content, result, delta);
+			$("#project_numbers").html(this.template_numbers(result));
+			//$("#project_numbers").dialog();
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+}
 
-//load templates and render...
-$.get("views/document_header.html", function(htm){
-	//console.log('tbh loaded:', htm);
-	project.header=Handlebars.compile(htm);
-	casbah.renderFX("project-header", project.header, {dtype:$PP.get("$dtype")});
-});
+
+project.template_numbers=Handlebars.compile($("#project_numbers").html());
 
 
-project.compiled=Handlebars.compile($("#project-content-template").html());
-project.tv.refresh();
+/////////////////////////////////
+project.refresh();
+
 
 </script>
 
 <!-- PAGE -->
 
-<div class="container">
 
-	<div id="project-header">placeholder</div>
-	<div id="project-content">placeholder</div>
-	<br><br><br><br>
-</div>
+<div id="project_numbers">placeholder</div>
 
 
-<template id="project-content-template" type="text/x-handlebars-template">
+<template id="project_numbers" type="text/x-handlebars-template">
+	<div class="container">
+	
+	<div class="panel panel-default page">
+	<div class="panel-heading">Project Numbers</div>
+	<div class="panel-body">
+	The following is a list of project numbers.  Click on project you wich to work on. Double click on project to view details<br>
+	<a onclick="deficiency_sheets_log.add();">Add a new project...</a><br> 
+	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a> 
+	</div>	
+	<!-- List group -->
+	<ul class="list-group">
+	{{#each log}}
+	<li class="list-group-item"
+		onmouseenter="deficiency_sheets_log.hi.light(this);" 
+		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		onclick="deficiency_sheets_log.goto(event);"
+	>{{this}}</li>
+	{{/each}}
+	</ul>
+	</div>
+	</div>
+</template>
+
+<template id="project_detail" type="text/x-handlebars-template">
 	<div class="row marz row__"></div>
 
 	{{#each rows}}

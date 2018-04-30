@@ -201,6 +201,36 @@ $(function() {
 <div id="BUMPER" >bumper</div>
 <div id="VIEW"></div>
 
+<div id="project_dialog" class="hide9999">
+<div id="project_dialog_content">placeholder
+</div>
+</div>
+
+<template id="project_numbers" type="text/x-handlebars-template">
+	<div class="container">
+	
+	<div class="panel panel-default page">
+	<div class="panel-heading">Project Numbers</div>
+	<div class="panel-body">
+	The following is a list of project numbers.  Click on project you wich to work on. Double click on project to view details<br>
+	<a onclick="deficiency_sheets_log.add();">Add a new project...</a><br> 
+	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a> 
+	</div>	
+	<!-- List group -->
+	<ul class="list-group">
+	{{#each log}}
+	<li class="list-group-item"
+		onmouseenter="deficiency_sheets_log.hi.light(this);" 
+		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		onclick="deficiency_sheets_log.goto(event);"
+	>{{this}}</li>
+	{{/each}}
+	</ul>
+	</div>
+	</div>
+</template>
+
+
 </body>
 
 </html>

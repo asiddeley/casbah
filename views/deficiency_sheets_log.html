@@ -18,7 +18,7 @@
 
 <script type='text/javascript'>
 
-casbah.project_check();
+casbah.project.check();
 
 var deficiency_sheets_log={};
 
@@ -135,9 +135,11 @@ deficiency_sheets_log.refresh=function(){
 	});	
 };
 
-deficiency_sheets_log.project_select=function(ev){
-	casbah.project_select();
-	casbah.view("deficiency_sheets.html");
+deficiency_sheets_log.project_dialog=function(ev){
+	//casbah.project_select();
+	//casbah.view("deficiency_sheets.html");
+	//casbah.view("project_log_fs.html");
+	casbah.dialog.open();
 };
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());

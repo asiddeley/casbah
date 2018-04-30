@@ -394,17 +394,51 @@ casbah.parameters={
 		return this;
 	}	
 };
+/////////////////////////////////////////////////////////////////////
+//casbah.$project_dialog
+//$.get("views/project_log_fs.html", function(html){
+	//load this div with contents of file - ensure placeholder exists
+	//$("#project_log").html(html);
+	//casbah.project_dialog=$("#project_log").dialog();
+//});
+casbah.project={};
+casbah.project.refresh=function(){
+	//read upload folder
+	
+	$.ajax({	
+		data:$.param({
+			action:"project_numbers",
+			backin:"log",
+			project_number:"dummy"
+		}),
+		contentType:false,
+		error:function(err){console.log("Error:",err);},
+		processData:false, 
+		success:function(result){ 
+			//result - [{pnum:"", pname:"", ...},{...},{...}...]
+			//console.log("Success");
+			//casbah.renderFX("project_content", project.content, result, delta);
+			$("#project_dialog_content").html(casbah.project.template_numbers(result));
+			//$("#project_numbers").dialog();
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+}
+casbah.project.template={};
+casbah.project.template.numbers=Handlebars.compile($("#project_numbers").html());
 
-
-casbah.project_select=function(){
+	
+casbah.project.select=function(){
 	var pnum=prompt("Project number");
 	if (pnum !== "" && pnum != null){
 		localStorage.setItem("project_number", pnum);
 		$("#browser_tab").text("CASBAH ("+pnum+")");
-	};	
+	};
+	//casbah.project_dialog.show();
 };
 
-casbah.project_check=function(){
+casbah.project.check=function(){
 	//ensure project number set.  
 	var pnum=localStorage.getItem("project_number");
 	if (typeof pnum != "string") {
@@ -413,7 +447,35 @@ casbah.project_check=function(){
 	} 
 	$("#browser_tab").text("CASBAH ("+pnum+")");
 };
+casbah.project.dialog=function(){
+	$.ajax({	
+		data:$.param({
+			action:"project_numbers",
+			backin:"log"
+		}),
+		contentType:false,
+		error:function(err){console.log("Error:",err);},
+		processData:false, 
+		success:function(result){ 
+			//result - [{pnum:"", pname:"", ...},{...},{...}...]
+			//console.log("Success");
+			//casbah.renderFX("project_content", project.content, result, delta);
+			$("#project_dialog_content").html(casbah.project.template.numbers(result));
+			//$("#project_numbers").dialog();
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+	casbah.project.__dialog.open()
+};
 
+casbah.project.__dialog=$("#project_dialog").dialog(
+	{
+		autoOpen:false,
+		title: "Projects"	
+	
+	}
+);
 
 
 
