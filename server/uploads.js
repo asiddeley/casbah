@@ -44,8 +44,10 @@ exports.handler=function (req, res) {
 	//req.body.extension
 	//req.files... populated by middle-ware from ajaxed formData
 	var project_number=req.body.project_number;
+	
 	if (typeof project_number == "undefined") {
 		console.log("Upload handler error: project_number undefined"); 
+		res.json({dirs:[],err:err});
 		return;
 	}
 	const root=path.join(global.appRoot,"uploads", req.body.project_number);
@@ -141,13 +143,13 @@ exports.handler=function (req, res) {
 	break;
 	
 	case "project_numbers":
-		console.log("Request for project numbers:", root);
+		console.log("Request for project numbers:", global.appRoot,"uploads");
 		
 		try {
 			var ro={};
 			var bin=(typeof req.body.backin =="undefined")?"dirs":req.body.backin;
 			//getDirsSync returns an array of folders.  Each is just a short name, not path
-			ro[bin]=fsp.getDirsSync(root);
+			ro[bin]=fsp.getDirsSync(path.join(global.appRoot,"uploads"));
 			res.json(ro);
 		} 
 		catch(err) {

@@ -27,7 +27,6 @@
 <script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
 
 
-
 <script type="text/javascript">
 //Global parameters
 var $PP=casbah.parameters;
@@ -43,6 +42,10 @@ $(document).on("contextmenu", false);
 
 //READY
 $(function() { 
+
+	casbah.project.template.numbers=Handlebars.compile($("#project_numbers").html());
+	casbah.project.$dialog=$("#project_dialog");
+	//casbah.project.$dialog.dialog({autoOpen:false, title:"Projects"});
 
 	// Setup Handlebars
 	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
@@ -201,9 +204,8 @@ $(function() {
 <div id="BUMPER" >bumper</div>
 <div id="VIEW"></div>
 
-<div id="project_dialog" class="hide9999">
-<div id="project_dialog_content">placeholder
-</div>
+<div id="project_dialog">
+<div id="project_dialog_content">placeholder</div>
 </div>
 
 <template id="project_numbers" type="text/x-handlebars-template">

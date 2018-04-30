@@ -135,12 +135,12 @@ deficiency_sheets_log.refresh=function(){
 	});	
 };
 
-deficiency_sheets_log.project_dialog=function(ev){
+//deficiency_sheets_log.project_dialog=function(ev){
 	//casbah.project_select();
 	//casbah.view("deficiency_sheets.html");
 	//casbah.view("project_log_fs.html");
-	casbah.dialog.open();
-};
+	//casbah.project.dialog.open();
+//};
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
 
@@ -167,7 +167,7 @@ deficiency_sheets_log.refresh();
 	<div class="panel-body">
 	The following is a list of deficiency sheet-sets for this project.  Click on each one to open.  Drop image files on each one to ammend.<br>
 	<a onclick="deficiency_sheets_log.add();">Add a new sheet-set...</a><br> 
-	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a> 
+	<a onclick="casbah.project.dialog();">Select another project...</a> 
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">

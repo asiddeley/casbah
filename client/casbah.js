@@ -425,8 +425,8 @@ casbah.project.refresh=function(){
 		url:"/uploads"
 	});	
 }
+
 casbah.project.template={};
-casbah.project.template.numbers=Handlebars.compile($("#project_numbers").html());
 
 	
 casbah.project.select=function(){
@@ -447,35 +447,34 @@ casbah.project.check=function(){
 	} 
 	$("#browser_tab").text("CASBAH ("+pnum+")");
 };
+
 casbah.project.dialog=function(){
 	$.ajax({	
 		data:$.param({
 			action:"project_numbers",
-			backin:"log"
+			backin:"log",
+			project_number:"dummy"
 		}),
-		contentType:false,
+		//contentType:false,
+		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error:",err);},
 		processData:false, 
 		success:function(result){ 
 			//result - [{pnum:"", pname:"", ...},{...},{...}...]
 			//console.log("Success");
 			//casbah.renderFX("project_content", project.content, result, delta);
-			$("#project_dialog_content").html(casbah.project.template.numbers(result));
+			var h=casbah.project.template.numbers(result);
+			//alert(h);
+			$("#project_dialog_content").html(h);
 			//$("#project_numbers").dialog();
+			casbah.project.$dialog.dialog({title:"Projects"});
 		},
 		type:"POST",
 		url:"/uploads"
 	});	
-	casbah.project.__dialog.open()
+	
 };
 
-casbah.project.__dialog=$("#project_dialog").dialog(
-	{
-		autoOpen:false,
-		title: "Projects"	
-	
-	}
-);
 
 
 
