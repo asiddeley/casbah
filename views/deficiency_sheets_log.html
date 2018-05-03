@@ -23,7 +23,7 @@ casbah.project.check();
 var deficiency_sheets_log={};
 
 deficiency_sheets_log.add=function(){
-	var name=prompt("Name of new deficiency sheet-set");
+	var name=prompt("Name of new deficiency sheetset");
 	if (name == "" || name == null){return;}
 	//var fd=new FormData();
 	//fd.append("action","ADD");
@@ -33,13 +33,11 @@ deficiency_sheets_log.add=function(){
 	//fd.append("subfolder", name);
 	
 	$.ajax({
-		//data:fd, //in ie triggers jquery argument not optional error 
 		data:$.param({
-			action:"ADD",
+			action:"MAKE",
 			project_number:localStorage.getItem("project_number"),
 			tab:"reports",
-			folder:"deficiency_sheets",
-			subfolder:name			
+			folder:"deficiency_sheets\\"+name
 		}),
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error adding deficiency sheetset:",err);},
@@ -48,7 +46,6 @@ deficiency_sheets_log.add=function(){
 			$("#deficiency_sheets_log_placeholder").html(html);
 		},
 		type:"POST",
-		//url:"/reports"
 		url:"/uploads"
 	});	
 };
@@ -74,10 +71,8 @@ deficiency_sheets_log.drop=function(ev){
 	fd.append("action","UPLOAD");
 	fd.append("project_number", localStorage.getItem("project_number"));
 	fd.append("tab","reports");
-	//fd.append("report_type","deficiency_sheets");
-	fd.append("folder","deficiency_sheets");
-	//fd.append("report_name", $(ev.target).text());
-	fd.append("subfolder",$(ev.target).text());
+	fd.append("folder","deficiency_sheets\\"+$(ev.target).text());
+	//fd.append("subfolder",$(ev.target).text());
 	fd.append("upload_file",true);
 	
 	$.ajax({	
@@ -94,7 +89,8 @@ deficiency_sheets_log.drop=function(ev){
 
 deficiency_sheets_log.goto=function(ev){
 	//localStorage.setItem("report_name", $(ev.target).text());
-	localStorage.setItem("subfolder", $(ev.target).text());
+	//localStorage.setItem("subfolder", $(ev.target).text());
+	localStorage.setItem("deficiency_sheetset", $(ev.target).text());
 	casbah.view("deficiency_sheets.html");
 };
 
@@ -115,11 +111,9 @@ deficiency_sheets_log.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			//action:"LOG",
-			action:"DIR",
+			action:"FOLDERS",
 			project_number:localStorage.getItem("project_number"),
 			tab:"reports",
-			//report_type:"deficiency_sheets",
 			folder:"deficiency_sheets",
 		}),
 		//data: fd,
@@ -135,12 +129,6 @@ deficiency_sheets_log.refresh=function(){
 	});	
 };
 
-//deficiency_sheets_log.project_dialog=function(ev){
-	//casbah.project_select();
-	//casbah.view("deficiency_sheets.html");
-	//casbah.view("project_log_fs.html");
-	//casbah.project.dialog.open();
-//};
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
 
@@ -171,7 +159,7 @@ deficiency_sheets_log.refresh();
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">
-	{{#each dirs}}
+	{{#each folders}}
 	<li class="list-group-item"
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	

@@ -17,18 +17,13 @@
 
 <script type='text/javascript'>
 
-casbah.project_check();
+casbah.project.check();
 
 var deficiency_sheets={};
 
 deficiency_sheets.checklist=$("#deficiency_sheets_checklist").html();
 deficiency_sheets.comments=$("#deficiency_sheets_comments").html();
 
-
-//deficiency_sheets.head=$("#deficiency_sheets_head").html();
-//Handlebars.registerHelper("deficiency_sheets_head", function(str, options){
-//	return deficiency_sheets.head;
-//});
 
 deficiency_sheets.refresh=function(){
 	//get images for deficiencySheets then
@@ -40,10 +35,7 @@ deficiency_sheets.refresh=function(){
 			extension:".PNG",
 			project_number:localStorage.getItem("project_number"),
 			tab:"reports",
-			//report_type:"deficiency_sheets",
-			folder:"deficiency_sheets",
-			//report_name:localStorage.getItem("report_name")			
-			subfolder:localStorage.getItem("subfolder")
+			folder:"deficiency_sheets\\" + localStorage.getItem("deficiency_sheetset"),
 		}),
 		error:function(err){console.log("Error:", err.message);},
 		success:function(result){

@@ -520,7 +520,7 @@ casbah.selectFolder=function (e) {
     alert(folder[0]);
 };
 
-casbah.ViewDial=function(options){
+casbah.ViewSelecter=function(options){
 	//Sets up triggers for calling views
 	//options - {[elid:"TOOLBAR", ev:"toolchange", views:[]],[]...}
 	//to call - $(document).trigger("toolchange", "view.html")
@@ -570,17 +570,35 @@ casbah.tool=function(htmlfile){
 	else {$("#"+id).show().load("views/"+htmlfile);}
 };
 
+casbah.__views={};
 
 casbah.view=function(htmlfile){
+	//htmlfile eg. "deficiency_sheets_log.html")
+	
 	console.log("viewchange:", htmlfile);	
 	//heads up - close open editors etc
-	$(document).trigger("viewchange");
+	$(document).trigger("viewchange", htmlfile);
+	
+	//init - ensure placeholder exists
 	var id="VIEW";
 	if (!$("#"+id).length){
-		//var el=$("<div></div>").addr("id",id);
+		var el=$("<div></div>").addr("id",id);
 		$("body").append($("<div></div>").attr("id",id));		
 	}
 	$("#"+id).load("views/"+htmlfile);
+
+	
+	var vid=htmlfile.substring(0, htmlfile.indexOf("."));
+	//Check if htmlfile already loaded, if not then create container and load
+	if (Object.keys(casbah.__views).indexOf(htmlfile)==-1) {
+		casbah.__views[htmlfile]=htmlfile;
+		$("#VIEW").append($("<div></div>").attr("id",vid).addClass("htmlviews"));
+		$("#"+vid).load("views/"+htmlfile);
+		console.log("new div created to hold ", vid);
+	}
+	//hide all views then, reveal the desired one
+	$(".htmlviews").hide(); 
+	$("#"+vid).show(); 
 };
 
 

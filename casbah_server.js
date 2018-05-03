@@ -39,7 +39,7 @@ const app = express()
 global.appRoot = path.resolve(__dirname);
 
 //Database setup
-casbahdat.init();
+//casbahdat.init();
 process.on("exit", casbahdat.close)
 
 //Main entry
@@ -56,20 +56,13 @@ app.use( bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 1
 app.use( bodyParser.json({limit: '50mb'}));
 
 //Database queries
-app.post('/database', casbahdat.query);
+//app.post('/database', casbahdat.query);
 
 //Uploader
 app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));
 
-//Routes for various reports
-//app.post("/deficiencySheets", require(path.join(__dirname,"server","reports.js")).deficiencySheets);
-//app.post("/deficiencySheetsLog", require(path.join(__dirname,"server", "reports.js")).deficiencySheetsLog);
-
-//Routes for CASBAH tabs
-//app.post("/reports", require(path.join(__dirname, "server", "reports.js")).handler);
-//app.post("/gallery", require(path.join(__dirname, "server", "gallery.js")).handler);
+//Server Filesystem Routes 
 app.post("/uploads", require(path.join(__dirname, "server", "uploads.js")).handler);
-
 
 //Start serving...
 app.listen(8080, function () {console.log("casbah serving on http://localhost:8080/")});
