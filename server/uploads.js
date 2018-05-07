@@ -40,7 +40,6 @@ exports.handler=function (req, res) {
 	//req.body.project_number... 
 	//req.body.tab... Gallery | reports
 	//req.body.folder... Collection | deficiency Sheet set
-	//req.body.subfolder... 2018-04-27 photos | level-04
 	//req.body.extension
 	//req.files... populated by middle-ware from ajaxed formData
 	var project_number=req.body.project_number;
@@ -53,9 +52,195 @@ exports.handler=function (req, res) {
 	const root=path.join(global.appRoot,"uploads", req.body.project_number);
 
 	switch (req.body.action){
-
-	case "MAKE":
+		
+	case "DBFS-DELETE":
 		//prerequisites: 
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.datafile
+		//rowid
+		console.log(
+			"DBFS-DELETE:", 
+			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+			req.body.rowid
+		);
+		try {
+			fs.readFile(
+				path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+				function(err, data){
+					//{"0":{field1:field1, ...}, "1":{field1:field1, ...} ...}
+					var table=JSON.parse(data); 
+					delete table.rowid;
+					fs.writeFile(
+						path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+						JSON.stringify(table),
+						function(err){
+							console.log("DBFS-DELETE success");
+							res.json({rows:[], err:err});
+						}
+					)
+				}
+			);
+		}
+		catch(err) {
+			console.log(err);
+			res.json({
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 	
+	break;
+	
+	case "DBFS-CREATE":
+		//needs: 
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.datafile
+		//req.body.defrow
+
+		console.log(
+			"DBFS-CREATE:", 
+			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+			req.body.defrow
+		);
+		try {
+			var row=req.body.defrow;
+			row["rowid"]="0";
+			fs.writeFile(
+				path.join(root, req.body.tab, req.body.folder, req.body.datafile),
+				//datafile is an object of rows
+				//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+				JSON.stringify({"0":row}), 
+				function(err){
+					console.log("DBFS-CREATE success:", err);
+					//result is an array of selected rows
+					res.json({rows:[row], err:err});			
+				}
+			);
+		}
+		catch(err) {
+			console.log("DBFS-CRAETE error:", err);
+			res.json({
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 	
+	break;	
+
+	case "DBFS-INSERT":
+		//needs: 
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.datafile
+		//req.body.row
+
+		console.log(
+			"DBFS-INSERT:", 
+			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+			req.body.row
+		);
+		try {
+			fs.readFile(
+				path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+				function(err, data){
+					//table is an object of rows eg...
+					//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+					var table=JSON.parse(data);
+					var keys=Object.keys(table);
+					var rowid=1+keys.reduce((acc, cur)=>Math.max(Number(acc), Number(cur)));					table[rowid]=req.body.row;
+					fs.writeFile(
+						path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+						JSON.stringify(table),
+						function(err){
+							console.log("DBFS-INSERT success:", err);
+							//result is an array of selected rows...
+							res.json({rows:[], err:err});			
+						}
+					);					
+				}
+			);
+		}
+		catch(err) {
+			console.log("DBFS-INSERT error:",err);
+			res.json({
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 	
+	break;
+	
+	case "DBFS-SELECT":
+		//needs: 
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.datafile
+
+		console.log(
+			"DBFS-SELECT:", 
+			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+			req.body.row
+		);
+		try {
+			fs.readFile(
+				path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
+				function(err, data){
+					console.log("DBFS-SELECT success:", err);
+					//table is an object of rows eg...
+					//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+					var table=JSON.parse(data);
+					//result is an array of selected rows. All rows for now, refine selection method...
+					var selection=Object.keys(table).map(k=>table(k));
+					res.json(rows:selection);			
+				}
+			);
+		}
+		catch(err) {
+			console.log("DBFS-SELECT error:",err);
+			res.json({
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 	
+	break;	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	case "MAKE":
+		//needs: 
 		//reg.body.project_number
 		//req.body.tab, 
 		//req.body.folder
@@ -77,8 +262,44 @@ exports.handler=function (req, res) {
 		} 
 	break;
 	
+	case "MAKEFILE":
+		//needs: 
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.filename
+		//req.body.content
+		console.log("MAKEFILE:", path.join(
+			root, 
+			req.body.tab, 
+			req.body.folder, 
+			req.body.filename
+		));
+		try {
+			var filepath=path.join(root, req.body.tab, req.body.folder, req.body.filename)
+			fs.writeFile(filepath, filecontent, (err) => {
+				if (err) throw err;
+				console.log("The file was succesfully saved!");
+			}); 
+			res.json({
+				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder, "..")),
+				project_number:req.body.project_number
+			});
+		}
+		catch(err) {
+			console.log(err);
+			res.json({
+				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
+				err:err,
+				project_number:req.body.project_number
+			})
+		} 
+	break;
+	
 	case "FOLDERS":
-		//prerequisites: req.body.report_type
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
 		console.log("Request for folders in:", root, req.body.tab, req.body.folder);
 		try {
 			res.json({
@@ -97,6 +318,7 @@ exports.handler=function (req, res) {
 	break;
 	
 	case "FILES":
+		//NOT RECURSIVE
 		//Prerequisites
 		//req.body.project_number
 		//req.body.tab
@@ -104,8 +326,8 @@ exports.handler=function (req, res) {
 		//req.body.extension... ".jpg .pgn .bmp"
 		try {
 			console.log("Request for files in:", path.join(root, req.body.tab, req.body.folder))
-			var files=fsp.walkSync(path.join(
-				root, 
+			//var files=fsp.walkSync(path.join( //recursive
+			var files=fsp.getFilesSync(path.join( 
 				req.body.tab, 
 				req.body.folder
 			));

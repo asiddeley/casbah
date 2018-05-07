@@ -24,9 +24,15 @@ const walkSyncTree = (dir, filelist = []) =>
 		
 exports.walkSyncTree=walkSyncTree;
 
-
 exports.getDirsSync=function(dir) {
   return fs.readdirSync(dir).filter(function (file) {
     return fs.statSync(path.join(dir,file)).isDirectory();
   });
 }
+
+exports.getFilesSync=function(dir) {
+  return fs.readdirSync(dir).filter(function (file) {
+    return fs.statSync(path.join(dir,file)).isFile();
+  });
+}
+

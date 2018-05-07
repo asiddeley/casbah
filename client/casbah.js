@@ -191,6 +191,24 @@ casbah.database=function(sql, callback){
 };
 
 
+casbah.databaseFS=function(options, callback){
+	
+	//callback -- function(result){...}
+	//result -- {msg:"txt", rows:[], delta:} 
+	
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: jQuery.param(options),
+		error:function(err){console.log("casbah.databaseFS ajax error:", err);},
+		success:function(result){ 
+			if(typeof result.rows=="undefined") result.rows=[];
+			if (typeof callback=="function") callback(result);
+		},
+		type: 'POST',
+		url: '/uploads'
+	});	
+};
+
 //////////////////////////////////
 // TEXTEDITOR
 // init...
@@ -369,6 +387,7 @@ casbah.Highlighter=function(hiclass){
 	};
 };
 
+casbah.hi=new casbah.Highlighter("highlite");
 
 ///////////////////////////
 casbah.parameters={
@@ -402,6 +421,7 @@ casbah.parameters={
 	//casbah.project_dialog=$("#project_log").dialog();
 //});
 casbah.project={};
+/**
 casbah.project.refresh=function(){
 	//read upload folder
 	
@@ -425,9 +445,9 @@ casbah.project.refresh=function(){
 		url:"/uploads"
 	});	
 }
-
+**/
 casbah.project.template={};
-
+//casbah.project.template.numbers initialized in casbah.html ready
 	
 casbah.project.select=function(){
 	var pnum=prompt("Project number");
@@ -448,7 +468,7 @@ casbah.project.check=function(){
 	$("#browser_tab").text("CASBAH ("+pnum+")");
 };
 
-casbah.project.dialog=function(){
+casbah.project.dialog=function(callback){
 	$.ajax({	
 		data:$.param({
 			action:"project_numbers",
@@ -464,10 +484,18 @@ casbah.project.dialog=function(){
 			//console.log("Success");
 			//casbah.renderFX("project_content", project.content, result, delta);
 			var h=casbah.project.template.numbers(result);
-			//alert(h);
-			$("#project_dialog_content").html(h);
-			//$("#project_numbers").dialog();
-			casbah.project.$dialog.dialog({title:"Projects"});
+			////alert(h);
+			//$("#project_dialog_content").html(h);
+			////$("#project_numbers").dialog();
+			//casbah.project.$dialog.dialog({title:"Projects"});
+			
+			//set callback
+			$("#project_modal").on("hide.bs.modal", function (e) {
+				if (typeof callback=="function"){callback();}
+			});
+			
+			$("#project_modal_content").html(h);
+			$("#project_modal").modal("show");
 		},
 		type:"POST",
 		url:"/uploads"
@@ -513,13 +541,16 @@ casbah.showMenu=function(cm$, ev){
 	return false;
 };
 
+/********
 casbah.selectFolder=function (e) {
     var theFiles = e.target.files;
     var relativePath = theFiles[0].webkitRelativePath;
     var folder = relativePath.split("/");
     alert(folder[0]);
 };
+************/
 
+/**********
 casbah.ViewSelecter=function(options){
 	//Sets up triggers for calling views
 	//options - {[elid:"TOOLBAR", ev:"toolchange", views:[]],[]...}
@@ -555,7 +586,7 @@ casbah.ViewSelecter=function(options){
 		})		
 	}
 };
-
+************/
 
 //////////////////////////////
 casbah.tool=function(htmlfile){

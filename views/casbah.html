@@ -159,8 +159,8 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Reports<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li onclick="casbah.view('site_visit_report.html')"><a href="#">Site Visit Report</a></li>
-			<li onclick="casbah.view('site_visit_report_log.html')"><a href="#">Site Visit Log</a></li>
+			<li onclick="casbah.view('site_report_fs.html')"><a href="#">Site Report</a></li>
+			<li onclick="casbah.view('site_report_log_fs.html')"><a href="#">Site Report Log</a></li>
 			<li class="divider"><li>
 			<li onclick="casbah.view('deficiency_sheets.html')"><a href="#">Deficiency Sheets</a></li>
 			<li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Deficiency Sheets log</a></li>
@@ -205,31 +205,46 @@ $(function() {
 <div id="VIEW"></div>
 
 <div id="project_dialog" class="hide9999">
-<div id="project_dialog_content">placeholder</div>
+	<div id="project_dialog_content">placeholder</div>
+</div>
+
+<div id="project_modal" class="modal fade" role="dialog">
+<!--div id="project_modal_content">placeholder</div-->
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Project Numbers</h4>
+			</div>
+			<div id="project_modal_content" class="modal-body" >
+				<p>Placeholder for a small modal.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <template id="project_numbers" type="text/x-handlebars-template">
-	<div class="container">
-	
-	<div class="panel panel-default page">
-	<div class="panel-heading">Project Numbers</div>
-	<div class="panel-body">
-	The following is a list of project numbers.  Click on project you wich to work on. Double click on project to view details<br>
-	<a onclick="deficiency_sheets_log.add();">Add a new project...</a><br> 
-	<a onclick="deficiency_sheets_log.project_select();">Select another project...</a> 
-	</div>	
-	<!-- List group -->
-	<ul class="list-group">
-	{{#each log}}
-	<li class="list-group-item"
-		onmouseenter="deficiency_sheets_log.hi.light(this);" 
-		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
-		onclick="deficiency_sheets_log.goto(event);"
-	>{{this}}</li>
-	{{/each}}
-	</ul>
-	</div>
-	</div>
+	<!--div class="container"-->
+	<!--div class="panel panel-default page">
+		<div class="panel-heading">Project Numbers</div>
+		<div class="panel-body">
+			<p>The following is a list of project numbers.  Click on project you wich to work on.</p><a onclick="alert('new project...');">Add a new project...</a>
+		</div-->	
+		<!-- List group -->
+		<ul class="list-group">
+		{{#each log}}
+		<li class="list-group-item"
+			onmouseenter="casbah.hi.light(this);" 
+			onmouseleave="casbah.hi.dark(this);"	
+			onclick="localStorage.setItem('project_number', $(event.target).text()); $('#project_modal').modal('hide');"
+		>{{this}}</li>
+		{{/each}}
+		</ul>
+	<!--/div-->
+	<!--/div-->
 </template>
 
 
