@@ -32,7 +32,45 @@ const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
 
 
+const dbfs_create=function(datafile, row, callback){
+	//row - {by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}
+	//table - {"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+
+	row["rowid"]="0"; //add rowid:value
+	var table={"0":row}; 
+	fs.writeFile(datafile, JSON.stringify(table), function(err){
+		if (!err){ 
+			console.log("DBFS-CREATE success"); 
+			//result is an array of selected rows
+			if (typeof callback=="function"){callback({rows:[row]});}
+		} else { 
+			console.log("DBFS-CREATE fail:", err); 
+			//result is an array of selected rows
+			if (typeof callback=="function"){callback({rows:[row], err:err});}
+		}		
+	});
+};
+
+const ddfs_insert=function(df, row, callback){
+	fs.readFile(df, function(err, data){
+		//table is an object of rows eg...
+		//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+		var table=JSON.parse(data);
+		var keys=Object.keys(table);
+		var rowid=1+keys.reduce((acc, cur)=>Math.max(Number(acc), Number(cur)));
+		row[rowid]=rowid; //
+		table[rowid]=row;
+		fs.writeFile(df, JSON.stringify(table), function(err){
+			console.log("DBFS-INSERT success:", err);
+			//result is an array of selected rows...
+			//res.json({rows:[table[rowid]], err:err});	
+			if (typeof callback=="function"){callback({rows:[row], err:err});}
+		});
+	});
+}
+
 //////////////////////////////////////////////////////////////////////////////
+//Exports
 
 exports.handler=function (req, res) {
 	//Prerequisites (to be passed in ajax data):
@@ -91,152 +129,66 @@ exports.handler=function (req, res) {
 			})
 		} 	
 	break;
-	
-	case "DBFS-CREATE":
-		//needs: 
-		//reg.body.project_number
-		//req.body.tab, 
-		//req.body.folder
-		//req.body.datafile
-		//req.body.defrow
 
-		console.log(
-			"DBFS-CREATE:", 
-			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-			req.body.defrow
+	case "DBFS-CREATE":
+		var df=path.join(rootglobal.appRoot,"uploads", 
+			req.body.project_number, req.body.tab, req.body.folder, req.body.datafile
 		);
-		try {
-			var row=req.body.defrow;
-			row["rowid"]="0";
-			fs.writeFile(
-				path.join(root, req.body.tab, req.body.folder, req.body.datafile),
-				//datafile is an object of rows
-				//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
-				JSON.stringify({"0":row}), 
-				function(err){
-					console.log("DBFS-CREATE success:", err);
-					//result is an array of selected rows
-					res.json({rows:[row], err:err});			
-				}
-			);
-		}
-		catch(err) {
-			console.log("DBFS-CRAETE error:", err);
-			res.json({
-				err:err,
-				project_number:req.body.project_number
-			})
-		} 	
+		console.log("DBFS-CREATE:", df, " defrow:", req.body.defrow);
+		//result - {rows:[row], err:err}
+		dbfs_create(df, req.body.defrow, function(result){res.json(result);});
 	break;	
 
 	case "DBFS-INSERT":
-		//needs: 
-		//reg.body.project_number
-		//req.body.tab, 
-		//req.body.folder
-		//req.body.datafile
-		//req.body.row
-
-		console.log(
-			"DBFS-INSERT:", 
-			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-			req.body.row
+		var df=path.join(rootglobal.appRoot,"uploads", 
+			req.body.project_number, req.body.tab, req.body.folder, req.body.datafile
 		);
-		try {
-			fs.readFile(
-				path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-				function(err, data){
-					//table is an object of rows eg...
-					//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
-					var table=JSON.parse(data);
-					var keys=Object.keys(table);
-					var rowid=1+keys.reduce((acc, cur)=>Math.max(Number(acc), Number(cur)));					table[rowid]=req.body.row;
-					fs.writeFile(
-						path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-						JSON.stringify(table),
-						function(err){
-							console.log("DBFS-INSERT success:", err);
-							//result is an array of selected rows...
-							res.json({rows:[], err:err});			
-						}
-					);					
-				}
-			);
-		}
-		catch(err) {
-			console.log("DBFS-INSERT error:",err);
-			res.json({
-				err:err,
-				project_number:req.body.project_number
-			})
-		} 	
+		console.log("DBFS-INSERT:", df, " row:", req.body.row);
+		fs.stat(df, function(err, stat){
+			if (!err){
+				ddfs_insert(df, req.body.row, function(result){
+					//result - {rows:[inserted_row], err:err}
+					//consider returning all rows so client can refresh in one operation 
+					req.json(result);
+				});
+			} else if (err.code=="ENOENT"){
+				//datafile not found
+				dbfs_create(df, req.body.row, function(result){
+					//result - {rows:[inserted_row], err:err}
+					//consider returning all rows so client can refresh in one operation 
+					req.json(result);
+				});
+			}			
+		});
 	break;
 	
 	case "DBFS-SELECT":
-		//needs: 
-		//reg.body.project_number
-		//req.body.tab, 
-		//req.body.folder
-		//req.body.datafile
-
-		console.log(
-			"DBFS-SELECT:", 
-			path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-			req.body.row
-		);
-		try {
-			fs.readFile(
-				path.join(root, req.body.tab, req.body.folder, req.body.datafile), 
-				function(err, data){
-					console.log("DBFS-SELECT success:", err);
-					//table is an object of rows eg...
-					//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
-					var table=JSON.parse(data);
-					//result is an array of selected rows. All rows for now, refine selection method...
-					var selection=Object.keys(table).map(k=>table(k));
-					res.json(rows:selection);			
-				}
-			);
+	var df=path.join(rootglobal.appRoot,"uploads", 
+		req.body.project_number,req.body.tab, req.body.folder, req.body.datafile
+	);
+	console.log("DBFS-SELECT:", df, " defrow(just in case datafile missing)", req.body.defrow);
+	fs.stat	(df, function(err, stat){
+		if (err==null){
+			//file exists so read
+			fs.readFile(df, function(err, data){
+				console.log("DBFS-SELECT success:", err);
+				//table is an object of rows eg...
+				//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+				var table=JSON.parse(data);
+				//result is an array of selected rows. All rows for now, refine selection method...
+				var selection=Object.keys(table).map(k=>table(k));
+				res.json(rows:selection);			
+			});				
+		} else if (err.code=="ENOENT") {
+			//datafile doesn't exist so create
+			dbfs_create(df, req.body.defrow, function(result){
+				res.json(result);
+			});
+		} else {
+			//some other error			
 		}
-		catch(err) {
-			console.log("DBFS-SELECT error:",err);
-			res.json({
-				err:err,
-				project_number:req.body.project_number
-			})
-		} 	
+	}
 	break;	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	case "MAKE":
