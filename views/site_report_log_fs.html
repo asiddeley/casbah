@@ -27,22 +27,23 @@ svrlog.open=function(el){
 	//$PP.store("$dnum",dnum);
 	//$("#reportdock").load("views/site_visit_report.html");
 
-	var folder="site reports\\"+$(el).attr("document_id");
+	var folder="site_reports\\"+$(el).attr("document_id");
 	localStorage.setItem("tab","reports");
 	localStorage.setItem("folder", folder);
 	casbah.view("views\\site_report.html");
 };
 
 //TableViews
-//svrlog.tv=new TableViewFS(casbah.tv.siteVisitReports($PP), {
-svrlog.tv=new TableViewFS(casbah.tv.siteReport(), {
+//svrlog.tv=new TableView(casbah.tv.siteVisitReports($PP), {
+svrlog.tv=new casbah.TableView(casbah.tables.site_reports(), {
 	refresh:function(result, delta){
 		console.log("SVRlog TV:", JSON.stringify(result.rows));
 		casbah.renderFX("svrlog-content", svrlog.content, result, delta);
 	}
 });
 
-svrlog.tvTitleblock=new TableViewFS(casbah.tv.projects($PP),{
+//svrlog.tvTitleblock=new casbah.TableView(casbah.tv.projects($PP),{
+svrlog.tvTitleblock=new casbah.TableView(casbah.tables.projects(),{
 	//render the header with project information
 	refresh:function(result, delta){
 		casbah.renderFX("svrlog-titleblock", svrlog.titleblock, result, delta);

@@ -19,8 +19,8 @@
 
 <!-- casbah libraries & CSS -->
 <script type="text/javascript" src="client/casbah.js"></script>
-<script type="text/javascript" src="client/tables.js"></script>
-<script type="text/javascript" src="client/tableview.js"></script>
+<script type="text/javascript" src="client/tables_fs.js"></script>
+<script type="text/javascript" src="client/tableview_fs.js"></script>
 <link rel="stylesheet" type="text/css" href="views/casbah.css">
 
 <!-- Handlebars Template engine -->
@@ -40,11 +40,12 @@ $(window).on({
 //inhibit the browser's right-click context menu
 $(document).on("contextmenu", false);
 
+
 //READY
 $(function() { 
 
 	casbah.project.template.numbers=Handlebars.compile($("#project_numbers").html());
-	casbah.project.$dialog=$("#project_dialog");
+	//casbah.project.$dialog=$("#project_dialog");
 	//casbah.project.$dialog.dialog({autoOpen:false, title:"Projects"});
 
 	// Setup Handlebars
@@ -204,12 +205,8 @@ $(function() {
 <div id="BUMPER" >bumper</div>
 <div id="VIEW"></div>
 
-<!--div id="project_dialog" class="hide9999">
-	<div id="project_dialog_content">placeholder</div>
-</div-->
 
-<div id="project_modal" class="modal fade" role="dialog">
-<!--div id="project_modal_content">placeholder</div-->
+<div id="project_modal" class="modal fade" role="dialog" >
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -224,7 +221,7 @@ $(function() {
 			</div>
 		</div>
 	</div>
-</div>
+</div >
 
 <template id="project_numbers" type="text/x-handlebars-template">
 	<!--div class="container"-->

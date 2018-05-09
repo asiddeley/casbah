@@ -195,17 +195,18 @@ casbah.databaseFS=function(options, callback){
 	
 	//callback -- function(result){...}
 	//result -- {msg:"txt", rows:[], delta:} 
+	console.log("Options",options);
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: jQuery.param(options),
+		data: $.param(options),
 		error:function(err){console.log("casbah.databaseFS ajax error:", err);},
 		success:function(result){ 
 			if(typeof result.rows=="undefined") result.rows=[];
 			if (typeof callback=="function") callback(result);
 		},
-		type: 'POST',
-		url: '/uploads'
+		type: "POST",
+		url: "/uploads"
 	});	
 };
 
@@ -461,7 +462,7 @@ casbah.project.select=function(){
 casbah.project.check=function(){
 	//ensure project number set.  
 	if (typeof localStorage.getItem("project_number") != "string") {
-		casbah.project_select();
+		casbah.project.select();
 		return;
 	} 
 	$("#browser_tab").text("CASBAH - "+localStorage.getItem("project_number"));

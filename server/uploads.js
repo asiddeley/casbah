@@ -40,11 +40,11 @@ const df_create=function(datafile, row, callback){
 	var table={"0":row}; 
 	fs.writeFile(datafile, JSON.stringify(table), function(err){
 		if (!err){ 
-			console.log("DBFS-CREATE success"); 
+			console.log("DF-CREATE success"); 
 			//result is an array of selected rows
 			if (typeof callback=="function"){callback({rows:[row]});}
 		} else { 
-			console.log("DBFS-CREATE fail:", err); 
+			console.log("DF-CREATE fail:", err); 
 			//result is an array of selected rows
 			if (typeof callback=="function"){
 				callback({rows:[row], err:err})
@@ -63,7 +63,7 @@ const df_insert=function(df, row, callback){
 		row[rowid]=rowid; //inject rowid 
 		table[rowid]=row;
 		fs.writeFile(df, JSON.stringify(table), function(err){
-			console.log("DBFS-INSERT success:", err);
+			console.log("DF-INSERT success:", err);
 			//result is an array of selected rows...
 			//res.json({rows:[table[rowid]], err:err});	
 			if (typeof callback=="function"){
@@ -75,11 +75,13 @@ const df_insert=function(df, row, callback){
 }
 
 const df_select=function(df, callback){
-	fs.readFile(df, function(err, data){
+	fs.readFile(df, "utf8", function(err, data){
 		console.log("DF-SELECT success:", err);
 		//table is an object of rows eg...
 		//{"0":{rowid:0, by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}...}
+		console.log("DATA:", data)
 		var table=JSON.parse(data)
+		//console.log("JSON parsed:", table)
 		//result is an array of selected rows. All rows for now, refine selection method...
 		var selection=Object.values(table).filter(v => v != null)
 		if (typeof callback=="function"){callback( {rows:selection, err:err} )}					
@@ -95,7 +97,7 @@ const df_update=function(df, rowid, row, callback){
 		row[rowid]=rowid; //inject rowid 
 		table[rowid]=row;
 		fs.writeFile(df, JSON.stringify(table), function(err){
-			console.log("DBFS-UPDATE success:", err);
+			console.log("DF-UPDATE success:", err);
 			//result is an array of selected rows...
 			//res.json({rows:[table[rowid]], err:err});	
 			if (typeof callback=="function"){
@@ -155,10 +157,10 @@ req.files... populated by middle-ware from ajaxed formData
 				})
 			} else if (err.code=="ENOENT"){
 				console.log("DF-DELETE error:", err.code)
-				req.json({err:err, rows:[]})	
+				res.json({err:err, rows:[]})	
 			} else {
 				console.log("DF-DELETE some other error:", err.code)		
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break;
@@ -181,7 +183,7 @@ req.files... populated by middle-ware from ajaxed formData
 				})
 			} else {
 				console.log("DF-CREATE some other error:", err.code)		
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break;	
@@ -195,18 +197,18 @@ req.files... populated by middle-ware from ajaxed formData
 			if (!err){
 				df_insert(df, req.body.row, function(result){
 					//result - {rows:[all_rows], err:err, last:inserted_row}
-					req.json(result)
+					res.json(result)
 				});
 			} else if (err.code=="ENOENT"){
 				//datafile not found
 				df_create(df, req.body.row, function(result){
 					//result - {rows:[inserted_row], err:err}
 					//consider returning all rows so client can refresh in one operation 
-					req.json(result)
+					res.json(result)
 				});
 			} else {
 				console.log("DF-INSERT some other error:", err.code)
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}		
 		})
 	break
@@ -220,7 +222,7 @@ req.files... populated by middle-ware from ajaxed formData
 		fs.stat(df, function(err, stat){
 			if (!err){
 				//file exists so select all
-				df_select(df, function(result){req.json(result)})
+				df_select(df, function(result){res.json(result)})
 			} else if (err.code=="ENOENT") {
 				//datafile doesn't exist so create
 				df_create(df, req.body.defrow, function(result){
@@ -228,7 +230,7 @@ req.files... populated by middle-ware from ajaxed formData
 				})
 			} else {
 				console.log("DF-SELECT some other error:", err.code)
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break
@@ -245,7 +247,7 @@ req.files... populated by middle-ware from ajaxed formData
 				df_select(df, function(result){
 					//select 1st row from all rows in result
 					//req.json({rows:[result.rows[0]]})
-					req.json({rows:[Object.values(result.rows).shift()]})
+					res.json({rows:[Object.values(result.rows).shift()]})
 				})
 			} else if (err.code=="ENOENT") {
 				//datafile doesn't exist so create
@@ -254,7 +256,7 @@ req.files... populated by middle-ware from ajaxed formData
 				})
 			} else {
 				console.log("DF-SELECT-FIRST some other error:", err.code)	
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break
@@ -270,7 +272,7 @@ req.files... populated by middle-ware from ajaxed formData
 				//file exists so select all
 				df_select(df, function(result){
 					//select last row from all rows in result
-					req.json({rows:[Object.values(result.rows).pop()]})
+					res.json({rows:[Object.values(result.rows).pop()]})
 				})
 			} else if (err.code=="ENOENT") {
 				//datafile doesn't exist so create
@@ -279,7 +281,7 @@ req.files... populated by middle-ware from ajaxed formData
 				})
 			} else {
 				console.log("DF-SELECT-LAST some other error:", err.code)	
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break
@@ -293,14 +295,14 @@ req.files... populated by middle-ware from ajaxed formData
 			if (!err){
 				df_update(df, req.body.rowid, req.body.row, function(result){
 					//result - {rows:[all_rows], err:err, last:inserted_row}
-					req.json(result)
+					res.json(result)
 				});
 			} else if (err.code=="ENOENT"){
 				console.log("DF-UPDATE datafile not found:", err.code)
-				req.json({err:err, rows:[]})
+				res.json({err:err, rows:[]})
 			} else {
 				console.log("DF-UPDATE some other error:", err.code)
-				req.json({err:err, rows:[]})				
+				res.json({err:err, rows:[]})				
 			}
 		})
 	break
