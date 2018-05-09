@@ -239,12 +239,14 @@ casbah.TableView.prototype.SQLdelete=function(rowid){
 	**/
 	
 	return {
-		action:"DBFS-DELETE",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
-		folder:localStorage.getItem("folder"),
+		action:"DF-DELETE",
 		datafile:this.options.datafile,
-		rowid:rowid
+		defrow:this.options.defrow,
+		folder:localStorage.getItem("folder"),
+		project_number:localStorage.getItem("project_number"),
+		row:{},
+		rowid:rowid,
+		tab:localStorage.getItem("tab"),
 	};	
 };
 
@@ -259,13 +261,14 @@ casbah.TableView.prototype.SQLcreate=function(){
 	return sql;
 	**/
 	return {
-		action:"DBFS-CREATE",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
-		folder:localStorage.getItem("folder"),
+		action:"DF-CREATE",
 		datafile:this.options.datafile,
-		defrow:this.options.defrow
-		//datafiletxt:this.empty_datafile()
+		defrow:this.options.defrow,
+		folder:localStorage.getItem("folder"),
+		project_number:localStorage.getItem("project_number"),
+		row:{},
+		rowid:0,
+		tab:localStorage.getItem("tab")
 	};
 };
 
@@ -281,12 +284,14 @@ casbah.TableView.prototype.SQLinsert=function(row){
 	return sql;
 	***/
 	return {
-		action:"DBFS-INSERT",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
-		folder:localStorage.getItem("folder"),
+		action:"DF-INSERT",
 		datafile:this.options.datafile,
-		row:row
+		defrow:this.options.defrow,
+		folder:localStorage.getItem("folder"),
+		project_number:localStorage.getItem("project_number"),
+		row:row,
+		rowid:0,
+		tab:localStorage.getItem("tab")
 	};	
 };
 
@@ -299,33 +304,42 @@ casbah.TableView.prototype.SQLselect=function(){
 	***/
 	//Return all rows of datafile - client can select - refine later
 	return {
-		action:"DBFS-SELECT",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
+		action:"DF-SELECT",
+		datafile:this.options.datafile,
+		defrow:this.options.defrow,
 		folder:localStorage.getItem("folder"),
-		datafile:this.options.datafile
+		project_number:localStorage.getItem("project_number"),
+		row:{},
+		rowid:0,
+		tab:localStorage.getItem("tab")
 	};
 };
 
 casbah.TableView.prototype.SQLselectFirst=function(){
 	//return ("SELECT rowid, * FROM " + this.options.table + " LIMIT 1");
 	return {
-		action:"DBFS-SELECTFIRST",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
+		action:"DF-SELECT-FIRST",
+		datafile:this.options.datafile,
+		defrow:this.options.defrow,
 		folder:localStorage.getItem("folder"),
-		datafile:this.options.datafile
+		project_number:localStorage.getItem("project_number"),
+		row:{},
+		rowid:0,
+		tab:localStorage.getItem("tab")
 	};
 };
 
 casbah.TableView.prototype.SQLselectLast=function(){
 	//return ("SELECT rowid, * FROM " + this.options.table + " ORDER BY rowid DESC LIMIT 1");
 	return {
-		action:"DBFS-SELECTLAST",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
+		action:"DF-SELECT-LAST",
+		datafile:this.options.datafile,
+		defrow:this.options.defrow,
 		folder:localStorage.getItem("folder"),
-		datafile:this.options.datafile
+		project_number:localStorage.getItem("project_number"),
+		row:{},
+		rowid:0,
+		tab:localStorage.getItem("tab")
 	};
 };
 
@@ -354,12 +368,13 @@ casbah.TableView.prototype.SQLupdate=function (row, rowid ){
 	************/
 	
 	return {
-		action:"DBFS-UPDATE",
-		project_number:localStorage.getItem("project_number"),
-		tab:localStorage.getItem("tab"),
-		folder:localStorage.getItem("folder"),
+		action:"DF-UPDATE",
 		datafile:this.options.datafile,
+		defrow:this.options.defrow,
+		folder:localStorage.getItem("folder"),
+		project_number:localStorage.getItem("project_number"),
 		row:row,
-		rowid:rowid
+		rowid:rowid,
+		tab:localStorage.getItem("tab")
 	};
 };

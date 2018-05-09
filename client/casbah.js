@@ -460,18 +460,17 @@ casbah.project.select=function(){
 
 casbah.project.check=function(){
 	//ensure project number set.  
-	var pnum=localStorage.getItem("project_number");
-	if (typeof pnum != "string") {
+	if (typeof localStorage.getItem("project_number") != "string") {
 		casbah.project_select();
 		return;
 	} 
-	$("#browser_tab").text("CASBAH ("+pnum+")");
+	$("#browser_tab").text("CASBAH - "+localStorage.getItem("project_number"));
 };
 
 casbah.project.dialog=function(callback){
 	$.ajax({	
 		data:$.param({
-			action:"project_numbers",
+			action:"PROJECTS",
 			backin:"log",
 			project_number:"dummy"
 		}),
@@ -481,7 +480,7 @@ casbah.project.dialog=function(callback){
 		processData:false, 
 		success:function(result){ 
 			//result - [{pnum:"", pname:"", ...},{...},{...}...]
-			//console.log("Success");
+			console.log("Project modal:", result);
 			//casbah.renderFX("project_content", project.content, result, delta);
 			var h=casbah.project.template.numbers(result);
 			////alert(h);

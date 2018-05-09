@@ -27,8 +27,8 @@ project.refresh=function(){
 	
 	$.ajax({	
 		data:$.param({
-			action:"project_numbers",
-			backin:"log"
+			action:"PROJECTS",
+			resultas:"projects"
 		}),
 		contentType:false,
 		error:function(err){console.log("Error:",err);},
@@ -73,7 +73,7 @@ project.refresh();
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">
-	{{#each log}}
+	{{#each projects}}
 	<li class="list-group-item"
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
