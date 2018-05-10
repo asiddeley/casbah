@@ -122,7 +122,7 @@ casbah.tables.site_reports=function(params){
 	
 	return {
 		//table name in database
-		table:"site_reports.json",
+		datafile:"site_reports.json",
 		//row definition ///// should be a function to provide latest params
 		defrow:{
 			project_number:(localStorage.getItem("project_number") || "PROJ-001"),			
@@ -130,15 +130,12 @@ casbah.tables.site_reports=function(params){
 			document_title:"document title",
 			date:"2018-May-10", //Date(),
 			date_issued:"none", 
-			by:(params.$user || "admin"),			
+			by:(localStorage.user || "admin"),			
 			comment_ids:"[1,2,3]", 
 			issue_ids:"[1,2,3]",
 			photo_ids:"[1,2,3]",
 			xdata:"none"
-		}//,
-		//filter:" dnum = $dnum AND pnum = $pnum",
-		//params:params,
-		//refresh:function(){console.log("Render function not yet defined.");}
+		}
 	};
 }
 
@@ -149,7 +146,7 @@ casbah.tables.wiki=function(params){
 	
 	return {
 		//table name in database
-		table:"wiki.json",
+		datafile:"wiki.json",
 		//row definition ///// should be a function to provide latest params
 		defrow:{
 			title:(params.$wiki_title || "new wiki article"),			

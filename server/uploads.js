@@ -136,9 +136,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "DF-DELETE":
 		//deletes row named rowid from table saved as datafile 
 		//datafile - {0:{rowid:0, nam:val,...}, 1:{rowid:1, nam:val,...}, ...}
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number,root, req.body.tab, req.body.folder, req.body.datafile
-		)
+		var df=path.join(global.appRoot, uploads, req.body.datafile)
 		console.log("DF-DELETE:",req.body.rowid, " from:", df)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -169,9 +167,7 @@ req.files... populated by middle-ware from ajaxed formData
 		//creates a tables from defrow and saves it as datafile 
 		//defrow - {nam:val,...}
 		//datafile - {0:{rowid:0, nam:val,...}}
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number, req.body.tab, req.body.folder, req.body.datafile
-		);
+		var df=path.join(global.appRoot,uploads,req.body.datafile);
 		console.log("DF-CREATE:", df, " defrow:", req.body.defrow)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -189,9 +185,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break;	
 
 	case "DF-INSERT":
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number, req.body.tab, req.body.folder, req.body.datafile
-		);
+		var df=path.join(global.appRoot,uploads,req.body.datafile );
 		console.log("DF-INSERT:", df, " row:", req.body.row)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -215,9 +209,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT":
 		//Selects all rows from datafile table.
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number,req.body.tab, req.body.folder, req.body.datafile
-		)
+		var df=path.join(global.appRoot,uploads,req.body.datafile)
 		console.log("DF-SELECT:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -237,9 +229,7 @@ req.files... populated by middle-ware from ajaxed formData
 
 	case "DF-SELECT-FIRST":
 		//Selects first row from datafile table.
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number,req.body.tab, req.body.folder, req.body.datafile
-		);
+		var df=path.join(global.appRoot,uploads,req.body.datafile);
 		console.log("DF-SELECT-FIRST:", df, " defrow", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -263,9 +253,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT-LAST":
 		//Selects Last row from datafile table.
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number,req.body.tab, req.body.folder, req.body.datafile
-		);
+		var df=path.join(global.appRoot,uploads,req.body.datafile);
 		console.log("DF-SELECT-LAST:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -287,9 +275,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break
 
 	case "DF-UPDATE":
-		var df=path.join(global.appRoot,uploads, 
-			req.body.project_number, req.body.tab, req.body.folder, req.body.datafile
-		);
+		var df=path.join(global.appRoot,uploads,req.body.datafile);
 		console.log("DF-UPDATE:", df, " row:", req.body.row, " ROWID:", req.body.rowid)
 		fs.stat(df, function(err, stat){
 			if (!err){

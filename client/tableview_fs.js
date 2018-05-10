@@ -27,55 +27,6 @@ SOFTWARE.
 
 if (typeof casbah=="undefined") {casbah={};}
 
-
-/******
-casbah.substitute=function(sql, params){
-****/
-
-	/**************
-	Returns a string from sql with key:value substitutions from params {} 
-	Note that placeholders for substitution must have '$' prefix
-	sql = "WHERE rowid in ( $rowidlist )"
-	params = {$rowidlist:"1,2,3,4"}
-	
-	NOTE this funciton converts arrays to strings like this...
-	[1, 2, 3] -> "1, 2, 3" 
-	This ensures certain SQLs with lists remain good E.g.
-	WHERE rowid IN ( 1,2,3 )
-	
-	*************/
-	/*********
-	//exit early
-	if (typeof params=="undefined || params==null"){return sql;}
-
-	//console.log("sql_params...")
-	//ensure these aren't touching terms
-	sql=sql.replace(/\(/g, " ( "); 
-	sql=sql.replace(/\)/g, " ) ");
-	sql=sql.replace(/=/g, " = ");
-	sql=sql.replace(/,/g , " , ");
-	//console.log("sql after grooming...", sql)
-	var terms=sql.split(" ");
-	for (var i in terms){
-		//term starts with '$' meaning its a parameter so substitute it with it's corresponding vlaue
-		if ( terms[i].indexOf("$")==0 ) {
-			//console.log("term before...", terms[i].substring(1))
-			var p=params[terms[i]];
-			//add quotes if p is literal
-			if (typeof p =="string") {p="'"+p+"'";}
-			//evaluate if a function - hopfully the result is a string
-			else if (typeof p=="function") {p=p();}
-			//convert to string if an array
-			else if (p instanceof Array) {p=p.join(",");}
-			//////////////
-			terms[i]=p;
-			//console.log("term after...", terms[i])
-		}
-	}
-	return terms.join(" ");
-};
-**********/
-
 casbah.TableView=function(options, options1){
 	
 	this.options=$.extend(
@@ -87,7 +38,6 @@ casbah.TableView=function(options, options1){
 	this.div$ = null;
 	this.previous={rows:[]};
 	//this.__init();
-	
 };
 
 casbah.TableView.prototype.empty_datafile=function(){
@@ -97,7 +47,7 @@ casbah.TableView.prototype.empty_datafile=function(){
 	return JSON.stringify({"0":this.options.row});
 };
 
-casbah.TableView.prototype.add=function(callback){this.insert(callback);};
+casbah.TableView.prototype.add=function(callback){this.insert(row, callback);};
 
 casbah.TableView.prototype.__init=function(){
 	//DEP
@@ -116,42 +66,36 @@ casbah.TableView.prototype.__init=function(){
 };
 
 
-casbah.TableView.prototype.insert=function(callback){
+casbah.TableView.prototype.insert=function(row, callback){
 	/**
-	Inserts a new row into the table. The new row is as defined in tableView.options.defrow	
+	Inserts a new row {n:v, n1:v, n2:v...} into table datafile at the end.
+	Note that rowid:count is automatically incremented and injected into row. Inserts a new row into the table. If row is null then the tableView.options.defrow is used.	
 	@arg callback (as function) Called following table insert operation with a results hash passed as an argument. 
 	Accessing the new row is done like so... function(results){var newrowid=results.rows[0].rowid;}
 	@arg callback (as boolean true) Means run the standard refresh function defined for this tableview.options.refresh
 	if no arg is provided then the insert operation happens without any callback.
 	**/
 	//console.log("insert...");
-	var that=this;
-	var then;
 	
-	if (typeof callback=="function"){
-		//callback to get new rowid then pass it to callback provided in arg
-		//wrapper just adds to result a shortcut to property rowid (Ie. the id of the newly added row}
-		//Note that.__refresh won't work without it's tableview context so wrap it to make a closure
-		var wrapped=function(r){$.extend(r,{rowid:r.rows[0].rowid});callback(r);};
-		then=function(){casbah.databaseFS(that.SQLselectLast(), wrapped);};
-	}
-	else if (typeof callback!="undefined"){
-		//callback to run standard table select then refresh.  
-		//Note that.__refresh won't work without it's tableview context so wrap it to make a closure
-		var wrapped=function(r){that.__refresh(r);}
-		then=function(){casbah.databaseFS(that.SQLselect(), wrapped);}
-	}
-	else {
-		//empty callback
-		then=function(){};
-	}
-	
-	//resolve row, it's either an object {field:value, ...} or a function that returns a fresh object
-	var row=this.options.defrow; if (typeof row=="function") {row=row();}
-	
-	//add new row to table, then execute callback that will receive the new row in its argument...
-	casbah.databaseFS(this.SQLinsert(row), then);
 
+	//Callback is provided this result object - {rows:[all_rows], err:err, last[inserted_row]}
+	//Doesn't need casbah.databaseFS(), this.SQLxxx()
+	var that=this;
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param(
+			action:"DF_INSERT",
+			datafile:this.datafile,
+			row:(row || this.defrow)	
+		),
+		error:function(err){console.log("ajax error:", err);},
+		success:function(result){ 
+			if (typeof callback=="function"){callback(result);}
+			else (if callback==true){that.__refresh(result);}
+		},
+		type: "POST",
+		url: "/uploads"
+	});	
 };
 
 casbah.TableView.prototype.option=function(optionRev){
@@ -160,28 +104,55 @@ casbah.TableView.prototype.option=function(optionRev){
 	$.extend(this.options, optionRev);	
 };
 
-casbah.TableView.prototype.remove=function(rowid, callrefresh){
+casbah.TableView.prototype.remove=function(rowid, callback){
 	/**
 	Removes row number rowid from the table. The rowid number is not reused. Although the SQL operation is delete, the function is named remove since delete is reserved
 
 	@param rowid - id or row to remove from table
-	@param callrefresh - if present, table renderer will be called after database operation
+	@param callback - if present, table renderer will be called after database operation, and is provided a result object like this {rows:[all_rows], err:err, last[inserted_row]}
+	
+	Doesn't need: casbah.databaseFS(), this.SQLxxx()	
 	**/
-	//console.log("REMOVE rowid...", rowid);
-	var that=this;
-	var re=function(result){
-		if (typeof callrefresh!="undefined"){that.__refresh(result);}
-	}	
-	casbah.databaseFS(this.SQLdelete(rowid), function(){
-		casbah.databaseFS(that.SQLselect(), re);
-	});
+
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		data: $.param(
+			action:"DF_DELETE",
+			datafile:this.datafile,
+			rowid:rowid	
+		),
+		error:function(err){console.log("ajax error:", err);},
+		success:function(result){ 
+			if (typeof callback=="function"){callback(result);}
+			else (if callback==true){that.__refresh(result);}
+		},
+		type: "POST",
+		url: "/uploads"
+	});	
 };
 
 
 casbah.TableView.prototype.refresh=function(){
 	//console.log("Refresh...");
 	var that=this;
-	casbah.databaseFS(that.SQLselect(), function(result){that.__refresh(result);});
+	//casbah.databaseFS(that.SQLselect(), function(result){that.__refresh(result);});
+	
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		data: $.param(
+			action:"DF_REFRESH",
+			datafile:this.datafile,
+			defrow:this.defrow	
+		),
+		error:function(err){console.log("ajax error:", err);},
+		success:function(result){ 
+			if (typeof callback=="function"){callback(result);}
+			else (if callback==true){that.__refresh(result);}
+		},
+		type: "POST",
+		url: "/uploads"
+	});		
+	
 };
 
 //shortform
@@ -190,7 +161,7 @@ casbah.TableView.prototype.re=function(){ this.refresh();};
 //internal use only
 casbah.TableView.prototype.__refresh=function(result){
 
-	if (result.rows.length==0){console.log("No result for SQL:", this.SQLselect());}
+	//if (result.rows.length==0){console.log("No result for SQL:", this.SQLselect());}
 
 	//calculate the change...
 	var rowids=result.rows.map(function(i){return i.rowid;});
@@ -208,174 +179,29 @@ casbah.TableView.prototype.__refresh=function(result){
 	catch(er) {
 		console.log("tableView "+this.options.table+", trouble with refresh function:",er);
 	}
+	
 };
 
-casbah.TableView.prototype.save=function(row, rowid, callrefresh){
-	/** TV.update alias **/
-	//console.log("SAVE ", JSON.stringify(row), " where rowid=", rowid);
+casbah.TableView.prototype.save=function(row, rowid, callback){
 	this.update(row, rowid, callrefresh);	
 };
 
-casbah.TableView.prototype.update=function(row, rowid, callrefresh){
-	//console.log("Update SQL:", this.SQLupdate(row, rowid));
-	//console.log("Update rowid, row...", rowid, JSON.stringify(row));
-	var that=this;
-	var re=function(result){
-		//console.log("update:", callrefresh);
-		if (typeof callrefresh!="undefined"){that.__refresh(result);}
-	};
+casbah.TableView.prototype.update=function(row, rowid, callback){
 
-	casbah.databaseFS(this.SQLupdate(row, rowid), function(){
-		casbah.databaseFS(that.SQLselect(), re);
-	});
-};
-
-//////////// SQLfunctions
-
-casbah.TableView.prototype.SQLdelete=function(rowid){
-	/**
-	var sql= "DELETE FROM "+this.options.table+" WHERE rowid="+rowid;
-	//console.log("SQL...", sql);
-	return sql;
-	**/
-	
-	return {
-		action:"DF-DELETE",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:{},
-		rowid:rowid,
-		tab:localStorage.getItem("tab"),
-	};	
-};
-
-
-casbah.TableView.prototype.SQLcreate=function(){
-	/**
-	//var make="CREATE TABLE ";
-	var make="CREATE TABLE IF NOT EXISTS ";
-	var sql= make + this.options.table +
-	" ( "+Object.keys(this.options.defrow).join(", ")+" ) ";
-	//console.log("SQL...", sql);
-	return sql;
-	**/
-	return {
-		action:"DF-CREATE",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:{},
-		rowid:0,
-		tab:localStorage.getItem("tab")
-	};
-};
-
-
-casbah.TableView.prototype.SQLinsert=function(row){
-	/***
-	//array of keys
-	var keys=Object.keys(row);
-	//array of quoted values
-	var vals=keys.map( function(k){return ("'"+row[k]+"'");} ); 
-	var sql="INSERT INTO "+this.options.table+" ( " + keys.join(", ") + " ) VALUES ( "+vals.join(", ")+" )";
-	//console.log("Table SQL:", sql);
-	return sql;
-	***/
-	return {
-		action:"DF-INSERT",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:row,
-		rowid:0,
-		tab:localStorage.getItem("tab")
-	};	
-};
-
-casbah.TableView.prototype.SQLselect=function(){
-	/***
-	var sql= "SELECT rowid, * FROM "+this.options.table+
-	" WHERE "+casbah.substitute(this.options.filter, this.options.params);
-	//console.log("Table SQL:", sql);
-	return sql;
-	***/
-	//Return all rows of datafile - client can select - refine later
-	return {
-		action:"DF-SELECT",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:{},
-		rowid:0,
-		tab:localStorage.getItem("tab")
-	};
-};
-
-casbah.TableView.prototype.SQLselectFirst=function(){
-	//return ("SELECT rowid, * FROM " + this.options.table + " LIMIT 1");
-	return {
-		action:"DF-SELECT-FIRST",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:{},
-		rowid:0,
-		tab:localStorage.getItem("tab")
-	};
-};
-
-casbah.TableView.prototype.SQLselectLast=function(){
-	//return ("SELECT rowid, * FROM " + this.options.table + " ORDER BY rowid DESC LIMIT 1");
-	return {
-		action:"DF-SELECT-LAST",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:{},
-		rowid:0,
-		tab:localStorage.getItem("tab")
-	};
-};
-
-casbah.TableView.prototype.SQLupdate=function (row, rowid ){
-	/***
-	Returns the SQL for updating the table as defined in options.table
-	@param row - object {} of name:values to be updated
-	@param rowid of row in SQLITE database to update 
-	***/
-	
-	/***********
-	//console.log("UPDATE row, rowid...",JSON.stringify(row), rowid);
-
-	if (typeof row == "undefined" || typeof rowid == "undefined"){return;}
-	var keys=Object.keys(row); //array of keys
-	//array of assignments ["pnum='BLDG-001'", "field='val'"]
-	var pairs=keys.map( function(k){
-		//convert [1,2] to "[1,2]" else it's saved as "1,2" which trips JSON.parse() after select
-		if (typeof row[k]!="string") {return (k + "='"+JSON.stringify(row[k])+"'");}
-		else {return (k + "='"+row[k]+"'");}
-	}); 
-	var sql="UPDATE "+this.options.table+" SET " + pairs.join(", ") +
-	" WHERE rowid="+rowid;
-	//console.log("Table SQL:", sql);
-	return sql;
-	************/
-	
-	return {
-		action:"DF-UPDATE",
-		datafile:this.options.datafile,
-		defrow:this.options.defrow,
-		folder:localStorage.getItem("folder"),
-		project_number:localStorage.getItem("project_number"),
-		row:row,
-		rowid:rowid,
-		tab:localStorage.getItem("tab")
-	};
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		data: $.param(
+			action:"DF_UPDATE",
+			datafile:this.datafile,
+			row:row,
+			rowid:rowid	
+		),
+		error:function(err){console.log("ajax error:", err);},
+		success:function(result){ 
+			if (typeof callback=="function"){callback(result);}
+			else (if callback==true){that.__refresh(result);}
+		},
+		type: "POST",
+		url: "/uploads"
+	});		
 };
