@@ -86,11 +86,12 @@ casbah.TableView=function(options, options1){
 
 	this.div$ = null;
 	this.previous={rows:[]};
-	this.__init();
+	//this.__init();
 	
 };
 
 casbah.TableView.prototype.empty_datafile=function(){
+	//DEP
 	//returns an empty datafile content as a string for initialization
 	//redundant - do this in on server in uploads.js
 	return JSON.stringify({"0":this.options.row});
@@ -99,7 +100,7 @@ casbah.TableView.prototype.empty_datafile=function(){
 casbah.TableView.prototype.add=function(callback){this.insert(callback);};
 
 casbah.TableView.prototype.__init=function(){
-
+	//DEP
 	var SQL1=this.SQLselectFirst();
 	var SQL2=this.SQLinsert(this.options.defrow);
 	var that=this;

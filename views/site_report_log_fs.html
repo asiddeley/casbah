@@ -2,26 +2,21 @@
 
 <script type='text/javascript'>
 
-//ensure these parameters are available for this page
-//$PP.fetch("$dnum", "SVR-A01"); //.get(param_name, param_default_value);
-//$PP.fetch("$pnum", "BLDG-001"); 
-//$PP.store("$dtype", "Site Visit Report Log");
-
-var svrlog={};
+var srlog={};
 
 //text editor
-svrlog.ed=new casbah.Editor();
+srlog.ed=new casbah.Editor();
 
-svrlog.edit=function(el){
-	svrlog.ed.text(el, function(){
-		svrlog.tv.update(svrlog.ed.row(), svrlog.ed.rowid(), true); 
-		svrlog.ed.hide();
+srlog.edit=function(el){
+	srlog.ed.text(el, function(){
+		srlog.tv.update(srlog.ed.row(), srlog.ed.rowid(), true); 
+		srlog.ed.hide();
 	});
 };
 
-svrlog.hi=new casbah.Highlighter("highlite");
+srlog.hi=new casbah.Highlighter("highlite");
 
-svrlog.open=function(el){
+srlog.open=function(el){
 	//update parameter project number pnum from the selected row
 	//var dnum=$("[rowid="+svrlog.hi.rowid()+"]").find("[field=dnum]").text();
 	//$PP.store("$dnum",dnum);
@@ -34,36 +29,33 @@ svrlog.open=function(el){
 };
 
 //TableViews
-//svrlog.tv=new TableView(casbah.tv.siteVisitReports($PP), {
-svrlog.tv=new casbah.TableView(casbah.tables.site_reports(), {
+srlog.tv=new casbah.TableView(casbah.tables.site_reports(), {
 	refresh:function(result, delta){
 		console.log("SVRlog TV:", JSON.stringify(result.rows));
 		casbah.renderFX("svrlog-content", svrlog.content, result, delta);
 	}
 });
 
-//svrlog.tvTitleblock=new casbah.TableView(casbah.tv.projects($PP),{
-svrlog.tvTitleblock=new casbah.TableView(casbah.tables.projects(),{
+
+srlog.tvTitleblock=new casbah.TableView(casbah.tables.projects(),{
 	//render the header with project information
 	refresh:function(result, delta){
-		casbah.renderFX("svrlog-titleblock", svrlog.titleblock, result, delta);
+		casbah.renderFX("svrlog-titleblock", srlog.titleblock, result, delta);
 	},
 	//current project only
 	filter:"pnum=$pnum"
 });
 
-//svrlog.menu=$("#comments-menu").menu().css("position","absolute", "width", "200px").hide();
-
-svrlog.newReport=function(ev){
+srlog.newReport=function(ev){
 	var document_id=prompt("New report id...");
-	svrlog.tv.add({document_id:document_id, render:true});
+	srlog.tv.add({document_id:document_id, render:true});
 }
 
 ///////////////////////////////////////////
 //load templates and render...
 $.get("views/document_header.html", function(htm){
 	//console.log('tbh loaded:', htm);
-	svrlog.header=Handlebars.compile(htm);
+	srlog.header=Handlebars.compile(htm);
 	//casbah.renderFX(element_id, handlebaars_template_function, data)
 	casbah.renderFX("svrlog-header", svrlog.header, {
 		doc_type:localStorage.getItem("doc_type")||"Site Report Log"
@@ -72,12 +64,12 @@ $.get("views/document_header.html", function(htm){
 
 $.get("views/log_titleblock.html", function(htm){
 	//console.log('tbt loaded:', htm);
-	svrlog.titleblock=Handlebars.compile(htm);
-	svrlog.tvTitleblock.refresh();
+	srlog.titleblock=Handlebars.compile(htm);
+	srlog.tvTitleblock.refresh();
 });
 
-svrlog.content=Handlebars.compile($("#svrlog-content-template").html());
-svrlog.tv.refresh();
+srlog.content=Handlebars.compile($("#svrlog-content-template").html());
+srlog.tv.refresh();
 	
 
 </script>
@@ -109,10 +101,10 @@ svrlog.tv.refresh();
 	
 	
 	<div class="row marz"
-		id="svr{{rowid}}"
+		id="sr{{rowid}}"
 		rowid="{{rowid}}"
-		onmouseenter="svrlog.hi.light(this);"
-		onmouseleave="svrlog.hi.dark(this);"
+		onmouseenter="srlog.hi.light(this);"
+		onmouseleave="srlog.hi.dark(this);"
 		document_id={{document_id}}
 		onclick="svrlog.open(this)">
 
@@ -122,7 +114,7 @@ svrlog.tv.refresh();
 	<p 	class="col-xs-2 marz"
 		field="dnum"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{dnum}}</p>
+		onclick="srlog.edit(this);">{{dnum}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="dtitle"
@@ -132,22 +124,22 @@ svrlog.tv.refresh();
 	<p 	class="col-xs-3 marz"
 		field="date"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{date}}</p>
+		onclick="srlog.edit(this);">{{date}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="date_issued"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{date_issued}}</p>
+		onclick="srlog.edit(this);">{{date_issued}}</p>
 	</div>	
 	</div>
 
 	<div class="row marz zebra-stripe"
-		id="svr{{rowid}}"
+		id="sr{{rowid}}"
 		rowid="{{rowid}}"
-		onmouseenter="svrlog.hi.light(this);"
-		onmouseleave="svrlog.hi.dark(this);"
+		onmouseenter="srlog.hi.light(this);"
+		onmouseleave="srlog.hi.dark(this);"
 		document_id={{document_id}}
-		oncontextmenu="svrlog.open(this)">
+		oncontextmenu="srlog.open(this)">
 
 	<p class="col-xs-1 marz "></p>
 	<div class="border-left marz col-xs-11">
@@ -155,34 +147,25 @@ svrlog.tv.refresh();
 		field="by"
 		rowid="{{rowid}}"
 		style="height:100%;"
-		onclick="svrlog.edit(this);">{{by}}</p>	
+		onclick="srlog.edit(this);">{{by}}</p>	
 			
 	<p 	class="col-xs-3 marz"
 		field="comment.ids"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{comment_ids}}</p>
+		onclick="srlog.edit(this);">{{comment_ids}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="issue.ids"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{issue_ids}}</p>
+		onclick="srlog.edit(this);">{{issue_ids}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="picture.ids"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{picture_ids}}</p>	
+		onclick="srlog.edit(this);">{{picture_ids}}</p>	
 	</div>		
 	</div>
 	{{/each}}	
 </template>
-
-
-<!-- CONTEXT MENUS >
-<ul id="comments-menu" onmouseleave="svrlog.menu.hide()" class="hide9999">
-<li onclick="svrlog.tv.add(true);">Add</li>
-<li onclick="svrlog.open();">Open</li>
-<li onclick="svrlog.menu.hide();svrlog.tv.refresh();">Refresh</li>
-<li onclick="svrlog.menu.hide()">Exit</li>
-</ul  -->
 
 

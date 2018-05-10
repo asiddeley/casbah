@@ -57,7 +57,7 @@ casbah.tables.projects=function(params){
 			client:"Client", 
 			contractor:"CasbahCon",
 			permit:"16 xxxxxx BLD 00 BA",
-			date:Date(),
+			date:"2018-May-10", //Date(),
 			date_closed:"none",
 			status:"status",
 			xdata:"none"
@@ -125,10 +125,10 @@ casbah.tables.site_reports=function(params){
 		table:"site_reports.json",
 		//row definition ///// should be a function to provide latest params
 		defrow:{
-			pnum:(localStorage.getItem("project_number") || "PROJ-001"),			
-			dnum:(localStorage.getItem("document_number") || "SVR-A01"),
-			dtitle:"document title",
-			date:Date(),
+			project_number:(localStorage.getItem("project_number") || "PROJ-001"),			
+			document_number:(localStorage.getItem("document_number") || "SVR-A01"),
+			document_title:"document title",
+			date:"2018-May-10", //Date(),
 			date_issued:"none", 
 			by:(params.$user || "admin"),			
 			comment_ids:"[1,2,3]", 
@@ -149,7 +149,7 @@ casbah.tables.wiki=function(params){
 	
 	return {
 		//table name in database
-		table:"wiki",
+		table:"wiki.json",
 		//row definition ///// should be a function to provide latest params
 		defrow:{
 			title:(params.$wiki_title || "new wiki article"),			

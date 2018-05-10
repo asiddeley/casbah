@@ -425,7 +425,7 @@ req.files... populated by middle-ware from ajaxed formData
 		}
 	break;
 	
-	case "PROJECTS":
+	case "PROJECT_DIRS":
 		//Returns a list of project folders
 		console.log("PROJECTS:", global.appRoot,uploads);
 		var ro={};
@@ -433,6 +433,24 @@ req.files... populated by middle-ware from ajaxed formData
 		try {
 			//getDirsSync returns an array of folders.  Each is just a short name, not path
 			ro[ras]=fsp.getDirsSync(path.join(global.appRoot,"uploads"));
+			res.json(ro);
+		} 
+		catch(err) {
+			console.log("PROJECTS err",err);
+			ro[ras]=[]; ro[err]=err;
+			res.json(ro);
+		}	
+	break;
+
+	case "PROJECT_DATA":
+		//Returns a list of project folders
+		console.log("PROJECT DATA:", global.appRoot,uploads);
+		var ro={};
+		var ras=(typeof req.body.resultas =="undefined")?"data":req.body.resultas;
+		try {
+			//getDirsSync returns an array of folders.  Each is just a short name, not path
+			//ro[ras]=fsp.getDirsSync(path.join(global.appRoot,"uploads"));
+			//TODO read json file
 			res.json(ro);
 		} 
 		catch(err) {

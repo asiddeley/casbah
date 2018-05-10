@@ -469,9 +469,9 @@ casbah.project.check=function(){
 };
 
 casbah.project.dialog=function(callback){
-	$.ajax({	
+	$.ajax({
 		data:$.param({
-			action:"PROJECTS",
+			action:"PROJECT_DIRS",
 			backin:"log",
 			project_number:"dummy"
 		}),
