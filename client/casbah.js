@@ -461,7 +461,8 @@ casbah.project.select=function(){
 
 casbah.project.check=function(){
 	//ensure project number set.  
-	if (typeof localStorage.getItem("project_number") != "string") {
+	console.log("project_number check:",localStorage.getItem("project_number"));
+	if (typeof localStorage.getItem("project_number") == "undefined") {
 		casbah.project.select();
 		return;
 	} 

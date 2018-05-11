@@ -9,6 +9,7 @@ srlog.ed=new casbah.Editor();
 
 srlog.edit=function(el){
 	srlog.ed.text(el, function(){
+		//function called on dbl-click
 		srlog.tv.update(srlog.ed.row(), srlog.ed.rowid(), true); 
 		srlog.ed.hide();
 	});
@@ -25,14 +26,14 @@ srlog.open=function(el){
 	var folder="site_reports\\"+$(el).attr("document_id");
 	localStorage.setItem("tab","reports");
 	localStorage.setItem("folder", folder);
-	casbah.view("views\\site_report.html");
+	casbah.view("views\\site_report_fs.html");
 };
 
 //TableViews
 srlog.tv=new casbah.TableView(casbah.tables.site_reports(), {
 	refresh:function(result, delta){
-		console.log("SVRlog TV:", JSON.stringify(result.rows));
-		casbah.renderFX("svrlog-content", svrlog.content, result, delta);
+		console.log("srlog TV:", JSON.stringify(result.rows));
+		casbah.renderFX("srlog-content", srlog.content, result, delta);
 	}
 });
 
@@ -42,8 +43,6 @@ srlog.tvTitleblock=new casbah.TableView(casbah.tables.projects(),{
 	refresh:function(result, delta){
 		casbah.renderFX("svrlog-titleblock", srlog.titleblock, result, delta);
 	},
-	//current project only
-	filter:"pnum=$pnum"
 });
 
 srlog.newReport=function(ev){
@@ -57,8 +56,8 @@ $.get("views/document_header.html", function(htm){
 	//console.log('tbh loaded:', htm);
 	srlog.header=Handlebars.compile(htm);
 	//casbah.renderFX(element_id, handlebaars_template_function, data)
-	casbah.renderFX("svrlog-header", svrlog.header, {
-		doc_type:localStorage.getItem("doc_type")||"Site Report Log"
+	casbah.renderFX("svrlog-header", srlog.header, {
+		doc_type:(localStorage.getItem("doc_type")||"Site Report Log")
 	});
 });
 
@@ -106,7 +105,7 @@ srlog.tv.refresh();
 		onmouseenter="srlog.hi.light(this);"
 		onmouseleave="srlog.hi.dark(this);"
 		document_id={{document_id}}
-		onclick="svrlog.open(this)">
+		onclick="srlog.open(this)">
 
 	<p 	rowid="{{rowid}}" class="col-xs-1 marz">{{plusOne @index}}</p>		
 	

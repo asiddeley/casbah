@@ -125,8 +125,9 @@ req.files... populated by middle-ware from ajaxed formData
 **********/
 	
 	if (typeof req.body.project_number == "undefined") {
-		console.log("Upload handler error: project_number undefined")
-		res.json({dirs:[],err:err})
+		var err="Upload handler error: project_number undefined"
+		console.log(err)
+		res.json({dirs:[], err:""})
 		return;
 	}
 	const root=path.join(global.appRoot,"uploads", req.body.project_number)

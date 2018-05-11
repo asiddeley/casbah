@@ -41,17 +41,11 @@ casbah.lorem=function(){
 casbah.tables={};
 
 
-casbah.tables.projects=function(params){
+casbah.tables.projects=function(){
 	
-	//params should be a reference a to global parameter object 
-	if (typeof params=="undefined") {params={};}
-
 	return {
-		//table name in database
-		//table:"projects",
 		datafile:"project_data.json",
-		//defining row
-		defrow:{
+		defrow:function(){return {
 			pnum:(localStorage.getItem("project_number") || "PROJ-001"),			
 			pname:"The Casbah Building",
 			address:"101 Boogie Street, Toronto, Ontario, Canada, M4X-2W6",
@@ -62,97 +56,97 @@ casbah.tables.projects=function(params){
 			date_closed:"none",
 			status:"status",
 			xdata:"none"
-		},
+		};},
 		//default filter selects current projects
-		//filter:" pnum = $pnum ",
-		//params:params,
+		filter:function(){return {pnum:localStorage.getItem("project_number")};},
 		refresh:function(){console.log("Render function not yet defined.");}
 	};
 };
 
 casbah.tables.site_comments=function(){
 	
-	var pnum=(localStorage.getItem("project_number") || "PROJ-001");
-	var dnum=(localStorage.getItem("site_report_id") || "FRR-001");
-	
 	return {
 		table:"site_comments",
-		datafile:pnum+"\\"+dnum+"\\site_comments.json"
-		defrow:{
-			pnum:pnum, 
+		datafile:function(){return(
+			localStorage.getItem("project_number")+
+			"\\"+
+			localStorage.getItem("site_report_id")+
+			"\\site_comments.json"
+		);},
+		defrow:function(){return {
+			rowid:0, //this is inserted by default
+			pnum:localStorage.getItem("project_number"), 
 			comment:"New comment", 
 			refs:[], 
 			date:Date(), 
-			by:(localStorage.getItem("user_name") || "none")
-		},			
-		//filter:" rowid IN ( $comment_ids )",
-		//params:params,
+			by:localStorage.getItem("user_name")
+		};},			
+		filter:function(){return 
+			{rowid:{$elemMatch:JSON.parse(localStorage.getItem("comment_ids"))}};
+		},
 		refresh:function(result, delta){}
 	};
 };
 
-casbah.tables.site_issues=function(params){
+casbah.tables.site_issues=function(){
 	
 	return {
 		table:"site_issues",
-		datafile:pnum+"\\"+dnum+"\\site_issues.json"
-		defrow:{
-			pnum:(localStorage.getItem("project_number") || "PROJ-001"), 
+		datafile:function(){return (
+			localStorage.getItem("project_number")+"\\"+
+			localStorage.getItem("site_report_id")+"\\site_issues.json"
+		);},
+		defrow:function(){ return {
+			pnum:localStorage.getItem("project_number"), 
 			desc:"New issue", 
 			date:Date(), 
 			date_closed:null,
 			//list of site_reports that reference this row
 			refs:[],
-			by:(localStorage.getItem("user_name") || "unknown")
-		},
+			by:localStorage.getItem("user_name")
+		};},
 		//filter:" pnum = $pnum ",
 		//returns mongodb filter object that returns site_issues related to current site_report
-		filter:function(return {
+		filter:function(){return {
 			pnum:(localStorage.getItem("project_number")),
 			refs:{$elemMatch:(localStorage.getItem("site_report_id"))}
-		}),
+		};},
 		refresh:function(){console.log("Render function not yet defined.");}
 	};
 };
 
 
 
-casbah.tables.site_reports=function(params){
-	
-	//params should be a reference a to global parameter object 
-	if (typeof params=="undefined") {params={};}
+casbah.tables.site_reports=function(){
 	
 	return {
 		//table name in database
 		datafile:"site_reports.json",
 		//row definition ///// should be a function to provide latest params
-		defrow:{
-			project_number:(localStorage.getItem("project_number") || "PROJ-001"),			
-			document_number:(localStorage.getItem("document_number") || "SVR-A01"),
+		defrow:function(){return {
+			project_number:localStorage.getItem("project_number"),			
+			document_number:localStorage.getItem("document_number"),
 			document_title:"document title",
 			date:"2018-May-10", //Date(),
 			date_issued:"none", 
-			by:(localStorage.user || "admin"),			
+			by:localStorage.getItem("user"),			
 			comment_ids:"[1,2,3]", 
 			issue_ids:"[1,2,3]",
 			photo_ids:"[1,2,3]",
 			xdata:"none"
-		}
+		};},		
 	};
 }
 
-casbah.tables.wiki=function(params){
-	
-	//params should be a reference a to global parameter object 
-	if (typeof params=="undefined") {params={};}
+casbah.tables.wiki=function(){
 	
 	return {
 		//table name in database
 		datafile:"wiki.json",
 		//row definition ///// should be a function to provide latest params
-		defrow:{
-			title:(params.$wiki_title || "new wiki article"),			
-			intro:(params.$wiki_intro || casbah.lorem() ),
+		defrow:function(){ return {
+			title:(localStorage.getItem("$wiki_title") || "Wiki article"),			
+			intro:(localStorage.getItem("$wiki_intro") || casbah.lorem() ),
 			tags:"[]",
 			date:Date(),
 			by:(params.$user || "admin"),			
@@ -161,9 +155,8 @@ casbah.tables.wiki=function(params){
 			votesup:0,
 			votesdn:0,
 			xdata:"none"
-		}//,
+		};},
 		//filter:" rowid in ( $wiki_articles )",
-		//params:params,
-		//refresh:function(){console.log("Render function not yet defined.");}
+		refresh:function(){console.log("Render function not yet defined.");}
 	};
 }

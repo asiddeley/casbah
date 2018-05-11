@@ -27,10 +27,12 @@ SOFTWARE.
 
 if (typeof casbah=="undefined") {casbah={};}
 
+
+
 casbah.TableView=function(options, options1){
 	
 	this.options=$.extend(
-		{datafile:"__datafile.json", defrow:{"unnamed":"unnamed"}},			
+		{datafile:"__datafile.json", defrow:{rowid:0}},			
 		options,
 		options1
 	);
@@ -66,7 +68,7 @@ casbah.TableView.prototype.__init=function(){
 };
 
 
-casbah.TableView.prototype.insert=function(row, callback){
+casbah.TableView.prototype.insert=function(callback, row){
 	/**
 	Inserts a new row {n:v, n1:v, n2:v...} into table datafile at the end.
 	Note that rowid:count is automatically incremented and injected into row. Inserts a new row into the table. If row is null then the tableView.options.defrow is used.	
@@ -76,26 +78,26 @@ casbah.TableView.prototype.insert=function(row, callback){
 	if no arg is provided then the insert operation happens without any callback.
 	**/
 	//console.log("insert...");
-	
-
 	//Callback is provided this result object - {rows:[all_rows], err:err, last[inserted_row]}
 	//Doesn't need casbah.databaseFS(), this.SQLxxx()
+	
 	var that=this;
 	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param(
-			action:"DF_INSERT",
-			datafile:this.datafile,
-			row:(row || this.defrow)	
-		),
+		contentType:"application/x-www-form-urlencoded;charset=UTF-8",
+		data: $.param({
+			action: "DF_INSERT",
+			datafile: casbah.xfunc(this.datafile),
+			project_number:localStorage.getItem("project_number"),
+			row: casbah.xfunc(row, this.defrow)
+		}),
 		error:function(err){console.log("ajax error:", err);},
 		success:function(result){ 
 			if (typeof callback=="function"){callback(result);}
-			else (if callback==true){that.__refresh(result);}
+			else if (callback==true){that.__refresh(result);}
 		},
 		type: "POST",
 		url: "/uploads"
-	});	
+	});
 };
 
 casbah.TableView.prototype.option=function(optionRev){
@@ -116,15 +118,16 @@ casbah.TableView.prototype.remove=function(rowid, callback){
 
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-		data: $.param(
+		data: $.param({
 			action:"DF_DELETE",
-			datafile:this.datafile,
+			datafile:casbah.xfunc(this.datafile),
+			project_number:localStorage.getItem("project_number"),
 			rowid:rowid	
-		),
+		}),
 		error:function(err){console.log("ajax error:", err);},
 		success:function(result){ 
 			if (typeof callback=="function"){callback(result);}
-			else (if callback==true){that.__refresh(result);}
+			else if (callback==true){that.__refresh(result);}
 		},
 		type: "POST",
 		url: "/uploads"
@@ -133,21 +136,23 @@ casbah.TableView.prototype.remove=function(rowid, callback){
 
 
 casbah.TableView.prototype.refresh=function(){
-	//console.log("Refresh...");
+	console.log("Refresh...");
 	var that=this;
 	//casbah.databaseFS(that.SQLselect(), function(result){that.__refresh(result);});
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-		data: $.param(
+		data: $.param({
 			action:"DF_REFRESH",
-			datafile:this.datafile,
-			defrow:this.defrow	
-		),
+			datafile:casbah.xfunc(this.datafile),
+			defrow:casbah.xfunc(this.defrow),
+			project_number:localStorage.getItem("project_number")
+		}),
 		error:function(err){console.log("ajax error:", err);},
 		success:function(result){ 
-			if (typeof callback=="function"){callback(result);}
-			else (if callback==true){that.__refresh(result);}
+			//if (typeof callback=="function"){callback(result);}
+			//else if (callback==true){that.__refresh(result);}
+			that.__refresh(result);
 		},
 		type: "POST",
 		url: "/uploads"
@@ -190,18 +195,29 @@ casbah.TableView.prototype.update=function(row, rowid, callback){
 
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-		data: $.param(
+		data: $.param({
 			action:"DF_UPDATE",
-			datafile:this.datafile,
+			datafile:casbah.xfunc(this.datafile),
+			project_number:localStorage.getItem("project_number"),
 			row:row,
 			rowid:rowid	
-		),
+		}),
 		error:function(err){console.log("ajax error:", err);},
 		success:function(result){ 
 			if (typeof callback=="function"){callback(result);}
-			else (if callback==true){that.__refresh(result);}
+			else if (callback==true){that.__refresh(result);}
 		},
 		type: "POST",
 		url: "/uploads"
 	});		
 };
+
+casbah.xfunc=function(a, b, c){
+	if (typeof a=="function") {return a();}	
+	else if (typeof a=="undefined"){
+		if (typeof b=="function") {return b();} 
+		else if (typeof b=="undefined") { return c; }
+		else {return b;}
+	}
+	else { return a;}
+}
