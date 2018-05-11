@@ -48,11 +48,12 @@ casbah.tables.projects=function(params){
 
 	return {
 		//table name in database
-		table:"projects.json",
+		//table:"projects",
+		datafile:"project_data.json",
 		//defining row
 		defrow:{
-			project_number:(localStorage.getItem("project_number") || "PROJ-001"),			
-			project_name:"The Casbah Building",
+			pnum:(localStorage.getItem("project_number") || "PROJ-001"),			
+			pname:"The Casbah Building",
 			address:"101 Boogie Street, Toronto, Ontario, Canada, M4X-2W6",
 			client:"Client", 
 			contractor:"CasbahCon",
@@ -61,55 +62,56 @@ casbah.tables.projects=function(params){
 			date_closed:"none",
 			status:"status",
 			xdata:"none"
-		}//,
+		},
 		//default filter selects current projects
 		//filter:" pnum = $pnum ",
 		//params:params,
-		//refresh:function(){console.log("Render function not yet defined.");}
+		refresh:function(){console.log("Render function not yet defined.");}
 	};
 };
 
-
-
-
 casbah.tables.site_comments=function(){
 	
+	var pnum=(localStorage.getItem("project_number") || "PROJ-001");
+	var dnum=(localStorage.getItem("site_report_id") || "FRR-001");
+	
 	return {
-		//table name in database
-		table:"site_comments.json",
-		//defining row 
+		table:"site_comments",
+		datafile:pnum+"\\"+dnum+"\\site_comments.json"
 		defrow:{
-			pnum:(localStorage.getItem("project_number") || "PROJ-001"), 
+			pnum:pnum, 
 			comment:"New comment", 
 			refs:[], 
 			date:Date(), 
 			by:(localStorage.getItem("user_name") || "none")
-		}//,			
+		},			
 		//filter:" rowid IN ( $comment_ids )",
 		//params:params,
-		//refresh:function(result, delta){}
+		refresh:function(result, delta){}
 	};
 };
 
-
 casbah.tables.site_issues=function(params){
 	
-	//params should be a reference a to global parameter object 
-	if (typeof params=="undefined") {params={};}
-
 	return {
-		table:"site_issues.json",
+		table:"site_issues",
+		datafile:pnum+"\\"+dnum+"\\site_issues.json"
 		defrow:{
 			pnum:(localStorage.getItem("project_number") || "PROJ-001"), 
 			desc:"New issue", 
 			date:Date(), 
 			date_closed:null,
+			//list of site_reports that reference this row
 			refs:[],
 			by:(localStorage.getItem("user_name") || "unknown")
-		}//,
+		},
 		//filter:" pnum = $pnum ",
-		//params:params,
-		//refresh:function(){console.log("Render function not yet defined.");}
+		//returns mongodb filter object that returns site_issues related to current site_report
+		filter:function(return {
+			pnum:(localStorage.getItem("project_number")),
+			refs:{$elemMatch:(localStorage.getItem("site_report_id"))}
+		}),
+		refresh:function(){console.log("Render function not yet defined.");}
 	};
 };
 

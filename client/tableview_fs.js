@@ -179,7 +179,7 @@ casbah.TableView.prototype.__refresh=function(result){
 	catch(er) {
 		console.log("tableView "+this.options.table+", trouble with refresh function:",er);
 	}
-	
+
 };
 
 casbah.TableView.prototype.save=function(row, rowid, callback){
