@@ -124,9 +124,9 @@ casbah.tables.site_reports=function(){
 		datafile:"site_reports.json",
 		//row definition ///// should be a function to provide latest params
 		defrow:function(){return {
-			project_number:localStorage.getItem("project_number"),			
-			document_number:localStorage.getItem("document_number"),
-			document_title:"document title",
+			pnum:localStorage.getItem("project_number"),			
+			dnum:localStorage.getItem("document_number"),
+			dtit:"document title",
 			date:"2018-May-10", //Date(),
 			date_issued:"none", 
 			by:localStorage.getItem("user"),			
@@ -134,7 +134,11 @@ casbah.tables.site_reports=function(){
 			issue_ids:"[1,2,3]",
 			photo_ids:"[1,2,3]",
 			xdata:"none"
-		};},		
+		};},	
+		filter:function(){return {
+			pnum:(localStorage.getItem("project_number")),
+			refs:{$elemMatch:(localStorage.getItem("site_report_id"))}
+		};}
 	};
 }
 

@@ -108,6 +108,16 @@ const df_update=function(df, rowid, row, callback){
 	})
 }
 
+const getDirSyncPlus=function(dir) {
+	var r=[]
+	var d=fs.readdirSync(dir).filter(function (file) {
+		return fs.statSync(path.join(dir,file)).isDirectory()
+	})
+	//TODO - go thru d, add content of datafiles in each dir
+	
+	return d
+}
+
 const uploads="uploads"
 
 ////////////////////////////
@@ -369,6 +379,32 @@ req.files... populated by middle-ware from ajaxed formData
 			});
 		}
 	break;
+
+	case "DIR+":
+		//reg.body.project_number
+		//req.body.tab, 
+		//req.body.folder
+		//req.body.datafile
+		var p=path.join(global.appRoot,uploads,req.body.tab, req.body.folder);
+		var r={}
+		console.log("DIR+ in:", p);
+		fs.stat(p, function(err, stat){
+			if (!err){
+				res.json({
+					dirs:fsp.getDirSyncPlus(path.join(root, req.body.tab, req.body.folder)),
+					project_number:req.body.project_number
+				});
+			} else if (err.code=="ENOENT") {
+				//folder doesn't exist so 
+				console.log("FOLDERS+ error:", err.code)	
+				r[req.body.datafile]={}
+				res.json({err:err, dirs:[]})				
+			} else {
+				console.log("FOLDERS+ error:", err.code)	
+				res.json({err:err, rows:[]})				
+			}
+		})
+	break;	
 	
 	case "FILES":
 		//Returns a list of files in path matching extension 

@@ -151,11 +151,15 @@ deficiency_sheets_log.refresh();
 	</div>	
 	
 	<div class="panel panel-default page">
-	<div class="panel-heading"  ><small>Project number:&nbsp;</small>{{project_number}}</div>
+	<div class="panel-heading"
+		onmouseenter="deficiency_sheets_log.hi.light(this);" 
+		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		onclick="casbah.project.modal(deficiency_sheets_log.refresh);"
+	><small>Project number:&nbsp;</small>{{project_number}}</div>
 	<div class="panel-body">
 	The following is a list of deficiency sheet-sets for this project.  Click on each one to open.  Drop image files on each one to ammend.<br>
 	<a onclick="deficiency_sheets_log.add();">Add a new sheet-set...</a><br> 
-	<a onclick="casbah.project.dialog(deficiency_sheets_log.refresh);">Select another project...</a> 
+	<a onclick="casbah.project.modal(deficiency_sheets_log.refresh);">Select another project...</a> 
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">

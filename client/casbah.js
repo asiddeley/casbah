@@ -469,7 +469,7 @@ casbah.project.check=function(){
 	$("#browser_tab").text("CASBAH - "+localStorage.getItem("project_number"));
 };
 
-casbah.project.dialog=function(callback){
+casbah.project.modal=function(callback){
 	$.ajax({
 		data:$.param({
 			action:"PROJECT_DIRS",
@@ -501,7 +501,6 @@ casbah.project.dialog=function(callback){
 		type:"POST",
 		url:"/uploads"
 	});	
-	
 };
 
 
