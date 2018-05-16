@@ -26,14 +26,21 @@ SOFTWARE.
 
 ********************************/
 
+const path = require("path")
+const fs = require("fs")
+const fsp = require(path.join(global.appRoot,"server","fs+"))
 
-exports.dir="reports"
-exports.site_reviews={}
-exports.site_reviews.datafile="__datafile.json"
-exports.site_reviews.dir="site_reviews"
-exports.site_reviews.defrow={
-	project_id:"localStorage.getItem('project_number')",			
-	report_id:"localStorage.getItem('document_number')",
+
+const reports_dir="reports"
+
+
+/////////////////
+// Site Reviews
+const site_reviews_dir="site_reviews"
+const site_reviews_datafile="__datafile.json"
+const site_reviews_defrow={
+	project_id:"localStorage.getItem('project_id')",			
+	report_id:"localStorage.getItem('document_id')",
 	report_title:"document title",
 	date:"2018-May-10", 
 	date_issued:"none", 
@@ -44,5 +51,27 @@ exports.site_reviews.defrow={
 	xdata:"none"
 }
 
+exports.site_reviews_handler=function(req, res){
+	//returns all site reviews
+	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, site_reviews_dir);
+	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}]} //empty result
+	console.log("SITE REVIEWS handler:", p);
+	fs.stat(p, function(err, stat){
+		if (!err){
+			r=fsp.dirSync_json(p, site_reviews_datafile, site_reviews_defrow)
+			r.defrow=reports.site_reviews_defrow //may be needed by client
+			console.log("SITE_REVIEWS success:", r)
+			res.json(r)
+		} else if (err.code=="ENOENT") {
+			//folder doesn't exist so create
+			mkdirSync(p)
+			console.log("SITE_REVIEWS folder created:", err.code)	
+			res.json(r)				
+		} else {
+			console.log("SITE_REVIEWS error:", err.code)	
+			res.json(r)				
+		}
+	})
+}
 
 

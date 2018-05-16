@@ -110,34 +110,9 @@ const df_update=function(df, rowid, row, callback){
 	})
 }
 
-const dirSync_json=function(dir, jsonfile, defrow) {
-	/**
-	returns a list of directories along with contents of a specified jsonfile within each of the directories
-	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
-	**/
-	var dd=fs.readdirSync(dir).filter(function (file) {
-		return fs.statSync(path.join(dir,file)).isDirectory()
-	})
-	//TODO - go thru d, add content of datafiles in each dir
-	var  jc, jp, result, ss
-	for (var i in dd){
-		jp=path.join(dir, dd[i], jsonfile)
-		ss=fs.statSync(jp)
-		if (!ss.err){
-			jc=JSON.parse(fs.readFileSync(jp,"charset=UTF-8"))
-		} else if (ss.err.code=="ENOENT"){
-			//create file if none exists
-			jc=(defrow || {})
-			fs.writeSync(jp, JSON.stringify(jc))			
-		}
-		jc.dir=dd[i] //inject dir:name
-		result.push(jc)
-	}
-	//result {dirs:[{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]}
-	return result
-}
 
-const uploads="uploads"
+
+const uploads_dir="uploads"
 
 ////////////////////////////
 //Exports
@@ -153,20 +128,23 @@ req.body.extension
 req.files... populated by middle-ware from ajaxed formData
 **********/
 	
-	if (typeof req.body.project_number == "undefined") {
-		var err="Upload handler error: project_number undefined"
+	if (typeof req.body.project_id == "undefined") {
+		var err="Upload handler error: project_id undefined"
 		console.log(err)
 		res.json({dirs:[], err:""})
 		return;
 	}
-	const root=path.join(global.appRoot,"uploads", req.body.project_number)
-
+	const root=path.join(global.appRoot, uploads_dir, req.body.project_id)
+	
+	//inject uploads, 
+	req.body.uploads_dir=uploads_dir
+	
 	switch (req.body.action){
 		
 	case "DF-DELETE":
 		//deletes row named rowid from table saved as datafile 
 		//datafile - {0:{rowid:0, nam:val,...}, 1:{rowid:1, nam:val,...}, ...}
-		var df=path.join(global.appRoot, uploads, req.body.datafile)
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile)
 		console.log("DF-DELETE:",req.body.rowid, " from:", df)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -197,7 +175,7 @@ req.files... populated by middle-ware from ajaxed formData
 		//creates a tables from defrow and saves it as datafile 
 		//defrow - {nam:val,...}
 		//datafile - {0:{rowid:0, nam:val,...}}
-		var df=path.join(global.appRoot,uploads,req.body.datafile);
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
 		console.log("DF-CREATE:", df, " defrow:", req.body.defrow)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -215,7 +193,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break;	
 
 	case "DF-INSERT":
-		var df=path.join(global.appRoot,uploads,req.body.datafile );
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile );
 		console.log("DF-INSERT:", df, " row:", req.body.row)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -239,7 +217,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT":
 		//Selects all rows from datafile table.
-		var df=path.join(global.appRoot,uploads,req.body.datafile)
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile)
 		console.log("DF-SELECT:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -259,7 +237,7 @@ req.files... populated by middle-ware from ajaxed formData
 
 	case "DF-SELECT-FIRST":
 		//Selects first row from datafile table.
-		var df=path.join(global.appRoot,uploads,req.body.datafile);
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
 		console.log("DF-SELECT-FIRST:", df, " defrow", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -283,7 +261,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT-LAST":
 		//Selects Last row from datafile table.
-		var df=path.join(global.appRoot,uploads,req.body.datafile);
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
 		console.log("DF-SELECT-LAST:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -305,7 +283,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break
 
 	case "DF-UPDATE":
-		var df=path.join(global.appRoot,uploads,req.body.datafile);
+		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
 		console.log("DF-UPDATE:", df, " row:", req.body.row, " ROWID:", req.body.rowid)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -331,7 +309,7 @@ req.files... populated by middle-ware from ajaxed formData
 			fs.mkdirSync(df);
 			res.json({
 				folders:fsp.getDirsSync(path.join(df, "..")),
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			});
 		}
 		catch(err) {
@@ -339,7 +317,7 @@ req.files... populated by middle-ware from ajaxed formData
 			res.json({
 				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
 				err:err,
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			})
 		} 
 	break;
@@ -365,7 +343,7 @@ req.files... populated by middle-ware from ajaxed formData
 			}); 
 			res.json({
 				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder, "..")),
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			});
 		}
 		catch(err) {
@@ -373,7 +351,7 @@ req.files... populated by middle-ware from ajaxed formData
 			res.json({
 				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
 				err:err,
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			})
 		} 
 	break;
@@ -386,7 +364,7 @@ req.files... populated by middle-ware from ajaxed formData
 		try {
 			res.json({
 				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			});
 		} 
 		catch(err) {
@@ -394,7 +372,7 @@ req.files... populated by middle-ware from ajaxed formData
 			res.json({
 				folders:[], 
 				err:err, 
-				project_number:req.body.project_number
+				project_id:req.body.project_id
 			});
 		}
 	break;
@@ -422,13 +400,13 @@ req.files... populated by middle-ware from ajaxed formData
 				if (req.body.extension.toUpperCase().indexOf(ext)!=-1){	
 					//chop of the roots
 					//filtered_files.push(files[i].substring(global.appRoot.length))
-					var pj=path.join(uploads, req.body.project_number, req.body.tab, req.body.folder,files[i])
+					var pj=path.join(uploads, req.body.project_id, req.body.tab, req.body.folder,files[i])
 					filtered_files.push(pj)
 				}
 			}
 			res.json({
 				files:filtered_files,
-				project_number:req.body.project_number,
+				project_id:req.body.project_id,
 				folder:req.body.folder
 			})
 		} 
@@ -437,7 +415,7 @@ req.files... populated by middle-ware from ajaxed formData
 			res.json({
 				files:[], 
 				err:err,
-				project_number:req.body.project_number,
+				project_id:req.body.project_id,
 				folder:req.body.folder
 			})
 		}
@@ -445,7 +423,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "PROJECT_DIRS":
 		//Returns a list of project folders
-		console.log("PROJECTS:", global.appRoot,uploads);
+		console.log("PROJECTS:", global.appRoot, uploads);
 		var ro={};
 		var ras=(typeof req.body.resultas =="undefined")?"dirs":req.body.resultas;
 		try {
@@ -462,7 +440,7 @@ req.files... populated by middle-ware from ajaxed formData
 
 	case "PROJECT_DATA":
 		//Returns a list of project folders
-		console.log("PROJECT DATA:", global.appRoot,uploads);
+		console.log("PROJECT DATA:", global.appRoot, uploads_dir);
 		var ro={};
 		var ras=(typeof req.body.resultas =="undefined")?"data":req.body.resultas;
 		try {
@@ -478,29 +456,7 @@ req.files... populated by middle-ware from ajaxed formData
 		}	
 	break;	
 	
-	case "SITE_REVIEWS":
-		//returns all site reviews
-		//p=path.join(global.appRoot,uploads,req.body.tab, req.body.folder);
-		var p=path.join(global.appRoot, uploads, reports.dir, reports.site_reviews.dir);
-		var r={dirs:[{dir:"", jsonfile:"", jsontext:""}]} //empty result
-		console.log("DIR+ in:", p);
-		fs.stat(p, function(err, stat){
-			if (!err){
-				r=dirSync_json(p, reports.site_reviews.datafile, reports.site_reviews.defrow)
-				r.defrow=reports.site_reviews.defrow //may be needed by client
-				console.log("SITE_REVIEWS success:", r)
-				res.json(r)
-			} else if (err.code=="ENOENT") {
-				//folder doesn't exist so create
-				mkdirSync(p)
-				console.log("SITE_REVIEWS folder created:", err.code)	
-				res.json(r)				
-			} else {
-				console.log("SITE_REVIEWS error:", err.code)	
-				res.json(r)				
-			}
-		})
-	break;	
+	case "SITE_REVIEWS":reports.site_reviews_handler(req, res); break;	
 	
 	case "UPLOAD":
 		if (!req.files) {console.log("Missing files for upload"); break;}

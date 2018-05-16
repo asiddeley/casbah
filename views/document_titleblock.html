@@ -5,7 +5,7 @@ A result like this {rows:[{pnum:'bldg', pname:'something'...}], ...}
 is passed to this template, need to use #each keyword to access data.  
 There should only be one row in this case
 --------------------->
-
+<div>
 {{#each rows}}
 <div class="row row__">
 	<strong class="col-xs-2">Project No.:</strong>
@@ -42,3 +42,4 @@ There should only be one row in this case
 	<p class="col-xs-4">{{by}}</p>
 </div>
 {{/each}}
+</div>

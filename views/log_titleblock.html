@@ -6,18 +6,18 @@ is passed to this template.
 Need to use #each keyword to access data.  There should only be one row
 Keyword #with row[0] doesn't work
 --------------------->
-
+<div>
 {{#each rows}}
 <div class="row row__">
-	<strong class="col-xs-2">Project no.:</strong>
-	<p class="col-xs-4">{{pnum}}</p>
+	<strong class="col-xs-2">Project No.:</strong>
+	<p class="col-xs-4">{{project_id}}</p>
 	<!--strong id="docTitle" class="col-xs-2">Doc No.</strong>
 	<p class="col-xs-4">{{dnum}}</p-->
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-2">Project Name:</strong>
-	<p class="col-xs-4">{{pname}}</p>
+	<p class="col-xs-4">{{project_name}}</p>
 	<!--strong id="docTitle" class="col-xs-2">Doc title:</strong>
 	<p class="col-xs-4">{{dtitle}}</p-->
 </div>
@@ -36,3 +36,4 @@ Keyword #with row[0] doesn't work
 	<p class="col-xs-4">{{by}}</p-->
 </div>
 {{/each}}
+</div>

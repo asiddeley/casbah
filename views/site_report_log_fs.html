@@ -30,39 +30,55 @@ srlog.open=function(el){
 };
 
 //TableViews
-srlog.refresh=function(result, delta){
+srlog.refresh_content=function(result, delta){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"SITE_REPORTS", filter:{}}),
-		error: function(err){ console.log("Error", err); },
+		data: $.param({
+			action:"SITE_REPORTS", 
+			filter:{},
+			project_id:(localStorage.getItem("project_id") || "BLDG-001")
+		}),
+		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			$("srlog-content").html(srlog.content(result));
+			$("#srlog-content").html(srlog.content(result));
 		},
 		type:"POST",
 		url:"/uploads"
 	});
+};
 
+srlog.refresh_titleblock=function(){
+	var result={rows:[{
+		project_id:"BLDG-001", 
+		project_name:"Casbah Building",
+		address:"101 Desert Way, The Ville",
+		contractor:"CasbahCon"
+	}]};
+	$("#srlog-titleblock").html( srlog.titleblock(result) );
 };
 
 
 ///////////////////////////////////////////
 //load templates and render...
 $.get("views/document_header.html", function(htm){
-	//console.log('tbh loaded:', htm);
+	//console.log('HEADER LOADED...');
 	srlog.header=Handlebars.compile(htm);
-	//casbah.renderFX(element_id, handlebaars_template_function, data)
-	casbah.renderFX("svrlog-header", srlog.header, {doc_type:"Site Review Log"});
+	$("#srlog-header").html(srlog.header({doc_type:"Site Review Log"}));
+	
 });
 
 $.get("views/log_titleblock.html", function(htm){
-	//console.log('tbt loaded:', htm);
-	srlog.titleblock=Handlebars.compile(htm);
-	srlog.tvTitleblock.refresh();
+	//console.log('TITLEBLOCK LOADED...');
+	srlog.titleblock=Handlebars.compile(htm);	
+	srlog.refresh_titleblock(srlog.titleblock);
 });
 
-srlog.content=Handlebars.compile($("#svrlog-content-template").html());
-srlog.tv.refresh();
-	
+srlog.content=Handlebars.compile($("#srlog-content-template").html());
+
+srlog.refresh_content();
+
+
+
 </script>
 </head>
 <body>
@@ -70,17 +86,17 @@ srlog.tv.refresh();
 <!-- PAGE -->
 
 <div class="container">
-	<div id="svrlog-header">header</div>
-	<div id="svrlog-titleblock">titleblock</div>
+	<div id="srlog-header">header</div>
+	<div id="srlog-titleblock">titleblock</div>
 	<br>
-	<div id="svrlog-content">content</div>
+	<div id="srlog-content">content</div>
 </div>
 
-<template id="svrlog-content-template" type="text/x-handlebars-template">
+<template id="srlog-content-template" type="text/x-handlebars-template">
 	<div class="row marz row_" 
-		onmouseenter="svrlog.hi.light(this);" 
-		onmouseleave="svrlog.hi.dark(this);"
-		onclick="svrlog.newReport(this)">
+		onmouseenter="srlog.hi.light(this);" 
+		onmouseleave="srlog.hi.dark(this);"
+		onclick="srlog.newReport(this)">
 	<p class="col-xs-1 row-head marz">row</p>	
 	<p class="col-xs-2 border-left row-head marz">SVR No. / by</p>
 	<p class="col-xs-3 row-head marz">title / comment ids</p>
@@ -109,7 +125,7 @@ srlog.tv.refresh();
 	<p 	class="col-xs-3 marz"
 		field="dtitle"
 		rowid="{{rowid}}"
-		onclick="svrlog.edit(this);">{{dtitle}}</p>
+		onclick="srlog.edit(this);">{{dtitle}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="date"
