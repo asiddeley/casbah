@@ -30,7 +30,7 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
-
+const reports=require(path.join(global.appRoot,"server","reports"))
 
 const df_create=function(datafile, row, callback){
 	//row - {by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}
@@ -52,6 +52,8 @@ const df_create=function(datafile, row, callback){
 		}		
 	});
 };
+
+
 
 const df_insert=function(df, row, callback){
 	fs.readFile(df, function(err, data){
@@ -108,14 +110,31 @@ const df_update=function(df, rowid, row, callback){
 	})
 }
 
-const getDirSyncPlus=function(dir) {
-	var r=[]
-	var d=fs.readdirSync(dir).filter(function (file) {
+const dirSync_json=function(dir, jsonfile, defrow) {
+	/**
+	returns a list of directories along with contents of a specified jsonfile within each of the directories
+	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
+	**/
+	var dd=fs.readdirSync(dir).filter(function (file) {
 		return fs.statSync(path.join(dir,file)).isDirectory()
 	})
 	//TODO - go thru d, add content of datafiles in each dir
-	
-	return d
+	var  jc, jp, result, ss
+	for (var i in dd){
+		jp=path.join(dir, dd[i], jsonfile)
+		ss=fs.statSync(jp)
+		if (!ss.err){
+			jc=JSON.parse(fs.readFileSync(jp,"charset=UTF-8"))
+		} else if (ss.err.code=="ENOENT"){
+			//create file if none exists
+			jc=(defrow || {})
+			fs.writeSync(jp, JSON.stringify(jc))			
+		}
+		jc.dir=dd[i] //inject dir:name
+		result.push(jc)
+	}
+	//result {dirs:[{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]}
+	return result
 }
 
 const uploads="uploads"
@@ -380,31 +399,7 @@ req.files... populated by middle-ware from ajaxed formData
 		}
 	break;
 
-	case "DIR+":
-		//reg.body.project_number
-		//req.body.tab, 
-		//req.body.folder
-		//req.body.datafile
-		var p=path.join(global.appRoot,uploads,req.body.tab, req.body.folder);
-		var r={}
-		console.log("DIR+ in:", p);
-		fs.stat(p, function(err, stat){
-			if (!err){
-				res.json({
-					dirs:fsp.getDirSyncPlus(path.join(root, req.body.tab, req.body.folder)),
-					project_number:req.body.project_number
-				});
-			} else if (err.code=="ENOENT") {
-				//folder doesn't exist so 
-				console.log("FOLDERS+ error:", err.code)	
-				r[req.body.datafile]={}
-				res.json({err:err, dirs:[]})				
-			} else {
-				console.log("FOLDERS+ error:", err.code)	
-				res.json({err:err, rows:[]})				
-			}
-		})
-	break;	
+
 	
 	case "FILES":
 		//Returns a list of files in path matching extension 
@@ -481,6 +476,30 @@ req.files... populated by middle-ware from ajaxed formData
 			ro[ras]=[]; ro[err]=err;
 			res.json(ro);
 		}	
+	break;	
+	
+	case "SITE_REVIEWS":
+		//returns all site reviews
+		//p=path.join(global.appRoot,uploads,req.body.tab, req.body.folder);
+		var p=path.join(global.appRoot, uploads, reports.dir, reports.site_reviews.dir);
+		var r={dirs:[{dir:"", jsonfile:"", jsontext:""}]} //empty result
+		console.log("DIR+ in:", p);
+		fs.stat(p, function(err, stat){
+			if (!err){
+				r=dirSync_json(p, reports.site_reviews.datafile, reports.site_reviews.defrow)
+				r.defrow=reports.site_reviews.defrow //may be needed by client
+				console.log("SITE_REVIEWS success:", r)
+				res.json(r)
+			} else if (err.code=="ENOENT") {
+				//folder doesn't exist so create
+				mkdirSync(p)
+				console.log("SITE_REVIEWS folder created:", err.code)	
+				res.json(r)				
+			} else {
+				console.log("SITE_REVIEWS error:", err.code)	
+				res.json(r)				
+			}
+		})
 	break;	
 	
 	case "UPLOAD":

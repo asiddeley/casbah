@@ -33,24 +33,12 @@ srlog.open=function(el){
 srlog.refresh=function(result, delta){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"DIRS+",
-			datafile:"__datafile.json",
-			project_number:localStorage.getItem("project_number"),
-			tab:"reports",
-			folder:"site_reviews",
-			
-		}),
+		data: $.param({action:"SITE_REPORTS", filter:{}}),
 		error: function(err){ console.log("Error", err); },
 		success: function(result){
-			////////////////to do
-			//itterate thru all dirs, open each datafile and aggregate site_review info
-			//maybe just do that automatically with DIRS+
-			//result {dirs:[], datafiles:{dir:{content},...}}		
 			$("srlog-content").html(srlog.content(result));
 		},
 		type:"POST",
-		//url: "/reports"
 		url:"/uploads"
 	});
 
@@ -63,9 +51,7 @@ $.get("views/document_header.html", function(htm){
 	//console.log('tbh loaded:', htm);
 	srlog.header=Handlebars.compile(htm);
 	//casbah.renderFX(element_id, handlebaars_template_function, data)
-	casbah.renderFX("svrlog-header", srlog.header, {
-		doc_type:(localStorage.getItem("doc_type")||"Site Report Log")
-	});
+	casbah.renderFX("svrlog-header", srlog.header, {doc_type:"Site Review Log"});
 });
 
 $.get("views/log_titleblock.html", function(htm){
