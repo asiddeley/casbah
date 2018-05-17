@@ -30,13 +30,13 @@ srlog.open=function(el){
 };
 
 //TableViews
-srlog.refresh_content=function(result, delta){
+srlog.refresh=function(result, delta){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SITE_REPORTS", 
 			filter:{},
-			project_id:(localStorage.getItem("project_id") || "BLDG-001")
+			project_id:(localStorage.getItem("project_id") || localStorage.getItem("project_number") || "BLDG-001")
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
@@ -48,13 +48,28 @@ srlog.refresh_content=function(result, delta){
 };
 
 srlog.refresh_titleblock=function(){
-	var result={rows:[{
-		project_id:"BLDG-001", 
-		project_name:"Casbah Building",
-		address:"101 Desert Way, The Ville",
-		contractor:"CasbahCon"
-	}]};
-	$("#srlog-titleblock").html( srlog.titleblock(result) );
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"PROJECTS", 
+			filter:{},
+			project_id:(localStorage.getItem("project_id") || localStorage.getItem("project_number") || "BLDG-001")
+		}),
+		error: function(err){ console.log("Error", err);},
+		success: function(result){
+			result={rows:[{
+				project_id:"BLDG-001", 
+				project_name:"Casbah Building",
+				address:"101 Desert Way, The Ville",
+				contractor:"CasbahCon"
+			}]};
+	
+			$("#srlog-titleblock").html(srlog.titleblock(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+	
 };
 
 
@@ -69,13 +84,13 @@ $.get("views/document_header.html", function(htm){
 
 $.get("views/log_titleblock.html", function(htm){
 	//console.log('TITLEBLOCK LOADED...');
-	srlog.titleblock=Handlebars.compile(htm);	
+	srlog.titleblock=Handlebars.compile(htm);
 	srlog.refresh_titleblock(srlog.titleblock);
 });
 
 srlog.content=Handlebars.compile($("#srlog-content-template").html());
 
-srlog.refresh_content();
+srlog.refresh();
 
 
 

@@ -40,8 +40,8 @@ const site_reviews_dir="site_reviews"
 const site_reviews_datafile="__datafile.json"
 const site_reviews_defrow={
 	project_id:"localStorage.getItem('project_id')",			
-	report_id:"localStorage.getItem('document_id')",
-	report_title:"document title",
+	report_id:"localStorage.getItem('report_id')",
+	report_title:"untittled",
 	date:"2018-May-10", 
 	date_issued:"none", 
 	author:"localStorage.getItem('user')",			

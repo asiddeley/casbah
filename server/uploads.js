@@ -440,7 +440,7 @@ req.files... populated by middle-ware from ajaxed formData
 
 	case "PROJECT_DATA":
 		//Returns a list of project folders
-		console.log("PROJECT DATA:", global.appRoot, uploads_dir);
+		console.log("PROJECT_DATA:", global.appRoot, uploads_dir);
 		var ro={};
 		var ras=(typeof req.body.resultas =="undefined")?"data":req.body.resultas;
 		try {
