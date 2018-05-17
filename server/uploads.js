@@ -30,6 +30,7 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
+const projects=require(path.join(global.appRoot,"server","projects"))
 const reports=require(path.join(global.appRoot,"server","reports"))
 
 const df_create=function(datafile, row, callback){
@@ -456,6 +457,7 @@ req.files... populated by middle-ware from ajaxed formData
 		}	
 	break;	
 	
+	case "PROJECTS":projects.handler(req, res); break;	
 	case "SITE_REVIEWS":reports.site_reviews_handler(req, res); break;	
 	
 	case "UPLOAD":

@@ -66,7 +66,7 @@ SOFTWARE.
 
 exports.dirSync_json=function(dir, jsonfile, defrow) {
 	/**
-	returns a list of directories along with contents of a specified jsonfile within each of the directories
+	returns a list of directories along with contents of a specified jsonfile within each of the directories.
 	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
 	**/
 	var dd=fs.readdirSync(dir).filter(function (file) {

@@ -44,11 +44,12 @@ $(document).on("contextmenu", false);
 //READY
 $(function() { 
 
-	casbah.project.template.numbers=Handlebars.compile($("#project_numbers").html());
+	casbah.project.id_template=Handlebars.compile($("#project-ids-template").html());
 	//casbah.project.$dialog=$("#project_dialog");
 	//casbah.project.$dialog.dialog({autoOpen:false, title:"Projects"});
+	casbah.project.data_template=Handlebars.compile($("#project-data-template").html());
 
-	// Setup Handlebars
+	//Setup Handlebars
 	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
 	//Handlebars.registerHelper("split", function(str, options){return str.split(",");});
 
@@ -58,6 +59,7 @@ $(function() {
 
 	$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
 
+	//load html from file the first time otherwise just show the right element containing the html   
 	casbah.view("welcome.html");
 }); 
 
@@ -223,7 +225,7 @@ $(function() {
 	</div>
 </div >
 
-<template id="project_numbers" type="text/x-handlebars-template">
+<template id="project-ids-template" type="text/x-handlebars-template">
 	<!--div class="container"-->
 	<!--div class="panel panel-default page">
 		<div class="panel-heading">Project Numbers</div>
@@ -243,6 +245,113 @@ $(function() {
 	<!--/div-->
 	<!--/div-->
 </template>
+
+
+<template id="project-data-template" type="text/x-handlebars-template">
+	<div class="row marz row__"></div>
+
+	{{#each rows}}
+	
+	<div class="row marz row" 
+		onmouseenter="project.hi.light(this);" 
+		onmouseleave="project.hi.dark(this);">
+	<p class="col-xs-1 row-head marz">row</p>
+	<div class="border-left col-xs-11 marz" >
+	<p class="col-xs-2 row-head marz">Project#</p>
+	<p class="col-xs-3 row-head marz">Project</p>
+	<p class="col-xs-2 row-head marz">Client</p>
+	<p class="col-xs-2 row-head marz">Date</p>
+	<p class="col-xs-2 row-head marz">GC</p>
+	</div>	
+	</div>	
+	
+	<div class="row marz"
+		rowid="{{rowid}}"
+		onmouseenter="project.hi.light(this);"
+		onmouseleave="project.hi.dark(this);"
+		oncontextmenu="casbah.showMenu(project.menu, event)">
+
+	<p 	rowid="{{rowid}}" class="col-xs-1 marz">{{plusOne @index}}</p>		
+	<div class="border-left col-xs-11 marz" >
+	<p 	class="col-xs-2 marz"
+		field="pnum"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{project_id}}</p>
+		
+	<p 	class="col-xs-3 marz"
+		field="pname"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{project_name}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="client"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{client}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="date"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{date}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="contractor"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{contractor}}</p>
+	</div>	
+	</div>
+	
+	<div class="row marz zebra-stripe" 
+		onmouseenter="project.hi.light(this);" 
+		onmouseleave="project.hi.dark(this);">
+	<p class="col-xs-1 row-head marz">row</p>
+	<div class="border-left col-xs-11 marz" >
+	
+	<p class="col-xs-2 row-head marz">Permit</p>
+	<p class="col-xs-3 row-head marz">Address</p>
+	<p class="col-xs-2 row-head marz">Status</p>
+	<p class="col-xs-2 row-head marz">Date Done</p>
+	<p class="col-xs-2 row-head marz">xdata</p>
+	</div>	
+	</div>
+	
+	<div class="row marz zebra-stripe"
+		rowid="{{rowid}}"
+		onmouseenter="project.hi.light(this);"
+		onmouseleave="project.hi.dark(this);"
+		oncontextmenu="casbah.showMenu(project.menu, event)">
+
+	<p class="col-xs-1 marz ">{{plusOne @index}}</p>
+	<div class="border-left marz col-xs-11">
+	<p 	class="col-xs-2 marz"
+		field="permit"
+		rowid="{{rowid}}"
+		style="height:100%;"
+		onclick="project.click(this);">{{permit}}</p>	
+			
+	<p 	class="col-xs-3 marz"
+		field="address"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{address}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="date_closed"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{date_closed}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="status"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{status}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		field="xdata"
+		rowid="{{rowid}}"
+		onclick="project.click(this);">{{xdata}}</p>
+	</div>		
+	</div>
+	{{/each}}	
+</template>
+
 
 
 </body>

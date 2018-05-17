@@ -135,7 +135,7 @@ casbah.array_rowidorder=function(rows, rowids){
 	
 };
 
-
+/**
 casbah.cookie=function(cname, cvalue, exdays) {
 	
 	if (typeof cvalue=="undefined"){
@@ -209,6 +209,8 @@ casbah.databaseFS=function(options, callback){
 		url: "/uploads"
 	});	
 };
+**/
+
 
 //////////////////////////////////
 // TEXTEDITOR
@@ -391,6 +393,7 @@ casbah.Highlighter=function(hiclass){
 casbah.hi=new casbah.Highlighter("highlite");
 
 ///////////////////////////
+/*
 casbah.parameters={
 	expiry_days:30,
 	fetch:function(name, default_value){return this.get(name, default_value);},
@@ -414,6 +417,8 @@ casbah.parameters={
 		return this;
 	}	
 };
+*/
+
 /////////////////////////////////////////////////////////////////////
 //casbah.$project_dialog
 //$.get("views/project_log_fs.html", function(html){
@@ -447,7 +452,7 @@ casbah.project.refresh=function(){
 	});	
 }
 **/
-casbah.project.template={};
+//casbah.project.template={};
 //casbah.project.template.numbers initialized in casbah.html ready
 	
 casbah.project.select=function(){
@@ -472,8 +477,9 @@ casbah.project.check=function(){
 casbah.project.modal=function(callback){
 	$.ajax({
 		data:$.param({
-			action:"PROJECT_DIRS",
-			backin:"log",
+			//action:"PROJECT_DIRS",
+			action:"PROJECTS",
+			//backin:"log",
 			project_number:"dummy"
 		}),
 		//contentType:false,
@@ -483,13 +489,9 @@ casbah.project.modal=function(callback){
 		success:function(result){ 
 			//result - [{pnum:"", pname:"", ...},{...},{...}...]
 			console.log("Project modal:", result);
-			//casbah.renderFX("project_content", project.content, result, delta);
-			var h=casbah.project.template.numbers(result);
-			////alert(h);
-			//$("#project_dialog_content").html(h);
-			////$("#project_numbers").dialog();
-			//casbah.project.$dialog.dialog({title:"Projects"});
-			
+			//var h=casbah.project.ids_template(result);
+			var h=casbah.project.data_template(result);
+	
 			//set callback
 			$("#project_modal").on("hide.bs.modal", function (e) {
 				if (typeof callback=="function"){callback();}

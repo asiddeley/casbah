@@ -30,7 +30,7 @@ srlog.open=function(el){
 };
 
 //TableViews
-srlog.refresh=function(result, delta){
+srlog.refresh_content=function(result, delta){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
@@ -74,23 +74,22 @@ srlog.refresh_titleblock=function(){
 
 
 ///////////////////////////////////////////
-//load templates and render...
+//load templates and compile...
 $.get("views/document_header.html", function(htm){
+	//beware - this function is asynchronous so srlog.header may not yet be defined if called outside this function
 	//console.log('HEADER LOADED...');
 	srlog.header=Handlebars.compile(htm);
 	$("#srlog-header").html(srlog.header({doc_type:"Site Review Log"}));
 	
 });
-
-$.get("views/log_titleblock.html", function(htm){
-	//console.log('TITLEBLOCK LOADED...');
-	srlog.titleblock=Handlebars.compile(htm);
-	srlog.refresh_titleblock(srlog.titleblock);
-});
-
+srlog.titleblock=Handlebars.compile($("#srlog-titleblock-template").html());
 srlog.content=Handlebars.compile($("#srlog-content-template").html());
 
-srlog.refresh();
+
+///////////////
+// Render page
+srlog.refresh_titleblock(srlog.titleblock);
+srlog.refresh_content();
 
 
 
@@ -187,6 +186,38 @@ srlog.refresh();
 	</div>		
 	</div>
 	{{/each}}	
+</template>
+
+<template id="srlog-titleblock-template" type="text/x-handlebars-template">
+{{#each rows}}
+<div class="row row__">
+	<strong class="col-xs-2">Project No.:</strong>
+	<p class="col-xs-4">{{project_id}}</p>
+	<!--strong id="docTitle" class="col-xs-2">Doc No.</strong>
+	<p class="col-xs-4">{{dnum}}</p-->
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Name:</strong>
+	<p class="col-xs-4">{{project_name}}</p>
+	<!--strong id="docTitle" class="col-xs-2">Doc title:</strong>
+	<p class="col-xs-4">{{dtitle}}</p-->
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Location:</strong>
+	<p class="col-xs-4">{{address}}</p>
+	<!--strong id="publish_date" class="col-xs-2">Issue date:</strong>
+	<p class="col-xs-4">{{date_issued}}</p-->
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Contractor:</strong>
+	<p class="col-xs-4">{{contractor}}</p>
+	<!--strong id="docBy" class="col-xs-2">By:</strong>
+	<p class="col-xs-4">{{by}}</p-->
+</div>
+{{/each}}
 </template>
 
 
