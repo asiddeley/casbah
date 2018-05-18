@@ -2,36 +2,51 @@
 
 <script type='text/javascript'>
 
-//ensure these parameters are available for this page
-//$PP.fetch("$dnum", "SVR-A01"); //.get(param_name, param_default_value);
-$PP.fetch("$pnum", "BLDG-001"); 
-$PP.store("$dtype", "Project Log");
 
 var project={};
 
-//action that starts text editor
+//Open text editor...
 project.click=function(el){
 	project.ed.text(el, function(){
-		project.tv.update(project.ed.row(), project.ed.rowid(), true); 
+		project.update(project.ed.row(), project.ed.rowid(), true); 
 		project.ed.hide();
 	});
 };
 
-//Main TableView
-project.tv=new TableView(casbah.tv.projects($PP),{
-	//select all projects
-	filter:" pnum = pnum", 
-	refresh:function(result, delta){
-		//console.log("project.tv:",JSON.stringify(result.rows));
-		casbah.renderFX("project-content", project.content, result, delta);
-	}
+project.update=function(row, rowid, flag){
+	console.log("Project update ROW:",row," ROWID:", rowid);
+	//TODO...
+};
+
+project.refresh=function(){
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"PROJECTS", 
+			filter:{},
+			project_id:(localStorage.getItem("project_id") || localStorage.getItem("project_number") || "BLDG-001")
+		}),
+		error: function(err){ console.log("Error", err);},
+		success: function(result){
+			result={rows:[{
+				project_id:"BLDG-001", 
+				project_name:"Casbah Building",
+				address:"101 Desert Way, The Ville",
+				contractor:"CasbahCon"
+			}]};
+			//casbah.renderFX("project-content", project.content, result, delta);
+			$("#project-placeholder").html(project.template(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
 });
 
 //Menu action
-project.open=function(){
-	//set pnum to selected project
-	var n=$("[rowid="+project.hi.rowid()+"]").find("[field=pnum]").text();
-	$PP.store("$pnum",n);
+project.current=function(el){
+	var pid=$("[rowid="+project.hi.rowid()+"]").find("[field=project_id]").text();
+	alert("Current Project:",pid);
+	localStore.setItem("Project_id", pid);
 };
 
 // text editor
@@ -45,14 +60,14 @@ project.menu=$("#project-menu").menu().css("position","absolute", "width", "200p
 
 //load templates and render...
 $.get("views/document_header.html", function(htm){
-	//console.log('tbh loaded:', htm);
-	project.header=Handlebars.compile(htm);
-	casbah.renderFX("project-header", project.header, {dtype:$PP.get("$dtype")});
+	//beware - this is asynchronous so risk of project.header being undefined if called outside this function
+	project.header_template=Handlebars.compile(htm);
+	$("#project-header-placeholder").html(project.header_template(result));
+	//casbah.renderFX("project-header", project.header, {dtype:$PP.get("$dtype")});
 });
 
-
-project.content=Handlebars.compile($("#project-content-template").html());
-project.tv.refresh();
+project.template=Handlebars.compile($("#project-template").html());
+project.refresh();
 
 </script>
 </head>
@@ -61,14 +76,13 @@ project.tv.refresh();
 <!-- PAGE -->
 
 <div class="container">
-
 	<div id="project-header">placeholder</div>
-	<div id="project-content">placeholder</div>
+	<div id="project-placeholder">placeholder</div>
 	<br><br><br><br>
 </div>
 
 
-<template id="project-content-template" type="text/x-handlebars-template">
+<template id="project-template" type="text/x-handlebars-template">
 	<div class="row marz row__"></div>
 
 	{{#each rows}}
@@ -91,18 +105,17 @@ project.tv.refresh();
 		onmouseenter="project.hi.light(this);"
 		onmouseleave="project.hi.dark(this);"
 		oncontextmenu="casbah.showMenu(project.menu, event)">
-
 	<p 	rowid="{{rowid}}" class="col-xs-1 marz">{{plusOne @index}}</p>		
 	<div class="border-left col-xs-11 marz" >
 	<p 	class="col-xs-2 marz"
-		field="pnum"
+		field="project_id"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{pnum}}</p>
+		onclick="project.click(this);">{{project_id}}</p>
 		
 	<p 	class="col-xs-3 marz"
-		field="pname"
+		field="project_name"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{pname}}</p>
+		onclick="project.click(this);">{{project_title}}</p>
 		
 	<p 	class="col-xs-2 marz"
 		field="client"
@@ -176,10 +189,10 @@ project.tv.refresh();
 
 <!-- MENUS -->
 <ul id="project-menu" onmouseleave="project.menu.hide()" class="hide9999">
-<li onclick="project.tv.add(true);">Add</li>
-<li onclick="project.open();">Current</li>
-<li onclick="project.menu.hide();project.tv.refresh();">Refresh</li>
+<li class="disabled" onclick="alert('Add...');">Add</li>
+<li onclick="project.current();">Current</li>
+<li onclick="project.menu.hide();project.refresh();">Refresh</li>
 <li onclick="project.menu.hide()">Exit</li>
-</ul>
+</ul >
 
 
