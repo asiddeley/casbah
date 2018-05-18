@@ -72,20 +72,26 @@ exports.dirSync_json=function(dir, jsonfile, defrow) {
 	var dd=fs.readdirSync(dir).filter(function (file) {
 		return fs.statSync(path.join(dir,file)).isDirectory()
 	})
-	var  jc, jp, result, ss
+	var  jc={}, jp, jt, r={}, rr=[], ss
 	for (var i in dd){
 		jp=path.join(dir, dd[i], jsonfile)
-		ss=fs.statSync(jp)
-		if (!ss.err){
-			jc=JSON.parse(fs.readFileSync(jp,"charset=UTF-8"))
-		} else if (ss.err.code=="ENOENT"){
-			//create file if none exists
-			jc=(defrow || {})
-			fs.writeSync(jp, JSON.stringify(jc))			
+		try {
+			/** Your application is crashing because you're not wrapping your fs.statSync in a try/catch block. Sync functions in node don't return the error like they would in their async versions. Instead, they throw their errors which need to be caught. https://stackoverflow.com/questions/33400294 **/
+			//ss=fs.statSync(jp)
+			//jc=JSON.parse(fs.readFileSync(jp,"charset=UTF-8"))
+			jt=fs.readFileSync(jp,"charset=UTF-8")
+		} 
+		catch (err){
+			//Create file if none exists
+			jt=JSON.stringify(defrow || {})
+			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
-		jc.dir=dd[i] //inject dir:name
-		result.push(jc)
+		//inject dir:name
+		r.dir=dd[i]
+		r.jsonfile=jsonfile
+		r.jsontext=jt
+		rr.push(r)
 	}
-	//result {dirs:[{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]}
-	return result
+	//result = [{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]
+	return rr
 }

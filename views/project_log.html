@@ -28,19 +28,21 @@ project.refresh=function(){
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
+			/**
 			result={rows:[{
 				project_id:"BLDG-001", 
 				project_name:"Casbah Building",
 				address:"101 Desert Way, The Ville",
 				contractor:"CasbahCon"
 			}]};
+			*/
 			//casbah.renderFX("project-content", project.content, result, delta);
 			$("#project-placeholder").html(project.template(result));
 		},
 		type:"POST",
 		url:"/uploads"
 	});
-});
+};
 
 //Menu action
 project.current=function(el){
@@ -62,8 +64,7 @@ project.menu=$("#project-menu").menu().css("position","absolute", "width", "200p
 $.get("views/document_header.html", function(htm){
 	//beware - this is asynchronous so risk of project.header being undefined if called outside this function
 	project.header_template=Handlebars.compile(htm);
-	$("#project-header-placeholder").html(project.header_template(result));
-	//casbah.renderFX("project-header", project.header, {dtype:$PP.get("$dtype")});
+	$("#project-header-placeholder").html(project.header_template({doc_type:"Project Log"}));
 });
 
 project.template=Handlebars.compile($("#project-template").html());
@@ -76,7 +77,7 @@ project.refresh();
 <!-- PAGE -->
 
 <div class="container">
-	<div id="project-header">placeholder</div>
+	<div id="project-header-placeholder">placeholder</div>
 	<div id="project-placeholder">placeholder</div>
 	<br><br><br><br>
 </div>
@@ -85,7 +86,7 @@ project.refresh();
 <template id="project-template" type="text/x-handlebars-template">
 	<div class="row marz row__"></div>
 
-	{{#each rows}}
+	{{#each dirs}}
 	
 	<div class="row marz row" 
 		onmouseenter="project.hi.light(this);" 
@@ -110,7 +111,7 @@ project.refresh();
 	<p 	class="col-xs-2 marz"
 		field="project_id"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{project_id}}</p>
+		onclick="project.click(this);">{{this.dir}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="project_name"
@@ -137,7 +138,7 @@ project.refresh();
 	<div class="row marz zebra-stripe" 
 		onmouseenter="project.hi.light(this);" 
 		onmouseleave="project.hi.dark(this);">
-	<p class="col-xs-1 row-head marz">row</p>
+	<p class="col-xs-1 row-head marz">&nbsp;</p>
 	<div class="border-left col-xs-11 marz" >
 	
 	<p class="col-xs-2 row-head marz">Permit</p>
@@ -154,7 +155,7 @@ project.refresh();
 		onmouseleave="project.hi.dark(this);"
 		oncontextmenu="casbah.showMenu(project.menu, event)">
 
-	<p class="col-xs-1 marz ">{{plusOne @index}}</p>
+	<p class="col-xs-1 marz ">&nbsp;</p>
 	<div class="border-left marz col-xs-11">
 	<p 	class="col-xs-2 marz"
 		field="permit"

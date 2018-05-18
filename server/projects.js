@@ -31,10 +31,10 @@ const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 
 //const projects_dir="projects"
-const project_datafile="__projects.json"
-const project_defrow={
-	project_id:"(localStorage.getItem('project_id') || 'PROJ-001')",			
-	projrct_name:"The Casbah Building",
+const projects_datafile="__projects.json"
+const projects_defrow={
+	project_id:"PROJ-001",			
+	project_name:"The Casbah Building",
 	address:"101 Desert Way, The Ville, RTC-RTC",
 	client:"Client", 
 	contractor:"CasbahCon",
@@ -48,13 +48,17 @@ const project_defrow={
 exports.handler=function(req, res){
 	//returns all site reviews
 	var p=path.join(global.appRoot, req.body.uploads_dir);
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}]} //empty result
+	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:{}} //empty result
 	console.log("PROJECTS handler:", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
-			r=fsp.dirSync_json(p, projects_datafile, projects_defrow)
-			//returns {dirs[{dir:"name", jsontext:"{...}", jsonfile:"filename"},...]}
-			r.defrow=project_defrow //send back in case it's needed by client
+			//important, set project_id = dir
+			projects_defrow.project_id=req.body.uploads_dir
+			//get result array rar=[{dir:"name", jsontext:"{...}", jsonfile:"filename"},...]
+			var rar=fsp.dirSync_json(p, projects_datafile, projects_defrow)
+			//set {dirs:rar, defrow:{}}
+			r.dirs=rar
+			r.defrow=projects_defrow //send back in case it's needed by client
 			console.log("PROJECTS success:", r)
 			res.json(r)
 		} else if (err.code=="ENOENT") {
