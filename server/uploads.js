@@ -30,7 +30,7 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
-const projects=require(path.join(global.appRoot,"server","projects"))
+const project=require(path.join(global.appRoot,"server","projects"))
 const reports=require(path.join(global.appRoot,"server","reports"))
 
 const df_create=function(datafile, row, callback){
@@ -112,7 +112,6 @@ const df_update=function(df, rowid, row, callback){
 }
 
 
-
 const uploads_dir="uploads"
 
 ////////////////////////////
@@ -130,15 +129,21 @@ req.files... populated by middle-ware from ajaxed formData
 **********/
 	
 	if (typeof req.body.project_id == "undefined") {
-		var err="Upload handler error: project_id undefined"
-		console.log(err)
-		res.json({dirs:[], err:""})
+		var err="project_id undefined"
+		console.log("UPLOAD handler error:", err)
+		res.json({dirs:[], err:err})
 		return;
 	}
 	const root=path.join(global.appRoot, uploads_dir, req.body.project_id)
 	
 	//inject uploads, 
 	req.body.uploads_dir=uploads_dir
+	
+	//ensure uploads_dir exists
+	var up=path.join(global.appRoot, uploads_dir)
+	try {if (!fs.statSync(up).isDirectory()){fs.mkdirSync(up)}} 
+	catch(err){if (err.code="ENOENT"){fs.mkdirSync(up)}}
+	
 	
 	switch (req.body.action){
 		
@@ -379,7 +384,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break;
 
 
-	
+	/***
 	case "FILES":
 		//Returns a list of files in path matching extension 
 		//NOT RECURSIVE
@@ -401,7 +406,7 @@ req.files... populated by middle-ware from ajaxed formData
 				if (req.body.extension.toUpperCase().indexOf(ext)!=-1){	
 					//chop of the roots
 					//filtered_files.push(files[i].substring(global.appRoot.length))
-					var pj=path.join(uploads, req.body.project_id, req.body.tab, req.body.folder,files[i])
+					var pj=path.join(uploads_dir, req.body.project_id, req.body.tab, req.body.folder,files[i])
 					filtered_files.push(pj)
 				}
 			}
@@ -421,44 +426,23 @@ req.files... populated by middle-ware from ajaxed formData
 			})
 		}
 	break;
+	***/
 	
-	case "PROJECT_DIRS":
-		//Returns a list of project folders
-		console.log("PROJECTS:", global.appRoot, uploads);
-		var ro={};
-		var ras=(typeof req.body.resultas =="undefined")?"dirs":req.body.resultas;
-		try {
-			//getDirsSync returns an array of folders.  Each is just a short name, not path
-			ro[ras]=fsp.getDirsSync(path.join(global.appRoot,"uploads"));
-			res.json(ro);
-		} 
-		catch(err) {
-			console.log("PROJECTS err",err);
-			ro[ras]=[]; ro[err]=err;
-			res.json(ro);
-		}	
-	break;
+	case "PROJECT-CHANGE":project.change(req, res); break;
+	case "PROJECT-IDLIST":project.idlist(req, res); break;
+	case "PROJECT-INSERT":project.insert(req, res); break;	
+	case "PROJECT-REMOVE":project.remove(req, res); break;	
+	case "PROJECT-SELECT":project.select(req, res); break;	
 
-	case "PROJECT_DATA":
-		//Returns a list of project folders
-		console.log("PROJECT_DATA:", global.appRoot, uploads_dir);
-		var ro={};
-		var ras=(typeof req.body.resultas =="undefined")?"data":req.body.resultas;
-		try {
-			//getDirsSync returns an array of folders.  Each is just a short name, not path
-			//ro[ras]=fsp.getDirsSync(path.join(global.appRoot,"uploads"));
-			//TODO read json file
-			res.json(ro);
-		} 
-		catch(err) {
-			console.log("PROJECTS err",err);
-			ro[ras]=[]; ro[err]=err;
-			res.json(ro);
-		}	
-	break;	
+	// Room Deficiency Sheets Log
+	case "RDSS-INSERT":reports.rdss_insert(req, res); break;
+	case "RDSS-SELECT":reports.rdss_select(req, res); break;
+
+	// Room Deficiency Sheets
+	case "RDS-SELECT":reports.rds_select(req, res); break;
 	
-	case "PROJECTS":projects.handler(req, res); break;	
-	case "SITE_REVIEWS":reports.site_reviews_handler(req, res); break;	
+	
+	case "SITE-REVIEWS-SELECT":reports.site_reviews_select(req, res); break;	
 	
 	case "UPLOAD":
 		if (!req.files) {console.log("Missing files for upload"); break;}

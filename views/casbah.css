@@ -57,18 +57,12 @@ select {width: 200px; }
 .row-head {font-size:small; font-weight:bold;}
 .zebra-stripetan {background-color:tan;}
 .zebra-stripegrey {background-color:#e0e0e0;}
-.zebra-stripe {background-color:#e8e8e8;}
+.zebra {background-color:#e8e8e8;}
 
 
 p {font-size:11pt; font-family:'segoe UI'; height:100% !important;}
 
-
-
-
-textarea {
-font-family:'segoe';
-background-color:silver;
-}
+textarea {font-size:11pt; font-family:'segoe ui'; background-color:silver;}
 
 
 .pocket {

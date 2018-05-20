@@ -22,20 +22,12 @@ project.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"PROJECTS", 
+			action:"PROJECT-SELECT", 
 			filter:{},
 			project_id:(localStorage.getItem("project_id") || localStorage.getItem("project_number") || "BLDG-001")
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			/**
-			result={rows:[{
-				project_id:"BLDG-001", 
-				project_name:"Casbah Building",
-				address:"101 Desert Way, The Ville",
-				contractor:"CasbahCon"
-			}]};
-			*/
 			//casbah.renderFX("project-content", project.content, result, delta);
 			$("#project-placeholder").html(project.template(result));
 		},
@@ -45,10 +37,11 @@ project.refresh=function(){
 };
 
 //Menu action
-project.current=function(el){
-	var pid=$("[rowid="+project.hi.rowid()+"]").find("[field=project_id]").text();
-	alert("Current Project:",pid);
-	localStore.setItem("Project_id", pid);
+project.current=function(){
+	var caller=project.menu.menu("option","caller");
+	var pid=$(caller).closest("[project_id]").attr("project_id");
+	$("#browser_tab").text("CASBAH-"+pid);
+	localStorage.setItem("project_id", pid);
 };
 
 // text editor
@@ -61,7 +54,7 @@ project.hi=new casbah.Highlighter("highlite");
 project.menu=$("#project-menu").menu().css("position","absolute", "width", "200px").hide();
 
 //load templates and render...
-$.get("views/document_header.html", function(htm){
+$.get("views/header.html", function(htm){
 	//beware - this is asynchronous so risk of project.header being undefined if called outside this function
 	project.header_template=Handlebars.compile(htm);
 	$("#project-header-placeholder").html(project.header_template({doc_type:"Project Log"}));
@@ -88,21 +81,19 @@ project.refresh();
 
 	{{#each dirs}}
 	
-	<div class="row marz row" 
-		onmouseenter="project.hi.light(this);" 
-		onmouseleave="project.hi.dark(this);">
-	<p class="col-xs-1 row-head marz">row</p>
+	<div class="row marz row zebra" >
+	<small class="col-xs-1 row-head marz">row</small>
 	<div class="border-left col-xs-11 marz" >
-	<p class="col-xs-2 row-head marz">Project#</p>
-	<p class="col-xs-3 row-head marz">Project</p>
-	<p class="col-xs-2 row-head marz">Client</p>
-	<p class="col-xs-2 row-head marz">Date</p>
-	<p class="col-xs-2 row-head marz">GC</p>
+	<span class="col-xs-2 row-head marz">Project No.</span>
+	<span class="col-xs-3 row-head marz">Project</span>
+	<span class="col-xs-2 row-head marz">Owner</span>
+	<span class="col-xs-2 row-head marz">Date</span>
+	<span class="col-xs-2 row-head marz">GC</span>
 	</div>	
 	</div>	
 	
 	<div class="row marz"
-		rowid="{{rowid}}"
+		project_id="{{dir}}"
 		onmouseenter="project.hi.light(this);"
 		onmouseleave="project.hi.dark(this);"
 		oncontextmenu="casbah.showMenu(project.menu, event)">
@@ -111,17 +102,17 @@ project.refresh();
 	<p 	class="col-xs-2 marz"
 		field="project_id"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{this.dir}}</p>
+		onclick="project.click(this);">{{dir}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="project_name"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{project_title}}</p>
+		onclick="project.click(this);">{{project_name}}</p>
 		
 	<p 	class="col-xs-2 marz"
 		field="client"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{client}}</p>
+		onclick="project.click(this);">{{owner}}</p>
 		
 	<p 	class="col-xs-2 marz"
 		field="date"
@@ -135,9 +126,7 @@ project.refresh();
 	</div>	
 	</div>
 	
-	<div class="row marz zebra-stripe" 
-		onmouseenter="project.hi.light(this);" 
-		onmouseleave="project.hi.dark(this);">
+	<div class="row marz">
 	<p class="col-xs-1 row-head marz">&nbsp;</p>
 	<div class="border-left col-xs-11 marz" >
 	
@@ -149,8 +138,8 @@ project.refresh();
 	</div>	
 	</div>
 	
-	<div class="row marz zebra-stripe"
-		rowid="{{rowid}}"
+	<div class="row marz"
+		project_id="{{dir}}"
 		onmouseenter="project.hi.light(this);"
 		onmouseleave="project.hi.dark(this);"
 		oncontextmenu="casbah.showMenu(project.menu, event)">

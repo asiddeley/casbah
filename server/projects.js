@@ -30,13 +30,13 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 
-//const projects_dir="projects"
+//const projects_dir="uploads"
 const projects_datafile="__projects.json"
 const projects_defrow={
 	project_id:"PROJ-001",			
 	project_name:"The Casbah Building",
 	address:"101 Desert Way, The Ville, RTC-RTC",
-	client:"Client", 
+	owner:"Owner", 
 	contractor:"CasbahCon",
 	permit:"16 xxxxxx BLD 00 BA",
 	date:"2018-May-10", //Date(),
@@ -45,32 +45,50 @@ const projects_defrow={
 	xdata:"none"
 }
 
-exports.handler=function(req, res){
-	//returns all site reviews
+//////////////////////
+// EXPORTS
+exports.change=function(req, res){}
+
+exports.idlist=function(req, res){
+	//Returns a list of project folders
+	var p=path.join(global.appRoot, req.body.uploads_dir)
+	console.log("PROJECT-IDLIST:", p);
+	try {
+		//getDirsSync returns an array of folders.  Each is just a short name, not path
+		var ids=fsp.getDirsSync(p);
+		res.json({ids:ids});
+	}
+	catch(err) {
+		console.log("PROJECTS err", err);
+		res.json({ids:[]});
+	}	
+}
+exports.insert=function(req, res){}
+exports.remove=function(req, res){}
+exports.select=function(req, res){
+	
+	//select all projects with suplementary data
 	var p=path.join(global.appRoot, req.body.uploads_dir);
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:{}} //empty result
-	console.log("PROJECTS handler:", p);
+	//empty result
+	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:projects_defrow} 
+	console.log("PROJECTS select:", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//important, set project_id = dir
 			projects_defrow.project_id=req.body.uploads_dir
 			//get result array rar=[{dir:"name", jsontext:"{...}", jsonfile:"filename"},...]
 			var rar=fsp.dirSync_json(p, projects_datafile, projects_defrow)
-			//set {dirs:rar, defrow:{}}
+			//convert jsontext to object in result
+			for (var i in rar){
+				try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext))}
+				catch(err){rar[i].errm=err.message}
+			}
+			//include dirs field... {dirs:rar, defrow:{}}
 			r.dirs=rar
-			r.defrow=projects_defrow //send back in case it's needed by client
-			console.log("PROJECTS success:", r)
-			res.json(r)
-		} else if (err.code=="ENOENT") {
-			//folder doesn't exist so create
-			mkdirSync(p)		
-			console.log("PROJECTS (UPLOAD) folder created:")	
-			res.json(r)				
-		} else {
-			console.log("PROJECTS error:", err.code)	
-			res.json(r)				
-		}
+ 			res.json(r)
+			console.log("PROJECTS success")
+		} 
+		else {res.json(r); console.log("PROJECTS error:", err.code)}
 	})
 }
-
 

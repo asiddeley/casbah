@@ -31,11 +31,13 @@ deficiency_sheets.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"FILES",
+			//action:"FILES",
+			action:"RDS-SELECT",
 			extension:".PNG",
-			project_number:localStorage.getItem("project_number"),
-			tab:"reports",
-			folder:"deficiency_sheets\\" + localStorage.getItem("deficiency_sheetset"),
+			project_id:localStorage.getItem("project_id"),
+			deficiency_sheets:localStorage.getItem("deficiency_sheets")
+			//tab:"reports",
+			//folder:"deficiency_sheets\\" + localStorage.getItem("deficiency_sheetset"),
 		}),
 		error:function(err){console.log("Error:", err.message);},
 		success:function(result){
@@ -109,7 +111,7 @@ deficiency_sheets.refresh();
 			</div>
 			<div class="row">
 				<span class="col-xs-2">Project number:</span>
-				<span class="col-xs-2">{{project_number}}</span>
+				<span class="col-xs-2">{{project_id}}</span>
 			</div>
 			<div class="row"><span class="col-xs-2">Rooms:</span></div><br>
 			<div class="row">		

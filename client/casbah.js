@@ -135,83 +135,6 @@ casbah.array_rowidorder=function(rows, rowids){
 	
 };
 
-/**
-casbah.cookie=function(cname, cvalue, exdays) {
-	
-	if (typeof cvalue=="undefined"){
-		//GET COOKIE
-		//console.log("getCookie...", cname);
-		var name = cname + "=";
-		var decodedCookie = decodeURIComponent(document.cookie);
-		var ca = decodedCookie.split(';');
-		//console.log("ca...", ca);	
-		for(var i = 0; i<ca.length; i++) {
-			var c = ca[i];
-			while (c.charAt(0) == ' ') {
-				c = c.substring(1);
-			}
-			if (c.indexOf(name) == 0) {
-				var cvalue=c.substring(name.length, c.length);
-				//convert string to list if applicable
-				//if (cvalue.charAt(0)=="[") {cvalue=JSON.parse(cvalue);}
-				return cvalue;
-			}
-		}
-		return null;
-	} 
-	else {
-		//SET COOKIE
-		//console.log("setCookie...");
-		if (typeof exdays=="undefined"){exdays=7;}
-		//if (cvalue instanceof Array) {cvalue="["+cvalue.toString()+"]";}
-		var d = new Date();
-		d.setTime(d.getTime() + (exdays*24*60*60*1000));
-		var expires = "expires="+ d.toUTCString();
-		document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-		return cvalue;
-	}
-};
-
-casbah.database=function(sql, callback){
-	
-	//callback -- function(result){...}
-	//result -- {msg:"txt", rows:[], delta:} 
-	
-	$.ajax({
-		url: '/database',
-		type: 'POST',
-		data: jQuery.param({SQL:sql}),
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-		success:function(result){ 
-			if(typeof result.rows=="undefined") result.rows=[];
-			if (typeof callback=="function") callback(result);
-		},
-		error:function(err){console.log("casbah.database ajax error:",err);}
-	});	
-};
-
-
-casbah.databaseFS=function(options, callback){
-	
-	//callback -- function(result){...}
-	//result -- {msg:"txt", rows:[], delta:} 
-	console.log("Options",options);
-	
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param(options),
-		error:function(err){console.log("casbah.databaseFS ajax error:", err);},
-		success:function(result){ 
-			if(typeof result.rows=="undefined") result.rows=[];
-			if (typeof callback=="function") callback(result);
-		},
-		type: "POST",
-		url: "/uploads"
-	});	
-};
-**/
-
-
 //////////////////////////////////
 // TEXTEDITOR
 // init...
@@ -311,40 +234,7 @@ casbah.Editor=function (){
 	});
 	
 };
-/********************
-casbah.deficiencySheets=function(action, arg, callback){
-	//callback -- function(result){...}
-	//result -- {msg:"txt", rows:[], delta:} 
-	$.ajax({
-		url: '/deficiencySheets',
-		type: 'POST',
-		data: jQuery.param({action:action, arg:arg}),
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-		success:function(result){ 
-			if(typeof result.files=="undefined") result.files=[];
-			if (typeof callback=="function") callback(result);
-		},
-		error:function(err){console.log("Error getting room defic sheets:",err);}
-	});	
-}
 
-
-casbah.deficiencySheetsLog=function(action, arg, callback){
-	//callback -- function(result){...}
-	//result -- {msg:"txt", rows:[], delta:} 
-	$.ajax({
-		url:"/deficiencySheetsLog",
-		type:"POST",
-		data:jQuery.param({action:action, arg:arg}),
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-		success:function(result){ 
-			if(typeof result.files=="undefined") result.files=[];
-			if (typeof callback=="function") callback(result);
-		},
-		error:function(err){console.log("Error getting deficiency sheets log:",err);}
-	});	
-}
-*********************/
 ////////////////////////////////
 // Highlighter
 // 
@@ -354,6 +244,7 @@ casbah.Highlighter=function(hiclass){
 	this.hiclass=hiclass;
 	this.selector="";
 	this.__rowid="-1";
+	this.caller=null;
 
 	this.attr=function(name){
 		return $("."+that.hiclass).attr(name);
@@ -367,7 +258,8 @@ casbah.Highlighter=function(hiclass){
 		else if (typeof element=="undefined"){element=$(that.selector);};
 		$("."+that.hiclass).removeClass(that.hiclass);
 		$(element).addClass(that.hiclass);
-		that.__rowid=$(element).attr("rowid");
+		//that.__rowid=$(element).attr("rowid");
+		that.caller=element;
 	}
 	
 	this.rowid=function(){	return Number(that.__rowid);};	
@@ -390,76 +282,17 @@ casbah.Highlighter=function(hiclass){
 	};
 };
 
+//required by project.modal
 casbah.hi=new casbah.Highlighter("highlite");
 
-///////////////////////////
-/*
-casbah.parameters={
-	expiry_days:30,
-	fetch:function(name, default_value){return this.get(name, default_value);},
-	get:function(name, default_value){
-		var $value=casbah.cookie(name);
-		if (typeof $value=="undefined" || $value==null){
-			if (typeof default_value=="undefined"){default_value="undefined";}
-			$value=default_value;
-			casbah.cookie(name, $value, this.expiry_days);
-		};
-		this[name]=$value;
-		//console.log("GET ",name, "=",this[name]);
-		return $value;
-	},
-	store:function(name,$value){return this.set(name, $value);},
-	set:function(name, $value){
-		if (typeof $value=="undefined"){$value="undefined";}
-		$value=casbah.cookie(name, $value, this.expiry_days);
-		this[name]=$value;
-		//console.log("SET ", name, "=",this[name]);
-		return this;
-	}	
-};
-*/
 
-/////////////////////////////////////////////////////////////////////
-//casbah.$project_dialog
-//$.get("views/project_log_fs.html", function(html){
-	//load this div with contents of file - ensure placeholder exists
-	//$("#project_log").html(html);
-	//casbah.project_dialog=$("#project_log").dialog();
-//});
 casbah.project={};
-/**
-casbah.project.refresh=function(){
-	//read upload folder
-	
-	$.ajax({	
-		data:$.param({
-			action:"project_numbers",
-			backin:"log",
-			project_number:"dummy"
-		}),
-		contentType:false,
-		error:function(err){console.log("Error:",err);},
-		processData:false, 
-		success:function(result){ 
-			//result - [{pnum:"", pname:"", ...},{...},{...}...]
-			//console.log("Success");
-			//casbah.renderFX("project_content", project.content, result, delta);
-			$("#project_dialog_content").html(casbah.project.template_numbers(result));
-			//$("#project_numbers").dialog();
-		},
-		type:"POST",
-		url:"/uploads"
-	});	
-}
-**/
-//casbah.project.template={};
-//casbah.project.template.numbers initialized in casbah.html ready
 	
 casbah.project.select=function(){
 	var pnum=prompt("Project number");
 	if (pnum !== "" && pnum != null){
-		localStorage.setItem("project_number", pnum);
-		$("#browser_tab").text("CASBAH ("+pnum+")");
+		localStorage.setItem("project_id", pnum);
+		$("#browser_tab").text("CASBAH - "+pnum);
 	};
 	//casbah.project_dialog.show();
 };
@@ -477,10 +310,8 @@ casbah.project.check=function(){
 casbah.project.modal=function(callback){
 	$.ajax({
 		data:$.param({
-			//action:"PROJECT_DIRS",
-			action:"PROJECTS",
-			//backin:"log",
-			project_number:"dummy"
+			action:"PROJECT-IDLIST",
+			project_id:"dummy"
 		}),
 		//contentType:false,
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
@@ -490,13 +321,11 @@ casbah.project.modal=function(callback){
 			//result - [{pnum:"", pname:"", ...},{...},{...}...]
 			console.log("Project modal:", result);
 			//var h=casbah.project.ids_template(result);
-			var h=casbah.project.data_template(result);
-	
+			var h=casbah.project.idlist_template(result);
 			//set callback
-			$("#project_modal").on("hide.bs.modal", function (e) {
+			$("#project_modal").one("hide.bs.modal", function (e) {
 				if (typeof callback=="function"){callback();}
 			});
-			
 			$("#project_modal_content").html(h);
 			$("#project_modal").modal("show");
 		},
@@ -543,54 +372,7 @@ casbah.showMenu=function(cm$, ev){
 	return false;
 };
 
-/********
-casbah.selectFolder=function (e) {
-    var theFiles = e.target.files;
-    var relativePath = theFiles[0].webkitRelativePath;
-    var folder = relativePath.split("/");
-    alert(folder[0]);
-};
-************/
 
-/**********
-casbah.ViewSelecter=function(options){
-	//Sets up triggers for calling views
-	//options - {[elid:"TOOLBAR", ev:"toolchange", views:[]],[]...}
-	//to call - $(document).trigger("toolchange", "view.html")
-	if (typeof options == "undefined"){
-		options=[
-			{id:"TOOLBAR", ev:"toolchange", views:[
-				"wikitools.html"
-			]},
-			{id:"NAVBAR", ev:"viewchange", views:[
-				"deficiency_sheets.html",
-				"project_log.html",			
-			]}
-		];		
-	}
-	var loaded=[];
-	var that=this;
-	for (var o in options){
-		var ev=options[o].ev;
-		var data=options[o]; //bound now
-		$(document).on(ev, data, function(ev, view){
-			//view is from the trigger argument
-			//ev.data - list of views
-			if (loaded.indexOf(view)!=-1){
-				//already loaded so just hide others and show div with view
-			} 
-			else {
-				loaded.push(view);
-				//hide others
-				//load
-				
-			}			
-		})		
-	}
-};
-************/
-
-//////////////////////////////
 casbah.tool=function(htmlfile){
 	console.log("toolchange");	
 	//heads up - close open editors etc

@@ -25,6 +25,7 @@ var deficiency_sheets_log={};
 deficiency_sheets_log.add=function(){
 	var name=prompt("Name of new deficiency sheetset");
 	if (name == "" || name == null){return;}
+	else {
 	//var fd=new FormData();
 	//fd.append("action","ADD");
 	//fd.append("project_number", localStorage.getItem("project_number"));
@@ -34,21 +35,20 @@ deficiency_sheets_log.add=function(){
 	
 	$.ajax({
 		data:$.param({
-			action:"MAKE",
-			project_number:localStorage.getItem("project_number"),
-			tab:"reports",
-			folder:"deficiency_sheets\\"+name
+			action:"RDSS-INSERT",
+			project_id:localStorage.getItem("project_id"),
+			insert:name
 		}),
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error adding deficiency sheetset:",err);},
-		success:function(result){ 
+		success:function(result){
 			var html=deficiency_sheets_log.template(result);
 			$("#deficiency_sheets_log_placeholder").html(html);
 		},
 		type:"POST",
 		url:"/uploads"
 	});	
-};
+}};
 
 deficiency_sheets_log.drop=function(ev){
 	/***
@@ -82,7 +82,6 @@ deficiency_sheets_log.drop=function(ev){
 		processData:false, 
 		success:function(result){console.log("Success uploading");},
 		type:"POST",
-		//url:"/reports"
 		url:"/uploads"
 	});	
 };
@@ -90,7 +89,7 @@ deficiency_sheets_log.drop=function(ev){
 deficiency_sheets_log.goto=function(ev){
 	//localStorage.setItem("report_name", $(ev.target).text());
 	//localStorage.setItem("subfolder", $(ev.target).text());
-	localStorage.setItem("deficiency_sheetset", $(ev.target).text());
+	localStorage.setItem("deficiency_sheets", $(ev.target).text());
 	casbah.view("deficiency_sheets.html");
 };
 
@@ -111,20 +110,17 @@ deficiency_sheets_log.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"FOLDERS",
-			project_number:localStorage.getItem("project_number"),
-			tab:"reports",
-			folder:"deficiency_sheets",
+			action:"RDSS-SELECT",
+			project_id:localStorage.getItem("project_id")
 		}),
 		//data: fd,
 		//contentType: false,
-		error: function(err){ console.log("Error", err); },
+		error: function(err){ console.log("Ajax failed, server error", err); },
 		success: function(result){
 			var html=deficiency_sheets_log.template(result);
 			$("#deficiency_sheets_log_placeholder").html(html);
 		},
 		type:"POST",
-		//url: "/reports"
 		url:"/uploads"
 	});	
 };
@@ -155,7 +151,7 @@ deficiency_sheets_log.refresh();
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
 		onclick="casbah.project.modal(deficiency_sheets_log.refresh);"
-	><small>Project number:&nbsp;</small>{{project_number}}</div>
+	><small>Project number:&nbsp;</small>{{project_id}}</div>
 	<div class="panel-body">
 	The following is a list of deficiency sheet-sets for this project.  Click on each one to open.  Drop image files on each one to ammend.<br>
 	<a onclick="deficiency_sheets_log.add();">Add a new sheet-set...</a><br> 
@@ -163,7 +159,7 @@ deficiency_sheets_log.refresh();
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">
-	{{#each folders}}
+	{{#each dirs}}
 	<li class="list-group-item"
 		onmouseenter="deficiency_sheets_log.hi.light(this);" 
 		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
@@ -172,7 +168,7 @@ deficiency_sheets_log.refresh();
 		ondragover="event.preventDefault();" 
 		ondragleave="event.preventDefault();deficiency_sheets_log.hi.dark(this);"	
 		ondrop="deficiency_sheets_log.drop(event);"
-	>{{this}}</li>
+	>{{dir}}</li>
 	{{/each}}
 	</ul>
 	</div>

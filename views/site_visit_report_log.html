@@ -53,7 +53,7 @@ svrlog.hi=new casbah.Highlighter("highlite");
 svrlog.menu=$("#comments-menu").menu().css("position","absolute", "width", "200px").hide();
 
 //load templates and render...
-$.get("views/document_header.html", function(htm){
+$.get("views/header.html", function(htm){
 	//console.log('tbh loaded:', htm);
 	svrlog.header=Handlebars.compile(htm);
 	casbah.renderFX("svrlog-header", svrlog.header, {dtype:$PP.get("$dtype")});

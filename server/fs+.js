@@ -72,26 +72,23 @@ exports.dirSync_json=function(dir, jsonfile, defrow) {
 	var dd=fs.readdirSync(dir).filter(function (file) {
 		return fs.statSync(path.join(dir,file)).isDirectory()
 	})
-	var  jc={}, jp, jt, r={}, rr=[], ss
+	var  jp, jt, result=[], ss
 	for (var i in dd){
 		jp=path.join(dir, dd[i], jsonfile)
 		try {
+			console.log("DIR_JSON trying to read jsonfile")
 			/** Your application is crashing because you're not wrapping your fs.statSync in a try/catch block. Sync functions in node don't return the error like they would in their async versions. Instead, they throw their errors which need to be caught. https://stackoverflow.com/questions/33400294 **/
-			//ss=fs.statSync(jp)
-			//jc=JSON.parse(fs.readFileSync(jp,"charset=UTF-8"))
-			jt=fs.readFileSync(jp,"charset=UTF-8")
+			jt=fs.readFileSync(jp,"UTF-8")
+			
 		} 
 		catch (err){
-			//Create file if none exists
+			//Create file if not found
+			console.log("DIR_JSON jsonfile read fail:", err.code)
 			jt=JSON.stringify(defrow || {})
 			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
-		//inject dir:name
-		r.dir=dd[i]
-		r.jsonfile=jsonfile
-		r.jsontext=jt
-		rr.push(r)
+		result.push({dir:dd[i], jsonfile:jsonfile, jsontext:jt })
 	}
 	//result = [{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]
-	return rr
+	return result
 }
