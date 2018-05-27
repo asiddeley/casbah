@@ -64,22 +64,28 @@ SOFTWARE.
 
 ********************************/
 
-exports.dirSync_json=function(dir, jsonfile, defrow) {
+exports.dirSync_json=function(dir, jsonfile, defrow, project_id) {
 	/**
 	returns a list of directories along with contents of a specified jsonfile within each of the directories.
 	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
 	**/
-	var dd=fs.readdirSync(dir).filter(function (file) {
-		return fs.statSync(path.join(dir,file)).isDirectory()
-	})
-	var  jp, jt, result=[], ss
+	var  dd, jp, jt, result=[], ss	
+	
+	if (typeof project_id == "undefined"){
+		dd=fs.readdirSync(dir).filter(function (file) {
+			return fs.statSync(path.join(dir,file)).isDirectory()
+		})		
+	} else {
+		dd=fs.readdirSync(dir).filter(function (file) {
+			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==project_id))
+		})		
+	}
+
 	for (var i in dd){
 		jp=path.join(dir, dd[i], jsonfile)
 		try {
-			console.log("DIR_JSON trying to read jsonfile")
-			/** Your application is crashing because you're not wrapping your fs.statSync in a try/catch block. Sync functions in node don't return the error like they would in their async versions. Instead, they throw their errors which need to be caught. https://stackoverflow.com/questions/33400294 **/
 			jt=fs.readFileSync(jp,"UTF-8")
-			
+			console.log("DIR_JSON trying to read jsonfile")
 		} 
 		catch (err){
 			//Create file if not found
@@ -91,4 +97,33 @@ exports.dirSync_json=function(dir, jsonfile, defrow) {
 	}
 	//result = [{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]
 	return result
+}
+
+exports.jsonify=function(rar){
+	/**
+	Convert and merge jsontext to object in array objects
+	rar = [{dir:"name", jsontext:"{field:value, ... }" }, ...]
+	ret = [{dir:"name", jsontext:"{field:value, ... }", field:value, ... }, ...]
+	**/
+
+	for (var i in rar){
+		try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext) )}
+		catch(err){rar[i].err=err}
+	}
+	return rar
+}
+
+exports.dirasid=function(rar, id){
+	/**
+	Add id property to object in result and set it to dir
+	id = "some_id"
+	rar = [{dir:"some_dir", jsonfile:"name", ... }, ...]
+	ret = [{dir:"some_dir", jsonfile:"name", some_id:"some_dir", ... }, ...]
+	**/
+
+	return rar.map(function(i) {
+		var prop={}
+		prop[id]=i.dir
+		return Object.assign(i, prop)
+	})
 }

@@ -21,11 +21,7 @@ project.update=function(row, rowid, flag){
 project.refresh=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"PROJECT-SELECT", 
-			filter:{},
-			project_id:(localStorage.getItem("project_id") || localStorage.getItem("project_number") || "BLDG-001")
-		}),
+		data: $.param({action:"PROJECT-SELECT"}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
 			//casbah.renderFX("project-content", project.content, result, delta);
@@ -79,7 +75,7 @@ project.refresh();
 <template id="project-template" type="text/x-handlebars-template">
 	<div class="row marz row__"></div>
 
-	{{#each dirs}}
+	{{#each projects}}
 	
 	<div class="row marz row zebra" >
 	<small class="col-xs-1 row-head marz">row</small>
@@ -102,7 +98,7 @@ project.refresh();
 	<p 	class="col-xs-2 marz"
 		field="project_id"
 		rowid="{{rowid}}"
-		onclick="project.click(this);">{{dir}}</p>
+		onclick="project.click(this);">{{project_id}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		field="project_name"

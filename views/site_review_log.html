@@ -1,0 +1,230 @@
+<!doctype html>
+
+<script type='text/javascript'>
+
+//site visit review log
+var svrl={};
+
+//text editor
+svrl.ed=new casbah.Editor();
+
+svrl.edit=function(el){
+	svrl.ed.text(el, function(){
+		//function called on dbl-click
+		svrl.update(svrl.ed.row(), svrl.ed.rowid(), true); 
+		svrl.ed.hide();
+	});
+};
+
+svrl.hi=new casbah.Highlighter("highlite");
+
+svrl.insert=function(){
+	//create new report...
+
+	var svr_id=prompt("New Site Visit Report ID <SVR-001 Jan-2018>");
+	if (svr_id == "" || svr_id == null){return;}
+	else {
+		//var fd=new FormData();
+		//fd.append("action","ADD");
+		//fd.append("project_number", localStorage.getItem("project_number"));
+		//fd.append("tab","reports");
+		//fd.append("folder","deficiency_sheets");
+		//fd.append("subfolder", name);
+	
+		$.ajax({
+			data:$.param({
+				action:"SVRL-INSERT",
+				project_id:localStorage.getItem("project_id"),
+				svr_id:svr_id
+			}),
+			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+			error:function(err){console.log("Error from server:", err);},
+			success:function(result){
+				$("#svrl-content").html(svrl.content(result));
+			},
+			type:"POST",
+			url:"/uploads"
+		});	
+	}
+};
+
+
+svrl.goto=function(e){
+	//var svr_id=$(e.target).attr("svr_id");
+	var svr_id=$(e).text();
+	console.log("Selected svr_id:",svr_id);
+	localStorage.setItem("svr_id", svr_id);
+	casbah.view("site_review.html");
+};
+
+svrl.refresh_content=function(result, delta){
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-SELECT",
+			filter:{},
+			project_id:localStorage.getItem("project_id")
+		}),
+		error: function(err){console.log(err.message);},
+		success: function(result){
+			$("#svrl-content").html(svrl.content(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+
+svrl.refresh_titleblock=function(){
+	console.log("PROJECT SELECT");
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"PROJECT-SELECT",
+			project_id:localStorage.getItem("project_id")
+		}),
+		error: function(err){ console.log("Error", err);},
+		success: function(result){
+			$("#svrl-titleblock").html(svrl.titleblock(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+
+svrl.update=function(){
+	console.log("svrl_update in progress...");
+}
+
+
+///////////////////////////////////////////
+//load templates and compile...
+$.get("views/header.html", function(htm){
+	//beware - this function is asynchronous so svrl.header may not yet be defined if called outside this function
+	//console.log('HEADER LOADED...');
+	svrl.header=Handlebars.compile(htm);
+	$("#svrl-header").html(svrl.header({doc_type:"Site Review Log"}));
+});
+
+svrl.titleblock=Handlebars.compile($("#svrl-titleblock-template").html());
+svrl.content=Handlebars.compile($("#svrl-content-template").html());
+
+
+///////////////
+// Render page
+svrl.refresh_titleblock();
+svrl.refresh_content();
+
+//activate tooltips
+$(".tooltip").tooltip();
+
+
+</script>
+</head>
+<body>
+
+<!-- PAGE -->
+
+<div class="container">
+	<div id="svrl-header">header</div>
+	<div id="svrl-titleblock">titleblock</div>
+	<br>
+	<div id="svrl-content">content</div>
+</div>
+
+<template id="svrl-titleblock-template" type="text/x-handlebars-template">
+{{#each projects}}
+<div class="row row__">
+	<strong class="col-xs-2">Project No.:</strong>
+	<p class="col-xs-4">{{this.project_id}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Name:</strong>
+	<p class="col-xs-4">{{this.project_name}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Location:</strong>
+	<p class="col-xs-4">{{this.address}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Contractor:</strong>
+	<p class="col-xs-4">{{this.contractor}}</p>
+</div>
+{{/each}}
+</template>
+
+<template id="svrl-content-template" type="text/x-handlebars-template">
+	<div class="row marz row_" 
+		title="click to add a new report..."
+		onmouseenter="svrl.hi.light(this);" 
+		onmouseleave="svrl.hi.dark(this);"
+		onclick="svrl.insert(this)">
+	<p class="col-xs-1 row-head marz">row#</p>	
+	<p class="col-xs-2 border-left row-head marz">SVR No. / by</p>
+	<p class="col-xs-3 row-head marz">title / comment ids</p>
+	<p class="col-xs-3 row-head marz">review date / issue ids</p>
+	<p class="col-xs-3 row-head marz">publish date / photo ids</p>
+	</div>
+
+	{{#each svrs}}
+	
+	<div class="row marz"
+		onmouseenter="svrl.hi.light(this);"
+		onmouseleave="svrl.hi.dark(this);">		
+	<p 	class="col-xs-1 marz "
+		svr_id="{{this.svr_id}}">{{plusOne @index}}</p>	
+	<div class="border-left col-xs-11 marz" >
+	<p 	class="col-xs-2 marz"
+		title="click to open..."
+		onclick="svrl.goto(this)">{{this.svr_id}}</p>		
+	<p 	class="col-xs-3 marz"
+		title="click to edit..."
+		field="title"
+		onclick="svrl.edit(this);">{{this.title}}</p>
+	<p 	class="col-xs-3 marz"
+		title="click to edit..."
+		onclick="svrl.edit(this);">{{this.date}}</p>
+	<p 	class="col-xs-3 marz"
+		title="click to edit..."
+		onclick="svrl.edit(this);">{{this.date_issued}}</p>
+	</div>	
+	</div>
+
+	<div class="row marz zebra-stripe"
+		onmouseenter="svrl.hi.light(this);"
+		onmouseleave="svrl.hi.dark(this);"
+		onclick="svrl.goto(this)">
+
+	<p class="col-xs-1 marz "></p>
+	<div class="col-xs-11 border-left marz">
+	<p 	class="col-xs-2 marz "
+		title="click to edit..."
+		field="by"
+		rowid="{{rowid}}"
+		style="height:100%;"
+		onclick="svrl.edit(this);">{{this.author}}</p>	
+			
+	<p 	class="col-xs-3 marz "
+		title="click to edit..."
+		field="comment.ids"
+		rowid="{{rowid}}"
+		onclick="svrl.edit(this);">{{this.comment_ids}}</p>
+		
+	<p 	class="col-xs-3 marz "
+		title="click to edit..."
+		field="issue.ids"
+		rowid="{{rowid}}"
+		onclick="svrl.edit(this);">{{this.issue_ids}}</p>
+	<p 	class="col-xs-3 marz "
+		title="click to edit..."
+		field="picture.ids"
+		rowid="{{rowid}}"
+		onclick="svrl.edit(this);">{{this.picture_ids}}</p>	
+	</div>		
+	</div>
+	{{/each}}	
+</template>
+
+

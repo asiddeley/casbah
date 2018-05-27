@@ -1,0 +1,472 @@
+<!doctype html>
+
+<script type='text/javascript'>
+
+/////////////
+// Common
+var svr={};
+svr.refresh=function(result, delta){
+	//console.log("SVR_ID", localStorage.getItem("svr_id"))
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-SELECT",
+			project_id:localStorage.getItem("project_id"),
+			svr_id:localStorage.getItem("svr_id")
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){
+			console.log("SVR-SELECT:", result)
+			$("#svr-comments-placeholder").html(svr.comments.template(result));
+			$("#svr-generals-placeholder").html(svr.generals.template(result));
+			$("#svr-issues-placeholder").html(svr.issues.template(result));
+			$("#svr-xissues-placeholder").html(svr.xissues.template(result));
+			//$("#svr-images-placeholder").html(svr.images.template(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+
+// text editor
+svr.ed=new casbah.Editor();
+// highligher
+svr.hi=new casbah.Highlighter("highlite");
+
+/**
+////////////////////////
+// TYPICAL
+svr.xissues={};
+svr.xissues.insert=function(el){};
+svr.xissues.menu=$("#svr-xissues-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.xissues.onclick=function(el){
+	svr.ed.text(el, function(){
+		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
+		svr.ed.hide();
+	});
+};
+svr.xissues.ondragstart=function(el, ev){
+	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
+	//note "Text" argument as required by iexplorer...
+	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
+};
+svr.xissues.remove=function(el){};
+svr.xissues.template=Handlebars.compile($("#svr-xissues-template").html());
+svr.xissues.update=function(row, rowid){
+	console.log("xissues update ROWID:\n", rowid, "ROW:\n",row)
+};
+**/
+
+///////////////////////
+// Site visit report
+svr.comments={};
+svr.comments.onclick=function(el){
+	svr.ed.text(el, function(){
+		svr.comments.update(svr.ed.row(), svr.ed.rowid(), true);
+		svr.ed.hide();
+	});
+};
+
+svr.comments.ondragstart=function(el, ev){
+	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
+	//note "Text" argument as required by iexplorer...
+	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
+};
+
+svr.comments.ondrop=function(el, ev){
+	/**
+	//var txt=ev.dataTransfer.getData("text/plain");
+	//note "Text" argument as required by iexplorer...
+	var txt=ev.dataTransfer.getData("Text");
+	var a=txt.indexOf("comment_id:");
+	if ( a > -1){
+		var fi=txt.slice(a+"comment_id:".length).split(/\s+/)[0];
+		var ti=$(el).attr("index");
+		//console.log("before drop:",$PP.$comment_ids, "from:", fi, "to:",ti);
+		casbah.array_nth_to_nth($PP.$comment_ids, fi, ti);
+		//console.log("after drop:",$PP.$comment_ids);
+		if (fi!=ti){
+			//save only if there is a change
+			svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
+			svr.comments.tv.refresh();
+		}
+	} else if (txt.length>0){
+		//console.log("Text:", txt, " Type:", (typeof txt), " length:", txt.length);
+		svr.comments.tv.add( function(r){
+			console.log("new rowid", r.rowid, "Ti:", ti); 
+			//update comment_id list in 
+			//TO DO Create array function like this but where ti arg is the index in list not value to match.
+			//this would allow droping payload next to target element, not at end of list
+			casbah.array_insert_after($PP.$comment_ids, r.rowid, ti);
+			//update the report table (using parameters), then don't refresh
+			svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
+			//added row has default value so change to match current row by
+			//updating the comments table, then refresh (3rd arg is true)
+			svr.comments.tv.save({"comment":txt}, r.rowid, true);
+		});
+	}	
+	**/
+};
+
+svr.comments.insert=function(el){
+	/**
+	svr.comments.tv.add( function(r){
+		//update comment_id list in parameters object
+		casbah.array_insert_after($PP.$comment_ids, r.rowid, svr.hi.rowid());
+		//update the report table (using parameters), then don't refresh
+		svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
+		//update the comments table, then refresh (true) to show change
+		svr.comments.tv.save(svr.hi.row(), r.rowid, true);
+	});
+	*/
+};
+svr.comments.menu=$("#svr-comments-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.comments.remove=function(el){
+	/**
+	//CTV.remove(hi.rowid()); 
+	//only remove comment rowid from comment list in report, comment remains in comment table
+	//console.log("remove comment_ids, rowid:",$PP.$comment_ids, svr.hi.rowid());
+	casbah.array_remove($PP.$comment_ids, svr.hi.rowid());
+	//console.log("remove ", $PP.$comment_ids);
+	svr.update({comment_ids:$PP.$comment_ids}, $PP.$rowid);
+	svr.comments.tv.refresh();
+	*/
+};
+svr.comments.template=Handlebars.compile($("#svr-comments-template").html());
+svr.comments.update=function(row, rowid){
+	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
+};
+
+
+////////////////////////
+// Issues
+svr.issues={};
+svr.issues.insert=function(el){};
+svr.issues.onclick=function(el){
+	svr.ed.text(el, function(){
+		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
+		svr.ed.hide();
+	});
+};
+svr.issues.ondragstart=function(el, ev){
+	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
+	//note "Text" argument as required by iexplorer...
+	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
+};
+
+svr.issues.remove=function(el){};
+svr.issues.template=Handlebars.compile($("#svr-issues-template").html());
+svr.issues.update=function(row, rowid){
+	console.log("issues update ROWID:\n", rowid, "ROW:\n",row)
+};
+
+
+////////////////////
+// Generals
+svr.generals={};
+svr.generals.insert=function(el){};
+svr.generals.menu=$("#svr-generals-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.generals.onclick=function(el){
+	svr.ed.text(el, function(){
+		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
+		svr.ed.hide();
+	});
+};
+svr.generals.ondragstart=function(el, ev){
+	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
+	//note "Text" argument as required by iexplorer...
+	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
+};
+svr.generals.remove=function(el){};
+svr.generals.template=Handlebars.compile($("#svr-generals-template").html());
+svr.generals.update=function(row, rowid){
+	console.log("generals update ROWID:\n", rowid, "ROW:\n",row);
+};
+
+
+/////////////
+// titleblock
+svr.titleblock={};
+svr.titleblock.refresh=function(){
+	//console.log("PROJECT SELECT");
+	//var svr_id=localStorage.getItem("svr_id");
+	
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"PROJECT-SELECT",
+			//select info for this project only...
+			project_id:localStorage.getItem("project_id")
+		}),
+		error: function(err){ console.log("Error", err);},
+		success: function(result){
+			$("#svr-titleblock-placeholder").html(svr.titleblock.template(result));
+			//this field isn't in result so just set it with jquery...
+			//console.log("SVR_id", localStorage.getItem("svr_id"));
+			$("#svr_id").text(localStorage.getItem("svr_id"));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html());
+
+
+
+
+////////////////////////
+// xIssues
+svr.xissues={};
+svr.xissues.insert=function(el){};
+svr.xissues.menu=$("#svr-xissues-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.xissues.onclick=function(el){
+	svr.ed.text(el, function(){
+		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
+		svr.ed.hide();
+	});
+};
+svr.xissues.ondragstart=function(el, ev){
+	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
+	//note "Text" argument as required by iexplorer...
+	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
+};
+svr.xissues.remove=function(el){};
+svr.xissues.template=Handlebars.compile($("#svr-xissues-template").html());
+svr.xissues.update=function(row, rowid){
+	console.log("xissues update ROWID:\n", rowid, "ROW:\n",row)
+};
+
+
+
+
+///////////////////////////////////////
+// Render page header and titleblock 
+$.get("views/header.html", function(htm){
+	//console.log('tbh loaded:', htm);
+	if (typeof svr.header=="undefined"){svr.header={};}
+	svr.header.template=Handlebars.compile(htm);
+	$("#svr-header").html(svr.header.template({doc_type:"Site Visit Review"}));
+});
+
+/***
+$.get("views/titleblock.html", function(htm){
+	//console.log('tbt loaded:', htm);
+	svr.titleblock.template=Handlebars.compile(htm);
+	svr.titleblock.refresh();	
+});
+*/
+
+///////////////////////////////////////
+// Render page 
+svr.titleblock.refresh();
+svr.refresh();
+</script>
+
+<!-- PAGE STARTS HERE -->
+
+<div class="container">
+	<div id="svr-header">placeholder</div>
+	<div id="svr-titleblock-placeholder">placeholder</div>
+	<p class="row row_" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
+	</p>
+	<br><br>
+	<div id="svr-generals-placeholder" class="marz"></div>
+	<div id="svr-comments-placeholder" class="marz"></div>
+	<div id="svr-xissues-placeholder" class="marz"></div>
+	<div id="svr-issues-placeholder" class="marz"></div>
+	<div id="svr-images-placeholder" class="marz"></div>
+	<br><br>
+</div>
+
+
+
+<!-- TEMPLATES -->
+<template id='svr-titleblock-template' type="text/x-handlebars-template">
+{{#each projects}}
+<div class="row row__">
+	<strong class="col-xs-2">Project ID:</strong>
+	<p class="col-xs-4">{{project_id}}</p>
+	<strong class="col-xs-2">SVR ID:</strong>
+	<p id="svr_id" class="col-xs-4">SVR-XXX</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Name:</strong>
+	<p class="col-xs-4">{{project_name}}</p>
+	<strong id="docTitle" class="col-xs-2">SVR Title:</strong>
+	<p class="col-xs-4">{{svr_title}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Project Address:</strong>
+	<p class="col-xs-4">{{address}}</p>
+	<strong id="docDate" class="col-xs-2">Date:</strong>
+	<p class="col-xs-4">{{date}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Contractor:</strong>
+	<p class="col-xs-4">{{contractor}}</p>
+	<strong id="publish_date" class="col-xs-2">Date Issued:</strong>
+	<p class="col-xs-4">{{date_issued}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-2">Permit No:</strong>
+	<p id="permitNo" class="col-xs-4">{{permit}}</p>
+	<strong id="docBy" class="col-xs-2">By:</strong>
+	<p class="col-xs-4">{{by}}</p>
+</div>
+{{/each}}
+</template>
+
+
+<template id='svr-comments-template' type="text/x-handlebars-template">
+
+	<div class="row marz" 
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
+		<h3 class="col-xs-1 marz" >2.0</h3>
+		<h3 class="col-xs-10 border-left marz">Comments and Observatons</h3>
+		<h3 class="col-xs-1 marz" >&nbsp;</h3>
+	</div>
+
+	{{#each svrs}}
+	{{#each comments as |comment commentIndex|}}
+	<div class="row marz"
+		index="{{commentIndex}}"
+		draggable="true"
+		ondragstart="svr.comments.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.comments.ondrop(this, event)"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
+	<p 	class="col-xs-1 marz">2.{{plusOne commentIndex}}</p>
+	<p 	field="comment"
+		index="{{commentIndex}}"
+		onclick="svr.comments.onclick(this)"
+		class="col-xs-10 border-left marz">{{comment}}</p>	
+	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	</div>
+	{{/each}}
+	{{/each}}	
+</template>
+
+<template id='svr-generals-template' type="text/x-handlebars-template">
+	<div class="row marz"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.general.menu, event)">
+		<h3 class="col-xs-1 marz">1.0</h3>
+		<h3 class="col-xs-10 border-left marz">General</h3>
+		<h3 class="col-xs-1 marz">&nbsp;</h3>
+	</div>
+	{{#each svrs}}
+	{{#each generals as |general generalsIndex|}}
+	<div class="row marz"
+		index="{{generalIndex}}"
+		draggable="true"
+		ondragstart="svr.generals.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.generals.ondrop(this, event)"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.generals.menu, event)">
+	<p 	class="col-xs-1 marz">2.{{plusOne generalsIndex}}</p>
+	<p 	field="general"
+		index="{{generalsIndex}}"
+		onclick="svr.generals.onclick(this)"
+		class="col-xs-10 border-left marz">{{general}}</p>	
+	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	</div>
+	{{/each}}
+	{{/each}}	
+</template>
+
+<template id='svr-issues-template' type="text/x-handlebars-template">
+
+	<div class="row marz"
+		oncontextmenu="casbah.showMenu(svr.issues.menu, event)"
+		onmouseenter="svr.hi.light(this)">
+		<h3 class="col-xs-1 marz">4.0</h3>
+		<h3 class="col-xs-10 border-left marz">Open Issues</h3>
+		<h3 class="col-xs-1 marz">Ref</h3>
+	</div>
+
+	{{#each svrs}}
+	{{#each issues as |issue issueIndex|}}
+	<div class="row marz"
+		index="{{isseusIndex}}"
+		draggable="true"
+		ondragstart="svr.issues.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.issues.ondrop(this, event)"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.issues.menu, event)">
+	<p 	class="col-xs-1 marz">4.{{plusOne issueIndex}}</p>
+	<p 	field="issues"
+		index="{{issueIndex}}"
+		onclick="svr.issues.onclick(this)"
+		class="col-xs-10 border-left marz">{{issue}}</p>	
+	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	</div>
+	{{/each}}
+	{{/each}}	
+</template>
+
+<template id='svr-xissues-template' type="text/x-handlebars-template">
+	<div class="row marz"
+		oncontextmenu="casbah.showMenu(svr.xissues.menu, event)"
+		onmouseenter="svr.hi.light(this)">
+		<h3 class="col-xs-1 marz">3.0</h3>
+		<h3 class="col-xs-10 border-left marz">Resolved Issues</h3>
+		<h3 class="col-xs-1 marz">Ref</h3>
+	</div>
+
+	{{#each svrs}}
+	{{#each xissues as |xissue xissueIndex|}}
+	<div class="row marz"
+		index="{{xissuesIndex}}"
+		draggable="true"
+		ondragstart="svr.xissues.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.xissues.ondrop(this, event)"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.xissues.menu, event)">
+	<p 	class="col-xs-1 marz">3.{{plusOne xissueIndex}}</p>
+	<p 	field="xissues"
+		index="{{xissueIndex}}"
+		onclick="svr.xissues.onclick(this)"
+		class="col-xs-10 border-left marz">{{xissue}}</p>	
+	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	</div>
+	{{/each}}
+	{{/each}}	
+</template>
+
+
+<!-- MENUS -->
+<div id="svr-comments-menu" onmouseleave="svr.comments.menu.hide()" class="hide9999">
+	<p onclick="svr.comments.remove()">Delete</p>
+	<p onclick="svr.comments.insert()">Insert</p>
+	<p onclick="svr.comments.menu.hide()">Exit</p>
+	<p onclick="svr.refresh();svr.comments.menu.hide()">Refresh</p>
+</div>
+
+<div id="svr-issues-menu" onmouseleave="svr.issues.menu.hide()" style="display:none; z-index:10000">
+	<p onclick="svr.issues.insert(true)">Insert</p>
+	<p onclick="svr.issues.remove(svr.hi.rowid())">Delete</p>
+	<p onclick="svr.issues.menu.hide()">Exit</p>
+</div>
+
+<div id="svr-generals-menu" onmouseleave="svr.generals.menu.hide()" style="display:none; z-index:10000">
+	<p onclick="svr.generals.insert(true)">Insert</p>
+	<p onclick="svr.generals.remove(svr.hi.rowid())">Delete</p>
+	<p onclick="svr.generals.menu.hide()">Exit</p>
+</div>
+
+<div id="svr-xissues-menu" onmouseleave="svr.xissues.menu.hide()" style="display:none; z-index:10000">
+	<p onclick="svr.xissues.insert(true)">Insert</p>
+	<p onclick="svr.xissues.remove(svr.hi.rowid())">Delete</p>
+	<p onclick="svr.xissues.menu.hide()">Exit</p>
+</div>
+
+

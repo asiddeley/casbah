@@ -6,12 +6,12 @@ is passed to this template, need to use #each keyword to access data.
 There should only be one row in this case
 --------------------->
 <div>
-{{#each rows}}
+{{#each projects}}
 <div class="row row__">
 	<strong class="col-xs-2">Project No.:</strong>
 	<p class="col-xs-4">{{project_id}}</p>
 	<strong class="col-xs-2">Doc No:</strong>
-	<p id="docName" class="col-xs-4">{{document_id}}</p>
+	<p id="document_id" class="col-xs-4"></p>
 </div>
 
 <div class="row row_">

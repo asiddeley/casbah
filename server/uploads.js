@@ -127,7 +127,7 @@ req.body.folder... Collection | deficiency Sheet set
 req.body.extension
 req.files... populated by middle-ware from ajaxed formData
 **********/
-	
+	/***
 	if (typeof req.body.project_id == "undefined") {
 		var err="project_id undefined"
 		console.log("UPLOAD handler error:", err)
@@ -135,6 +135,7 @@ req.files... populated by middle-ware from ajaxed formData
 		return;
 	}
 	const root=path.join(global.appRoot, uploads_dir, req.body.project_id)
+	*/
 	
 	//inject uploads, 
 	req.body.uploads_dir=uploads_dir
@@ -383,86 +384,27 @@ req.files... populated by middle-ware from ajaxed formData
 		}
 	break;
 
-
-	/***
-	case "FILES":
-		//Returns a list of files in path matching extension 
-		//NOT RECURSIVE
-		//Prerequisites
-		//req.body.project_number
-		//req.body.tab
-		//req.body.folder
-		//req.body.extension... ".jpg .pgn .bmp"
-		try {
-			var df=path.join(root, req.body.tab, req.body.folder);
-			console.log("Request for files in:", df)
-			//var files=fsp.walkSync(path.join( //recursive and includes full path
-			var files=fsp.getFilesSync(df); //current folder only and just filenames without path
-			var filtered_files=[];
-			var ext;
-			//remove app root dir from each file, uploads/reports/... part of path
-			for (var i=0; i<files.length; i++){
-				ext=path.extname(files[i]).toUpperCase()
-				if (req.body.extension.toUpperCase().indexOf(ext)!=-1){	
-					//chop of the roots
-					//filtered_files.push(files[i].substring(global.appRoot.length))
-					var pj=path.join(uploads_dir, req.body.project_id, req.body.tab, req.body.folder,files[i])
-					filtered_files.push(pj)
-				}
-			}
-			res.json({
-				files:filtered_files,
-				project_id:req.body.project_id,
-				folder:req.body.folder
-			})
-		} 
-		catch(err) {
-			console.log("FILES error:",err)
-			res.json({
-				files:[], 
-				err:err,
-				project_id:req.body.project_id,
-				folder:req.body.folder
-			})
-		}
-	break;
-	***/
-	
-	case "PROJECT-CHANGE":project.change(req, res); break;
+	// Project log and project modal (aka dialog box)
+	case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
 	case "PROJECT-IDLIST":project.idlist(req, res); break;
 	case "PROJECT-INSERT":project.insert(req, res); break;	
 	case "PROJECT-REMOVE":project.remove(req, res); break;	
 	case "PROJECT-SELECT":project.select(req, res); break;	
 
+	// Room Deficiency Sheets
+	case "RDS-IMAGES":reports.rds_images(req, res); break;
+	
 	// Room Deficiency Sheets Log
 	case "RDSS-INSERT":reports.rdss_insert(req, res); break;
 	case "RDSS-SELECT":reports.rdss_select(req, res); break;
+	case "RDSS-UPLOAD":reports.rdss_upload(req, res); break;
+	
+	// Site Review Reports
+	case "SVR-SELECT":reports.svr_select(req, res); break;	
 
-	// Room Deficiency Sheets
-	case "RDS-SELECT":reports.rds_select(req, res); break;
+	// Site Review Reports Log
+	case "SVRL-INSERT":reports.svrl_insert(req, res); break;	
 	
-	
-	case "SITE-REVIEWS-SELECT":reports.site_reviews_select(req, res); break;	
-	
-	case "UPLOAD":
-		if (!req.files) {console.log("Missing files for upload"); break;}
-		console.log("Upload request file(s):", Object.keys(req.files))
-		console.log("TO:", path.join(root, req.body.tab, req.body.folder))
-		try {
-			var dest, file;
-			for (var f in req.files){
-				file=req.files[f]
-				dest=path.join(root, req.body.tab, req.body.folder, file.name)
-				console.log("DEST:",dest)
-				//.mv function added by 'express-fileupload' middleware
-				file.mv(dest, function(err) {
-					if (err) {console.log ("Failed to move:", dest, JSON.stringify(err))} 
-					else {console.log ("File uploaded as:", dest)}
-				})
-			}			
-		}
-		catch(err) {console.log(err);res.json({dirs:[], err:err}) }	
-	break; 	
 	
 	} //switch
 	

@@ -26,18 +26,14 @@ deficiency_sheets.comments=$("#deficiency_sheets_comments").html();
 
 
 deficiency_sheets.refresh=function(){
-	//get images for deficiencySheets then
-	//refresh with success function()...
+	//get images for deficiency sheets then refresh with success function()...
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			//action:"FILES",
-			action:"RDS-SELECT",
-			extension:".PNG",
+			action:"RDS-IMAGES",
+			extension:".PNG .jpg",
 			project_id:localStorage.getItem("project_id"),
-			deficiency_sheets:localStorage.getItem("deficiency_sheets")
-			//tab:"reports",
-			//folder:"deficiency_sheets\\" + localStorage.getItem("deficiency_sheetset"),
+			rdss_id:localStorage.getItem("rdss_id")
 		}),
 		error:function(err){console.log("Error:", err.message);},
 		success:function(result){
@@ -46,7 +42,6 @@ deficiency_sheets.refresh=function(){
 			$("#deficiency_sheets_placeholder").html(html);
 		},
 		type: "POST",
-		//url: "/reports"	
 		url:"/uploads"
 	});
 };
@@ -55,7 +50,6 @@ deficiency_sheets.tblock=$("#deficiency_sheets_tblock").html();
 deficiency_sheets.tools=$("#deficiency_sheets_tools").html();
 deficiency_sheets.template=Handlebars.compile($("#deficiency_sheets").html());
 deficiency_sheets.colcount=0;
-//////////////////////////////////////////
 
 Handlebars.registerHelper("deficiency_sheets_checklist", function(str, options){
 	return deficiency_sheets.checklist;
@@ -115,13 +109,13 @@ deficiency_sheets.refresh();
 			</div>
 			<div class="row"><span class="col-xs-2">Rooms:</span></div><br>
 			<div class="row">		
-				{{#each files}}{{{columnize this }}}{{/each}}
+				{{#each images}}{{{columnize this }}}{{/each}}
 			</div>		
 			
 		</div>
 	</div>
 	
-	{{#each files}}
+	{{#each images}}
 	<!-- head -->
 	<div class="row">
 	<div class="col-xs-9"><img src="/uploads/{{../project_number}}/logo.png"></div>	

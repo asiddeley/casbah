@@ -68,11 +68,9 @@ deficiency_sheets_log.drop=function(ev){
 		//console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
-	fd.append("action","UPLOAD");
-	fd.append("project_number", localStorage.getItem("project_number"));
-	fd.append("tab","reports");
-	fd.append("folder","deficiency_sheets\\"+$(ev.target).text());
-	//fd.append("subfolder",$(ev.target).text());
+	fd.append("action","RDSS-UPLOAD");
+	fd.append("project_id", localStorage.getItem("project_id"));
+	fd.append("rdss_id",$(ev.target).text());
 	fd.append("upload_file",true);
 	
 	$.ajax({	
@@ -87,14 +85,11 @@ deficiency_sheets_log.drop=function(ev){
 };
 
 deficiency_sheets_log.goto=function(ev){
-	//localStorage.setItem("report_name", $(ev.target).text());
-	//localStorage.setItem("subfolder", $(ev.target).text());
-	localStorage.setItem("deficiency_sheets", $(ev.target).text());
+	localStorage.setItem("rdss_id", $(ev.target).text());
 	casbah.view("deficiency_sheets.html");
 };
 
 deficiency_sheets_log.head=$("#deficiency_sheets_log_head").html();
-
 
 deficiency_sheets_log.hi=new casbah.Highlighter("highlite");
 
@@ -143,7 +138,7 @@ deficiency_sheets_log.refresh();
 	
 	<div class="row">
 	<div class="col-xs-8"><img src="/uploads/{{project_number}}/logo.png"></div>	
-	<div class="col-xs-4"><h2 class="topMarginZero segoe">DEFICIENCY SHEETS LOG</h2></div>
+	<div class="col-xs-4"><h2 class="topMarginZero">DEFICIENCY SHEETS LOG</h2></div>
 	</div>	
 	
 	<div class="panel panel-default page">

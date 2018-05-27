@@ -29,46 +29,8 @@ SOFTWARE.
 const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
+
 const reports_dir="reports"
-
-/////////////////
-// Site Reviews
-const site_reviews_dir="site_reviews"
-const site_reviews_datafile="__datafile.json"
-const site_reviews_defrow={
-	project_id:"!req.body.project_id",			
-	report_id:"localStorage.getItem('report_id')",
-	report_title:"untittled",
-	date:"2018-May-10", 
-	date_issued:"none", 
-	author:"localStorage.getItem('user')",			
-	comment_ids:"[]", 
-	issue_ids:"[]",
-	photo_ids:"[]",
-	xdata:"none"
-}
-
-exports.site_reviews_select=function(req, res){
-	//returns all site reviews
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, site_reviews_dir);
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:site_review_defrow} //empty result
-	console.log("SITE REVIEWS select:", p);
-	fs.stat(p, function(err, stat){
-		if (!err){
-			var rar=fsp.dirSync_json(p, site_reviews_datafile, site_reviews_defrow)
-			//convert jsontext to object in result
-			for (var i in rar){
-				try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext))}
-				catch(err){rar[i].err=err}
-			}
-			//include dirs field... {dirs:rar, defrow:{}}
-			r.dirs=rar
-			res.json(r)
-			console.log("SITE_REVIEWS success:")
-		} 
-		else {res.json(r); console.log("SITE_REVIEWS error:", err.code)}
-	})
-}
 
 ////////////////////////////////////////////////////
 // rdss - Room Deficiency Sheets LOG
@@ -76,7 +38,7 @@ const rdss_dir="deficiency_sheets"
 const rdss_datafile="__rdss.json"
 const rdss_defrow={
 	project_id:"!req.body.project_id",			
-	rdss_id:"!req.body.rds_id",
+	rdss_id:"!req.body.rdss_id",
 	rdss_title:"untittled",
 	date:"2018-May-10",
 	date_issued:"none",
@@ -132,59 +94,155 @@ exports.rdss_select=function(req, res){
 }
 
 
+exports.rdss_upload=function(req, res){
+	
+	if (!req.files) {
+		var err="RDS-UPLOAD error, missing files"
+		console.log(err)
+		res.json({dirs:[], err:err}) 
+		return
+	}
+	//required arguments...
+	var p=path.join(
+		global.appRoot, 
+		req.body.uploads_dir, 
+		req.body.project_id, 
+		reports_dir, 
+		rdss_dir,
+		req.body.rdss_id
+	)
+	console.log("RDS-UPLOAD file(s):", Object.keys(req.files))
+	console.log("RDS-UPLOAD to:", p)
+	try {
+		var dest, file;
+		for (var f in req.files){
+			file=req.files[f]
+			dest=path.join(p, file.name)
+			//console.log("RDS-UPLOAD file:", dest)
+			//.mv function added by 'express-fileupload' middleware
+			file.mv(dest, function(err) {
+				if (err) {console.log ("RDS-UPLOAD failed to move:", dest, err)} 
+				else {console.log ("RDS-UPLOAD file uploaded:", dest)}
+			})
+		}			
+	}
+	catch(err) {		
+		res.json({dirs:[], err:err})
+		console.log(err)
+	}	
+}
+
+
 ////////////////////////////////////////////////////
 // rds - Room Deficiency Sheets 
 
 
-exports.rds_select=function(req, res){
-	//Returns a list of files in path matching extension 
-	//NOT RECURSIVE
-	//Prerequisites
+exports.rds_images=function(req, res){
+	/****
+	Returns a list of files in path matching extension. NOT RECURSIVE
+	Prerequisites
 	//req.body.project_id
 	//req.body.extension... ".jpg .pgn .bmp"
+	//req.body.deficiency_sheets
+	*/
 	try {
-		var p=path.join(global.appRoot, 
+		//part path..
+		var pp=path.join(
 			req.body.uploads_dir, 
 			req.body.project_id, 
 			reports_dir, 
 			rdss_dir,
-			req.body.deficiency_sheets
+			req.body.rdss_id
 		);
-		console.log("RDS-SELECT:",p)
+		console.log("RDS-IMAGES:", pp)
 		//var files=fsp.walkSync(path.join( //recursive and includes full path
-		var files=fsp.getFilesSync(p); //current folder only and just filenames without path
-		var filtered_files=[];
+		//returns current folder only and just filenames without path
+		var files=fsp.getFilesSync(path.join (global.appRoot, pp)); 
+		var images=[];
+		var extarg=(typeof req.body.extension == "undefined")?".PNG .JPG":req.body.extension
 		var ext;
 		//remove app root dir from each file, uploads/reports/... part of path
 		for (var i=0; i<files.length; i++){
 			ext=path.extname(files[i]).toUpperCase()
-			if (req.body.extension.toUpperCase().indexOf(ext)!=-1){	
-				//chop of the roots
-				//filtered_files.push(files[i].substring(global.appRoot.length))
-				var pj=path.join(
-					req.body.uploads_dir, 
-					req.body.project_id, 
-					reports_dir, 
-					rdss_dir,
-					req.body.deficiency_sheets,
-					files[i]
-				)
-				filtered_files.push(pj)
-			}
+			if (extarg.toUpperCase().indexOf(ext)!=-1){images.push(path.join(pp, files[i]))}
 		}
-		res.json({
-			files:filtered_files,
-			project_id:req.body.project_id,
-			folder:req.body.folder
-		})
+		res.json({images:images, project_id:req.body.project_id,})
 	} 
 	catch(err) {
-		res.json({
-			files:[], 
+		res.json({images:[], err:err, project_id:req.body.project_id})
+		console.log("RDS-IMAGES error:",err)
+	}
+}
+
+
+
+/////////////////
+// site visit reviews
+const svr_dir="site_reviews"
+const svr_jsonfile="__svrData.json"
+const svr_defrow={
+	project_id:"$project_id",
+	svr_id:"$dir",
+	title:"untitled",
+	date:"2018-May-10",
+	date_issued:"none",
+	author:"$user",
+	comments:["Comment", "Another comment"],
+	generals:["General note"],
+	issues:["Issue", "Another issue"],
+	xissues:["Closed issue", "Another closed issue"],
+	images:[],
+	xdata:"none"
+}
+
+exports.svr_select=function(req, res){
+	//returns all site reviews
+	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir);
+	//empty result
+	var r={
+		svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
+		//defrow:svr_defrow,
+		project_id:req.body.project_id,
+		err:null
+	} 
+	console.log("SVRL select:", p);
+	try {
+		//check if exists
+		fs.statSync (p)
+		//get list of directories and corrsonding jsonfile
+		//since fourth argument is supplied, only that information will be returned, not all 
+		var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		//convert jsontext to object in result
+		svrs=fsp.jsonify(svrs)
+		r.svrs=fsp.dirasid(svrs, "svr_id")
+		res.json(r);
+		console.log("SVRL success:", r)
+	}
+	catch(err){
+		r.err=err
+		res.json(r)
+		console.log("SVRL catch:", r)
+	}
+}
+
+
+exports.svrl_insert=function(req, res){
+
+	//Make a folder then returns a list of folders including the new folder
+	var err=null
+	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+	console.log("SVRL INSERT:", p, req.body.svr_id)
+	try {fs.mkdirSync(path.join(p, req.body.svr_id))}
+	catch(e) {err=e; console.log(err);} 
+	finally {
+		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
+		var svrs=fsp.jsonify(fsp.dirSync_json(p,svr_jsonfile,svr_defrow))
+		var r={
 			err:err,
-			project_id:req.body.project_id,
-			folder:req.body.folder
-		})
-		console.log("RDS-SELECT error:",err)
+			svrs:fsp.dirasid(svrs, "svr_id"),
+			project_id:req.body.project_id
+		}
+		res.json(r);
+		console.log("SVRL INSERT finally:",r)
 	}
 }

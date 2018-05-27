@@ -70,23 +70,16 @@ exports.select=function(req, res){
 	//select all projects with suplementary data
 	var p=path.join(global.appRoot, req.body.uploads_dir);
 	//empty result
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:projects_defrow} 
-	console.log("PROJECTS select:", p);
+	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], defrow:projects_defrow} 
+	console.log("PROJECT select:", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
-			//important, set project_id = dir
-			projects_defrow.project_id=req.body.uploads_dir
-			//get result array rar=[{dir:"name", jsontext:"{...}", jsonfile:"filename"},...]
-			var rar=fsp.dirSync_json(p, projects_datafile, projects_defrow)
-			//convert jsontext to object in result
-			for (var i in rar){
-				try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext))}
-				catch(err){rar[i].errm=err.message}
-			}
-			//include dirs field... {dirs:rar, defrow:{}}
-			r.dirs=rar
+			//if req.body.project_id is undefined then all info for all projects returned
+			var rar=fsp.dirSync_json(p, projects_datafile, projects_defrow, req.body.project_id)
+			rar=fsp.jsonify(rar)
+			r.projects=fsp.dirasid(rar, "project_id")		
  			res.json(r)
-			console.log("PROJECTS success")
+			console.log("PROJECTS success", r)
 		} 
 		else {res.json(r); console.log("PROJECTS error:", err.code)}
 	})
