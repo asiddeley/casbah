@@ -31,8 +31,8 @@ const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 
 //const projects_dir="uploads"
-const projects_datafile="__projects.json"
-const projects_defrow={
+const projects_jsonfile="__projects.json"
+const projects_json={
 	project_id:"PROJ-001",			
 	project_name:"The Casbah Building",
 	address:"101 Desert Way, The Ville, RTC-RTC",
@@ -70,17 +70,17 @@ exports.select=function(req, res){
 	//select all projects with suplementary data
 	var p=path.join(global.appRoot, req.body.uploads_dir);
 	//empty result
-	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], defrow:projects_defrow} 
-	console.log("PROJECT select:", p);
+	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:projects_json} 
+	console.log("PROJECT select:");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned
-			var rar=fsp.dirSync_json(p, projects_datafile, projects_defrow, req.body.project_id)
+			var rar=fsp.dirSync_json(p, projects_jsonfile, projects_json, req.body.project_id)
 			rar=fsp.jsonify(rar)
 			r.projects=fsp.dirasid(rar, "project_id")		
  			res.json(r)
-			console.log("PROJECTS success", r)
-		} 
+			console.log("PROJECTS success")
+		}
 		else {res.json(r); console.log("PROJECTS error:", err.code)}
 	})
 }

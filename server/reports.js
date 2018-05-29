@@ -35,8 +35,8 @@ const reports_dir="reports"
 ////////////////////////////////////////////////////
 // rdss - Room Deficiency Sheets LOG
 const rdss_dir="deficiency_sheets"
-const rdss_datafile="__rdss.json"
-const rdss_defrow={
+const rdss_jsonfile="__rdss.json"
+const rdss_json={
 	project_id:"!req.body.project_id",			
 	rdss_id:"!req.body.rdss_id",
 	rdss_title:"untittled",
@@ -74,11 +74,11 @@ exports.rdss_select=function(req, res){
 	//returns all rdss
 	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, rdss_dir);
 	//empty result
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], defrow:rdss_defrow} 
+	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], json:rdss_json} 
 	console.log("RDSS select:", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
-			var rar=fsp.dirSync_json(p, rdss_datafile, rdss_defrow)
+			var rar=fsp.dirSync_json(p, rdss_jsonfile, rdss_json)
 			//convert jsontext to object in result
 			for (var i in rar){
 				try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext))}
@@ -207,7 +207,6 @@ exports.svr_select=function(req, res){
 	//empty result
 	var rr={
 		svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
-		//defrow:svr_defrow,
 		project_id:req.body.project_id,
 		root:"place-holder/for/root/path",
 		err:null
@@ -224,11 +223,12 @@ exports.svr_select=function(req, res){
 			jsonfile:svr_jsonfile,
 			json:svr_json,
 			id:req.body.svr_id,
-			result:{root:root, svr_id:"$dir", jsonfile:"$jsonfile", photos:"$files .jpg .png"}
+			extensions:".jpg .png"
+			//result:{root:root, svr_id:"$dir", jsonfile:"$jsonfile", photos:"$files .jpg .png"}
 		})
-		//convert jsontext to object in result
+		//get from each result, jsontext, parse it to an object then merge it into each result
 		svrs=fsp.jsonify(svrs)
-		//add to results, svr_id property with it's value being the directory
+		//add to each result, svr_id property with it's value being the directory
 		rr.svrs=fsp.dirasid(svrs, "svr_id")
 		//add to results, root property as needed for images
 		rr.svrs.map(function(i){i.root=root; return i})
@@ -253,7 +253,7 @@ exports.svrl_insert=function(req, res){
 	catch(e) {err=e; console.log(err);} 
 	finally {
 		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
-		var svrs=fsp.jsonify(fsp.dirSync_json(p,svr_jsonfile,svr_defrow))
+		var svrs=fsp.jsonify(fsp.dirSync_json(p, svr_jsonfile, svr_json))
 		var r={
 			err:err,
 			svrs:fsp.dirasid(svrs, "svr_id"),

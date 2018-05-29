@@ -1,5 +1,7 @@
 <!doctype html>
-
+<style>
+.picBox{ max-height:400px; max-width:100%;}
+</style>
 <script type='text/javascript'>
 
 /////////////
@@ -457,26 +459,22 @@ svr.refresh();
 	</div>
 
 	{{#each svrs as |svr svrIndex|}}
-	{{#each photos as |photo photoIndex|}}
+	{{#each files as |photo photoIndex|}}
 	<div class="row marz"
 		index="{{photoIndex}}"
 		draggable="true"
 		ondragstart="svr.photos.ondragstart(this, event)"
 		ondragover="event.preventDefault()"
 		ondrop="svr.photos.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
+		onmouseenterNOT="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.photos.menu, event)">
 	<p 	class="col-xs-1 marz">5.{{plusOne photoIndex}}</p>
-	<p field="photo"
+	<div field="photo"
 		index="{{photoIndex}}"
 		onclick="svr.photos.onclick(this)"
-		class="col-xs-10 border-left marz"
-		href="{{svrs.xdata.path}}{{photo.svr_id}}{{photo.filename}}"></p>
-	<p field="photo"
-		index="{{photoIndex}}"
-		onclick="svr.photos.onclick(this)"
-		class="col-xs-10 border-left marz">{{svr.root}} \ {{svr.svr_id}} \ {{photo.filename}}</p>
-	<p 	class="col-xs-1 marz">&nbsp;</p>	
+		class="col-xs-11 border-left marz">{{svr.root}} \ {{svr.svr_id}} \ {{photo}}<br>
+		<img class="picBox" src="{{svr.root}}/{{svr.svr_id}}/{{photo}}"></img>
+	</div>
 	</div>
 	{{/each}}
 	{{/each}}	

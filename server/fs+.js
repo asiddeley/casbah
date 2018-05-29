@@ -64,22 +64,25 @@ SOFTWARE.
 
 ********************************/
 
-exports.dirSync_json=function(variant, jsonfile, defrow, id) {
+exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 	/**
-	returns a list of directories along with contents of a specified jsonfile within each of the directories.
-	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
+	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  If no jsonfile is found, one is created by default with contents provided in json. 
+	Used for a file system type of database where the json file carries data pertaining to its parents directory.
+	Optionally, if exts is specified, the result includes a list of files of specified extensions 
+	Optionally, if id is specified and is found in directory dir then only that dir and its json file and specified file-names will be returned
 	**/
 	
-	if (typeof variant == "object"){
-		dir=variant.dir
-		jsonfile=variant.jsonfile
-		defrow=variant.defrow
-		id=variant.id
-	} else if (typeof variant == "string"){
-		dir=variant
-	}
+	if (typeof dir == "object"){
+		jsonfile=dir.jsonfile
+		json=dir.json
+		id=dir.id
+		exts=dir.extensions || null	
+		dir=dir.dir
+	} 
+	
+	//else if (typeof variant == "string"){dir=variant}
 		
-	var  dd, jp, jt, result=[], ss	
+	var  dd, jp, jt, ff=[], result=[], ss	
 	
 	if (typeof id == "undefined"){
 		//dir_item not provided so return all dir_items
@@ -87,25 +90,38 @@ exports.dirSync_json=function(variant, jsonfile, defrow, id) {
 			return fs.statSync(path.join(dir,file)).isDirectory()
 		})		
 	} else {
-		//dir_item provided so return only information on that diritem 
+		//dir_item provided so return only information on that id 
 		dd=fs.readdirSync(dir).filter(function (file) {
 			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==id))
 		})		
 	}
 
 	for (var i in dd){
-		jp=path.join(dir, dd[i], jsonfile)
+		jp=path.join(dir, dd[i], jsonfile)		
 		try {
 			jt=fs.readFileSync(jp,"UTF-8")
 			console.log("dirSync_json... trying jsonfile")
+			//optional - get list of files
+			if (typeof exts == "string"){
+				ff=fs.readdirSync(path.join(dir, dd[i])).filter(function(f){
+					console.log("checking file:", dir, dd[i], f)
+					//check if file matches any of the extensions specified
+					//var ok=exts.split(" ").some(x=>f.indexOf(x)!=-1)
+					var ok=(exts.toUpperCase().indexOf(path.extname(f).toUpperCase())!=-1)
+					//return only files with specified extensions
+					return (fs.statSync(path.join(dir, dd[i], f))).isFile() && ok
+				})				
+			}			
 		} 
 		catch (err){
 			//Create file if not found
-			console.log("dirSync_json... jsonfile read failed:", err.code)
-			jt=JSON.stringify(defrow || {})
+			console.log("dirSync_json... jsonfile read failed:", err)
+			jt=JSON.stringify(json || {})
 			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
-		result.push({dir:dd[i], jsonfile:jsonfile, jsontext:jt })
+		finally {
+			result.push({dir:dd[i], files:ff, jsonfile:jsonfile, jsontext:jt})
+		}
 	}
 	//result = [{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]
 	return result
