@@ -180,7 +180,7 @@ exports.rds_images=function(req, res){
 // site visit reviews
 const svr_dir="site_reviews"
 const svr_jsonfile="__svrData.json"
-const svr_defrow={
+const svr_json={
 	project_id:"$project_id",
 	svr_id:"$dir",
 	title:"untitled",
@@ -191,37 +191,54 @@ const svr_defrow={
 	generals:["General note"],
 	issues:["Issue", "Another issue"],
 	xissues:["Closed issue", "Another closed issue"],
-	images:[],
-	xdata:"none"
+	//photos:[{filename:"", caption:""}],
+	photos:"$filenames .jpg .png",
+	//filenames without extensions, includes .jpg, png and saves to captions //TO COMPLEX
+	initializer:"$filenamesWox .jpg .png :captions",
+	captions:[],
+	root:"$root",
+	xdata:{}
 }
 
 exports.svr_select=function(req, res){
 	//returns all site reviews
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir);
+	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+	var root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
 	//empty result
-	var r={
+	var rr={
 		svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
 		//defrow:svr_defrow,
 		project_id:req.body.project_id,
+		root:"place-holder/for/root/path",
 		err:null
 	} 
-	console.log("SVRL select:", p);
+	console.log("SVR select:", p);
 	try {
 		//check if exists
 		fs.statSync (p)
-		//get list of directories and corrsonding jsonfile
-		//since fourth argument is supplied, only that information will be returned, not all 
-		var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		//get list of directories and corresponding jsonfile
+		//since fourth argument is supplied, only information for than directory will be returned, not all 
+		//var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		var svrs=fsp.dirSync_json({
+			dir:p,
+			jsonfile:svr_jsonfile,
+			json:svr_json,
+			id:req.body.svr_id,
+			result:{root:root, svr_id:"$dir", jsonfile:"$jsonfile", photos:"$files .jpg .png"}
+		})
 		//convert jsontext to object in result
 		svrs=fsp.jsonify(svrs)
-		r.svrs=fsp.dirasid(svrs, "svr_id")
-		res.json(r);
-		console.log("SVRL success:", r)
+		//add to results, svr_id property with it's value being the directory
+		rr.svrs=fsp.dirasid(svrs, "svr_id")
+		//add to results, root property as needed for images
+		rr.svrs.map(function(i){i.root=root; return i})
+		res.json(rr)
+		console.log("SVR success:", rr)
 	}
 	catch(err){
-		r.err=err
-		res.json(r)
-		console.log("SVRL catch:", r)
+		rr.err=err
+		res.json(rr)
+		console.log("SVRL catch:", rr)
 	}
 }
 

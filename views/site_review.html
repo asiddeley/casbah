@@ -5,6 +5,8 @@
 /////////////
 // Common
 var svr={};
+
+
 svr.refresh=function(result, delta){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -21,7 +23,7 @@ svr.refresh=function(result, delta){
 			$("#svr-generals-placeholder").html(svr.generals.template(result));
 			$("#svr-issues-placeholder").html(svr.issues.template(result));
 			$("#svr-xissues-placeholder").html(svr.xissues.template(result));
-			//$("#svr-images-placeholder").html(svr.images.template(result));
+			$("#svr-photos-placeholder").html(svr.photos.template(result));
 		},
 		type:"POST",
 		url:"/uploads"
@@ -184,6 +186,12 @@ svr.generals.update=function(row, rowid){
 };
 
 
+/////////////////
+// PHOTOS
+svr.photos={}
+svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
+
+
 /////////////
 // titleblock
 svr.titleblock={};
@@ -248,18 +256,13 @@ $.get("views/header.html", function(htm){
 	$("#svr-header").html(svr.header.template({doc_type:"Site Visit Review"}));
 });
 
-/***
-$.get("views/titleblock.html", function(htm){
-	//console.log('tbt loaded:', htm);
-	svr.titleblock.template=Handlebars.compile(htm);
-	svr.titleblock.refresh();	
-});
-*/
+
 
 ///////////////////////////////////////
 // Render page 
 svr.titleblock.refresh();
 svr.refresh();
+
 </script>
 
 <!-- PAGE STARTS HERE -->
@@ -274,7 +277,7 @@ svr.refresh();
 	<div id="svr-comments-placeholder" class="marz"></div>
 	<div id="svr-xissues-placeholder" class="marz"></div>
 	<div id="svr-issues-placeholder" class="marz"></div>
-	<div id="svr-images-placeholder" class="marz"></div>
+	<div id="svr-photos-placeholder" class="marz"></div>
 	<br><br>
 </div>
 
@@ -443,6 +446,43 @@ svr.refresh();
 </template>
 
 
+<template id='svr-photos-template' type="text/x-handlebars-template">
+
+	<div class="row marz" 
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.photo.menu, event)">
+		<h3 class="col-xs-1 marz" >5.0</h3>
+		<h3 class="col-xs-10 border-left marz">Photos</h3>
+		<h3 class="col-xs-1 marz" >&nbsp;</h3>
+	</div>
+
+	{{#each svrs as |svr svrIndex|}}
+	{{#each photos as |photo photoIndex|}}
+	<div class="row marz"
+		index="{{photoIndex}}"
+		draggable="true"
+		ondragstart="svr.photos.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.photos.ondrop(this, event)"
+		onmouseenter="svr.hi.light(this)"
+		oncontextmenu="casbah.showMenu(svr.photos.menu, event)">
+	<p 	class="col-xs-1 marz">5.{{plusOne photoIndex}}</p>
+	<p field="photo"
+		index="{{photoIndex}}"
+		onclick="svr.photos.onclick(this)"
+		class="col-xs-10 border-left marz"
+		href="{{svrs.xdata.path}}{{photo.svr_id}}{{photo.filename}}"></p>
+	<p field="photo"
+		index="{{photoIndex}}"
+		onclick="svr.photos.onclick(this)"
+		class="col-xs-10 border-left marz">{{svr.root}} \ {{svr.svr_id}} \ {{photo.filename}}</p>
+	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	</div>
+	{{/each}}
+	{{/each}}	
+</template>
+
+
 <!-- MENUS -->
 <div id="svr-comments-menu" onmouseleave="svr.comments.menu.hide()" class="hide9999">
 	<p onclick="svr.comments.remove()">Delete</p>
@@ -461,6 +501,12 @@ svr.refresh();
 	<p onclick="svr.generals.insert(true)">Insert</p>
 	<p onclick="svr.generals.remove(svr.hi.rowid())">Delete</p>
 	<p onclick="svr.generals.menu.hide()">Exit</p>
+</div>
+
+<div id="svr-photos-menu" onmouseleave="svr.photos.menu.hide()" style="display:none; z-index:10000">
+	<p onclick="svr.issues.insert(true)">Insert</p>
+	<p onclick="svr.issues.remove(svr.hi.rowid())">Delete</p>
+	<p onclick="svr.issues.menu.hide()">Exit</p>
 </div>
 
 <div id="svr-xissues-menu" onmouseleave="svr.xissues.menu.hide()" style="display:none; z-index:10000">

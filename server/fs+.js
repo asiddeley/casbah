@@ -64,20 +64,32 @@ SOFTWARE.
 
 ********************************/
 
-exports.dirSync_json=function(dir, jsonfile, defrow, project_id) {
+exports.dirSync_json=function(variant, jsonfile, defrow, id) {
 	/**
 	returns a list of directories along with contents of a specified jsonfile within each of the directories.
 	Used for a file system type of database where the jsonfile carries data pertaining to its parents directory.
 	**/
+	
+	if (typeof variant == "object"){
+		dir=variant.dir
+		jsonfile=variant.jsonfile
+		defrow=variant.defrow
+		id=variant.id
+	} else if (typeof variant == "string"){
+		dir=variant
+	}
+		
 	var  dd, jp, jt, result=[], ss	
 	
-	if (typeof project_id == "undefined"){
+	if (typeof id == "undefined"){
+		//dir_item not provided so return all dir_items
 		dd=fs.readdirSync(dir).filter(function (file) {
 			return fs.statSync(path.join(dir,file)).isDirectory()
 		})		
 	} else {
+		//dir_item provided so return only information on that diritem 
 		dd=fs.readdirSync(dir).filter(function (file) {
-			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==project_id))
+			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==id))
 		})		
 	}
 
@@ -85,11 +97,11 @@ exports.dirSync_json=function(dir, jsonfile, defrow, project_id) {
 		jp=path.join(dir, dd[i], jsonfile)
 		try {
 			jt=fs.readFileSync(jp,"UTF-8")
-			console.log("DIR_JSON trying to read jsonfile")
+			console.log("dirSync_json... trying jsonfile")
 		} 
 		catch (err){
 			//Create file if not found
-			console.log("DIR_JSON jsonfile read fail:", err.code)
+			console.log("dirSync_json... jsonfile read failed:", err.code)
 			jt=JSON.stringify(defrow || {})
 			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
@@ -127,3 +139,4 @@ exports.dirasid=function(rar, id){
 		return Object.assign(i, prop)
 	})
 }
+
