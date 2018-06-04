@@ -1,6 +1,12 @@
 <!doctype html>
 <style>
 .picBox{ max-height:400px; max-width:100%;}
+caption{ padding-top:5px; padding-left:10px; background-color:cyan;}
+figure{ padding-top:5px; padding-left:10px;}
+.photo-frame{ border-color:black; border-style:solid; border-width:1px; padding:5px;}
+.photo-img-port{max-width:95%; max-height:350px;}
+
+
 </style>
 <script type='text/javascript'>
 
@@ -24,7 +30,7 @@ svr.refresh=function(result, delta){
 			$("#svr-comments-placeholder").html(svr.comments.template(result));
 			$("#svr-generals-placeholder").html(svr.generals.template(result));
 			$("#svr-issues-placeholder").html(svr.issues.template(result));
-			$("#svr-xissues-placeholder").html(svr.xissues.template(result));
+			$("#svr-issuesx-placeholder").html(svr.issuesx.template(result));
 			$("#svr-photos-placeholder").html(svr.photos.template(result));
 		},
 		type:"POST",
@@ -193,7 +199,6 @@ svr.generals.update=function(row, rowid){
 svr.photos={}
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
 
-
 /////////////
 // titleblock
 svr.titleblock={};
@@ -225,25 +230,25 @@ svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html())
 
 
 ////////////////////////
-// xIssues
-svr.xissues={};
-svr.xissues.insert=function(el){};
-svr.xissues.menu=$("#svr-xissues-menu").menu().css("position","absolute", "width", "200px").hide();
-svr.xissues.onclick=function(el){
+// issuesx
+svr.issuesx={};
+svr.issuesx.insert=function(el){};
+svr.issuesx.menu=$("#svr-issuesx-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.issuesx.onclick=function(el){
 	svr.ed.text(el, function(){
-		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
+		svr.issuesx.update(svr.ed.row(), svr.ed.rowid(), true); 
 		svr.ed.hide();
 	});
 };
-svr.xissues.ondragstart=function(el, ev){
+svr.issuesx.ondragstart=function(el, ev){
 	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
 	//note "Text" argument as required by iexplorer...
 	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
 };
-svr.xissues.remove=function(el){};
-svr.xissues.template=Handlebars.compile($("#svr-xissues-template").html());
-svr.xissues.update=function(row, rowid){
-	console.log("xissues update ROWID:\n", rowid, "ROW:\n",row)
+svr.issuesx.remove=function(el){};
+svr.issuesx.template=Handlebars.compile($("#svr-issuesx-template").html());
+svr.issuesx.update=function(row, rowid){
+	console.log("issuesx update ROWID:\n", rowid, "ROW:\n",row)
 };
 
 
@@ -277,7 +282,7 @@ svr.refresh();
 	<br><br>
 	<div id="svr-generals-placeholder" class="marz"></div>
 	<div id="svr-comments-placeholder" class="marz"></div>
-	<div id="svr-xissues-placeholder" class="marz"></div>
+	<div id="svr-issuesx-placeholder" class="marz"></div>
 	<div id="svr-issues-placeholder" class="marz"></div>
 	<div id="svr-photos-placeholder" class="marz"></div>
 	<br><br>
@@ -336,8 +341,8 @@ svr.refresh();
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
 	</div>
 
-	{{#each svrs}}
-	{{#each comments as |comment commentIndex|}}
+
+	{{#each svrs.[0].comments as |comment commentIndex|}}
 	<div class="row marz"
 		index="{{commentIndex}}"
 		draggable="true"
@@ -354,7 +359,7 @@ svr.refresh();
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
 	{{/each}}
-	{{/each}}	
+	
 </template>
 
 <template id='svr-generals-template' type="text/x-handlebars-template">
@@ -365,8 +370,8 @@ svr.refresh();
 		<h3 class="col-xs-10 border-left marz">General</h3>
 		<h3 class="col-xs-1 marz">&nbsp;</h3>
 	</div>
-	{{#each svrs}}
-	{{#each generals as |general generalsIndex|}}
+
+	{{#each svrs.[0].generals as |general generalsIndex|}}
 	<div class="row marz"
 		index="{{generalIndex}}"
 		draggable="true"
@@ -382,7 +387,6 @@ svr.refresh();
 		class="col-xs-10 border-left marz">{{general}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
-	{{/each}}
 	{{/each}}	
 </template>
 
@@ -396,8 +400,8 @@ svr.refresh();
 		<h3 class="col-xs-1 marz">Ref</h3>
 	</div>
 
-	{{#each svrs}}
-	{{#each issues as |issue issueIndex|}}
+
+	{{#each svrs.[0].issues as |issue issueIndex|}}
 	<div class="row marz"
 		index="{{isseusIndex}}"
 		draggable="true"
@@ -413,40 +417,37 @@ svr.refresh();
 		class="col-xs-10 border-left marz">{{issue}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
-	{{/each}}
 	{{/each}}	
 </template>
 
-<template id='svr-xissues-template' type="text/x-handlebars-template">
+<template id='svr-issuesx-template' type="text/x-handlebars-template">
 	<div class="row marz"
-		oncontextmenu="casbah.showMenu(svr.xissues.menu, event)"
+		oncontextmenu="casbah.showMenu(svr.issuesx.menu, event)"
 		onmouseenter="svr.hi.light(this)">
 		<h3 class="col-xs-1 marz">3.0</h3>
 		<h3 class="col-xs-10 border-left marz">Resolved Issues</h3>
 		<h3 class="col-xs-1 marz">Ref</h3>
 	</div>
 
-	{{#each svrs}}
-	{{#each xissues as |xissue xissueIndex|}}
+
+	{{#each svrs.[0].issuesx as |issuex xIndex|}}
 	<div class="row marz"
-		index="{{xissuesIndex}}"
+		index="{{xIndex}}"
 		draggable="true"
-		ondragstart="svr.xissues.ondragstart(this, event)"
+		ondragstart="svr.issuesx.ondragstart(this, event)"
 		ondragover="event.preventDefault()"
-		ondrop="svr.xissues.ondrop(this, event)"
+		ondrop="svr.issuesx.ondrop(this, event)"
 		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.xissues.menu, event)">
-	<p 	class="col-xs-1 marz">3.{{plusOne xissueIndex}}</p>
-	<p 	field="xissues"
-		index="{{xissueIndex}}"
-		onclick="svr.xissues.onclick(this)"
-		class="col-xs-10 border-left marz">{{xissue}}</p>	
+		oncontextmenu="casbah.showMenu(svr.issuesx.menu, event)">
+	<p 	class="col-xs-1 marz">3.{{plusOne xIndex}}</p>
+	<p 	field="issuesx"
+		index="{{xIndex}}"
+		onclick="svr.issuesx.onclick(this)"
+		class="col-xs-10 border-left marz">{{issuex}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
-	{{/each}}
 	{{/each}}	
 </template>
-
 
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
@@ -457,28 +458,47 @@ svr.refresh();
 		<h3 class="col-xs-10 border-left marz">Photos</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
 	</div>
-
-	{{#each svrs as |svr svrIndex|}}
-	{{#each files as |photo photoIndex|}}
-	<div class="row marz"
-		index="{{photoIndex}}"
-		draggable="true"
-		ondragstart="svr.photos.ondragstart(this, event)"
-		ondragover="event.preventDefault()"
-		ondrop="svr.photos.ondrop(this, event)"
-		onmouseenterNOT="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.photos.menu, event)">
-	<p 	class="col-xs-1 marz">5.{{plusOne photoIndex}}</p>
-	<div field="photo"
-		index="{{photoIndex}}"
+	
+	<div class="row marz">
+	{{#each svrs.[0].xdata as |item key|}}
+	{{#if item.landscape}}
+	<div key="{{key}}"
 		onclick="svr.photos.onclick(this)"
-		class="col-xs-11 border-left marz">{{svr.root}} \ {{svr.svr_id}} \ {{photo}}<br>
-		<img class="picBox" src="{{svr.root}}/{{svr.svr_id}}/{{photo}}"></img>
+		class="col-xs-6 photo-frame"
+		style="height:400px;">
+	<img style="max-width:95%; max-height:350px;" src="{{item.path}}">
+	<figure style="display:inline;">5.{{@index}}</figure>
+	<caption>{{item.caption}}</caption>
 	</div>
+	{{/if}}
+	{{#if item.portrait}}
+	<div key="{{key}}" 
+		onclick="svr.photos.onclick(this)"
+		class="col-xs-6 photo-frame"
+		style="height:400px;">
+	<img 
+		class="photo-img" style="float:left;" src="{{item.path}}">
+	<figure style="display:inline;">5.{{@index}}</figure>
+	<caption>{{item.caption}}</caption>
 	</div>
-	{{/each}}
+	{{/if}}
+	{{#if item.wide}}
+	<div  key="{{key}}"
+		onclick="svr.photos.onclick(this)"
+		class="col-xs-12 photo-frame"
+		style="height:400px;">
+	<img style="max-width:95%; max-height:350px;" src="{{item.path}}">
+	<figure style="display:inline;">5.{{@index}}</figure>
+	<caption >{{item.caption}}</caption>
+	</div>
+	{{/if}}	
+	
 	{{/each}}	
+	</div>
+	
+	
 </template>
+
 
 
 <!-- MENUS -->
@@ -507,10 +527,10 @@ svr.refresh();
 	<p onclick="svr.issues.menu.hide()">Exit</p>
 </div>
 
-<div id="svr-xissues-menu" onmouseleave="svr.xissues.menu.hide()" style="display:none; z-index:10000">
-	<p onclick="svr.xissues.insert(true)">Insert</p>
-	<p onclick="svr.xissues.remove(svr.hi.rowid())">Delete</p>
-	<p onclick="svr.xissues.menu.hide()">Exit</p>
+<div id="svr-issuesx-menu" onmouseleave="svr.issuesx.menu.hide()" style="display:none; z-index:10000">
+	<p onclick="svr.issuesx.insert(true)">Insert</p>
+	<p onclick="svr.issuesx.remove(svr.hi.rowid())">Delete</p>
+	<p onclick="svr.issuesx.menu.hide()">Exit</p>
 </div>
 
 

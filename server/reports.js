@@ -29,8 +29,17 @@ SOFTWARE.
 const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
-
+const sizeOf = require('image-size');
 const reports_dir="reports"
+
+
+const frameType=function(image){
+	var dims=sizeOf(image) 
+	var ratio=dims.height/dims.width
+	if (ratio >= 1) {return "portrait"}
+	else if (ratio >= 0.5) {return "landscape"}
+	else {return "wide"}
+}
 
 ////////////////////////////////////////////////////
 // rdss - Room Deficiency Sheets LOG
@@ -190,13 +199,8 @@ const svr_json={
 	comments:["Comment", "Another comment"],
 	generals:["General note"],
 	issues:["Issue", "Another issue"],
-	xissues:["Closed issue", "Another closed issue"],
-	//photos:[{filename:"", caption:""}],
-	photos:"$filenames .jpg .png",
-	//filenames without extensions, includes .jpg, png and saves to captions //TO COMPLEX
-	initializer:"$filenamesWox .jpg .png :captions",
-	captions:[],
-	root:"$root",
+	issues_closed:["Closed issue", "Another closed issue"],
+	//files:[],
 	xdata:{}
 }
 
@@ -215,30 +219,57 @@ exports.svr_select=function(req, res){
 	try {
 		//check if exists
 		fs.statSync (p)
-		//get list of directories and corresponding jsonfile
-		//since fourth argument is supplied, only information for than directory will be returned, not all 
-		//var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		/******
+		Get list of directories and corresponding jsonfile
+		since fourth argument is supplied, only information for than directory will be returned, not all 
+		var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		svrs = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
+		*/		
+		
 		var svrs=fsp.dirSync_json({
 			dir:p,
 			jsonfile:svr_jsonfile,
 			json:svr_json,
 			id:req.body.svr_id,
 			extensions:".jpg .png"
-			//result:{root:root, svr_id:"$dir", jsonfile:"$jsonfile", photos:"$files .jpg .png"}
 		})
+		
 		//get from each result, jsontext, parse it to an object then merge it into each result
 		svrs=fsp.jsonify(svrs)
+		
 		//add to each result, svr_id property with it's value being the directory
 		rr.svrs=fsp.dirasid(svrs, "svr_id")
-		//add to results, root property as needed for images
+		
+		//add to each result, root property as needed for images - DEP use xdata instead
 		rr.svrs.map(function(i){i.root=root; return i})
+		
+		//Add image information to xdata - new files only
+		//svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
+		//xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
+		rr.svrs.map(function(svr){
+			svr.files.map(function(f){
+				if (typeof(svr.xdata[f])=="undefined" ){
+					var p=path.join(root, svr.dir, f)
+					svr.xdata[f]={
+						caption:f,
+						date:"2-Jun-2018",
+						frametype:frameType(p),
+						path:p
+					}
+					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
+					svr.xdata[f][frameType(p)]=true
+				}
+			})
+			console.log ("SVR xdata:", svr.xdata)
+		})
+		
 		res.json(rr)
 		console.log("SVR success:", rr)
 	}
 	catch(err){
 		rr.err=err
 		res.json(rr)
-		console.log("SVRL catch:", rr)
+		console.log("SVR catch:", rr)
 	}
 }
 

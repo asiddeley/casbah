@@ -99,8 +99,6 @@ exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 	for (var i in dd){
 		jp=path.join(dir, dd[i], jsonfile)		
 		try {
-			jt=fs.readFileSync(jp,"UTF-8")
-			console.log("dirSync_json... trying jsonfile")
 			//optional - get list of files
 			if (typeof exts == "string"){
 				ff=fs.readdirSync(path.join(dir, dd[i])).filter(function(f){
@@ -111,7 +109,10 @@ exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 					//return only files with specified extensions
 					return (fs.statSync(path.join(dir, dd[i], f))).isFile() && ok
 				})				
-			}			
+			}
+			//do this last so if it fails, list of files ff will be ok
+			console.log("dirSync_json... trying jsonfile")
+			jt=fs.readFileSync(jp,"UTF-8")
 		} 
 		catch (err){
 			//Create file if not found
@@ -121,9 +122,10 @@ exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 		}
 		finally {
 			result.push({dir:dd[i], files:ff, jsonfile:jsonfile, jsontext:jt})
+			console.log("FS+ DIRSYNC_JSON finally:", result)
 		}
 	}
-	//result = [{dir:"name", jsonfile:"name", jsontext:"{field:value, }" }, ...]
+	//result = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
 	return result
 }
 
