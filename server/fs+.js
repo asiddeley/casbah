@@ -122,7 +122,7 @@ exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 		}
 		finally {
 			result.push({dir:dd[i], files:ff, jsonfile:jsonfile, jsontext:jt})
-			console.log("FS+ DIRSYNC_JSON finally:", result)
+			console.log("FS+ DIRSYNC_JSON finally")
 		}
 	}
 	//result = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
@@ -137,7 +137,7 @@ exports.jsonify=function(rar){
 	**/
 
 	for (var i in rar){
-		try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext) )}
+		try{rar[i]=Object.assign(rar[i], JSON.parse(rar[i].jsontext)); delete rar[i].jsontext; }
 		catch(err){rar[i].err=err}
 	}
 	return rar

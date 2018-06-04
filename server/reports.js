@@ -241,7 +241,7 @@ exports.svr_select=function(req, res){
 		rr.svrs=fsp.dirasid(svrs, "svr_id")
 		
 		//add to each result, root property as needed for images - DEP use xdata instead
-		rr.svrs.map(function(i){i.root=root; return i})
+		//rr.svrs.map(function(i){i.root=root; return i})
 		
 		//Add image information to xdata - new files only
 		//svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
@@ -250,8 +250,11 @@ exports.svr_select=function(req, res){
 			svr.files.map(function(f){
 				if (typeof(svr.xdata[f])=="undefined" ){
 					var p=path.join(root, svr.dir, f)
+					var f1=f.indexOf("__"); f1=(f1==-1)?0:f1+=2
 					svr.xdata[f]={
-						caption:f,
+						//just text between double underscore and .ext
+						//:path.basename(f, path.extname(f))
+						caption:f.substring(f1, f.lastIndexOf(".")),
 						date:"2-Jun-2018",
 						frametype:frameType(p),
 						path:p

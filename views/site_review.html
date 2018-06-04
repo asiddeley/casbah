@@ -1,11 +1,14 @@
 <!doctype html>
 <style>
 .picBox{ max-height:400px; max-width:100%;}
-caption{ padding-top:5px; padding-left:10px; background-color:cyan;}
-figure{ padding-top:5px; padding-left:10px;}
-.photo-frame{ border-color:black; border-style:solid; border-width:1px; padding:5px;}
-.photo-img-port{max-width:95%; max-height:350px;}
-
+caption{ font-size:11pt; font-family:'segoe UI'; }
+figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
+.photo-frame{ height:340px; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
+.photo-frame-not{ height:340px; padding-left:15px; padding-top:15px;}
+.photo-image{ max-width:75%; max-height:300px; padding-right:15px; float:left;}
+@media print {
+	.photo-frame {page-break-inside:avoid; !important;}
+}
 
 </style>
 <script type='text/javascript'>
@@ -32,6 +35,9 @@ svr.refresh=function(result, delta){
 			$("#svr-issues-placeholder").html(svr.issues.template(result));
 			$("#svr-issuesx-placeholder").html(svr.issuesx.template(result));
 			$("#svr-photos-placeholder").html(svr.photos.template(result));
+			//hack the following titleblock fields directly... 
+			$("#svr-author").text(result.svrs[0].author);
+			$("#svr-title").text(result.svrs[0].title);
 		},
 		type:"POST",
 		url:"/uploads"
@@ -218,15 +224,13 @@ svr.titleblock.refresh=function(){
 			$("#svr-titleblock-placeholder").html(svr.titleblock.template(result));
 			//this field isn't in result so just set it with jquery...
 			//console.log("SVR_id", localStorage.getItem("svr_id"));
-			$("#svr_id").text(localStorage.getItem("svr_id"));
+			$("#svr-id").text(localStorage.getItem("svr_id"));
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html());
-
-
 
 
 ////////////////////////
@@ -297,35 +301,35 @@ svr.refresh();
 	<strong class="col-xs-2">Project ID:</strong>
 	<p class="col-xs-4">{{project_id}}</p>
 	<strong class="col-xs-2">SVR ID:</strong>
-	<p id="svr_id" class="col-xs-4">SVR-XXX</p>
+	<p id="svr-id" class="col-xs-4">SVR-XXX</p>
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-2">Project Name:</strong>
 	<p class="col-xs-4">{{project_name}}</p>
-	<strong id="docTitle" class="col-xs-2">SVR Title:</strong>
-	<p class="col-xs-4">{{svr_title}}</p>
+	<strong class="col-xs-2">SVR Title:</strong>
+	<p id="svr-title" class="col-xs-4">{{title}}</p>
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-2">Project Address:</strong>
 	<p class="col-xs-4">{{address}}</p>
-	<strong id="docDate" class="col-xs-2">Date:</strong>
+	<strong id="svr-date" class="col-xs-2">Date:</strong>
 	<p class="col-xs-4">{{date}}</p>
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-2">Contractor:</strong>
 	<p class="col-xs-4">{{contractor}}</p>
-	<strong id="publish_date" class="col-xs-2">Date Issued:</strong>
-	<p class="col-xs-4">{{date_issued}}</p>
+	<strong  class="col-xs-2">Date Issued:</strong>
+	<p id="svr-date-issued" class="col-xs-4">{{date_issued}}</p>
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-2">Permit No:</strong>
-	<p id="permitNo" class="col-xs-4">{{permit}}</p>
-	<strong id="docBy" class="col-xs-2">By:</strong>
-	<p class="col-xs-4">{{by}}</p>
+	<p id="svr-permit" class="col-xs-4">{{permit}}</p>
+	<strong  class="col-xs-2">By:</strong>
+	<p id="svr-author" class="col-xs-4">{{author}}</p>
 </div>
 {{/each}}
 </template>
@@ -463,33 +467,35 @@ svr.refresh();
 	{{#each svrs.[0].xdata as |item key|}}
 	{{#if item.landscape}}
 	<div key="{{key}}"
-		onclick="svr.photos.onclick(this)"
 		class="col-xs-6 photo-frame"
-		style="height:400px;">
-	<img style="max-width:95%; max-height:350px;" src="{{item.path}}">
-	<figure style="display:inline;">5.{{@index}}</figure>
-	<caption>{{item.caption}}</caption>
+		onclick="svr.photos.onclick(this)">
+	<img class="photo-image" src="{{item.path}}">
+	<div class="photo-text">
+		<figure style="display:inline;">5.{{@index}}</figure>
+		<caption>{{item.caption}}</caption>
+	</div>
 	</div>
 	{{/if}}
 	{{#if item.portrait}}
 	<div key="{{key}}" 
-		onclick="svr.photos.onclick(this)"
-		class="col-xs-6 photo-frame"
-		style="height:400px;">
-	<img 
-		class="photo-img" style="float:left;" src="{{item.path}}">
+		class="col-xs-4 photo-frame"
+		onclick="svr.photos.onclick(this)">
+	<img class="photo-image" src="{{item.path}}">
+	<div class="photo-text">	
 	<figure style="display:inline;">5.{{@index}}</figure>
 	<caption>{{item.caption}}</caption>
+	</div>
 	</div>
 	{{/if}}
 	{{#if item.wide}}
 	<div  key="{{key}}"
 		onclick="svr.photos.onclick(this)"
-		class="col-xs-12 photo-frame"
-		style="height:400px;">
-	<img style="max-width:95%; max-height:350px;" src="{{item.path}}">
+		class="col-xs-12 photo-frame">
+	<img class="photo-image" src="{{item.path}}">
+	<div class="photo-text">	
 	<figure style="display:inline;">5.{{@index}}</figure>
 	<caption >{{item.caption}}</caption>
+	</div>
 	</div>
 	{{/if}}	
 	
