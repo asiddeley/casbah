@@ -98,7 +98,7 @@ svrl.update=function(){
 
 ///////////////////////////////////////////
 //load templates and compile...
-$.get("views/header.html", function(htm){
+$.get("client/header.html", function(htm){
 	//beware - this function is asynchronous so svrl.header may not yet be defined if called outside this function
 	//console.log('HEADER LOADED...');
 	svrl.header=Handlebars.compile(htm);

@@ -50,7 +50,7 @@ project.hi=new casbah.Highlighter("highlite");
 project.menu=$("#project-menu").menu().css("position","absolute", "width", "200px").hide();
 
 //load templates and render...
-$.get("views/header.html", function(htm){
+$.get("client/header.html", function(htm){
 	//beware - this is asynchronous so risk of project.header being undefined if called outside this function
 	project.header_template=Handlebars.compile(htm);
 	$("#project-header-placeholder").html(project.header_template({doc_type:"Project Log"}));

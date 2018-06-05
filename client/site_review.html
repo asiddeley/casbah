@@ -3,11 +3,13 @@
 .picBox{ max-height:400px; max-width:100%;}
 caption{ font-size:11pt; font-family:'segoe UI'; }
 figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
-.photo-frame{ height:340px; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
+.photo-frame{ height:auto; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
 .photo-frame-not{ height:340px; padding-left:15px; padding-top:15px;}
 .photo-image{ max-width:75%; max-height:300px; padding-right:15px; float:left;}
+.break-line {margins:auto;}
 @media print {
 	.photo-frame {page-break-inside:avoid; !important;}
+	.line-break {page-break-inside:auto; !important;}
 }
 
 </style>
@@ -455,6 +457,7 @@ svr.refresh();
 
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
+	<div class="container">
 	<div class="row marz" 
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.photo.menu, event)">
@@ -480,7 +483,7 @@ svr.refresh();
 	<div key="{{key}}" 
 		class="col-xs-4 photo-frame"
 		onclick="svr.photos.onclick(this)">
-	<img class="photo-image" src="{{item.path}}">
+	<img class="photo-image" style="float:left" src="{{item.path}}">
 	<div class="photo-text">	
 	<figure style="display:inline;">5.{{@index}}</figure>
 	<caption>{{item.caption}}</caption>
@@ -498,10 +501,9 @@ svr.refresh();
 	</div>
 	</div>
 	{{/if}}	
-	
 	{{/each}}	
 	</div>
-	
+	</div>
 	
 </template>
 

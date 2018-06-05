@@ -382,7 +382,7 @@ casbah.tool=function(htmlfile){
 		$("#NAVBAR").append($("<div class='container'></div>").attr("id",id));		
 	}
 	if (typeof htmlfile == "undefined"){$("#"+id).hide();}
-	else {$("#"+id).show().load("views/"+htmlfile);}
+	else {$("#"+id).show().load("client/"+htmlfile);}
 };
 
 casbah.__views={};
@@ -400,7 +400,7 @@ casbah.view=function(htmlfile){
 		var el=$("<div></div>").addr("id",id);
 		$("body").append($("<div></div>").attr("id",id));		
 	}
-	$("#"+id).load("views/"+htmlfile);
+	$("#"+id).load("client/"+htmlfile);
 
 	
 	var vid=htmlfile.substring(0, htmlfile.indexOf("."));
@@ -408,7 +408,7 @@ casbah.view=function(htmlfile){
 	if (Object.keys(casbah.__views).indexOf(htmlfile)==-1) {
 		casbah.__views[htmlfile]=htmlfile;
 		$("#VIEW").append($("<div></div>").attr("id",vid).addClass("htmlviews"));
-		$("#"+vid).load("views/"+htmlfile);
+		$("#"+vid).load("client/"+htmlfile);
 		console.log("new div created to hold ", vid);
 	}
 	//hide all views then, reveal the desired one
