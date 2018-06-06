@@ -3,9 +3,13 @@
 .picBox{ max-height:400px; max-width:100%;}
 caption{ font-size:11pt; font-family:'segoe UI'; }
 figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
-.photo-frame{ height:auto; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
-.photo-frame-not{ height:340px; padding-left:15px; padding-top:15px;}
-.photo-image{ max-width:75%; max-height:300px; padding-right:15px; float:left;}
+
+.border-not {border-color:black; border-style:solid; border-width:1px;}
+.photo-frame-not{ height:auto; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
+.photo-frame{ padding-left:5px; padding-top:15px;}
+.photo-text{ padding-left:5px; padding-top:15px;}
+
+.photo-image{ max-height:300px; padding-left:5px; float:left;}
 .break-line {margins:auto;}
 @media print {
 	.photo-frame {page-break-inside:avoid; !important;}
@@ -53,7 +57,34 @@ svr.refresh=function(result, delta){
 			$("#svr-comments-placeholder").html(svr.comments.template({rows:rows}));
 			
 			//TODO reformat result and rework template...
-			$("#svr-photos-placeholder").html(svr.photos.template(result));
+			rows=[];		
+			r=result.svrs[0].xdata; // {img01:{caption:"", date:"", format:"", path:"..."}, ...}
+			var done=false; //done flag 
+			var cc=0; //column counter
+			var row=[]; //either an image frame or caption  
+			for (i in r){
+				if(r[i].format=="landscape") {
+					if (cc > 6) {rows.push(row); row=[]; cc=0;}
+					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})
+					row.push({img:r[i].path, col:"col-xs-5"});
+					cc+=6;
+				} else if (r[i].format=="portrait") {
+					if (cc > 8) {rows.push(row); row=[]; cc=0;}
+					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})					
+					row.push({img:r[i].path, col:"col-xs-3"});
+					cc+=4;
+				} else if (r[i].format=="wide") {
+					if (cc > 1) {rows.push(row); row=[]; cc=0;}
+					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})
+					row.push({img:r[i].path, col:"col-xs-11"});
+					cc+=12;				
+				}
+			};
+			rows.push(row); //last push
+			
+			$("#svr-photos-placeholder").html(svr.photos.template({rows:rows}));
+			
+			//$("#svr-photos-placeholder").html(svr.photos.template(result));
 			//hack the following titleblock fields directly... 
 			//$("#svr-author").text(result.svrs[0].author);
 			//$("#svr-title").text(result.svrs[0].title);
@@ -184,7 +215,7 @@ svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html())
 
 ///////////////////////////////////////
 // Render page header and titleblock 
-$.get("views/header.html", function(htm){
+$.get("client/header.html", function(htm){
 	//console.log('tbh loaded:', htm);
 	if (typeof svr.header=="undefined"){svr.header={};}
 	svr.header.template=Handlebars.compile(htm);
@@ -291,7 +322,6 @@ svr.refresh();
 
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
-	<div class="container">
 	<div class="row marz" 
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.photo.menu, event)">
@@ -300,44 +330,24 @@ svr.refresh();
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
 	</div>
 	
+	{{#each rows as |row ri|}}
 	<div class="row marz">
-	{{#each svrs.[0].xdata as |item key|}}
-	{{#if item.landscape}}
-	<div key="{{key}}"
-		class="col-xs-6 photo-frame"
-		onclick="svr.photos.onclick(this)">
-	<img class="photo-image" src="{{item.path}}">
-	<div class="photo-text">
+	{{#each row as |item ii|}}
+	{{#if item.img}}
+	<div class="{{item.col}} photo-frame border" onclick="svr.photos.onclick(this)">
+		<img class="photo-image" src="{{item.img}}">
+	</div>
+	{{/if}}
+	{{#if item.fig}}
+	<div class="{{item.col}} photo-text border">
 		<figure style="display:inline;">5.{{@index}}</figure>
-		<caption>{{item.caption}}</caption>
-	</div>
-	</div>
-	{{/if}}
-	{{#if item.portrait}}
-	<div key="{{key}}" 
-		class="col-xs-4 photo-frame"
-		onclick="svr.photos.onclick(this)">
-	<img class="photo-image" style="float:left" src="{{item.path}}">
-	<div class="photo-text">	
-	<figure style="display:inline;">5.{{@index}}</figure>
-	<caption>{{item.caption}}</caption>
-	</div>
+		<caption>{{item.cap}}</caption>
 	</div>
 	{{/if}}
-	{{#if item.wide}}
-	<div  key="{{key}}"
-		onclick="svr.photos.onclick(this)"
-		class="col-xs-12 photo-frame">
-	<img class="photo-image" src="{{item.path}}">
-	<div class="photo-text">	
-	<figure style="display:inline;">5.{{@index}}</figure>
-	<caption >{{item.caption}}</caption>
-	</div>
-	</div>
-	{{/if}}	
 	{{/each}}	
 	</div>
-	</div>
+	{{/each}}
+
 	
 </template>
 

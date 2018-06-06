@@ -155,7 +155,7 @@ exports.rds_images=function(req, res){
 	//req.body.deficiency_sheets
 	*/
 	try {
-		//part path..
+		//part path...
 		var pp=path.join(
 			req.body.uploads_dir, 
 			req.body.project_id, 
@@ -240,12 +240,11 @@ exports.svr_select=function(req, res){
 		//add to each result, svr_id property with it's value being the directory
 		rr.svrs=fsp.dirasid(svrs, "svr_id")
 		
-		//add to each result, root property as needed for images - DEP use xdata instead
-		//rr.svrs.map(function(i){i.root=root; return i})
-		
-		//Add image information to xdata - new files only
-		//svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
-		//xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
+		/**
+		Add image information to xdata - new files only
+		svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
+		xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
+		**/
 		rr.svrs.map(function(svr){
 			svr.files.map(function(f){
 				if (typeof(svr.xdata[f])=="undefined" ){
@@ -256,7 +255,7 @@ exports.svr_select=function(req, res){
 						//:path.basename(f, path.extname(f))
 						caption:f.substring(f1, f.lastIndexOf(".")),
 						date:"2-Jun-2018",
-						frametype:frameType(p),
+						format:frameType(p),
 						path:p
 					}
 					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
