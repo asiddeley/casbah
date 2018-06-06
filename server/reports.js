@@ -200,7 +200,7 @@ const svr_json={
 	generals:["General note"],
 	issues:["Issue", "Another issue"],
 	issues_closed:["Closed issue", "Another closed issue"],
-	//files:[],
+	//files:[], added after json read
 	xdata:{}
 }
 

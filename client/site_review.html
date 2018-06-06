@@ -15,11 +15,8 @@ figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
 </style>
 <script type='text/javascript'>
 
-/////////////
-// Common
+// site visit report object - svr
 var svr={};
-
-
 svr.refresh=function(result, delta){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -31,15 +28,35 @@ svr.refresh=function(result, delta){
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			console.log("SVR-SELECT:", result)
-			$("#svr-comments-placeholder").html(svr.comments.template(result));
-			$("#svr-generals-placeholder").html(svr.generals.template(result));
-			$("#svr-issues-placeholder").html(svr.issues.template(result));
-			$("#svr-issuesx-placeholder").html(svr.issuesx.template(result));
+			console.log("SVR-SELECT:", result);
+			//result={svrs[{}],}
+			//reformat result to suit template
+			var i, r=result.svrs[0];
+			var rows=[{section_heading:true, txt:"General Notes", section_num:1}];
+			for (i in r.generals){rows.push(
+			{section_item:true, index:i, txt:r.generals[i], section:"generals", section_num:1}
+			);}
+			rows.push({section_heading:true, txt:"Comments & Observations", section_num:2});
+			for (i in r.comments){rows.push(
+			{section_item:true, index:i, txt:r.comments[i], section:"comments", section_num:2}
+			);}
+			rows.push({section_heading:true, txt:"Issues Closed", section_num:3});
+			for (i in r.issuesx){rows.push(
+			{section_item:true, index:i, txt:r.issuesx[i], section:"issuesx", section_num:3}
+			);}			
+			rows.push({section_heading:true, txt:"Issues", section_num:4});
+			for (i in r.issues){rows.push(
+			{section_item:true, index:i, txt:r.issues[i], section:"issues", section_num:4}
+			);}			
+			
+			//render rows
+			$("#svr-comments-placeholder").html(svr.comments.template({rows:rows}));
+			
+			//TODO reformat result and rework template...
 			$("#svr-photos-placeholder").html(svr.photos.template(result));
 			//hack the following titleblock fields directly... 
-			$("#svr-author").text(result.svrs[0].author);
-			$("#svr-title").text(result.svrs[0].title);
+			//$("#svr-author").text(result.svrs[0].author);
+			//$("#svr-title").text(result.svrs[0].title);
 		},
 		type:"POST",
 		url:"/uploads"
@@ -50,30 +67,6 @@ svr.refresh=function(result, delta){
 svr.ed=new casbah.Editor();
 // highligher
 svr.hi=new casbah.Highlighter("highlite");
-
-/**
-////////////////////////
-// TYPICAL
-svr.xissues={};
-svr.xissues.insert=function(el){};
-svr.xissues.menu=$("#svr-xissues-menu").menu().css("position","absolute", "width", "200px").hide();
-svr.xissues.onclick=function(el){
-	svr.ed.text(el, function(){
-		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
-		svr.ed.hide();
-	});
-};
-svr.xissues.ondragstart=function(el, ev){
-	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
-	//note "Text" argument as required by iexplorer...
-	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
-};
-svr.xissues.remove=function(el){};
-svr.xissues.template=Handlebars.compile($("#svr-xissues-template").html());
-svr.xissues.update=function(row, rowid){
-	console.log("xissues update ROWID:\n", rowid, "ROW:\n",row)
-};
-**/
 
 ///////////////////////
 // Site visit report
@@ -156,52 +149,6 @@ svr.comments.update=function(row, rowid){
 };
 
 
-////////////////////////
-// Issues
-svr.issues={};
-svr.issues.insert=function(el){};
-svr.issues.onclick=function(el){
-	svr.ed.text(el, function(){
-		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
-		svr.ed.hide();
-	});
-};
-svr.issues.ondragstart=function(el, ev){
-	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
-	//note "Text" argument as required by iexplorer...
-	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
-};
-
-svr.issues.remove=function(el){};
-svr.issues.template=Handlebars.compile($("#svr-issues-template").html());
-svr.issues.update=function(row, rowid){
-	console.log("issues update ROWID:\n", rowid, "ROW:\n",row)
-};
-
-
-////////////////////
-// Generals
-svr.generals={};
-svr.generals.insert=function(el){};
-svr.generals.menu=$("#svr-generals-menu").menu().css("position","absolute", "width", "200px").hide();
-svr.generals.onclick=function(el){
-	svr.ed.text(el, function(){
-		svr.issues.update(svr.ed.row(), svr.ed.rowid(), true); 
-		svr.ed.hide();
-	});
-};
-svr.generals.ondragstart=function(el, ev){
-	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
-	//note "Text" argument as required by iexplorer...
-	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
-};
-svr.generals.remove=function(el){};
-svr.generals.template=Handlebars.compile($("#svr-generals-template").html());
-svr.generals.update=function(row, rowid){
-	console.log("generals update ROWID:\n", rowid, "ROW:\n",row);
-};
-
-
 /////////////////
 // PHOTOS
 svr.photos={}
@@ -235,31 +182,6 @@ svr.titleblock.refresh=function(){
 svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html());
 
 
-////////////////////////
-// issuesx
-svr.issuesx={};
-svr.issuesx.insert=function(el){};
-svr.issuesx.menu=$("#svr-issuesx-menu").menu().css("position","absolute", "width", "200px").hide();
-svr.issuesx.onclick=function(el){
-	svr.ed.text(el, function(){
-		svr.issuesx.update(svr.ed.row(), svr.ed.rowid(), true); 
-		svr.ed.hide();
-	});
-};
-svr.issuesx.ondragstart=function(el, ev){
-	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
-	//note "Text" argument as required by iexplorer...
-	//ev.dataTransfer.setData("Text", "comment_id:"+$(el).attr("index"));
-};
-svr.issuesx.remove=function(el){};
-svr.issuesx.template=Handlebars.compile($("#svr-issuesx-template").html());
-svr.issuesx.update=function(row, rowid){
-	console.log("issuesx update ROWID:\n", rowid, "ROW:\n",row)
-};
-
-
-
-
 ///////////////////////////////////////
 // Render page header and titleblock 
 $.get("views/header.html", function(htm){
@@ -286,14 +208,10 @@ svr.refresh();
 	<p class="row row_" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
 	</p>
 	<br><br>
-	<div id="svr-generals-placeholder" class="marz"></div>
 	<div id="svr-comments-placeholder" class="marz"></div>
-	<div id="svr-issuesx-placeholder" class="marz"></div>
-	<div id="svr-issues-placeholder" class="marz"></div>
 	<div id="svr-photos-placeholder" class="marz"></div>
 	<br><br>
 </div>
-
 
 
 <!-- TEMPLATES -->
@@ -339,121 +257,37 @@ svr.refresh();
 
 <template id='svr-comments-template' type="text/x-handlebars-template">
 
+	{{#each rows as |row rowindex|}}
+	{{#if row.section_heading}}
 	<div class="row marz" 
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
 		<h3 class="col-xs-1 marz" >2.0</h3>
-		<h3 class="col-xs-10 border-left marz">Comments and Observatons</h3>
+		<h3 class="col-xs-10 border-left marz">{{row.txt}}</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
-	</div>
-
-
-	{{#each svrs.[0].comments as |comment commentIndex|}}
+	</div>	
+	{{/if}}
+	{{#if row.section_item}}	
 	<div class="row marz"
-		index="{{commentIndex}}"
+		index="{{row.index}}"
 		draggable="true"
 		ondragstart="svr.comments.ondragstart(this, event)"
 		ondragover="event.preventDefault()"
 		ondrop="svr.comments.ondrop(this, event)"
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
-	<p 	class="col-xs-1 marz">2.{{plusOne commentIndex}}</p>
+	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.index}}</p>
 	<p 	field="comment"
-		index="{{commentIndex}}"
+		index="{{row.index}}"
 		onclick="svr.comments.onclick(this)"
-		class="col-xs-10 border-left marz">{{comment}}</p>	
+		class="col-xs-10 border-left marz">{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
+	{{/if}}
 	{{/each}}
 	
 </template>
 
-<template id='svr-generals-template' type="text/x-handlebars-template">
-	<div class="row marz"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.general.menu, event)">
-		<h3 class="col-xs-1 marz">1.0</h3>
-		<h3 class="col-xs-10 border-left marz">General</h3>
-		<h3 class="col-xs-1 marz">&nbsp;</h3>
-	</div>
-
-	{{#each svrs.[0].generals as |general generalsIndex|}}
-	<div class="row marz"
-		index="{{generalIndex}}"
-		draggable="true"
-		ondragstart="svr.generals.ondragstart(this, event)"
-		ondragover="event.preventDefault()"
-		ondrop="svr.generals.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.generals.menu, event)">
-	<p 	class="col-xs-1 marz">2.{{plusOne generalsIndex}}</p>
-	<p 	field="general"
-		index="{{generalsIndex}}"
-		onclick="svr.generals.onclick(this)"
-		class="col-xs-10 border-left marz">{{general}}</p>	
-	<p 	class="col-xs-1 marz">&nbsp;</p>	
-	</div>
-	{{/each}}	
-</template>
-
-<template id='svr-issues-template' type="text/x-handlebars-template">
-
-	<div class="row marz"
-		oncontextmenu="casbah.showMenu(svr.issues.menu, event)"
-		onmouseenter="svr.hi.light(this)">
-		<h3 class="col-xs-1 marz">4.0</h3>
-		<h3 class="col-xs-10 border-left marz">Open Issues</h3>
-		<h3 class="col-xs-1 marz">Ref</h3>
-	</div>
-
-
-	{{#each svrs.[0].issues as |issue issueIndex|}}
-	<div class="row marz"
-		index="{{isseusIndex}}"
-		draggable="true"
-		ondragstart="svr.issues.ondragstart(this, event)"
-		ondragover="event.preventDefault()"
-		ondrop="svr.issues.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.issues.menu, event)">
-	<p 	class="col-xs-1 marz">4.{{plusOne issueIndex}}</p>
-	<p 	field="issues"
-		index="{{issueIndex}}"
-		onclick="svr.issues.onclick(this)"
-		class="col-xs-10 border-left marz">{{issue}}</p>	
-	<p 	class="col-xs-1 marz">&nbsp;</p>	
-	</div>
-	{{/each}}	
-</template>
-
-<template id='svr-issuesx-template' type="text/x-handlebars-template">
-	<div class="row marz"
-		oncontextmenu="casbah.showMenu(svr.issuesx.menu, event)"
-		onmouseenter="svr.hi.light(this)">
-		<h3 class="col-xs-1 marz">3.0</h3>
-		<h3 class="col-xs-10 border-left marz">Resolved Issues</h3>
-		<h3 class="col-xs-1 marz">Ref</h3>
-	</div>
-
-
-	{{#each svrs.[0].issuesx as |issuex xIndex|}}
-	<div class="row marz"
-		index="{{xIndex}}"
-		draggable="true"
-		ondragstart="svr.issuesx.ondragstart(this, event)"
-		ondragover="event.preventDefault()"
-		ondrop="svr.issuesx.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.issuesx.menu, event)">
-	<p 	class="col-xs-1 marz">3.{{plusOne xIndex}}</p>
-	<p 	field="issuesx"
-		index="{{xIndex}}"
-		onclick="svr.issuesx.onclick(this)"
-		class="col-xs-10 border-left marz">{{issuex}}</p>	
-	<p 	class="col-xs-1 marz">&nbsp;</p>	
-	</div>
-	{{/each}}	
-</template>
 
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
@@ -516,29 +350,4 @@ svr.refresh();
 	<p onclick="svr.comments.menu.hide()">Exit</p>
 	<p onclick="svr.refresh();svr.comments.menu.hide()">Refresh</p>
 </div>
-
-<div id="svr-issues-menu" onmouseleave="svr.issues.menu.hide()" style="display:none; z-index:10000">
-	<p onclick="svr.issues.insert(true)">Insert</p>
-	<p onclick="svr.issues.remove(svr.hi.rowid())">Delete</p>
-	<p onclick="svr.issues.menu.hide()">Exit</p>
-</div>
-
-<div id="svr-generals-menu" onmouseleave="svr.generals.menu.hide()" style="display:none; z-index:10000">
-	<p onclick="svr.generals.insert(true)">Insert</p>
-	<p onclick="svr.generals.remove(svr.hi.rowid())">Delete</p>
-	<p onclick="svr.generals.menu.hide()">Exit</p>
-</div>
-
-<div id="svr-photos-menu" onmouseleave="svr.photos.menu.hide()" style="display:none; z-index:10000">
-	<p onclick="svr.issues.insert(true)">Insert</p>
-	<p onclick="svr.issues.remove(svr.hi.rowid())">Delete</p>
-	<p onclick="svr.issues.menu.hide()">Exit</p>
-</div>
-
-<div id="svr-issuesx-menu" onmouseleave="svr.issuesx.menu.hide()" style="display:none; z-index:10000">
-	<p onclick="svr.issuesx.insert(true)">Insert</p>
-	<p onclick="svr.issuesx.remove(svr.hi.rowid())">Delete</p>
-	<p onclick="svr.issuesx.menu.hide()">Exit</p>
-</div>
-
 
