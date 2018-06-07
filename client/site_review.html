@@ -1,8 +1,8 @@
 <!doctype html>
 <style>
 .picBox{ max-height:400px; max-width:100%;}
-caption{ font-size:11pt; font-family:'segoe UI'; }
-figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
+caption{ font-size:10pt; font-family:'segoe UI'; }
+figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 
 .border-not {border-color:black; border-style:solid; border-width:1px;}
 .photo-frame-not{ height:auto; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
@@ -12,8 +12,8 @@ figure{ font-size:11pt; font-family:'segoe UI'; font-weight:bold; }
 .photo-image{ max-height:300px; padding-left:5px; float:left;}
 .break-line {margins:auto;}
 @media print {
-	.photo-frame {page-break-inside:avoid; !important;}
-	.line-break {page-break-inside:auto; !important;}
+	.row {page-break-inside:avoid; !important;}
+	.control-joint {page-break-inside:auto; !important;}
 }
 
 </style>
@@ -32,7 +32,10 @@ svr.refresh=function(result, delta){
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			console.log("SVR-SELECT:", result);
+			console.log("SVR-SUCCESS:", result);
+						
+			$("#svr-titleblock-right-placeholder").html(svr.titleblock.right({svr:result.svrs[0]}));
+			
 			//result={svrs[{}],}
 			//reformat result to suit template
 			var i, r=result.svrs[0];
@@ -201,7 +204,7 @@ svr.titleblock.refresh=function(){
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			$("#svr-titleblock-placeholder").html(svr.titleblock.template(result));
+			$("#svr-titleblock-left-placeholder").html(svr.titleblock.left(result));
 			//this field isn't in result so just set it with jquery...
 			//console.log("SVR_id", localStorage.getItem("svr_id"));
 			$("#svr-id").text(localStorage.getItem("svr_id"));
@@ -210,7 +213,9 @@ svr.titleblock.refresh=function(){
 		url:"/uploads"
 	});
 };
-svr.titleblock.template=Handlebars.compile($("#svr-titleblock-template").html());
+
+svr.titleblock.left=Handlebars.compile($("#svr-titleblock-left").html());
+svr.titleblock.right=Handlebars.compile($("#svr-titleblock-right").html());
 
 
 ///////////////////////////////////////
@@ -235,7 +240,11 @@ svr.refresh();
 
 <div class="container">
 	<div id="svr-header">placeholder</div>
-	<div id="svr-titleblock-placeholder">placeholder</div>
+	<div class="row">
+	<div id="svr-titleblock-left-placeholder" class="col-xs-6">titleblock - project info placeholder</div>
+	<div id="svr-titleblock-right-placeholder" class="col-xs-6">titleblock - report info placeholder</div>
+	</div>
+	
 	<p class="row row_" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
 	</p>
 	<br><br>
@@ -246,43 +255,62 @@ svr.refresh();
 
 
 <!-- TEMPLATES -->
-<template id='svr-titleblock-template' type="text/x-handlebars-template">
+<template id='svr-titleblock-left' type="text/x-handlebars-template">
 {{#each projects}}
 <div class="row row__">
-	<strong class="col-xs-2">Project ID:</strong>
-	<p class="col-xs-4">{{project_id}}</p>
-	<strong class="col-xs-2">SVR ID:</strong>
-	<p id="svr-id" class="col-xs-4">SVR-XXX</p>
+	<strong class="col-xs-4">Project#:</strong>
+	<p class="col-xs-8">{{project_id}}</p>
 </div>
 
 <div class="row row_">
-	<strong class="col-xs-2">Project Name:</strong>
-	<p class="col-xs-4">{{project_name}}</p>
-	<strong class="col-xs-2">SVR Title:</strong>
-	<p id="svr-title" class="col-xs-4">{{title}}</p>
+	<strong class="col-xs-4">Project Name:</strong>
+	<p class="col-xs-8">{{project_name}}</p>
 </div>
 
 <div class="row row_">
-	<strong class="col-xs-2">Project Address:</strong>
-	<p class="col-xs-4">{{address}}</p>
-	<strong id="svr-date" class="col-xs-2">Date:</strong>
-	<p class="col-xs-4">{{date}}</p>
+	<strong class="col-xs-4">Project Address:</strong>
+	<p class="col-xs-8">{{address}}</p>
 </div>
 
 <div class="row row_">
-	<strong class="col-xs-2">Contractor:</strong>
-	<p class="col-xs-4">{{contractor}}</p>
-	<strong  class="col-xs-2">Date Issued:</strong>
-	<p id="svr-date-issued" class="col-xs-4">{{date_issued}}</p>
+	<strong class="col-xs-4">Contractor:</strong>
+	<p class="col-xs-8">{{contractor}}</p>
 </div>
 
 <div class="row row_">
-	<strong class="col-xs-2">Permit No:</strong>
-	<p id="svr-permit" class="col-xs-4">{{permit}}</p>
-	<strong  class="col-xs-2">By:</strong>
-	<p id="svr-author" class="col-xs-4">{{author}}</p>
+	<strong class="col-xs-4">Permit No:</strong>
+	<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 </div>
 {{/each}}
+</template>
+
+<template id='svr-titleblock-right' type="text/x-handlebars-template">
+{{#with svr}}
+<div class="row row__">
+	<strong class="col-xs-4">Report#:</strong>
+	<p id="svr-id" class="col-xs-8">{{svr_id}}</p>
+</div>
+
+<div class="row row_">
+	<strong class="col-xs-4">SVR Title:</strong>
+	<p id="svr-title" class="col-xs-8">{{title}}</p>
+</div>
+
+<div class="row row_">
+	<strong id="svr-date" class="col-xs-4">Date:</strong>
+	<p class="col-xs-8">{{date}}</p>
+</div>
+
+<div class="row row_">
+	<strong  class="col-xs-4">Date Issued:</strong>
+	<p id="svr-date-issued" class="col-xs-8">{{date_issued}}</p>
+</div>
+
+<div class="row row_">
+	<strong  class="col-xs-4">By:</strong>
+	<p id="svr-author" class="col-xs-8">{{author}}</p>
+</div>
+{{/with}}
 </template>
 
 
@@ -346,6 +374,7 @@ svr.refresh();
 	{{/if}}
 	{{/each}}	
 	</div>
+	<div class="control-joint"></div>
 	{{/each}}
 
 	
