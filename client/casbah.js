@@ -401,7 +401,8 @@ casbah.view=function(htmlfile){
 		$("body").append($("<div></div>").attr("id",id));		
 	}
 	$("#"+id).load("client/"+htmlfile);
-
+	
+	/**
 	
 	var vid=htmlfile.substring(0, htmlfile.indexOf("."));
 	//Check if htmlfile already loaded, if not then create container and load
@@ -414,6 +415,8 @@ casbah.view=function(htmlfile){
 	//hide all views then, reveal the desired one
 	$(".htmlviews").hide(); 
 	$("#"+vid).show(); 
+	**/
+	
 };
 
 

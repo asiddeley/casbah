@@ -108,7 +108,6 @@ $.get("client/header.html", function(htm){
 svrl.titleblock=Handlebars.compile($("#svrl-titleblock-template").html());
 svrl.content=Handlebars.compile($("#svrl-content-template").html());
 
-
 ///////////////
 // Render page
 svrl.refresh_titleblock();
@@ -156,42 +155,50 @@ $(".tooltip").tooltip();
 </template>
 
 <template id="svrl-content-template" type="text/x-handlebars-template">
-	<div class="row marz row_" 
+
+	{{#each svrs}}
+	<div class="row marz row row-head zebra" 
 		title="click to add a new report..."
 		onmouseenter="svrl.hi.light(this);" 
 		onmouseleave="svrl.hi.dark(this);"
 		onclick="svrl.insert(this)">
-	<p class="col-xs-1 row-head marz">row#</p>	
-	<p class="col-xs-2 border-left row-head marz">SVR No. / by</p>
-	<p class="col-xs-3 row-head marz">title / comment ids</p>
-	<p class="col-xs-3 row-head marz">review date / issue ids</p>
-	<p class="col-xs-3 row-head marz">publish date / photo ids</p>
+	<p class="col-xs-1 row-head marz">{{plusOne @index}}</p>	
+	<p class="col-xs-2 border-left row-head marz">SVR No.</p>
+	<p class="col-xs-3 row-head marz">title</p>
+	<p class="col-xs-3 row-head marz">review date</p>
+	<p class="col-xs-3 row-head marz">publish date</p>
 	</div>
 
-	{{#each svrs}}
-	
 	<div class="row marz"
 		onmouseenter="svrl.hi.light(this);"
 		onmouseleave="svrl.hi.dark(this);">		
 	<p 	class="col-xs-1 marz "
-		svr_id="{{this.svr_id}}">{{plusOne @index}}</p>	
+		svr_id="{{this.svr_id}}"></p>	
 	<div class="border-left col-xs-11 marz" >
-	<p 	class="col-xs-2 marz"
-		title="click to open..."
-		onclick="svrl.goto(this)">{{this.svr_id}}</p>		
-	<p 	class="col-xs-3 marz"
-		title="click to edit..."
-		field="title"
-		onclick="svrl.edit(this);">{{this.title}}</p>
-	<p 	class="col-xs-3 marz"
-		title="click to edit..."
-		onclick="svrl.edit(this);">{{this.date}}</p>
-	<p 	class="col-xs-3 marz"
-		title="click to edit..."
-		onclick="svrl.edit(this);">{{this.date_issued}}</p>
+	
+	<p 	class="col-xs-2 marz" title="click to open..." onclick="svrl.goto(this)"
+	>{{this.svr_id}}</p>		
+	<p 	class="col-xs-3 marz" title="click to edit..." field="title" onclick="svrl.edit(this);"
+	>{{this.title}}</p>
+	<p 	class="col-xs-3 marz" title="click to edit..." 	onclick="svrl.edit(this);"
+	>{{this.date}}</p>
+	<p 	class="col-xs-3 marz" title="click to edit..." onclick="svrl.edit(this);"
+	>{{this.date_issued}}</p>
 	</div>	
 	</div>
 
+	<div class="row marz row-head" 
+		title="click to add a new report..."
+		onmouseenter="svrl.hi.light(this);" 
+		onmouseleave="svrl.hi.dark(this);"
+		onclick="svrl.insert(this)">
+	<p class="col-xs-1 row-head marz"></p>	
+	<p class="col-xs-2 border-left row-head marz">author</p>
+	<p class="col-xs-3 row-head marz">comments...</p>
+	<p class="col-xs-3 row-head marz">issues...</p>
+	<p class="col-xs-3 row-head marz">photos...</p>
+	</div>	
+	
 	<div class="row marz zebra-stripe"
 		onmouseenter="svrl.hi.light(this);"
 		onmouseleave="svrl.hi.dark(this);"
@@ -199,6 +206,7 @@ $(".tooltip").tooltip();
 
 	<p class="col-xs-1 marz "></p>
 	<div class="col-xs-11 border-left marz">
+	
 	<p 	class="col-xs-2 marz "
 		title="click to edit..."
 		field="by"

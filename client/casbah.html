@@ -82,10 +82,10 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Action<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li onclick="casbah.view('project_log.html')"><a href="#">Projects</a></li>
+			<li onclick="casbah.view('project_log.html')"><a href="#">Project Log</a></li>
 			<li class="divider"><li>
-			<li class="disabled"><a href="#">Action items</a></li>
-			<li class="disabled"><a href="#">Project status</a></li>
+			<li class="disabled"><a href="#">Action List</a></li>
+			<li class="disabled"><a href="#">Project Status</a></li>
 			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
 			<li class="disabled"><a href="#">Outstanding Shops</a></li>
 		</ul>
@@ -95,7 +95,7 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Billing<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Allowance Authorization Letters</a></li>
+			<li class="disabled"><a href="#">Allowance Authorization Certificate</a></li>
 			<li class="disabled"><a href="#">Billing (GC progress draws)</a></li>
 			<li class="disabled"><a href="#">Certificates of Payment</a></li>
 			<li class="disabled"><a href="#">Progress Summary</a></li>
@@ -106,13 +106,14 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Contract<span class="caret"></span></a>
 		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Contract Doc. List</a></li>
+			<li class="divider"><li>
 			<li class="disabled"><a href="#">Contract</a></li>
 			<li class="disabled"><a href="#">Addendums</a></li>
-			<li class="disabled"><a href="#">Bidders Q&amp;A</a></li>
+			<li class="disabled"><a href="#">Bidder's Q&amp;A</a></li>
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">Drawings</a></li>
 			<li class="disabled"><a href="#">Specifications</a></li>
-			<li class="disabled"><a href="#">Schedule</a></li>	
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">Change Log</a></li>
 			<li class="disabled"><a href="#">Change Contemplated</a></li>
@@ -125,11 +126,8 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Gallery<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li onclick="casbah.view('collection.html')"><a href="#">Photo Collection</a></li>
-			<li onclick="casbah.view('collection_log.html')"><a href="#">Photo Collection Log</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Sketch</a></li>
-			<li class="disabled"><a href="#">Sketch Log</a></li>
+			<li onclick="casbah.view('collection.html')"><a href="#">Photo Collections</a></li>
+			<li class="disabled"><a href="#">Sketchs</a></li>
 		</ul>
 		</li>
 
@@ -137,10 +135,11 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Letters<span class="caret"></span></a>
 		<ul class="dropdown-menu">
+			<li class="disabled"><a href="#">Letters</a></li>
+			<li class="divider"><li>
 			<li class="disabled"><a href="#">Conformance Letters</a></li>
-			<li class="divider"><li>
+			<li class="disabled" id="rfilog-btn"><a href="#">RFIs &amp; Responses</a></li>
 			<li class="disabled"><a href="#">Site Memos</a></li>
-			<li class="divider"><li>
 			<li class="disabled"><a href="#">Supplemental Instructions</a></li>
 		</ul>
 		</li>
@@ -149,7 +148,7 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Meetings<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Action Items</a></li>
+			<li class="disabled"><a href="#">Action log</a></li>
 			<li class="disabled"><a href="#">Conference Reports</a></li>
 		</ul>		
 		</li>
@@ -158,17 +157,15 @@ $(function() {
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Reports<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<!--li onclick="casbah.view('site_review.html')"><a href="#">Site Visit Review</a></li-->
-			<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Reviews</a></li>
-			<!--li class="divider"><li-->
-			<!--li onclick="casbah.view('deficiency_sheets.html')"><a href="#">Deficiency Sheets</a></li-->
-			<li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Room Deficiencies</a></li>
-			<!--li class="divider"><li-->			
-			<li class="disabled" id="rpllog-btn"><a href="#">Deficiency Reports</a></li>
-			<!--li class="disabled" id="rpllog-btn"><a href="#">Deficiency Log</a></li-->
+			<li class="disabled" id="rpllog-btn"><a href="#"
+			>Deficiency Reports</a></li>
+			<li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#"
+			>Room Deficiencies</a></li>
+			<li onclick="casbah.view('site_review_log.html')"><a href="#"
+			>Site Visit Reviews</a></li>
 			<li class="divider"><li>
-			<!--li class="disabled" id="rfi-btn"><a href="#">RFI</a></li-->	
-			<li class="disabled" id="rfilog-btn"><a href="#">RFI Log</a></li>
+			<li onclickNotYet="casbah.view('report_log.html')"><a href="#"
+			>Report Log</a></li>
 		</ul>	
 		</li>
 		
