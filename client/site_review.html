@@ -21,6 +21,7 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 
 // site visit report object - svr
 var svr={};
+svr.data={};
 svr.refresh=function(result, delta){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -33,91 +34,72 @@ svr.refresh=function(result, delta){
 		error: function(err){ console.log(err.message);},
 		success: function(result){
 			console.log("SVR-SUCCESS");
-			
-			var i, index=0; r=result.svrs[0];
-			
-			//result={svrs[{}],}
+			//r={generals:[...], comments:["comment 1", "comment 2",...],...}
+			var r=result.svrs[0];
+			//keep local copy for editing
+			svr.data.generals=r.generals;
+			svr.data.comments=r.comments;
+			svr.data.issues=r.issues;
+			svr.data.issuesx=r.issues_closed;	
 			//reformat result to suit comments template
-			var rows=[];
-			rows.push({section_heading:true, txt:"General Notes", section_num:1, section_index:0});
-			index+=1;
-			for (i in r.generals){
-				rows.push({
-					index:index, txt:r.generals[i],
-					section_item:true, section:"generals", section_num:1, section_index:Number(i)
-				}); 
-				index+=1;
-			}
-			rows.push({
-				section_heading:true, txt:"Comments & Observations",
-				section_num:2, section_index:0
-			});
-			index+=1;
-			for (i in r.comments){
-				rows.push({
-					index:index, txt:r.comments[i], 
-					section_item:true, section:"comments", section_num:2, section_index:Number(i)
-				});
-				index+=1;
-			}
-			rows.push({section_heading:true, txt:"Closed Issues", section_num:3, section_index:0});
-			index+=1;
-			for (i in r.issuesx){
-				rows.push({
-					index:i, txt:r.issuesx[i], 
-					section_item:true,  section:"issuesx", section_num:3, section_index:Number(i)
-				});
-				index+=1;
-			}
-			rows.push({section_heading:true, txt:"Open Issues", section_num:4, section_index:0});
-			index+=1;
-			for (i in r.issues){
-				rows.push({
-					index:i, txt:r.issues[i],
-					section_item:true,  section:"issues", section_num:4, section_index:Number(i)
-				});
-				index+=1;
-			}
-			
-			//keep copy of rows for editing
-			svr.comments.rows=rows;
+			svr.data.rows=[].concat(
+				svr.reformat_notes(r.generals, "generals", 1, "General Notes"),
+				svr.reformat_notes(r.comments, "comments", 2, "Comments & Observations"),
+				svr.reformat_notes(r.issuesx, "issuesx", 3, "Closed Issues"),
+				svr.reformat_notes(r.issues, "issues", 4, "New and Ongoing Issues")
+			);
+			//console.log("SVR.data.rows", svr.data.rows);
 			
 			//reformat result for photos template...
-			rows=[];		
-			r=result.svrs[0].xdata; // {img01:{caption:"", date:"", format:"", path:"..."}, ...}
+			var rows=[];		
+			rx=result.svrs[0].xdata; // {img01:{caption:"", date:"", format:"", path:"..."}, ...}
 			var done=false; //done flag 
 			var cc=0; //column counter
 			var row=[]; //either an image frame or caption  
-			for (i in r){
-				if(r[i].format=="landscape") {
+			for (i in rx){
+				if(rx[i].format=="landscape") {
 					if (cc > 6) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})
-					row.push({img:r[i].path, col:"col-xs-5"});
+					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})
+					row.push({img:rx[i].path, col:"col-xs-5"});
 					cc+=6;
-				} else if (r[i].format=="portrait") {
+				} else if (rx[i].format=="portrait") {
 					if (cc > 8) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})					
-					row.push({img:r[i].path, col:"col-xs-3"});
+					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})					
+					row.push({img:rx[i].path, col:"col-xs-3"});
 					cc+=4;
-				} else if (r[i].format=="wide") {
+				} else if (rx[i].format=="wide") {
 					if (cc > 1) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:r[i].caption, col:"col-xs-1"})
-					row.push({img:r[i].path, col:"col-xs-11"});
+					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})
+					row.push({img:rx[i].path, col:"col-xs-11"});
 					cc+=12;				
 				}
 			};			
 			rows.push(row); //last push
 			//keep track of rows
-			svr.photos.rows=rows;
+			svr.data.photorows=rows;
 
 			//render
 			$("#svr-titleblock-right-placeholder").html(svr.titleblock.template_right({svr:r}));
-			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.comments.rows}));
-			$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.photos.rows}));
+			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));
+			$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
+			
 		},
 		type:"POST",
 		url:"/uploads"
 	});
+};
+
+svr.reformat_notes=function(section, section_name, section_num, section_title){
+	//console.log("reformat_notes:", section);
+	var rows=[{section_heading:true, section_name:section_name, txt:section_title, section_num:section_num, section_index:0}];
+	for (i in section){rows.push({
+		txt:section[i],
+		section_item:true,
+		section_name:section_name,
+		section_num:section_num,
+		section_index:Number(i)
+	});}
+	return rows;
 };
 
 // text editor
@@ -136,10 +118,10 @@ svr.comments.onclick=function(el){
 };
 
 svr.comments.ondragstart=function(el, ev){
-	//ev.dataTransfer.setData("text/plain", "comment_id:"+$(el).attr("index"));
-	//note that "Text" argument is required by iexplorer...
+	//note that "Text" argument is required by iexplorer, "text/plain" won't work...
 	ev.dataTransfer.setData("Text", 
-		"svr_index:"+$(el).attr("index") + " svr_section_num:"+$(el).attr("section_num")
+		"section_index:"+$(el).attr("section_index") + " " +
+		"section_name:"+$(el).attr("section_name")
 	);
 	
 };
@@ -149,49 +131,56 @@ svr.comments.ondrop=function(el, ev){
 	//var txt=ev.dataTransfer.getData("text/plain");
 	//note that "Text" argument is required by iexplorer...
 	var tx=ev.dataTransfer.getData("Text");
-	var a1=tx.indexOf("svr_index:");
-	var a2=tx.indexOf("svr_section_num:");
+	var a1=tx.indexOf("section_index:");
+	var a2=tx.indexOf("section_name:");
 	var sc=[1,1,1,1]; //section counters for refactoring
-	console.log("a1, a2:",a1, a2);
 	if ( a1 > -1 && a2 > -1){
 		//from row index
-		var fi=tx.slice(a1+"svr_index:".length).split(/\s+/)[0];
+		var fsi=tx.slice(a1+"section_index:".length).split(/\s+/)[0];
+		var fsn=tx.slice(a2+"section_name:".length).split(/\s+/)[0];
 		//to row index
-		var ti=$(el).attr("index");
-		if (fi!=ti){
-			//proceed only if from and to indexes are different
-			//change section_num to that of section where dropped
-			svr.comments.rows[fi].section_num=svr.comments.rows[ti].section_num;
-			//move it
-			casbah.array_nth_to_nth(svr.comments.rows, fi, ti);
-			//refactor indexes
-			for (var i in svr.comments.rows){
-				svr.comments.rows[i].index=i;
-				svr.comments.rows[i].section_index=sc[svr.comments.rows[i].section_num];
-				sc[svr.comments.rows[i].section_num]+=1;
-			}		
-			//render
-			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.comments.rows}));
-			
+		var tsi=$(el).attr("section_index");
+		var tsn=$(el).attr("section_name");
+		console.log("drag from:", fsi, fsn, " drop to:", tsi, tsn);
+		if (fsn == tsn && fsi != tsi){
+			//same section, different indexes 
+			casbah.array_nth_to_nth(svr.data[tsn], fsi, tsi);
+			//TO DO...
 			//svr.update();
 			//svr.refresh();
+			
+			//FOR NOW... reformat & render
+			svr.data.rows=[].concat(
+				svr.reformat_notes(svr.data.generals, "generals", 1, "General Notes"),
+				svr.reformat_notes(svr.data.comments, "comments", 2, "Comments & Observations"),
+				svr.reformat_notes(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
+				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
+			);
+			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));			
+
+		} else if (fsn != tsn) {
+			console.log("Jump sections...", typeof svr.data[tsn]);
+			//insert in target section at index tsi, item from source section, index fsi 
+			svr.data[tsn].splice(tsi, 0, svr.data[fsn][fsi]);
+			//delete
+			svr.data[fsn].splice(fsi, 1);
+			//console.log("after deletion:", svr.data[fsn]);
+			//TO DO...
+			//svr.update();
+			//svr.refresh();
+			
+			//FOR NOW... reformat & render
+			svr.data.rows=[].concat(
+				svr.reformat_notes(svr.data.generals, "generals", 1, "General Notes"),
+				svr.reformat_notes(svr.data.comments, "comments", 2, "Comments & Observations"),
+				svr.reformat_notes(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
+				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
+			);
+			
+			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));			
+			
 		}
-	} else if (tx.length>0){
-		/**
-		//console.log("Text:", txt, " Type:", (typeof txt), " length:", txt.length);
-		svr.comments.tv.add( function(r){
-			console.log("new rowid", r.rowid, "Ti:", ti); 
-			//update comment_id list in 
-			//TO DO Create array function like this but where ti arg is the index in list not value to match.
-			//this would allow droping payload next to target element, not at end of list
-			casbah.array_insert_after($PP.$comment_ids, r.rowid, ti);
-			//update the report table (using parameters), then don't refresh
-			svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
-			//added row has default value so change to match current row by
-			//updating the comments table, then refresh (3rd arg is true)
-			svr.comments.tv.save({"comment":txt}, r.rowid, true);
-		});
-		***/
+
 	}	
 
 };
@@ -298,7 +287,7 @@ svr.refresh();
 <template id='svr-titleblock-left' type="text/x-handlebars-template">
 {{#each projects}}
 <div class="row row__">
-	<strong class="col-xs-4">Project No.:</strong>
+	<strong class="col-xs-4">Project Id:</strong>
 	<p class="col-xs-8">{{project_id}}</p>
 </div>
 
@@ -318,7 +307,7 @@ svr.refresh();
 </div>
 
 <div class="row row_">
-	<strong class="col-xs-4">Permit No.:</strong>
+	<strong class="col-xs-4">Permit No:</strong>
 	<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 </div>
 {{/each}}
@@ -327,7 +316,7 @@ svr.refresh();
 <template id='svr-titleblock-right' type="text/x-handlebars-template">
 {{#with svr}}
 <div class="row row__">
-	<strong class="col-xs-4">Report No.:</strong>
+	<strong class="col-xs-4">Report Id:</strong>
 	<p id="svr-id" class="col-xs-8">{{svr_id}}</p>
 </div>
 
@@ -359,9 +348,10 @@ svr.refresh();
 	{{#each rows as |row rowindex|}}
 	{{#if row.section_heading}}
 	<div class="row marz" 
-		index="{{row.index}}"
+		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
+		ondrop="svr.comments.ondrop(this, event)"
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
 		<h3 class="col-xs-1 marz" >{{row.section_num}}</h3>
@@ -371,7 +361,7 @@ svr.refresh();
 	{{/if}}
 	{{#if row.section_item}}	
 	<div class="row marz"
-		index="{{row.index}}"
+		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
 		draggable="true"
@@ -381,8 +371,9 @@ svr.refresh();
 		onmouseenter="svr.hi.light(this)"
 		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
 	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.section_index}}</p>
-	<p 	index="{{row.index}}"
-		section="{{row.section}}"
+	<p 	section_name="{{row.section_name}}"
+		section_num="{{row.section_num}}"
+		section_index="{{row.section_index}}"
 		onclick="svr.comments.onclick(this)"
 		class="col-xs-10 border-left marz">{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	

@@ -43,7 +43,7 @@ const frameType=function(image){
 
 ////////////////////////////////////////////////////
 // rdss - Room Deficiency Sheets LOG
-const rdss_dir="deficiency_sheets"
+const rdss_dir="deficiency sheets"
 const rdss_jsonfile="__rdss.json"
 const rdss_json={
 	project_id:"!req.body.project_id",			
@@ -187,7 +187,7 @@ exports.rds_images=function(req, res){
 
 /////////////////
 // site visit reviews
-const svr_dir="site_reviews"
+const svr_dir="site reviews"
 const svr_jsonfile="__svrData.json"
 const svr_json={
 	project_id:"$project_id",
