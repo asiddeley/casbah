@@ -400,6 +400,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "RDSS-UPLOAD":reports.rdss_upload(req, res); break;
 	
 	// Site Review Reports
+	case "SVR-CHANGE":reports.svr_change(req, res); break;	
 	case "SVR-SELECT":reports.svr_select(req, res); break;	
 
 	// Site Review Reports Log

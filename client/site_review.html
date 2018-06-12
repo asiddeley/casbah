@@ -80,7 +80,7 @@ svr.refresh=function(result, delta){
 
 			//render
 			$("#svr-titleblock-right-placeholder").html(svr.titleblock.template_right({svr:r}));
-			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));
+			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));
 			$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
 			
 		},
@@ -109,15 +109,22 @@ svr.hi=new casbah.Highlighter("highlite");
 
 ///////////////////////
 // Site visit report
-svr.comments={};
-svr.comments.onclick=function(el){
+svr.notes={};
+svr.notes.change=function(field, name){
+
+
+}
+
+svr.notes.onclick=function(el){
 	svr.ed.text(el, function(){
-		svr.comments.update(svr.ed.row(), svr.ed.rowid(), true);
+		var field=svr.ed.attr("section_name"); //eg. 'comments'
+		newval=svr.data[field]; //eg. ['first comment','revised comment 2'...]
+		svr.notes.change(field, newval);
 		svr.ed.hide();
 	});
 };
 
-svr.comments.ondragstart=function(el, ev){
+svr.notes.ondragstart=function(el, ev){
 	//note that "Text" argument is required by iexplorer, "text/plain" won't work...
 	ev.dataTransfer.setData("Text", 
 		"section_index:"+$(el).attr("section_index") + " " +
@@ -126,7 +133,7 @@ svr.comments.ondragstart=function(el, ev){
 	
 };
 
-svr.comments.ondrop=function(el, ev){
+svr.notes.ondrop=function(el, ev){
 	console.log("DROP...");
 	//var txt=ev.dataTransfer.getData("text/plain");
 	//note that "Text" argument is required by iexplorer...
@@ -156,7 +163,7 @@ svr.comments.ondrop=function(el, ev){
 				svr.reformat_notes(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
 				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
 			);
-			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));			
+			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
 
 		} else if (fsn != tsn) {
 			console.log("Jump sections...", typeof svr.data[tsn]);
@@ -177,7 +184,7 @@ svr.comments.ondrop=function(el, ev){
 				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
 			);
 			
-			$("#svr-comments-placeholder").html(svr.comments.template({rows:svr.data.rows}));			
+			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
 			
 		}
 
@@ -185,7 +192,7 @@ svr.comments.ondrop=function(el, ev){
 
 };
 
-svr.comments.insert=function(el){
+svr.notes.insert=function(el){
 	/**
 	svr.comments.tv.add( function(r){
 		//update comment_id list in parameters object
@@ -197,8 +204,13 @@ svr.comments.insert=function(el){
 	});
 	*/
 };
-svr.comments.menu=$("#svr-comments-menu").menu().css("position","absolute", "width", "200px").hide();
-svr.comments.remove=function(el){
+
+///////////////
+// Menu
+// var caller=svr.notes.menu.menu("option","caller");
+svr.notes.menu=$("#svr-notes-menu").menu().css("position","absolute", "width", "200px").hide();
+
+svr.notes.remove=function(el){
 	/**
 	//CTV.remove(hi.rowid()); 
 	//only remove comment rowid from comment list in report, comment remains in comment table
@@ -209,8 +221,8 @@ svr.comments.remove=function(el){
 	svr.comments.tv.refresh();
 	*/
 };
-svr.comments.template=Handlebars.compile($("#svr-comments-template").html());
-svr.comments.update=function(row, rowid){
+svr.notes.template=Handlebars.compile($("#svr-notes-template").html());
+svr.notes.update=function(row, rowid){
 	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
 };
 
@@ -277,7 +289,7 @@ svr.refresh();
 	<p class="row row_" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
 	</p>
 	<br><br>
-	<div id="svr-comments-placeholder" class="marz"></div>
+	<div id="svr-notes-placeholder" class="marz"></div>
 	<div id="svr-photos-placeholder" class="marz"></div>
 	<br><br>
 </div>
@@ -343,7 +355,7 @@ svr.refresh();
 </template>
 
 
-<template id='svr-comments-template' type="text/x-handlebars-template">
+<template id='svr-notes-template' type="text/x-handlebars-template">
 
 	{{#each rows as |row rowindex|}}
 	{{#if row.section_heading}}
@@ -351,9 +363,9 @@ svr.refresh();
 		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
-		ondrop="svr.comments.ondrop(this, event)"
+		ondrop="svr.notes.ondrop(this, event)"
 		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
+		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">
 		<h3 class="col-xs-1 marz" >{{row.section_num}}</h3>
 		<h3 class="col-xs-10 border-left marz">{{row.txt}}</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
@@ -365,16 +377,16 @@ svr.refresh();
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
 		draggable="true"
-		ondragstart="svr.comments.ondragstart(this, event)"
+		ondragstart="svr.notes.ondragstart(this, event)"
 		ondragover="event.preventDefault()"
-		ondrop="svr.comments.ondrop(this, event)"
+		ondrop="svr.notes.ondrop(this, event)"
 		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.comments.menu, event)">
+		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">
 	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.section_index}}</p>
 	<p 	section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
-		onclick="svr.comments.onclick(this)"
+		onclick="svr.notes.onclick(this)"
 		class="col-xs-10 border-left marz">{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
@@ -419,10 +431,10 @@ svr.refresh();
 
 
 <!-- MENUS -->
-<div id="svr-comments-menu" onmouseleave="svr.comments.menu.hide()" class="hide9999">
-	<p onclick="svr.comments.remove()">Delete</p>
-	<p onclick="svr.comments.insert()">Insert</p>
-	<p onclick="svr.comments.menu.hide()">Exit</p>
-	<p onclick="svr.refresh();svr.comments.menu.hide()">Refresh</p>
+<div id="svr-notes-menu" onmouseleave="svr.comments.menu.hide()" class="hide9999">
+	<p onclick="svr.notes.remove()">Delete</p>
+	<p onclick="svr.notes.insert()">Insert</p>
+	<p onclick="svr.notes.menu.hide()">Exit</p>
+	<p onclick="svr.refresh();svr.notes.menu.hide()">Refresh</p>
 </div>
 

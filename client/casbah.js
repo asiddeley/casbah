@@ -218,6 +218,8 @@ casbah.Editor=function (){
 		return rowid;
 	};
 	
+	this.attr=function(name){return that.e$.attr(name);};
+	
 	//INIT
 	//create text area element for editing text
 	this.x$=$("<textarea id='texteditor' style='z-index=999;'></textarea>");

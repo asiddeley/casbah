@@ -275,6 +275,28 @@ exports.svr_select=function(req, res){
 	}
 }
 
+exports.svr_change=function(req, res){
+	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir, req.body.svr_id, svr_jsonfile)
+	var field=req.body.field
+	var val=req.body.val
+	var stat="OK"
+	var json={}
+	console.log("SVR CHANGE:", field, " VALUE TO:",val, " IN:", p)
+	try{
+		json=JSON.parse(fs.readFileSync(p))
+		json[field]=val
+		fs.writeFileSync(p,JSON.stringify(json))
+	}
+	catch(err) {
+		stat=err
+		console.log("SVR_CHANGE Catch:",err)
+	} 
+	finally {
+		var result={data:[json],stat:stat}
+		res.json(result);
+		console.log("SVR_CHANGE finally:", result)
+	}
+}
 
 exports.svrl_insert=function(req, res){
 
