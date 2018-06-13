@@ -34,21 +34,7 @@ svr.refresh=function(result, delta){
 		error: function(err){ console.log(err.message);},
 		success: function(result){
 			console.log("SVR-SUCCESS");
-			//r={generals:[...], comments:["comment 1", "comment 2",...],...}
-			var r=result.svrs[0];
-			//keep local copy for editing
-			svr.data.generals=r.generals;
-			svr.data.comments=r.comments;
-			svr.data.issues=r.issues;
-			svr.data.issuesx=r.issues_closed;	
-			//reformat result to suit comments template
-			svr.data.rows=[].concat(
-				svr.reformat_notes(r.generals, "generals", 1, "General Notes"),
-				svr.reformat_notes(r.comments, "comments", 2, "Comments & Observations"),
-				svr.reformat_notes(r.issuesx, "issuesx", 3, "Closed Issues"),
-				svr.reformat_notes(r.issues, "issues", 4, "New and Ongoing Issues")
-			);
-			//console.log("SVR.data.rows", svr.data.rows);
+			svr.notes.render(result.svrs[0]);
 			
 			//reformat result for photos template...
 			var rows=[];		
@@ -56,7 +42,7 @@ svr.refresh=function(result, delta){
 			var done=false; //done flag 
 			var cc=0; //column counter
 			var row=[]; //either an image frame or caption  
-			for (i in rx){
+			for (var i in rx){
 				if(rx[i].format=="landscape") {
 					if (cc > 6) {rows.push(row); row=[]; cc=0;}
 					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})
@@ -79,8 +65,6 @@ svr.refresh=function(result, delta){
 			svr.data.photorows=rows;
 
 			//render
-			$("#svr-titleblock-right-placeholder").html(svr.titleblock.template_right({svr:r}));
-			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));
 			$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
 			
 		},
@@ -89,18 +73,6 @@ svr.refresh=function(result, delta){
 	});
 };
 
-svr.reformat_notes=function(section, section_name, section_num, section_title){
-	//console.log("reformat_notes:", section);
-	var rows=[{section_heading:true, section_name:section_name, txt:section_title, section_num:section_num, section_index:0}];
-	for (i in section){rows.push({
-		txt:section[i],
-		section_item:true,
-		section_name:section_name,
-		section_num:section_num,
-		section_index:Number(i)
-	});}
-	return rows;
-};
 
 // text editor
 svr.ed=new casbah.Editor();
@@ -110,17 +82,56 @@ svr.hi=new casbah.Highlighter("highlite");
 ///////////////////////
 // Site visit report
 svr.notes={};
-svr.notes.change=function(field, name){
-
-
+svr.notes.change=function(field, valu, callback){
+	//console.log("SVR_ID", localStorage.getItem("svr_id"))
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-CHANGE",
+			project_id:localStorage.getItem("project_id"),
+			svr_id:localStorage.getItem("svr_id"),
+			field:field,
+			valu:valu
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){ if (typeof callback =="function"){callback();}},
+		type:"POST",
+		url:"/uploads"
+	});
 }
+
+svr.notes.insert=function(el){
+	/**
+	svr.comments.tv.add( function(r){
+		//update comment_id list in parameters object
+		casbah.array_insert_after($PP.$comment_ids, r.rowid, svr.hi.rowid());
+		//update the report table (using parameters), then don't refresh
+		svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
+		//update the comments table, then refresh (true) to show change
+		svr.comments.tv.save(svr.hi.row(), r.rowid, true);
+	});
+	*/
+};
+
+
+// var caller=svr.notes.menu.menu("option","caller");
+svr.notes.menu=$("#svr-notes-menu").menu();
+svr.notes.menu.css("position","absolute", "width", "200px").hide();
+
 
 svr.notes.onclick=function(el){
 	svr.ed.text(el, function(){
-		var field=svr.ed.attr("section_name"); //eg. 'comments'
-		newval=svr.data[field]; //eg. ['first comment','revised comment 2'...]
-		svr.notes.change(field, newval);
-		svr.ed.hide();
+		var field=svr.ed.target_attr("section_name"); //eg. 'comments'
+		var index=svr.ed.target_attr("section_index");
+		var text=svr.ed.val();
+		svr.data[field][index]=text;
+		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
+		console.log("FIELD",field, " UPDATED TEXT:", text);
+		svr.notes.change(field, svr.data[field], function(){
+			svr.ed.hide();
+			//refresh (server request and render) or just render cache for now...
+			svr.notes.render(svr.data);
+		});
 	});
 };
 
@@ -149,66 +160,65 @@ svr.notes.ondrop=function(el, ev){
 		var tsi=$(el).attr("section_index");
 		var tsn=$(el).attr("section_name");
 		console.log("drag from:", fsi, fsn, " drop to:", tsi, tsn);
-		if (fsn == tsn && fsi != tsi){
-			//same section, different indexes 
-			casbah.array_nth_to_nth(svr.data[tsn], fsi, tsi);
-			//TO DO...
-			//svr.update();
-			//svr.refresh();
-			
-			//FOR NOW... reformat & render
-			svr.data.rows=[].concat(
-				svr.reformat_notes(svr.data.generals, "generals", 1, "General Notes"),
-				svr.reformat_notes(svr.data.comments, "comments", 2, "Comments & Observations"),
-				svr.reformat_notes(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
-				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
-			);
-			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
-
+		if (fsn == tsn){
+			//same section 
+			casbah.array_fromindex_toindex(svr.data[tsn], fsi, tsi);
 		} else if (fsn != tsn) {
-			console.log("Jump sections...", typeof svr.data[tsn]);
-			//insert in target section at index tsi, item from source section, index fsi 
+			//console.log("Jump sections...", typeof svr.data[tsn]);
+			//different sections ert in target section at index tsi, item from source section, index fsi 
 			svr.data[tsn].splice(tsi, 0, svr.data[fsn][fsi]);
 			//delete
 			svr.data[fsn].splice(fsi, 1);
-			//console.log("after deletion:", svr.data[fsn]);
-			//TO DO...
-			//svr.update();
-			//svr.refresh();
-			
-			//FOR NOW... reformat & render
-			svr.data.rows=[].concat(
-				svr.reformat_notes(svr.data.generals, "generals", 1, "General Notes"),
-				svr.reformat_notes(svr.data.comments, "comments", 2, "Comments & Observations"),
-				svr.reformat_notes(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
-				svr.reformat_notes(svr.data.issues, "issues", 4, "New & Ongoing Issues")
-			);
-			
-			$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
-			
 		}
-
+		//console.log("after deletion:", svr.data[fsn]);
+		//TO DO...
+		//svr.update();
+		//svr.refresh();
+		
+		//FOR NOW... reformat & render
+		svr.data.rows=[].concat(
+			svr.notes.reformat(svr.data.generals, "generals", 1, "General Notes"),
+			svr.notes.reformat(svr.data.comments, "comments", 2, "Comments & Observations"),
+			svr.notes.reformat(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
+			svr.notes.reformat(svr.data.issues, "issues", 4, "New & Ongoing Issues")
+		);
+		
+		$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
 	}	
-
 };
 
-svr.notes.insert=function(el){
-	/**
-	svr.comments.tv.add( function(r){
-		//update comment_id list in parameters object
-		casbah.array_insert_after($PP.$comment_ids, r.rowid, svr.hi.rowid());
-		//update the report table (using parameters), then don't refresh
-		svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
-		//update the comments table, then refresh (true) to show change
-		svr.comments.tv.save(svr.hi.row(), r.rowid, true);
-	});
-	*/
-};
 
-///////////////
-// Menu
-// var caller=svr.notes.menu.menu("option","caller");
-svr.notes.menu=$("#svr-notes-menu").menu().css("position","absolute", "width", "200px").hide();
+svr.notes.render=function(r){
+	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
+	//keep local copy for editing
+	svr.data.generals=r.generals;
+	svr.data.comments=r.comments;
+	svr.data.issues=r.issues;
+	svr.data.issuesx=r.issues_closed;	
+	//reformat result to suit comments template
+	svr.data.rows=[].concat(
+		svr.notes.reformat(r.generals, "generals", 1, "General Notes"),
+		svr.notes.reformat(r.comments, "comments", 2, "Comments & Observations"),
+		svr.notes.reformat(r.issuesx, "issuesx", 3, "Closed Issues"),
+		svr.notes.reformat(r.issues, "issues", 4, "New and Ongoing Issues")
+	);
+	//console.log("SVR.data.rows", svr.data.rows);
+	$("#svr-titleblock-right-placeholder").html(svr.titleblock.template_right({svr:r}));
+	$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));
+}
+
+svr.notes.reformat=function(section, section_name, section_num, section_title){
+	//console.log("reformat_notes:", section);
+	var rows=[{section_heading:true, section_name:section_name, txt:section_title, section_num:section_num, section_index:0}];
+	for (i in section){rows.push({
+		txt:section[i],
+		section_item:true,
+		section_name:section_name,
+		section_num:section_num,
+		section_index:Number(i)
+	});}
+	return rows;
+};
 
 svr.notes.remove=function(el){
 	/**
@@ -431,7 +441,7 @@ svr.refresh();
 
 
 <!-- MENUS -->
-<div id="svr-notes-menu" onmouseleave="svr.comments.menu.hide()" class="hide9999">
+<div id="svr-notes-menu" onmouseleave="svr.notes.menu.hide()" class="hide9999">
 	<p onclick="svr.notes.remove()">Delete</p>
 	<p onclick="svr.notes.insert()">Insert</p>
 	<p onclick="svr.notes.menu.hide()">Exit</p>

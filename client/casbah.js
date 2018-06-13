@@ -79,7 +79,7 @@ casbah.array_nth_swap=function(arr, n, offset){
 	return arr;
 };
 
-casbah.array_nth_to_nth=function(arr, nf, nt){
+casbah.array_fromindex_toindex=function(arr, nf, nt){
 	nf=Number(nf); //from
 	nt=Number(nt); //to
 	if (nt<nf){
@@ -218,7 +218,8 @@ casbah.Editor=function (){
 		return rowid;
 	};
 	
-	this.attr=function(name){return that.e$.attr(name);};
+	this.target_attr=function(name){return that.e$.attr(name);};
+	this.val=function(name){return that.x$.val();};
 	
 	//INIT
 	//create text area element for editing text
