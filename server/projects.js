@@ -31,7 +31,7 @@ const fs = require("fs")
 const fsp = require(path.join(global.appRoot,"server","fs+"))
 
 //const projects_dir="uploads"
-const projects_jsonfile="__projects.json"
+const projects_jsonfile="__projectData.json"
 const projects_json={
 	project_id:"PROJ-001",			
 	project_name:"The Casbah Building",

@@ -32,13 +32,48 @@ const fsp = require(path.join(global.appRoot,"server","fs+"))
 const sizeOf = require('image-size');
 const reports_dir="reports"
 
-
+/************************** FYI
+	Stats {
+	  dev: 2114,
+	  ino: 48064969,
+	  mode: 33188,
+	  nlink: 1,
+	  uid: 85,
+	  gid: 100,
+	  rdev: 0,
+	  size: 527,
+	  blksize: 4096,
+	  blocks: 8,
+	  atimeMs: 1318289051000.1,
+	  mtimeMs: 1318289051000.1,
+	  ctimeMs: 1318289051000.1,
+	  birthtimeMs: 1318289051000.1,
+	  atime: Mon, 10 Oct 2011 23:24:11 GMT,
+	  mtime: Mon, 10 Oct 2011 23:24:11 GMT,
+	  ctime: Mon, 10 Oct 2011 23:24:11 GMT,
+	  birthtime: Mon, 10 Oct 2011 23:24:11 GMT }
+******************************/
 const frameType=function(image){
 	var dims=sizeOf(image) 
 	var ratio=dims.height/dims.width
 	if (ratio >= 1) {return "portrait"}
 	else if (ratio >= 0.5) {return "landscape"}
 	else {return "wide"}
+}
+
+const filedate=function(image){
+	var d="2018-Feb-31"
+	try{
+		//eg. Thu Jun 14 2018
+		//d=fs.statSync(image).birthtime.toDateString()
+		
+		//eg. 2018-06-14
+		d=fs.statSync(image).atime.toISOString().substring(0,10)
+
+		//console.log("FILEDATE:", d)
+	}	
+	catch(err){console.log("filedate ", err)}
+	return d
 }
 
 ////////////////////////////////////////////////////
@@ -206,17 +241,19 @@ const svr_json={
 
 exports.svr_select=function(req, res){
 	//returns all site reviews
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-	var root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-	//empty result
-	var rr={
-		svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
-		project_id:req.body.project_id,
-		root:"place-holder/for/root/path",
-		err:null
-	} 
-	console.log("SVR select:", p);
+	var p, root, rr
+
 	try {
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		console.log("SVR select:", p);	
+		root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		rr={
+			svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
+			project_id:req.body.project_id,
+			root:"place-holder/for/root/path",
+			err:null
+		} 
+		
 		//check if exists
 		fs.statSync (p)
 		/******
@@ -254,7 +291,7 @@ exports.svr_select=function(req, res){
 						//just text between double underscore and .ext
 						//:path.basename(f, path.extname(f))
 						caption:f.substring(f1, f.lastIndexOf(".")),
-						date:"2-Jun-2018",
+						date:filedate(p),
 						format:frameType(p),
 						path:p
 					}

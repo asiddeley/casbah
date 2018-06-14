@@ -1,15 +1,15 @@
 <!doctype html>
 <style>
-.picBox{ max-height:400px; max-width:100%;}
+.picBox{ max-height:350px; max-width:100%;}
 caption{ font-size:10pt; font-family:'segoe UI'; }
 figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 
 .border-not {border-color:black; border-style:solid; border-width:1px;}
-.photo-frame-not{ height:auto; border-color:black; border-style:solid; border-width:1px; padding-left:15px;  padding-top:15px;}
+.photo-frame-not{ padding-left:5px; padding-top:15px; border-color:black; border-style:solid; border-width:1px; }
 .photo-frame{ padding-left:5px; padding-top:15px;}
 .photo-text{ padding-left:5px; padding-top:15px;}
 
-.photo-image{ max-height:300px; padding-left:5px; float:left;}
+.photo-image {max-width:100%; padding-left:5px; float:left;}
 .break-line {margins:auto;}
 @media print {
 	.row {page-break-inside:avoid; !important;}
@@ -19,9 +19,18 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 </style>
 <script type='text/javascript'>
 
-// site visit report object - svr
+
+///////////////////////
+// Site visit report
+// main object 
 var svr={};
+
+// cache
 svr.data={};
+
+// text editor
+svr.ed=new casbah.Editor();
+
 svr.refresh=function(result, delta){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -35,53 +44,15 @@ svr.refresh=function(result, delta){
 		success: function(result){
 			console.log("SVR-SUCCESS");
 			svr.notes.render(result.svrs[0]);
-			
-			//reformat result for photos template...
-			var rows=[];		
-			rx=result.svrs[0].xdata; // {img01:{caption:"", date:"", format:"", path:"..."}, ...}
-			var done=false; //done flag 
-			var cc=0; //column counter
-			var row=[]; //either an image frame or caption  
-			for (var i in rx){
-				if(rx[i].format=="landscape") {
-					if (cc > 6) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})
-					row.push({img:rx[i].path, col:"col-xs-5"});
-					cc+=6;
-				} else if (rx[i].format=="portrait") {
-					if (cc > 8) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})					
-					row.push({img:rx[i].path, col:"col-xs-3"});
-					cc+=4;
-				} else if (rx[i].format=="wide") {
-					if (cc > 1) {rows.push(row); row=[]; cc=0;}
-					row.push({fig:true, cap:rx[i].caption, col:"col-xs-1"})
-					row.push({img:rx[i].path, col:"col-xs-11"});
-					cc+=12;				
-				}
-			};			
-			rows.push(row); //last push
-			//keep track of rows
-			svr.data.photorows=rows;
-
-			//render
-			$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
-			
+			svr.photos.render(result.svrs[0]);
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 
-
-// text editor
-svr.ed=new casbah.Editor();
-// highligher
-svr.hi=new casbah.Highlighter("highlite");
-
-///////////////////////
-// Site visit report
 svr.notes={};
+
 svr.notes.change=function(field, valu, callback){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -100,24 +71,20 @@ svr.notes.change=function(field, valu, callback){
 	});
 }
 
-svr.notes.insert=function(el){
-	/**
-	svr.comments.tv.add( function(r){
-		//update comment_id list in parameters object
-		casbah.array_insert_after($PP.$comment_ids, r.rowid, svr.hi.rowid());
-		//update the report table (using parameters), then don't refresh
-		svr.tv.save({comment_ids:$PP.$comment_ids}, $PP.$rowid);
-		//update the comments table, then refresh (true) to show change
-		svr.comments.tv.save(svr.hi.row(), r.rowid, true);
-	});
-	*/
+svr.notes.insert=function(){
+	//this function is meant to be called from a context menu and without arguments
+	var caller=svr.notes.menu.menu("option","caller");
+	var sn=$(caller).attr("section_name");
+	var si=$(caller).attr("section_index");
+	var copy=$(caller).text();
+	//insert copy of text into section 
+	svr.data[sn].splice(si, 0, copy);
+	//save change for 'to' sections, then save change for 'from' section then callback renderer
+	svr.notes.change(sn, svr.data[sn], svr.notes.render);
 };
 
-
-// var caller=svr.notes.menu.menu("option","caller");
 svr.notes.menu=$("#svr-notes-menu").menu();
 svr.notes.menu.css("position","absolute", "width", "200px").hide();
-
 
 svr.notes.onclick=function(el){
 	svr.ed.text(el, function(){
@@ -140,8 +107,7 @@ svr.notes.ondragstart=function(el, ev){
 	ev.dataTransfer.setData("Text", 
 		"section_index:"+$(el).attr("section_index") + " " +
 		"section_name:"+$(el).attr("section_name")
-	);
-	
+	);	
 };
 
 svr.notes.ondrop=function(el, ev){
@@ -151,7 +117,6 @@ svr.notes.ondrop=function(el, ev){
 	var tx=ev.dataTransfer.getData("Text");
 	var a1=tx.indexOf("section_index:");
 	var a2=tx.indexOf("section_name:");
-	var sc=[1,1,1,1]; //section counters for refactoring
 	if ( a1 > -1 && a2 > -1){
 		//from row index
 		var fsi=tx.slice(a1+"section_index:".length).split(/\s+/)[0];
@@ -159,42 +124,42 @@ svr.notes.ondrop=function(el, ev){
 		//to row index
 		var tsi=$(el).attr("section_index");
 		var tsn=$(el).attr("section_name");
-		console.log("drag from:", fsi, fsn, " drop to:", tsi, tsn);
+		//console.log("drag from:", fsi, fsn, " drop to:", tsi, tsn);
 		if (fsn == tsn){
 			//same section 
 			casbah.array_fromindex_toindex(svr.data[tsn], fsi, tsi);
+			//save changes then callback render
+			svr.notes.change(tsn, svr.data[tsn], svr.notes.render );
 		} else if (fsn != tsn) {
-			//console.log("Jump sections...", typeof svr.data[tsn]);
-			//different sections ert in target section at index tsi, item from source section, index fsi 
+			//different sections 
+			//insert item at 'to' section
 			svr.data[tsn].splice(tsi, 0, svr.data[fsn][fsi]);
-			//delete
+			//remove item at 'from' section
 			svr.data[fsn].splice(fsi, 1);
+			//save change for 'to' sections, then save change for 'from' section then callback renderer
+			svr.notes.change(tsn, svr.data[tsn], function(){ svr.notes.change(fsn, svr.data[fsn], svr.notes.render);});
 		}
-		//console.log("after deletion:", svr.data[fsn]);
-		//TO DO...
-		//svr.update();
-		//svr.refresh();
-		
-		//FOR NOW... reformat & render
-		svr.data.rows=[].concat(
-			svr.notes.reformat(svr.data.generals, "generals", 1, "General Notes"),
-			svr.notes.reformat(svr.data.comments, "comments", 2, "Comments & Observations"),
-			svr.notes.reformat(svr.data.issuesx, "issuesx", 3, "Closed Issues"),
-			svr.notes.reformat(svr.data.issues, "issues", 4, "New & Ongoing Issues")
-		);
-		
-		$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));			
 	}	
 };
 
 
 svr.notes.render=function(r){
+	//result from server or undefined
 	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
-	//keep local copy for editing
-	svr.data.generals=r.generals;
-	svr.data.comments=r.comments;
-	svr.data.issues=r.issues;
-	svr.data.issuesx=r.issues_closed;	
+
+	if(typeof r == "undefined"){
+		// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache
+		r=svr.data;
+	} 
+	else {
+		//r is the result from server, update local cache
+		//keep local copy for editing
+		svr.data.generals=r.generals;
+		svr.data.comments=r.comments;
+		svr.data.issues=r.issues;
+		svr.data.issuesx=r.issues_closed;	
+	}
+	
 	//reformat result to suit comments template
 	svr.data.rows=[].concat(
 		svr.notes.reformat(r.generals, "generals", 1, "General Notes"),
@@ -221,16 +186,16 @@ svr.notes.reformat=function(section, section_name, section_num, section_title){
 };
 
 svr.notes.remove=function(el){
-	/**
-	//CTV.remove(hi.rowid()); 
-	//only remove comment rowid from comment list in report, comment remains in comment table
-	//console.log("remove comment_ids, rowid:",$PP.$comment_ids, svr.hi.rowid());
-	casbah.array_remove($PP.$comment_ids, svr.hi.rowid());
-	//console.log("remove ", $PP.$comment_ids);
-	svr.update({comment_ids:$PP.$comment_ids}, $PP.$rowid);
-	svr.comments.tv.refresh();
-	*/
+	//this function is meant to be called from a context menu and without arguments
+	var caller=svr.notes.menu.menu("option","caller");
+	var sn=$(caller).attr("section_name");
+	var si=$(caller).attr("section_index");
+	//delete note from section 
+	svr.data[sn].splice(si, 1);
+	//save change for 'to' sections, then save change for 'from' section then callback renderer
+	svr.notes.change(sn, svr.data[sn], svr.notes.render);
 };
+
 svr.notes.template=Handlebars.compile($("#svr-notes-template").html());
 svr.notes.update=function(row, rowid){
 	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
@@ -241,6 +206,41 @@ svr.notes.update=function(row, rowid){
 // PHOTOS
 svr.photos={}
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
+svr.photos.render=function(svrdata){
+	//reformat result for photos template...
+	var rows=[];		
+	rx=svrdata.xdata; // rx = {img01:{caption:"", date:"", format:"", path:"..."}, ...}
+	var cc=0; //column counter
+	var ix=0; //image index
+	var row=[]; //either an image-frame or caption  
+	for (var i in rx){
+		if(rx[i].format=="landscape") {
+			if (cc > 6) {rows.push(row); row=[]; cc=0;}
+			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})
+			row.push({img:rx[i].path, col:"col-xs-4", index:ix});
+			cc+=6;
+		} else if (rx[i].format=="portrait") {
+			if (cc > 7) {rows.push(row); row=[]; cc=0;}
+			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})					
+			row.push({img:rx[i].path, col:"col-xs-3", index:ix});
+			cc+=4;
+		} else if (rx[i].format=="wide") {
+			if (cc > 1) {rows.push(row); row=[]; cc=0;}
+			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})
+			row.push({img:rx[i].path, col:"col-xs-10", index:ix});
+			cc+=12;				
+		}
+		ix+=1;
+	};			
+	//last push
+	rows.push(row); 
+	//keep track of rows
+	svr.data.photorows=rows;
+	//render
+	$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
+}
+
+
 
 /////////////
 // titleblock
@@ -373,12 +373,13 @@ svr.refresh();
 		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
-		ondrop="svr.notes.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">
+		ondrop="svr.notes.ondrop(this, event)">
 		<h3 class="col-xs-1 marz" >{{row.section_num}}</h3>
-		<h3 class="col-xs-10 border-left marz">{{row.txt}}</h3>
-		<h3 class="col-xs-1 marz" >&nbsp;</h3>
+		<h3 class="col-xs-10 border-left marz"
+			section_name="{{row.section_name}}"
+			section_index="{{row.section_index}}"		
+			oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</h3>
+		<h3 class="col-xs-1 marz" ></h3>
 	</div>	
 	{{/if}}
 	{{#if row.section_item}}	
@@ -389,15 +390,17 @@ svr.refresh();
 		draggable="true"
 		ondragstart="svr.notes.ondragstart(this, event)"
 		ondragover="event.preventDefault()"
-		ondrop="svr.notes.ondrop(this, event)"
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">
+		ondrop="svr.notes.ondrop(this, event)">		
 	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.section_index}}</p>
-	<p 	section_name="{{row.section_name}}"
+	<p 	class="col-xs-10 border-left marz"
+		title="click to edit, then double-click to save"
+		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
-		onclick="svr.notes.onclick(this)"
-		class="col-xs-10 border-left marz">{{row.txt}}</p>	
+		onmouseenter="$(this).addClass('highlite')"
+		onmouseleave="$(this).removeClass('highlite')"
+		onclick="svr.notes.onclick(this)"		
+		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz">&nbsp;</p>	
 	</div>
 	{{/if}}
@@ -409,8 +412,7 @@ svr.refresh();
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
 	<div class="row marz" 
-		onmouseenter="svr.hi.light(this)"
-		oncontextmenu="casbah.showMenu(svr.photo.menu, event)">
+		oncontextmenuNOT="casbah.showMenu(svr.photo.menu, event)">
 		<h3 class="col-xs-1 marz" >5.0</h3>
 		<h3 class="col-xs-10 border-left marz">Photos</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
@@ -426,8 +428,9 @@ svr.refresh();
 	{{/if}}
 	{{#if item.fig}}
 	<div class="{{item.col}} photo-text border">
-		<figure style="display:inline;">5.{{@index}}</figure>
+		<figure style="display:inline;">5.{{plusOne item.index}}</figure>
 		<caption>{{item.cap}}</caption>
+		<p>{{item.date}}</p>
 	</div>
 	{{/if}}
 	{{/each}}	
@@ -437,7 +440,6 @@ svr.refresh();
 
 	
 </template>
-
 
 
 <!-- MENUS -->
