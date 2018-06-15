@@ -196,15 +196,40 @@ svr.notes.update=function(row, rowid){
 // PHOTOS
 svr.photos={}
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
-svr.photos.fillRow(cc, rx, i, row){
+
+svr.photos.tryToFillRow=function(cc, ix, rx, i, row, ix){
 	//var keys=Object.keys(rx);
 	//while(cc<12){
-		for (var ii in rx){
+		//for (var ii in rx){
 		
 		
-		}
+		//}
 	//}
-}
+};
+
+svr.photos.landscape=function(cc, ix, rx, i, row){
+	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
+	row.push({img:rx[i].path, col:"col-xs-4", index:ix});
+	cc+=6;
+	rx[i].available=false;
+	return cc;
+};
+
+svr.photos.portrait=function(cc, ix, rx, i, row){
+	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})					
+	row.push({img:rx[i].path, col:"col-xs-3", index:ix});
+	cc+=4;
+	rx[i].available=false;
+	return cc;
+};
+
+svr.photos.wide=function(cc, ix, rx, i, row){
+	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
+	row.push({img:rx[i].path, col:"col-xs-10", index:ix});
+	cc+=12;	
+	rx[i].available=false;
+	return cc;
+};
 
 svr.photos.render=function(svrdata){
 	//reformat result for photos template...
@@ -218,29 +243,22 @@ svr.photos.render=function(svrdata){
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
 				if (cc > 6) {
-					//try to find a portrait fill rest of row first
-					svr.photos.fillRow(cc, rx, i, row);
+					svr.photos.tryToFillRow(cc, ix, rx, i, row);
 					rows.push(row); row=[]; cc=0;
 				}
-				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
-				row.push({img:rx[i].path, col:"col-xs-4", index:ix});
-				cc+=6;
-				rx[i].available=false;
+				cc=svr.photos.landscape(cc, ix, rx, i, row);
 			} else if (rx[i].format=="portrait") {
 				if (cc > 7) {
-					//try to fill rest of row first
+					svr.photos.tryToFillRow(cc, ix, rx, i, row);
 					rows.push(row); row=[]; cc=0;
 				}
-				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})					
-				row.push({img:rx[i].path, col:"col-xs-3", index:ix});
-				cc+=4;
-				rx[i].available=false;
+				cc=svr.photos.portrait(cc, ix, rx, i, row);
 			} else if (rx[i].format=="wide") {
-				if (cc > 1) {rows.push(row); row=[]; cc=0;}
-				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
-				row.push({img:rx[i].path, col:"col-xs-10", index:ix});
-				cc+=12;	
-				rx[i].available=false;
+				if (cc > 1) {
+					svr.photos.tryToFillRow(cc, ix, rx, i, row);
+					rows.push(row); row=[]; cc=0;
+				}
+				cc=svr.photos.wide(cc, ix, rx, i, row);
 			}
 			ix+=1;
 		};
