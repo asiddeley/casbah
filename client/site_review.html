@@ -147,18 +147,8 @@ svr.notes.render=function(r){
 	//result from server or undefined
 	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
 
-	if(typeof r == "undefined"){
-		// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache
-		r=svr.data;
-	} 
-	else {
-		//r is the result from server, update local cache
-		//keep local copy for editing
-		svr.data.generals=r.generals;
-		svr.data.comments=r.comments;
-		svr.data.issues=r.issues;
-		svr.data.issuesx=r.issues_closed;	
-	}
+	// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
+	if(typeof r == "undefined"){ r=svr.data;} else { svr.data=r;}
 	
 	//reformat result to suit comments template
 	svr.data.rows=[].concat(
@@ -206,6 +196,16 @@ svr.notes.update=function(row, rowid){
 // PHOTOS
 svr.photos={}
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
+svr.photos.fillRow(cc, rx, i, row){
+	//var keys=Object.keys(rx);
+	//while(cc<12){
+		for (var ii in rx){
+		
+		
+		}
+	//}
+}
+
 svr.photos.render=function(svrdata){
 	//reformat result for photos template...
 	var rows=[];		
@@ -214,23 +214,37 @@ svr.photos.render=function(svrdata){
 	var ix=0; //image index
 	var row=[]; //either an image-frame or caption  
 	for (var i in rx){
-		if(rx[i].format=="landscape") {
-			if (cc > 6) {rows.push(row); row=[]; cc=0;}
-			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})
-			row.push({img:rx[i].path, col:"col-xs-4", index:ix});
-			cc+=6;
-		} else if (rx[i].format=="portrait") {
-			if (cc > 7) {rows.push(row); row=[]; cc=0;}
-			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})					
-			row.push({img:rx[i].path, col:"col-xs-3", index:ix});
-			cc+=4;
-		} else if (rx[i].format=="wide") {
-			if (cc > 1) {rows.push(row); row=[]; cc=0;}
-			row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", date:rx[i].date, index:ix})
-			row.push({img:rx[i].path, col:"col-xs-10", index:ix});
-			cc+=12;				
-		}
-		ix+=1;
+		//console.log("i", i, " available:", rx[i].available);
+		if(rx[i].available==true){
+			if(rx[i].format=="landscape") {
+				if (cc > 6) {
+					//try to find a portrait fill rest of row first
+					svr.photos.fillRow(cc, rx, i, row);
+					rows.push(row); row=[]; cc=0;
+				}
+				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
+				row.push({img:rx[i].path, col:"col-xs-4", index:ix});
+				cc+=6;
+				rx[i].available=false;
+			} else if (rx[i].format=="portrait") {
+				if (cc > 7) {
+					//try to fill rest of row first
+					rows.push(row); row=[]; cc=0;
+				}
+				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})					
+				row.push({img:rx[i].path, col:"col-xs-3", index:ix});
+				cc+=4;
+				rx[i].available=false;
+			} else if (rx[i].format=="wide") {
+				if (cc > 1) {rows.push(row); row=[]; cc=0;}
+				row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
+				row.push({img:rx[i].path, col:"col-xs-10", index:ix});
+				cc+=12;	
+				rx[i].available=false;
+			}
+			ix+=1;
+		};
+		
 	};			
 	//last push
 	rows.push(row); 
@@ -430,7 +444,7 @@ svr.refresh();
 	<div class="{{item.col}} photo-text border">
 		<figure style="display:inline;">5.{{plusOne item.index}}</figure>
 		<caption>{{item.cap}}</caption>
-		<p>{{item.date}}</p>
+		<p>{{item.dateTaken}}</p>
 	</div>
 	{{/if}}
 	{{/each}}	

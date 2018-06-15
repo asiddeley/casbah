@@ -68,7 +68,7 @@ const filedate=function(image){
 		//d=fs.statSync(image).birthtime.toDateString()
 		
 		//eg. 2018-06-14
-		d=fs.statSync(image).atime.toISOString().substring(0,10)
+		d=fs.statSync(image).ctime.toISOString().substring(0,10)
 
 		//console.log("FILEDATE:", d)
 	}	
@@ -254,7 +254,7 @@ exports.svr_select=function(req, res){
 			err:null
 		} 
 		
-		//check if exists
+		//check if exists - catch error otherwise
 		fs.statSync (p)
 		/******
 		Get list of directories and corresponding jsonfile
@@ -284,19 +284,45 @@ exports.svr_select=function(req, res){
 		**/
 		rr.svrs.map(function(svr){
 			svr.files.map(function(f){
-				if (typeof(svr.xdata[f])=="undefined" ){
-					var p=path.join(root, svr.dir, f)
-					var f1=f.indexOf("__"); f1=(f1==-1)?0:f1+=2
-					svr.xdata[f]={
+				//f!="uploads/project_dir/reports/site visit/FRR-001/image1__caption1__caption2.jpg"
+				//f="image1__caption1__caption2.jpg"
+				//key=image1
+				var key, caption, dateTaken, p=path.join(root, svr.dir, f)
+				if (f.indexOf("__")!=-1){
+					var parts=f.split("__")
+					key=parts[0];
+					if (parts.length>2){
+						caption=parts[1]; 
+						dateTaken=parts[2].substring(0, parts[2].lastIndexOf("."))
+					} 
+					else {
+						caption=parts[1].substring(0, parts[1].lastIndexOf("."))
+						dateTaken="" //filedate(p)
+					}
+				} else {
+					key=f.substring(0, f.lastIndexOf("."))
+					caption=f.substring(0, f.lastIndexOf("."))
+					dateTaken=""
+				}
+				console.log("f:",f, " key:",key)
+				//if (typeof(svr.xdata[f])=="undefined" ){
+				if (typeof(svr.xdata[key])=="undefined" ){
+					//var f1=f.indexOf("__"); f1=(f1==-1)?0:f1+=2
+					//svr.xdata[f]={
 						//just text between double underscore and .ext
 						//:path.basename(f, path.extname(f))
-						caption:f.substring(f1, f.lastIndexOf(".")),
-						date:filedate(p),
+						//caption:f.substring(f1, f.lastIndexOf(".")),
+						//date:filedate(p)
+					svr.xdata[key]={
+						available:true,
+						caption:caption,
+						dateTaken:dateTaken,
 						format:frameType(p),
 						path:p
 					}
 					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
-					svr.xdata[f][frameType(p)]=true
+					//svr.xdata[f][frameType(p)]=true
+					svr.xdata[key][frameType(p)]=true
 				}
 			})
 			//console.log ("SVR xdata:", svr.xdata)
@@ -313,13 +339,14 @@ exports.svr_select=function(req, res){
 }
 
 exports.svr_change=function(req, res){
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir, req.body.svr_id, svr_jsonfile)
-	var field=req.body.field
-	var valu=req.body.valu
-	var stat="OK"
-	var json={}
-	console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)
+	var p, field, valu, stat, json
+
 	try{
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir, req.body.svr_id, svr_jsonfile)
+		field=req.body.field
+		valu=req.body.valu
+		stat="OK"
+		console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
 		json=JSON.parse(fs.readFileSync(p))
 		json[field]=valu
 		fs.writeFileSync(p,JSON.stringify(json))
@@ -337,11 +364,14 @@ exports.svr_change=function(req, res){
 
 exports.svrl_insert=function(req, res){
 
-	//Make a folder then returns a list of folders including the new folder
-	var err=null
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-	console.log("SVRL INSERT:", p, req.body.svr_id)
-	try {fs.mkdirSync(path.join(p, req.body.svr_id))}
+	var err, p
+	try {
+		//Make a folder then returns a list of folders including the new folder
+		err=null
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		console.log("SVRL INSERT:", p, req.body.svr_id)
+		fs.mkdirSync(path.join(p, req.body.svr_id))
+	}
 	catch(e) {err=e; console.log(err);} 
 	finally {
 		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
