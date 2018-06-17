@@ -195,79 +195,160 @@ svr.notes.update=function(row, rowid){
 /////////////////
 // PHOTOS
 svr.photos={}
+
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
 
-svr.photos.tryToFillRow=function(cc, ix, rx, i, row, ix){
-	//var keys=Object.keys(rx);
-	//while(cc<12){
-		//for (var ii in rx){
-		
-		
-		//}
-	//}
+svr.photos.layout_row_filler=function(rx, i, row){
+	var keys=Object.keys(rx);
+	var vals=Object.values(rx);
+	var j=keys.indexOf(i)+1;
+	var len=keys.length;
+	var span;
+	//console.log("VALS:", vals);
+	while (j<len && svr.photos.cc<12){
+		//span=Number(vals[j].col.split("-")[2]); //col-xs-2 => 2
+		if(vals[j].available==true ){
+			if(vals[j].format=="landscape" && svr.photos.cc+5<=12) {
+				svr.photos.layout_landscape(rx, keys[j], row);
+			}
+			else if (vals[j].format=="portrait"&& svr.photos.cc+3<=12){
+				svr.photos.layout_portrait(rx, keys[j], row);}
+		}
+		j+=1;
+	}
+	svr.photos.cc=0; //assume row filled so reset column count
 };
 
-svr.photos.landscape=function(cc, ix, rx, i, row){
-	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
-	row.push({img:rx[i].path, col:"col-xs-4", index:ix});
-	cc+=6;
+svr.photos.layout_landscape=function(rx, i, row){
+	row.push({
+		fig:true, 
+		cap:rx[i].caption, 
+		col:"col-xs-2", 
+		dateTaken:rx[i].dateTaken, 
+		index:svr.photos.index,
+		key:rx[i].key
+	});
+	row.push({img:rx[i].path, col:"col-xs-4", index:svr.photos.index});
+	//cc+=6;
+	svr.photos.cc+=6;
+	svr.photos.index+=1;
 	rx[i].available=false;
-	return cc;
+	//return cc;
 };
 
-svr.photos.portrait=function(cc, ix, rx, i, row){
-	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})					
-	row.push({img:rx[i].path, col:"col-xs-3", index:ix});
-	cc+=4;
+svr.photos.layout_portrait=function(rx, i, row){
+	row.push({
+		fig:true, 
+		cap:rx[i].caption, 
+		col:"col-xs-2", 
+		dateTaken:rx[i].dateTaken, 
+		index:svr.photos.index,
+		key:rx[i].key
+	})					
+	row.push({img:rx[i].path, col:"col-xs-3", index:svr.photos.index});
+	//cc+=4;
+	svr.photos.cc+=5;
+	svr.photos.index+=1;
 	rx[i].available=false;
-	return cc;
+	//return cc;
 };
 
-svr.photos.wide=function(cc, ix, rx, i, row){
-	row.push({fig:true, cap:rx[i].caption, col:"col-xs-2", dateTaken:rx[i].dateTaken, index:ix})
-	row.push({img:rx[i].path, col:"col-xs-10", index:ix});
-	cc+=12;	
+svr.photos.layout_wide=function(rx, i, row){
+	row.push({
+		fig:true, 
+		cap:rx[i].caption, 
+		col:"col-xs-2", 
+		dateTaken:rx[i].dateTaken, 
+		index:svr.photos.index,
+		key:rx[i].key
+	})
+	row.push({img:rx[i].path, col:"col-xs-10", index:svr.photos.index});
+	//cc+=12;
+	svr.photos.cc+=12;
+	svr.photos.index+=1;	
 	rx[i].available=false;
-	return cc;
+	//return cc;
 };
 
-svr.photos.render=function(svrdata){
+svr.photos.layout={};
+
+svr.photos.layout.azEasy=function(svrdata){
 	//reformat result for photos template...
-	var rows=[];		
-	rx=svrdata.xdata; // rx = {img01:{caption:"", date:"", format:"", path:"..."}, ...}
-	var cc=0; //column counter
-	var ix=0; //image index
+	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
+	//var cc=0; //column counter
+	//var ix=0; //image index
+	svr.photos.index=0;
+	svr.photos.cc=0; //column counter	var rx=svrdata.xdata; 
+	var rx=svrdata.xdata;
 	var row=[]; //either an image-frame or caption  
+	var rows=[];
+	
 	for (var i in rx){
+		//simple way to pass arguments to 4 photo functions below...
+		//rx[i].i=i;rx[i].cc=cc;rx[i].ix=ix;
 		//console.log("i", i, " available:", rx[i].available);
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
-				if (cc > 6) {
-					svr.photos.tryToFillRow(cc, ix, rx, i, row);
-					rows.push(row); row=[]; cc=0;
+				if (svr.photos.cc > 6) {
+					svr.photos.layout_row_filler(rx, i, row);
+					rows.push(row); row=[]; //svr.photos.cc=0;
 				}
-				cc=svr.photos.landscape(cc, ix, rx, i, row);
+				svr.photos.layout_landscape(rx, i, row);
 			} else if (rx[i].format=="portrait") {
-				if (cc > 7) {
-					svr.photos.tryToFillRow(cc, ix, rx, i, row);
-					rows.push(row); row=[]; cc=0;
+				if (svr.photos.cc > 7) {
+					svr.photos.layout_row_filler(rx, i, row);
+					rows.push(row); row=[]; //svr.photos.cc=0;
 				}
-				cc=svr.photos.portrait(cc, ix, rx, i, row);
+				svr.photos.layout_portrait(rx, i, row);
 			} else if (rx[i].format=="wide") {
-				if (cc > 1) {
-					svr.photos.tryToFillRow(cc, ix, rx, i, row);
-					rows.push(row); row=[]; cc=0;
+				if (svr.photos.cc > 1) {
+					svr.photos.layout_row_filler(rx, i, row);
+					rows.push(row); row=[]; //cc=0;
 				}
-				cc=svr.photos.wide(cc, ix, rx, i, row);
+				svr.photos.layout_wide(rx, i, row);
 			}
-			ix+=1;
+			//ix+=1;
 		};
 		
 	};			
 	//last push
 	rows.push(row); 
-	//keep track of rows
-	svr.data.photorows=rows;
+	return rows;
+}
+
+svr.photos.layout.azTight=function(svrdata){
+	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
+	svr.photos.index=0; //image counter
+	svr.photos.cc=0; //column counter, 12 columns is 1 row in bootstrap
+	var rx=svrdata.xdata;
+	var row=[]; 
+	var rows=[];
+	
+	for (var i in rx){
+		if(rx[i].available==true){
+			if(rx[i].format=="landscape") {
+				svr.photos.layout_landscape(rx, i, row);
+				svr.photos.layout_row_filler(rx, i, row);
+				rows.push(row); row=[];
+			} else if (rx[i].format=="portrait") {
+				svr.photos.layout_portrait(rx, i, row);
+				svr.photos.layout_row_filler(rx, i, row);
+				rows.push(row); row=[];
+			} else if (rx[i].format=="wide") {
+				svr.photos.layout_wide(rx, i, row);
+				svr.photos.layout_row_filler(rx, i, row);
+				rows.push(row); row=[];				
+			}
+		};
+	};			
+	return rows;
+}
+
+
+svr.photos.render=function(svrdata){
+	//layout photos in svrdata.xdata to photorows as required for handlebar template
+	//svr.data.photorows=svr.layout.azEasy(svrdata)
+	svr.data.photorows=svr.photos.layout.azTight(svrdata);
 	//render
 	$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
 }
@@ -463,6 +544,7 @@ svr.refresh();
 		<figure style="display:inline;">5.{{plusOne item.index}}</figure>
 		<caption>{{item.cap}}</caption>
 		<p>{{item.dateTaken}}</p>
+		<p>{{item.key}}</p>
 	</div>
 	{{/if}}
 	{{/each}}	

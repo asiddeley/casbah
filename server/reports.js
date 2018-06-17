@@ -318,6 +318,7 @@ exports.svr_select=function(req, res){
 						caption:caption,
 						dateTaken:dateTaken,
 						format:frameType(p),
+						key:key,
 						path:p
 					}
 					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
