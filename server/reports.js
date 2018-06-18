@@ -287,42 +287,30 @@ exports.svr_select=function(req, res){
 				//f!="uploads/project_dir/reports/site visit/FRR-001/image1__caption1__caption2.jpg"
 				//f="image1__caption1__caption2.jpg"
 				//key=image1
-				var key, caption, dateTaken, p=path.join(root, svr.dir, f)
+
+				var key, captions, p=path.join(root, svr.dir, f)
+
 				if (f.indexOf("__")!=-1){
-					var parts=f.split("__")
-					key=parts[0];
-					if (parts.length>2){
-						caption=parts[1]; 
-						dateTaken=parts[2].substring(0, parts[2].lastIndexOf("."))
-					} 
-					else {
-						caption=parts[1].substring(0, parts[1].lastIndexOf("."))
-						dateTaken="" //filedate(p)
-					}
+					//break filenam into key and array of captions
+					//filename="key__caption1__caption2__caption3.ext"
+					key=f.substring(0, f.indexOf("__"))
+					captions=f.substring(f.indexOf("__")+2, f.lastIndexOf(".")).split("__")
 				} else {
+					//short filename so make caption same as key
 					key=f.substring(0, f.lastIndexOf("."))
-					caption=f.substring(0, f.lastIndexOf("."))
-					dateTaken=""
+					captions=f.substring(0, f.lastIndexOf("."))
 				}
 				console.log("f:",f, " key:",key)
 				//if (typeof(svr.xdata[f])=="undefined" ){
 				if (typeof(svr.xdata[key])=="undefined" ){
-					//var f1=f.indexOf("__"); f1=(f1==-1)?0:f1+=2
-					//svr.xdata[f]={
-						//just text between double underscore and .ext
-						//:path.basename(f, path.extname(f))
-						//caption:f.substring(f1, f.lastIndexOf(".")),
-						//date:filedate(p)
 					svr.xdata[key]={
 						available:true,
-						caption:caption,
-						dateTaken:dateTaken,
+						captions:captions,
 						format:frameType(p),
 						key:key,
 						path:p
 					}
 					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
-					//svr.xdata[f][frameType(p)]=true
 					svr.xdata[key][frameType(p)]=true
 				}
 			})

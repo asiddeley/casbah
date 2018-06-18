@@ -28,6 +28,24 @@ var svr={};
 // cache
 svr.data={};
 
+svr.change=function(field, valu, callback){
+	//console.log("SVR_ID", localStorage.getItem("svr_id"))
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-CHANGE",
+			project_id:localStorage.getItem("project_id"),
+			svr_id:localStorage.getItem("svr_id"),
+			field:field,
+			valu:valu
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){ if (typeof callback =="function"){callback();}},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+
 // text editor
 svr.ed=new casbah.Editor();
 
@@ -53,24 +71,6 @@ svr.refresh=function(result, delta){
 
 svr.notes={};
 
-svr.notes.change=function(field, valu, callback){
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"SVR-CHANGE",
-			project_id:localStorage.getItem("project_id"),
-			svr_id:localStorage.getItem("svr_id"),
-			field:field,
-			valu:valu
-		}),
-		error: function(err){ console.log(err.message);},
-		success: function(result){ if (typeof callback =="function"){callback();}},
-		type:"POST",
-		url:"/uploads"
-	});
-}
-
 svr.notes.insert=function(){
 	//this function is meant to be called from a context menu and without arguments
 	var caller=svr.notes.menu.menu("option","caller");
@@ -79,14 +79,13 @@ svr.notes.insert=function(){
 	var copy=$(caller).text();
 	//insert copy of text into section 
 	svr.data[sn].splice(si, 0, copy);
-	//save change for 'to' sections, then save change for 'from' section then callback renderer
-	svr.notes.change(sn, svr.data[sn], svr.notes.render);
+	svr.change(sn, svr.data[sn], svr.notes.render);
 };
 
 svr.notes.menu=$("#svr-notes-menu").menu();
 svr.notes.menu.css("position","absolute", "width", "200px").hide();
 
-svr.notes.onclick=function(el){
+svr.notes.edit=function(el){
 	svr.ed.text(el, function(){
 		var field=svr.ed.target_attr("section_name"); //eg. 'comments'
 		var index=svr.ed.target_attr("section_index");
@@ -94,7 +93,7 @@ svr.notes.onclick=function(el){
 		svr.data[field][index]=text;
 		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		svr.notes.change(field, svr.data[field], function(){
+		svr.change(field, svr.data[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			svr.notes.render(svr.data);
@@ -129,7 +128,7 @@ svr.notes.ondrop=function(el, ev){
 			//same section 
 			casbah.array_fromindex_toindex(svr.data[tsn], fsi, tsi);
 			//save changes then callback render
-			svr.notes.change(tsn, svr.data[tsn], svr.notes.render );
+			svr.change(tsn, svr.data[tsn], svr.notes.render );
 		} else if (fsn != tsn) {
 			//different sections 
 			//insert item at 'to' section
@@ -137,7 +136,7 @@ svr.notes.ondrop=function(el, ev){
 			//remove item at 'from' section
 			svr.data[fsn].splice(fsi, 1);
 			//save change for 'to' sections, then save change for 'from' section then callback renderer
-			svr.notes.change(tsn, svr.data[tsn], function(){ svr.notes.change(fsn, svr.data[fsn], svr.notes.render);});
+			svr.change(tsn, svr.data[tsn], function(){ svr.change(fsn, svr.data[fsn], svr.notes.render);});
 		}
 	}	
 };
@@ -183,7 +182,7 @@ svr.notes.remove=function(el){
 	//delete note from section 
 	svr.data[sn].splice(si, 1);
 	//save change for 'to' sections, then save change for 'from' section then callback renderer
-	svr.notes.change(sn, svr.data[sn], svr.notes.render);
+	svr.change(sn, svr.data[sn], svr.notes.render);
 };
 
 svr.notes.template=Handlebars.compile($("#svr-notes-template").html());
@@ -195,8 +194,6 @@ svr.notes.update=function(row, rowid){
 /////////////////
 // PHOTOS
 svr.photos={}
-
-svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
 
 svr.photos.layout_row_filler=function(rx, i, row){
 	var keys=Object.keys(rx);
@@ -222,108 +219,80 @@ svr.photos.layout_row_filler=function(rx, i, row){
 svr.photos.layout_landscape=function(rx, i, row){
 	row.push({
 		fig:true, 
-		cap:rx[i].caption, 
+		captions:rx[i].captions, 
 		col:"col-xs-2", 
-		dateTaken:rx[i].dateTaken, 
 		index:svr.photos.index,
 		key:rx[i].key
 	});
 	row.push({img:rx[i].path, col:"col-xs-4", index:svr.photos.index});
-	//cc+=6;
 	svr.photos.cc+=6;
 	svr.photos.index+=1;
 	rx[i].available=false;
-	//return cc;
 };
 
 svr.photos.layout_portrait=function(rx, i, row){
 	row.push({
 		fig:true, 
-		cap:rx[i].caption, 
+		captions:rx[i].captions, 
 		col:"col-xs-2", 
-		dateTaken:rx[i].dateTaken, 
 		index:svr.photos.index,
 		key:rx[i].key
 	})					
 	row.push({img:rx[i].path, col:"col-xs-3", index:svr.photos.index});
-	//cc+=4;
 	svr.photos.cc+=5;
 	svr.photos.index+=1;
 	rx[i].available=false;
-	//return cc;
 };
 
 svr.photos.layout_wide=function(rx, i, row){
 	row.push({
 		fig:true, 
-		cap:rx[i].caption, 
+		captions:rx[i].captions, 
 		col:"col-xs-2", 
-		dateTaken:rx[i].dateTaken, 
 		index:svr.photos.index,
 		key:rx[i].key
 	})
 	row.push({img:rx[i].path, col:"col-xs-10", index:svr.photos.index});
-	//cc+=12;
 	svr.photos.cc+=12;
 	svr.photos.index+=1;	
 	rx[i].available=false;
-	//return cc;
 };
 
-svr.photos.layout={};
+svr.photos.layouts={};
 
-svr.photos.layout.azEasy=function(svrdata){
+svr.photos.layouts.azEasy=function(svrdata){
 	//reformat result for photos template...
 	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
-	//var cc=0; //column counter
-	//var ix=0; //image index
 	svr.photos.index=0;
-	svr.photos.cc=0; //column counter	var rx=svrdata.xdata; 
+	svr.photos.cc=0; //column counter	
 	var rx=svrdata.xdata;
-	var row=[]; //either an image-frame or caption  
-	var rows=[];
+	var rows=[], row=[]; 
 	
 	for (var i in rx){
-		//simple way to pass arguments to 4 photo functions below...
-		//rx[i].i=i;rx[i].cc=cc;rx[i].ix=ix;
-		//console.log("i", i, " available:", rx[i].available);
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
-				if (svr.photos.cc > 6) {
-					svr.photos.layout_row_filler(rx, i, row);
-					rows.push(row); row=[]; //svr.photos.cc=0;
-				}
+				if (svr.photos.cc > 6) {rows.push(row); row=[]; svr.photos.cc=0;}
 				svr.photos.layout_landscape(rx, i, row);
 			} else if (rx[i].format=="portrait") {
-				if (svr.photos.cc > 7) {
-					svr.photos.layout_row_filler(rx, i, row);
-					rows.push(row); row=[]; //svr.photos.cc=0;
-				}
+				if (svr.photos.cc > 7) {rows.push(row); row=[]; svr.photos.cc=0;}
 				svr.photos.layout_portrait(rx, i, row);
 			} else if (rx[i].format=="wide") {
-				if (svr.photos.cc > 1) {
-					svr.photos.layout_row_filler(rx, i, row);
-					rows.push(row); row=[]; //cc=0;
-				}
+				if (svr.photos.cc > 1) {rows.push(row); row=[]; svr.photos.cc=0;}
 				svr.photos.layout_wide(rx, i, row);
 			}
-			//ix+=1;
 		};
-		
 	};			
-	//last push
 	rows.push(row); 
 	return rows;
 }
 
-svr.photos.layout.azTight=function(svrdata){
+svr.photos.layouts.azTight=function(svrdata){
 	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
 	svr.photos.index=0; //image counter
 	svr.photos.cc=0; //column counter, 12 columns is 1 row in bootstrap
 	var rx=svrdata.xdata;
-	var row=[]; 
-	var rows=[];
-	
+	var rows=[],row=[];
+
 	for (var i in rx){
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
@@ -344,20 +313,37 @@ svr.photos.layout.azTight=function(svrdata){
 	return rows;
 }
 
-
 svr.photos.render=function(svrdata){
 	//layout photos in svrdata.xdata to photorows as required for handlebar template
-	//svr.data.photorows=svr.layout.azEasy(svrdata)
-	svr.data.photorows=svr.photos.layout.azTight(svrdata);
-	//render
+	//svr.data.photorows=svr.layouts.azEasy(svrdata)
+	svr.data.photorows=svr.photos.layouts.azTight(svrdata);
 	$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
 }
+
+svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
 
 
 
 /////////////
 // titleblock
 svr.titleblock={};
+
+svr.titleblock.edit=function(el){
+	svr.ed.text(el, function(){
+		var field=$(el).attr("field"); //eg. 'comments'
+		var text=svr.ed.val();
+		svr.data[field]=text;
+		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
+		console.log("FIELD",field, " UPDATED TEXT:", text);
+		svr.change(field, svr.data[field], function(){
+			svr.ed.hide();
+			//refresh (server request and render) or just render cache for now...
+			//svr.titleblock.render(svr.data);
+			$("#svr-titleblock-right-placeholder").html(svr.titleblock.template_right({svr:svr.data}));
+		});
+	});
+};
+
 svr.titleblock.refresh=function(){
 	//console.log("PROJECT SELECT");
 	//var svr_id=localStorage.getItem("svr_id");
@@ -452,27 +438,39 @@ svr.refresh();
 {{#with svr}}
 <div class="row row__">
 	<strong class="col-xs-4">Report Id:</strong>
-	<p id="svr-id" class="col-xs-8">{{svr_id}}</p>
+	<p class="col-xs-8">{{svr_id}}</p>
 </div>
 
 <div class="row row_">
 	<strong class="col-xs-4">Title:</strong>
-	<p id="svr-title" class="col-xs-8">{{title}}</p>
+	<p class="col-xs-8"
+	title="click to edit, then double-click to save..."
+	field="title"
+	onclick="svr.titleblock.edit(this)">{{title}}</p>
 </div>
 
 <div class="row row_">
 	<strong id="svr-date" class="col-xs-4">Date of Visit:</strong>
-	<p class="col-xs-8">{{date}}</p>
+	<p class="col-xs-8"
+	title="click to edit, then double-click to save..."
+	field="date"
+	onclick="svr.titleblock.edit(this)">{{date}}</p>
 </div>
 
 <div class="row row_">
 	<strong  class="col-xs-4">Date Issued:</strong>
-	<p id="svr-date-issued" class="col-xs-8">{{date_issued}}</p>
+	<p class="col-xs-8"	
+	title="click to edit, then double-click to save..."
+	field="date_issued"
+	onclick="svr.titleblock.edit(this)">{{date_issued}}</p>
 </div>
 
 <div class="row row_">
 	<strong  class="col-xs-4">By:</strong>
-	<p id="svr-author" class="col-xs-8">{{author}}</p>
+	<p class="col-xs-8"	
+	title="click to edit, then double-click to save..."
+	field="author"
+	onclick="svr.titleblock.edit(this)">{{author}}</p>
 </div>
 {{/with}}
 </template>
@@ -512,9 +510,9 @@ svr.refresh();
 		section_index="{{row.section_index}}"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="svr.notes.onclick(this)"		
+		onclick="svr.notes.edit(this)"		
 		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</p>	
-	<p 	class="col-xs-1 marz">&nbsp;</p>	
+	<p 	class="col-xs-1 marz"></p>	
 	</div>
 	{{/if}}
 	{{/each}}
@@ -540,11 +538,11 @@ svr.refresh();
 	</div>
 	{{/if}}
 	{{#if item.fig}}
-	<div class="{{item.col}} photo-text border">
+	<div class="{{item.col}} photo-text border"
+		title="{{item.key}}">
 		<figure style="display:inline;">5.{{plusOne item.index}}</figure>
-		<caption>{{item.cap}}</caption>
+		<caption>{{array item.captions}}</caption>
 		<p>{{item.dateTaken}}</p>
-		<p>{{item.key}}</p>
 	</div>
 	{{/if}}
 	{{/each}}	

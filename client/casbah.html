@@ -49,8 +49,10 @@ $(function() {
 
 	//Setup Handlebars
 	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
-	//Handlebars.registerHelper("split", function(str, options){return str.split(",");});
-
+	Handlebars.registerHelper("array", function(arr, options){
+		var text=arr.join("<br>");
+		return new Handlebars.SafeString(text);	
+	});
 	
 	//bumper shoves the top of the dock-area down to prevent the static navbar from covering it
 	$("#BUMPER").height($("#NAVBAR").innerHeight());

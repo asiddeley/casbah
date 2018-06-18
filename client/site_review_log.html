@@ -170,27 +170,32 @@ $(".tooltip").tooltip();
 	</div>
 
 	<div class="row marz"
-		onmouseenter="svrl.hi.light(this);"
-		onmouseleave="svrl.hi.dark(this);">		
-	<p 	class="col-xs-1 marz "
-		svr_id="{{this.svr_id}}"></p>	
+		onmouseenterNOT="svrl.hi.light(this);"
+		onmouseleaveNOT="svrl.hi.dark(this);">		
+	<p 	class="col-xs-1 marz "></p>	
 	<div class="border-left col-xs-11 marz" >
-	
-	<p 	class="col-xs-2 marz" title="click to open..." onclick="svrl.goto(this)"
-	>{{this.svr_id}}</p>		
-	<p 	class="col-xs-3 marz" title="click to edit..." field="title" onclick="svrl.edit(this);"
-	>{{this.title}}</p>
-	<p 	class="col-xs-3 marz" title="click to edit..." 	onclick="svrl.edit(this);"
-	>{{this.date}}</p>
-	<p 	class="col-xs-3 marz" title="click to edit..." onclick="svrl.edit(this);"
-	>{{this.date_issued}}</p>
+	<p 	class="col-xs-2 marz" 
+		title="click to open..." 	
+		onclick="svrl.goto(this)"
+		onmouseenter="$(this).addClass('highlight')" 
+		onmouseleave="$(this).removeClass('highlight')">{{this.svr_id}}</p>		
+	<p 	class="col-xs-3 marz"
+		title="click to edit..." 
+		field="title" 
+		onclick="svrl.edit(this);">{{this.title}}</p>
+	<p 	class="col-xs-3 marz" 
+		title="click to edit..."
+		onclick="svrl.edit(this);">{{this.date}}</p>
+	<p 	class="col-xs-3 marz"
+		title="click to edit..." 
+		onclick="svrl.edit(this);">{{this.date_issued}}</p>
 	</div>	
 	</div>
 
 	<div class="row marz row-head" 
 		title="click to add a new report..."
-		onmouseenter="svrl.hi.light(this);" 
-		onmouseleave="svrl.hi.dark(this);"
+		onmouseenterNOT="svrl.hi.light(this);" 
+		onmouseleaveNOT="svrl.hi.dark(this);"
 		onclick="svrl.insert(this)">
 	<p class="col-xs-1 row-head marz"></p>	
 	<p class="col-xs-2 border-left row-head marz">author</p>
@@ -200,8 +205,8 @@ $(".tooltip").tooltip();
 	</div>	
 	
 	<div class="row marz zebra-stripe"
-		onmouseenter="svrl.hi.light(this);"
-		onmouseleave="svrl.hi.dark(this);"
+		onmouseenterNOT="svrl.hi.light(this);"
+		onmouseleaveNOT="svrl.hi.dark(this);"
 		onclick="svrl.goto(this)">
 
 	<p class="col-xs-1 marz "></p>
