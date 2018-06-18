@@ -102,7 +102,7 @@ exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
 			//optional - get list of files
 			if (typeof exts == "string"){
 				ff=fs.readdirSync(path.join(dir, dd[i])).filter(function(f){
-					console.log("checking file:", dir, dd[i], f)
+					//console.log("checking file:", dir, dd[i], f)
 					//check if file matches any of the extensions specified
 					//var ok=exts.split(" ").some(x=>f.indexOf(x)!=-1)
 					var ok=(exts.toUpperCase().indexOf(path.extname(f).toUpperCase())!=-1)

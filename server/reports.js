@@ -227,7 +227,7 @@ const svr_jsonfile="__svrData.json"
 const svr_json={
 	project_id:"$project_id",
 	svr_id:"$dir",
-	title:"untitled",
+	title:"Field Review Report",
 	date:"2018-May-10",
 	date_issued:"none",
 	author:"$user",
