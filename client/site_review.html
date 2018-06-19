@@ -419,7 +419,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<div id="svr-titleblock-right-placeholder" class="col-xs-6">titleblock - report info placeholder</div>
 	</div>
 	
-	<p class="row row_" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
+	<p class="row row__" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
 	</p>
 	<br><br>
 	<div id="svr-notes-placeholder" class="marz"></div>
@@ -431,7 +431,6 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 <!-- TEMPLATES -->
 <template id='svr-header' type="text/x-handlebars-template">
 	{{#with svr}}
-	<br><br>
 	<div id="backup-logo"></div>
 	<img style="width:100px; float:left;"
 		src="uploads/logo.png" 
@@ -453,22 +452,22 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p class="col-xs-8">{{project_id}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong class="col-xs-4">Project Name:</strong>
 	<p class="col-xs-8">{{project_name}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong class="col-xs-4">Project Address:</strong>
 	<p class="col-xs-8">{{address}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong class="col-xs-4">Contractor:</strong>
 	<p class="col-xs-8">{{contractor}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong class="col-xs-4">Permit No:</strong>
 	<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 </div>
@@ -482,7 +481,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p class="col-xs-8">{{svr_id}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong id="svr-date" class="col-xs-4">Date of Visit:</strong>
 	<p class="col-xs-8"
 	title="click to edit, then double-click to save..."
@@ -490,7 +489,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	onclick="svr.titleblock_right.edit(this)">{{date}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong  class="col-xs-4">Date Issued:</strong>
 	<p class="col-xs-8"	
 	title="click to edit, then double-click to save..."
@@ -498,7 +497,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	onclick="svr.titleblock_right.edit(this)">{{date_issued}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong  class="col-xs-4">Reviewer:</strong>
 	<p class="col-xs-8"	
 	title="click to edit, then double-click to save..."
@@ -506,7 +505,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	onclick="svr.titleblock_right.edit(this)">{{author}}</p>
 </div>
 
-<div class="row row_">
+<div class="row row">
 	<strong class="col-xs-4"
 	title="click to edit, then double-click to save..."
 	field="misc_key"
