@@ -388,6 +388,8 @@ casbah.tool=function(htmlfile){
 	else {$("#"+id).show().load("client/"+htmlfile);}
 };
 
+
+
 casbah.__views={};
 
 casbah.view=function(htmlfile){
@@ -422,4 +424,13 @@ casbah.view=function(htmlfile){
 	
 };
 
+
+/////////////////////
+// POLYFILL
+
+if (!Object.values) { 
+	Object.values = function(obj){
+		return Object.keys(obj).map(function(e){return obj[e]});
+	}
+}
 

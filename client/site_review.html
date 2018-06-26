@@ -438,6 +438,8 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 		onerror="$('#backup-logo').load('client/casbah_logo.html');">
 	<h2  style="float:right;" 
 		field="title"
+		onmouseenter="$(this).addClass('highlite')"
+		onmouseleave="$(this).removeClass('highlite')"
 		onclick="svr.header.edit(this)">{{title}}</h2>
 	<div style="clear:both"></div>
 	{{/with}}
@@ -486,6 +488,8 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p class="col-xs-8"
 	title="click to edit, then double-click to save..."
 	field="date"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
 	onclick="svr.titleblock_right.edit(this)">{{date}}</p>
 </div>
 
@@ -494,6 +498,8 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p class="col-xs-8"	
 	title="click to edit, then double-click to save..."
 	field="date_issued"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
 	onclick="svr.titleblock_right.edit(this)">{{date_issued}}</p>
 </div>
 
@@ -502,6 +508,8 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p class="col-xs-8"	
 	title="click to edit, then double-click to save..."
 	field="author"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
 	onclick="svr.titleblock_right.edit(this)">{{author}}</p>
 </div>
 
@@ -509,10 +517,14 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<strong class="col-xs-4"
 	title="click to edit, then double-click to save..."
 	field="misc_key"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
 	onclick="svr.titleblock_right.edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
 	<p class="col-xs-8"
 	title="click to edit, then double-click to save..."
 	field="misc_valu"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
 	onclick="svr.titleblock_right.edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
 </div>
 
