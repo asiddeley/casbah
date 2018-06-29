@@ -27,15 +27,16 @@ const fs = require('fs')
 //const url = require('url')
 const path = require('path')
 
-const dbname="casbah.db";
+//const dbname="casbah.db";
 const dirs={
-	database:"database",
+	//database:"database",
 	uploads:"uploads",
-	contract:"uploads/contract",
-	gallery:"uploads/gallery",
-	photos:"uploads/photos",
-	reports:"uploads/reports",
-	wiki:"uploads/wiki"
+	example:"uploads/x-project",
+	contract:"uploads/x-project/contract",
+	gallery:"uploads/x-project/gallery",
+	photos:"uploads/x-project/photos",
+	reports:"uploads/x-project/reports",
+	wiki:"wiki"
 };
 
 //Create directories if not already

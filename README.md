@@ -19,9 +19,9 @@ Alternately with npm (when avaiable):
 Then, to see the casbah main page, visit [http://localhost:8080/](http://localhost:8080/)
 
 ## Introduction
-In Architectural practice, a project goes through various phases from concept to construction.  Contact Administration (CA) is the process of administering the contract between the Owner and Constructor as required to get a building built.  Casbah facilitates this process by managing the paperwork.  
+In Architectural practice, a project goes through various phases from concept to construction.  Contact Administration (CA) is one of the latter phases and is the process of administering the contract between the Owner and Constructor to get the project built.  Casbah facilitates this process by managing the paperwork.  
 
-Casbah is a web-site that manages CA documents with a difference.  In a typical CA setup, a basic file system stores loose reports (word-files), Payment certificates(spreadsheets), drawings (cad) and all these are usually issued as paper images (pdfs).  With casbah, CA documents are not loose files but structured information in a database.  This makes content within documents more accessible, searchable, interconnected and meaningful.  It reduces repetition, contradictions and errors.  It reduces time spent researching and preparing documents so for example, it becomes trivial to prepare and issue a revised report or minutes from the latest meeting since it's just a matter of updating existing elements. 
+Casbah is a web-site that manages CA documents...
 
 An overview of the casbah main page and the 9 basic tabs follows...
 

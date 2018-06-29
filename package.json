@@ -2,7 +2,7 @@
   "name": "casbah",
   "version": "0.0.2",
   "description": "Contract Administration Site * Be Architecural Heroes *",
-  "main": "cazbar.js",
+  "main": "casbah_server.js",
   "scripts": {
     "cas": "node casbah_server.js",
     "bah": "iexplore http://localhost:8080/"
@@ -15,7 +15,6 @@
     "Change Management",
     "Deficiency Tracking",
     "Punch-list",
-    "Photo Management",
     "Site Resident",
     "Site Visit Report"
   ],

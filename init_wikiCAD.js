@@ -40,7 +40,7 @@ const path=require("path")
 
 var background_colour=9; //grey
 var fi;
-var files=fsp.walkSync(__dirname+"\\uploads\\wiki");
+var files=fsp.walkSync(__dirname+"\\wiki");
 var file;
 //console.log (dirs)
 const md_content=" is an autoCAD block..."

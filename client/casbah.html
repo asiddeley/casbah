@@ -50,7 +50,9 @@ $(function() {
 	//Setup Handlebars
 	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
 	Handlebars.registerHelper("array", function(arr, options){
-		var text=arr.join("<br>");
+		var text;
+		if (arr instanceof Array){text=arr.join("<br>");}
+		else {text=arr;}
 		return new Handlebars.SafeString(text);	
 	});
 	
@@ -86,10 +88,12 @@ $(function() {
 		<ul class="dropdown-menu">
 			<li onclick="casbah.view('project_log.html')"><a href="#">Project Log</a></li>
 			<li class="divider"><li>
-			<li class="disabled"><a href="#">Action List</a></li>
+			<li class="disabled"><a href="#">Action Items</a></li>
 			<li class="disabled"><a href="#">Project Status</a></li>
 			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
 			<li class="disabled"><a href="#">Outstanding Shops</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 
@@ -101,6 +105,8 @@ $(function() {
 			<li class="disabled"><a href="#">Billing (GC progress draws)</a></li>
 			<li class="disabled"><a href="#">Certificates of Payment</a></li>
 			<li class="disabled"><a href="#">Progress Summary</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 
@@ -121,6 +127,8 @@ $(function() {
 			<li class="disabled"><a href="#">Change Contemplated</a></li>
 			<li class="disabled"><a href="#">Change Order</a></li>
 			<li class="disabled"><a href="#">Change Directive</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 	
@@ -129,7 +137,9 @@ $(function() {
 		>Gallery<span class="caret"></span></a>
 		<ul class="dropdown-menu">
 			<li onclick="casbah.view('collection.html')"><a href="#">Photo Collections</a></li>
-			<li class="disabled"><a href="#">Sketchs</a></li>
+			<li class="disabled"><a href="#">Sketches</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 
@@ -143,6 +153,8 @@ $(function() {
 			<li class="disabled" id="rfilog-btn"><a href="#">RFIs &amp; Responses</a></li>
 			<li class="disabled"><a href="#">Site Memos</a></li>
 			<li class="disabled"><a href="#">Supplemental Instructions</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 
@@ -152,6 +164,8 @@ $(function() {
 		<ul class="dropdown-menu">
 			<li class="disabled"><a href="#">Action log</a></li>
 			<li class="disabled"><a href="#">Conference Reports</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>		
 		</li>
 
@@ -166,18 +180,20 @@ $(function() {
 			<li onclick="casbah.view('site_review_log.html')"><a href="#"
 			>Site Visit Reviews</a></li>
 			<li class="divider"><li>
-			<li onclickNotYet="casbah.view('report_log.html')"><a href="#"
-			>Report Log</a></li>
+			<li onclickNotYet="casbah.view('report_index.html')"><a href="#"
+			>...</a></li>
 		</ul>	
 		</li>
 		
 		<li class="dropdown">
 		<a id="shopstab" class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Shops<span class="caret"></span></a>
+		>Submittals<span class="caret"></span></a>
 		<ul class="dropdown-menu">
 			<!--li class="disabled"><a href="#">Submittal</a></li-->
-			<li class="disabled"><a href="#">Submittal Log</a></li>
+			<li class="disabled"><a href="#">SDI Log</a></li>
 			<li class="disabled"><a href="#">O &amp; M Manual Review</a></li>
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>		
 		</ul>
 		</li>
 
@@ -190,15 +206,15 @@ $(function() {
 			<li class="disabled"><a href="#">Help</a></li>
 			<li onclick="casbah.view('project_log.html');"><a href="#"
 			>Projects</a></li>
-			<li onclick="casbah.view('wiki.html');casbah.tool('wiki_tools.html')"><a href="#">Wiki</a></li>		
-			</ul>			
+			<li onclick="casbah.view('wiki.html');casbah.tool('wiki_tools.html')"><a href="#">Wiki</a></li>	
+			<li class="divider"><li>
+			<li class="disabled"><a href="#">...</a></li>	
+			</ul>
 		</li>
-		
 		</ul>
 	</div>
-
-
 </nav>
+
 <div id="BUMPER" >bumper</div>
 <div id="VIEW"></div>
 
