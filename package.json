@@ -4,8 +4,7 @@
   "description": "Contract Administration Site * Be Architecural Heroes *",
   "main": "casbah_server.js",
   "scripts": {
-    "cas": "node casbah_server.js",
-    "bah": "iexplore http://localhost:8080/"
+    "cas": "node casbah_server.js"
   },
   "keywords": [
     "Architect",
@@ -22,11 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "canvas": "^1.6.10",
-    "diskdb": "^0.1.17",
     "express": "^4.16.2",
     "express-fileupload": "^0.4.0",
-    "image-size": "^0.6.2",
-    "sqlite3": "^3.1.13"
+    "image-size": "^0.6.2"
   }
 }
