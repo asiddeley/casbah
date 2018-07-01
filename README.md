@@ -1,45 +1,68 @@
-# casbah
-Contract-Admin Site * Be Architectural Heroes
+# CASBAH 
+## Contract Admin. Server *
+### * Be Architectural Heroes 
+#### ( beta version 0.1.x )
+Casbah helps manage documents and workflows for Architectural Contract Administrators. 
 
-## Installation (windows)
-Ensure git, nodejs and npm are installed.  
+## Installation (Windows)
+ 
 
-To install and run:
+### npm
+Ensure nodejs and npm are installed on your computer. To create a new node project, open a cmd window and enter the following...
+```
+>mkdir my_casbah_site
+>cd my_casbah_site
+>npm init
+```
+Install casbah as a node_module in the project...
+```
+>npm install casbah --save
+```
+In the working directory, create a javascript file 'casbah_start.js' with the following content, this will be the launcher.  You can copy this file from the node_modules/casbah folder.
+```
+global.appRoot=__dirname
+global.uploads_dir="my_projects"
+global.wiki_dir="my_wiki"
+require("casbah")
+```
+Once the casbah server is running, open your favorate browser and navegate to the casbah web-site...[http://localhost:8080/](http://localhost:8080/)
+
+
+
+### git
+Alternately casbah can be installed with git from github.  Ensure git is installed on your computer, open a cmd window and enter following...
 ```
 >git clone https://github.com/asiddeley/casbah.git
 >cd casbah
 >npm install
 >npm run cas
 ```
-Alternately with npm (when avaiable):
-```
->npm install casbah
->npm run cas
-```
-Then, to see the casbah main page, visit [http://localhost:8080/](http://localhost:8080/)
+
+
 
 ## Introduction
 In Architectural practice, a project goes through various phases from concept to construction.  Contact Administration (CA) is one of the latter phases and is the process of administering the contract between the Owner and Constructor to get the project built.  Casbah facilitates this process by managing the paperwork.  
 
 Casbah is a web-site that manages CA documents...
 
-An overview of the casbah main page and the 9 basic tabs follows...
+## Casbah Overview
+Breakdown of the casbah main page and the 9 basic tabs follows...
 
-## Action
-This tab presents the important action items, these are mainly taken from meeting minutes. Owner Architect Contractor (OAC) meetings are generally the focus
+### Action
+This tab presents the action items, these are mainly taken from meeting minutes...
 + Action items
-+ Project status
-+ Outstanding RFIs
-+ Outstanding Shops
++ Projects
++ Index of all action folders
 
-## Billing
+### Billing
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 + Allowance Authorization Letters
 + Billing (GC progress draws)
 + Certificates of Payment
 + Progress Summary
++ Index of all billing folders
 
-## Contract
+### Contract
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
 + Contract
 + Addendums
@@ -47,60 +70,66 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 + Drawings
 + Specifications
 + Schedule
-
-## Delta
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-
-+ Change Log
 + Change Contemplated
 + Change Directive
 + Change Order
++ Index of all contract folders
 
-## Exhibits
+### Gallery
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
 + Gallery (featured photos)
-+ Photo (current)
-+ Photos Log
-+ Sketch (current)
-+ Sketch Log
++ Photos 
++ Sketchs
++ Index of all gallery folders
 
-## Letters
+
+### Letters
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-+ Conformance Letter
-+ Conformance Letter Log
-+ Site Memo
-+ Site Memo Log
-+ Supplemental Instructions
-+ Supplemental Instruction Log
++ Conformance Letters
++ Site Memos
++ Index of all letter folders
 
-## Meetings
+### Meetings
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 + Action Items
-+ OAC Meeting Minutes (current)
-+ OAC Meeting Minutes Log
++ OAC Meeting Minutes
++ Index of all meeting folders
 
-## Reports
+### Reports
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-+ Site Visit Report
-+ Site Visit Report Log
-+ Room Punch List
-+ Room Punch List Log
-+ RFI
-+ RFI Log
++ Site Visit Reports
++ Room Punch Lists
++ RFIs
++ Index of all report folders
 
-## Shops
+### Submittals
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-+ Submittal
-+ Submittal Log
-+ O & M Manual Review
++ Submittals
++ O & M Manuals
++ Index of all submittal folders
 
-## Wiki
+### Wiki
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 + About
 + Help
 + Projects
 
-## license
+## Development Notes
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+### Committing and Publishing 
+After editing and testing code, use git to commit and update the repository... 
+```
+>git add .
+>git commit -m 
+>git push
+```
+Then update the verion number and publish to npm thus...
+```
+>npm version [major|minor|patch]
+>npm publish
+```
+### license
 Copyright 2008 Andrew I Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:

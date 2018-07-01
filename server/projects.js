@@ -28,7 +28,9 @@ SOFTWARE.
 
 const path = require("path")
 const fs = require("fs")
-const fsp = require(path.join(global.appRoot,"server","fs+"))
+//const fsp = require(path.join(global.appRoot,"server","fs+"))
+const fsp = require(path.join(__dirname,"fs+"))
+
 
 //const projects_dir="uploads"
 const projects_jsonfile="__projectData.json"

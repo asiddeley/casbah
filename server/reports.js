@@ -28,7 +28,8 @@ SOFTWARE.
 
 const path = require("path")
 const fs = require("fs")
-const fsp = require(path.join(global.appRoot,"server","fs+"))
+//const fsp = require(path.join(global.appRoot,"server","fs+"))
+const fsp = require(path.join(__dirname,"fs+"))
 const sizeOf = require('image-size');
 const reports_dir="reports"
 

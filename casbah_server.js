@@ -29,24 +29,19 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"server","fs+"))
 const url = require("url")
-//const sqlite=require("sqlite3").verbose()
-//const casbahdat = require(path.join(__dirname,"server","casbahdat.js"))
 const bodyParser = require("body-parser") 
-//const strmod=require("./server/strmod.js")
 const fileUpload = require("express-fileupload")
 
 const app = express()
-global.appRoot = path.resolve(__dirname);
-
-//Database setup
-//casbahdat.init();
-//process.on("exit", casbahdat.close)
+if (typeof global.appRoot=="undefined") {global.appRoot=path.resolve(__dirname)}
+if (typeof global.uploads_dir=="undefined") {global.uploads_dir="uploads"}
 
 //Main entry
 app.get('/', function (req, res) {res.sendFile(path.join(__dirname,"client","casbah.html"));})
 
 //File server
 app.use(express.static(__dirname));
+app.use(express.static(global.appRoot));
 
 //Logger
 app.use(function(req, res, next){console.log("LOG...",req.url);	next();});
@@ -54,9 +49,6 @@ app.use(function(req, res, next){console.log("LOG...",req.url);	next();});
 //Middleware parsers for database queries and uploads
 app.use( bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 10000}));
 app.use( bodyParser.json({limit: '50mb'}));
-
-//Database queries
-//app.post('/database', casbahdat.query);
 
 //Uploader
 app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));

@@ -28,10 +28,16 @@ SOFTWARE.
 
 const path = require("path")
 const fs = require("fs")
-const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fileUpload = require('express-fileupload')
-const project=require(path.join(global.appRoot,"server","projects"))
-const reports=require(path.join(global.appRoot,"server","reports"))
+//const fsp = require(path.join(global.appRoot,"server","fs+"))
+//const project=require(path.join(global.appRoot,"server","projects"))
+//const reports=require(path.join(global.appRoot,"server","reports"))
+const fsp = require(path.join(__dirname,"fs+"))
+const project=require(path.join(__dirname,"projects"))
+const reports=require(path.join(__dirname,"reports"))
+
+//const uploads_dir="uploads"
+const uploads_dir=global.uploads_dir
 
 const df_create=function(datafile, row, callback){
 	//row - {by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}
@@ -112,7 +118,6 @@ const df_update=function(df, rowid, row, callback){
 }
 
 
-const uploads_dir="uploads"
 
 ////////////////////////////
 //Exports
@@ -127,15 +132,6 @@ req.body.folder... Collection | deficiency Sheet set
 req.body.extension
 req.files... populated by middle-ware from ajaxed formData
 **********/
-	/***
-	if (typeof req.body.project_id == "undefined") {
-		var err="project_id undefined"
-		console.log("UPLOAD handler error:", err)
-		res.json({dirs:[], err:err})
-		return;
-	}
-	const root=path.join(global.appRoot, uploads_dir, req.body.project_id)
-	*/
 	
 	//inject uploads, 
 	req.body.uploads_dir=uploads_dir
