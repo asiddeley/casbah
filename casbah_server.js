@@ -40,8 +40,8 @@ if (typeof global.uploads_dir=="undefined") {global.uploads_dir="uploads"}
 app.get('/', function (req, res) {res.sendFile(path.join(__dirname,"client","casbah.html"));})
 
 //File server
-app.use(express.static(__dirname));
-app.use(express.static(global.appRoot));
+app.use(express.static(__dirname))
+if (__dirname!=global.appRoot) {app.use(express.static(global.appRoot))}
 
 //Logger
 app.use(function(req, res, next){console.log("LOG...",req.url);	next();});

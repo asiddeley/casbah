@@ -156,6 +156,15 @@ $(".tooltip").tooltip();
 
 <template id="svrl-content-template" type="text/x-handlebars-template">
 
+	<div class="row marz"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		title="Click to create a new report..."
+		onclick="svrl.insert(this)"> 
+		<small class="col-xs-1 row-head marz">0</small>
+		<span class="col-xs-2 row-head marz border-left">Report count: {{svrs.length}}</span>
+	</div>
+
 	{{#each svrs}}
 	<div class="row marz row row-head zebra" 
 		title="click to add a new report..."

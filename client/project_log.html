@@ -2,27 +2,81 @@
 
 <script type='text/javascript'>
 
-
 var project={};
 
-//Open text editor...
-project.edit=function(el){
-	project.ed.text(el, function(){
-		project.update(project.ed.row(), project.ed.rowid(), true); 
-		project.ed.hide();
+project.change=function(pid, field, valu, callback){
+	// change field:values in project_json located in a particular project dir
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"PROJECT-CHANGE",
+			project_id:pid,
+			field:field,
+			valu:valu
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){ if (typeof callback =="function"){callback();}},
+		type:"POST",
+		url:"/uploads"
 	});
 };
 
-project.make_current=function(el){
+project.current_menu=function(){
+	// Called from Menu 
+	var caller=project.menu.menu("option","caller");
+	var pid=$(caller).closest("[project_id]").attr("project_id");
+	$("#browser_tab").text("CASBAH-"+pid);
+	localStorage.setItem("project_id", pid);
+};
+
+project.current_page=function(el){
+	// Called from page
 	var pid=$(el).text();
 	$("#browser_tab").text("CASBAH ("+pid+")");
 	localStorage.setItem("project_id", pid);
 };
 
-project.update=function(row, rowid, flag){
-	console.log("Project update ROW:",row," ROWID:", rowid);
-	//TODO...
+// text editor
+project.ed=new casbah.Editor();
+
+// Open text editor...
+project.edit=function(el){
+	project.ed.text(el, function(){
+		project.update(project.ed.row(), project.ed.rowid(), true); 
+		project.ed.hide();
+		var pid=project.ed.target_attr("pid");
+		var field=project.ed.target_attr("field"); 
+		var text=project.ed.val();
+		console.log("FIELD",field, " UPDATED TEXT:", text);
+		project.change(pid, field, text, function(){
+			project.ed.hide();
+			//refresh (server request and render), alt just render cache...
+			project.refresh();
+		})	
+	});
 };
+
+project.insert_menu=function(){
+	//Called from Menu 
+	var caller=project.menu.menu("option","caller");
+	//var pid=$(caller).closest("[project_id]").attr("project_id");
+	var pid=$(caller).attr("project_id");
+	var project_id=prompt("New Project ID", pid);
+	if (project_id != "" && project_id != null){
+		$.ajax({
+			data:$.param({action:"PROJECT-INSERT", project_id:project_id}),
+			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+			error:function(err){console.log("Error from server:", err);},
+			success:function(result){project.refresh();	},
+			type:"POST",
+			url:"/uploads"
+		});	
+	}
+};
+
+// initialize context menu...
+project.menu=$("#project-menu").menu().css("position","absolute", "width", "200px").hide();
+
 
 project.refresh=function(){
 	$.ajax({
@@ -38,23 +92,13 @@ project.refresh=function(){
 	});
 };
 
-//Menu action
-project.current=function(){
-	var caller=project.menu.menu("option","caller");
-	var pid=$(caller).closest("[project_id]").attr("project_id");
-	$("#browser_tab").text("CASBAH-"+pid);
-	localStorage.setItem("project_id", pid);
+
+project.update=function(row, rowid, flag){
+	console.log("Project update ROW:",row," ROWID:", rowid);
+	//TO DO...
 };
 
-// text editor
-project.ed=new casbah.Editor();
-
-// highligher
-//project.hi=new casbah.Highlighter("highlite");
-
-// initialize context menu...
-project.menu=$("#project-menu").menu().css("position","absolute", "width", "200px").hide();
-
+//////////////////////////////////////////////////
 //load templates and render...
 $.get("client/header.html", function(htm){
 	//beware - this is asynchronous so risk of project.header being undefined if called outside this function
@@ -81,19 +125,29 @@ project.refresh();
 
 
 <template id="project-template" type="text/x-handlebars-template">
-	<div class="row marz row__"></div>
+	<div class="row marz row__"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		title="Right-click for menu..."
+		project_id="PRJ-001"
+		oncontextmenu="casbah.showMenu(project.menu, event)"> 
+		<small class="col-xs-1 row-head marz">0</small>
+		<div class="border-left col-xs-11 marz">
+			<span class="col-xs-2 row-head marz">Project count: {{projects.length}}</span>
+		</div>
+	</div>
 
 	{{#each projects}}
 	
 	<div class="row marz row zebra" >
-	<small class="col-xs-1 row-head marz">{{plusOne @index}}</small>
-	<div class="border-left col-xs-11 marz" >
-	<span class="col-xs-2 row-head marz">Project No.</span>
-	<span class="col-xs-3 row-head marz">Project</span>
-	<span class="col-xs-2 row-head marz">Owner</span>
-	<span class="col-xs-2 row-head marz">Date</span>
-	<span class="col-xs-2 row-head marz">GC</span>
-	</div>	
+		<small class="col-xs-1 row-head marz">{{plusOne @index}}</small>
+		<div class="border-left col-xs-11 marz" >
+			<span class="col-xs-2 row-head marz">Project No.</span>
+			<span class="col-xs-3 row-head marz">Project</span>
+			<span class="col-xs-2 row-head marz">Owner</span>
+			<span class="col-xs-2 row-head marz">Date</span>
+			<span class="col-xs-2 row-head marz">GC</span>
+		</div>	
 	</div>	
 	
 	<div class="row marz"
@@ -107,29 +161,33 @@ project.refresh();
 		title="Click to make current"
 		field="project_id"
 		rowid="{{rowid}}"
-		onclick="project.make_current(this);">{{project_id}}</p>
+		onclick="project.current_page(this);">{{project_id}}</p>
 		
 	<p 	class="col-xs-3 marz"
+		pid="{{project_id}}"
 		field="project_name"
-		title="Click to edit"		
+		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="project.edit(this);">{{project_name}}</p>
 	
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="client"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="project.edit(this);">{{owner}}</p>
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="date"
-		title="Click to edit"	
+		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="project.edit(this);">{{date}}</p>
 		
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="contractor"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -157,6 +215,7 @@ project.refresh();
 	<p class="col-xs-1 marz ">&nbsp;</p>
 	<div class="border-left marz col-xs-11">
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="permit"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -164,6 +223,7 @@ project.refresh();
 		onclick="project.edit(this);">{{permit}}</p>	
 			
 	<p 	class="col-xs-3 marz"
+		pid="{{project_id}}"
 		field="address"
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
@@ -171,6 +231,7 @@ project.refresh();
 		onclick="project.edit(this);">{{address}}</p>
 		
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="date_closed"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -178,6 +239,7 @@ project.refresh();
 		onclick="project.edit(this);">{{date_closed}}</p>
 		
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="status"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -185,6 +247,7 @@ project.refresh();
 		onclick="project.edit(this);">{{status}}</p>
 		
 	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
 		field="xdata"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -198,10 +261,10 @@ project.refresh();
 
 <!-- MENUS -->
 <ul id="project-menu" onmouseleave="project.menu.hide()" class="hide9999">
-<li class="disabled" onclick="alert('Add...');">Add</li>
-<li onclick="project.current();">Current</li>
-<li onclick="project.menu.hide();project.refresh();">Refresh</li>
-<li onclick="project.menu.hide()">Exit</li>
+<li onclick="project.insert_menu();">New Project</li>
+<li onclick="project.current_menu();">Make Current</li>
+<li onclick="project.refresh();">Refresh Page</li>
+<li onclick="project.menu.hide()">Exit Menu</li>
 </ul >
 
 

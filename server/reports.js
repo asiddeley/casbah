@@ -95,9 +95,16 @@ const rdss_json={
 exports.rdss_insert=function(req, res){
 
 	//Makes a folder, returns a list of folders including the new folder
-	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, rdss_dir);
-	console.log("RDSS INSERT:", p, req.body.insert)
+	
 	try {
+		var p=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, 
+			rdss_dir );
+		console.log("RDSS INSERT:", p, req.body.insert)
+		
 		fs.mkdirSync(path.join(p, req.body.insert))
 		//result {dirs:[{dir:"name"}, {dir:"name"}...]}
 		res.json({
@@ -240,6 +247,74 @@ const svr_json={
 	xdata:{}
 }
 
+exports.svr_change=function(req, res){
+	var p, field, valu, stat, json
+
+	try{
+		p=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, svr_dir, 
+			req.body.svr_id, 
+			svr_jsonfile )
+		field=req.body.field
+		valu=req.body.valu
+		stat="OK"
+		console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
+		json=JSON.parse(fs.readFileSync(p))
+		json[field]=valu
+		fs.writeFileSync(p,JSON.stringify(json))
+	}
+	catch(err) {
+		stat=err
+		console.log("SVR_CHANGE Catch:",err)
+	} 
+	finally {
+		var result={data:[json],stat:stat}
+		res.json(result);
+		console.log("SVR_CHANGE finally:", result)
+	}
+}
+
+exports.svrl_insert=function(req, res){
+
+	var err, p
+	
+	//ensure reports_dir exists...
+	try {		
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir)
+		if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
+	} 
+	catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
+	
+	//ensure site reviews dir exists...
+	try {		
+		p=path.join(p, svr_dir)
+		if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
+	} 
+	catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
+	
+	//Make a folder then returns a list of folders including the new folder...
+	try {		
+		err=null
+		console.log("SVRL INSERT dir:", req.body.svr_id, " path:", p)
+		fs.mkdirSync(path.join(p, req.body.svr_id))
+	}
+	catch(e) {err=e; console.log(err);} 
+	finally {
+		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
+		var svrs=fsp.jsonify(fsp.dirSync_json(p, svr_jsonfile, svr_json))
+		var r={
+			err:err,
+			svrs:fsp.dirasid(svrs, "svr_id"),
+			project_id:req.body.project_id
+		}
+		res.json(r);
+		console.log("SVRL INSERT finally:",r)
+	}
+}
+
 exports.svr_select=function(req, res){
 	//returns all site reviews
 	var p, root, rr
@@ -325,53 +400,5 @@ exports.svr_select=function(req, res){
 		rr.err=err
 		res.json(rr)
 		console.log("SVR catch:", rr)
-	}
-}
-
-exports.svr_change=function(req, res){
-	var p, field, valu, stat, json
-
-	try{
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir, req.body.svr_id, svr_jsonfile)
-		field=req.body.field
-		valu=req.body.valu
-		stat="OK"
-		console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
-		json=JSON.parse(fs.readFileSync(p))
-		json[field]=valu
-		fs.writeFileSync(p,JSON.stringify(json))
-	}
-	catch(err) {
-		stat=err
-		console.log("SVR_CHANGE Catch:",err)
-	} 
-	finally {
-		var result={data:[json],stat:stat}
-		res.json(result);
-		console.log("SVR_CHANGE finally:", result)
-	}
-}
-
-exports.svrl_insert=function(req, res){
-
-	var err, p
-	try {
-		//Make a folder then returns a list of folders including the new folder
-		err=null
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		console.log("SVRL INSERT:", p, req.body.svr_id)
-		fs.mkdirSync(path.join(p, req.body.svr_id))
-	}
-	catch(e) {err=e; console.log(err);} 
-	finally {
-		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
-		var svrs=fsp.jsonify(fsp.dirSync_json(p, svr_jsonfile, svr_json))
-		var r={
-			err:err,
-			svrs:fsp.dirasid(svrs, "svr_id"),
-			project_id:req.body.project_id
-		}
-		res.json(r);
-		console.log("SVRL INSERT finally:",r)
 	}
 }

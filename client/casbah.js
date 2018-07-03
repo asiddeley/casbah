@@ -393,7 +393,7 @@ casbah.tool=function(htmlfile){
 casbah.__views={};
 
 casbah.view=function(htmlfile){
-	//htmlfile eg. "deficiency_sheets_log.html")
+	//htmlfile eg. deficiency_sheets_log.html
 	
 	console.log("viewchange:", htmlfile);	
 	//heads up - close open editors etc

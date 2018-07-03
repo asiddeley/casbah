@@ -33,8 +33,8 @@ const fsp = require(path.join(__dirname,"fs+"))
 
 
 //const projects_dir="uploads"
-const projects_jsonfile="__projectData.json"
-const projects_json={
+const project_jsonfile="__projectData.json"
+const project_json={
 	project_id:"PROJ-001",			
 	project_name:"The Casbah Building",
 	address:"101 Desert Way, The Ville, RTC-RTC",
@@ -49,13 +49,40 @@ const projects_json={
 
 //////////////////////
 // EXPORTS
-exports.change=function(req, res){}
+exports.change=function(req, res){
+	var p, field, valu, stat, json
+
+	try{
+		p=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			project_jsonfile
+		)
+		field=req.body.field
+		valu=req.body.valu
+		stat="OK"
+		console.log("PROJECT CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
+		json=JSON.parse(fs.readFileSync(p))
+		json[field]=valu
+		fs.writeFileSync(p,JSON.stringify(json))
+	}
+	catch(err) {
+		stat=err
+		console.log("PROJECT_CHANGE Catch:",err)
+	} 
+	finally {
+		var result={data:[json],stat:stat}
+		res.json(result);
+		console.log("PROJECT_CHANGE finally:", result)
+	}
+}
 
 exports.idlist=function(req, res){
 	//Returns a list of project folders
-	var p=path.join(global.appRoot, req.body.uploads_dir)
-	console.log("PROJECT-IDLIST:", p);
 	try {
+		var p=path.join(global.appRoot, req.body.uploads_dir)
+		console.log("PROJECT-IDLIST:", p)		
 		//getDirsSync returns an array of folders.  Each is just a short name, not path
 		var ids=fsp.getDirsSync(p);
 		res.json({ids:ids});
@@ -65,25 +92,46 @@ exports.idlist=function(req, res){
 		res.json({ids:[]});
 	}	
 }
-exports.insert=function(req, res){}
+exports.insert=function(req, res){
+	var err, p
+	try {
+		//Make a new project folder...
+		err=null
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id)
+		console.log("PROJECT INSERT Try...")
+		fs.mkdirSync(p)
+		console.log("PROJECT INSERT Created folder:",p)
+		//Make a new jsonfile with default project data for the folder...
+		//not necessary because default jsonfile created by SELECT dirSync_json...
+		//fs.writeFileSync(path.join(p, project_jsonfile), JSON.stringify(project_json))
+		//console.log("PROJECT INSERT Created jsonfile:",path.join(p, project_jsonfile))
+		res.json({msg:"Project created"});
+	}
+	catch(e) {	
+		console.log("PROJECT INSERT CATCH:",e)	
+		res.json({err:e});
+	} 
+}
+
+
 exports.remove=function(req, res){}
 exports.select=function(req, res){
 	
 	//select all projects with suplementary data
 	var p=path.join(global.appRoot, req.body.uploads_dir);
 	//empty result
-	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:projects_json} 
+	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:project_json} 
 	console.log("PROJECT select:");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned
-			var rar=fsp.dirSync_json(p, projects_jsonfile, projects_json, req.body.project_id)
+			var rar=fsp.dirSync_json(p, project_jsonfile, project_json, req.body.project_id)
 			rar=fsp.jsonify(rar)
 			r.projects=fsp.dirasid(rar, "project_id")		
  			res.json(r)
-			console.log("PROJECTS success")
+			console.log("PROJECT select success")
 		}
-		else {res.json(r); console.log("PROJECTS error:", err.code)}
+		else {res.json(r); console.log("PROJECT select error:", err.code)}
 	})
 }
 
