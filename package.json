@@ -1,6 +1,6 @@
 {
   "name": "casbah",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Contract Administration Site * Be Architecural Heroes *",
   "main": "casbah_server.js",
   "scripts": {
