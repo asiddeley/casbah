@@ -1,50 +1,63 @@
 # CASBAH 
-## Contract Admin. Server *
-### * Be Architectural Heroes 
-#### ( beta version 0.1.x )
-Casbah helps manage documents and workflows for Architectural Contract Administrators. 
+__C__ ontract __A__ dmin __S__ erver __B__ e __A__ rchitectural __H__ eroes
+## Beta Version 0.1.4 to 0.9.9
+Please note that casbah is still in it's beta stage of development with many features listed but not yet available.  The development team is working throughout the Summer of 2018 and expects to have a post-beta version ready for Autumn.  Thank you for your interest.
 
-## Installation (Windows)
+__Casbah__ is an open source web-server and site that helps manage documents and workflows for Architectural Contract Administrators. 
+
+__Casbah__ works by maintaining a couple of folder structures in it's working directory.  The folder structures contain uploaded files as well as json files for storing data (Although casbah was initially built around a database this was dropped in favour of a strucuted file-system storage approach).  An  __uploads__ folder structure keeps incoming CA documents of varying types such as  drawings (pdf), GC billing (pdf), sketches(pdf), site photos (png, jpg).  Casbah also provides an efficient way of generating documents from folders containing templates and images, for an example see reports/site reviews.  A __wiki__ folder structure keeps searchable casbah help and support articles as well as user entries for anything related to casbah, such as notes, tips, lessons learned etc. 
+
+__Casbah__ log-in and multiple users are not supported at this time.
+
+## Installation
  
-
-### npm
-Ensure nodejs and npm are installed on your computer. To create a new node project, open a cmd window and enter the following...
+### npm (windows)
+For installation with node package manager (npm), ensure nodejs and npm are installed on your computer. To create a new node project, open a cmd window and enter the following...
 ```
->mkdir my_casbah_site
->cd my_casbah_site
+>mkdir my_casbah
+>cd my_casbah
 >npm init
 ```
 Install casbah as a node_module in the project...
 ```
 >npm install casbah --save
 ```
-In the working directory, create a javascript file 'casbah_start.js' with the following content, this will be the launcher.  You can copy this file from the node_modules/casbah folder.
+In the working directory, create a javascript file 'casbah_start.js' with the following content, this will be the server launcher.  You can copy this file from the node_modules/casbah folder.  Note how this file defines the __uploads__ and __wiki__ folder names.  These folders will be automatically created when casbah starts, if they don't already exist in the working directory.  
 ```
+///// casbah_start.js /////
 global.appRoot=__dirname
 global.uploads_dir="my_projects"
 global.wiki_dir="my_wiki"
 require("casbah")
 ```
-Once the casbah server is running, open your favorate browser and navegate to the casbah web-site...[http://localhost:8080/](http://localhost:8080/)
+When casbah_start.js is in your working directory, launch it with node to start the server thus...
+```
+>node casbah_start
+```
+The casbah server should be running and serving on port 8080. Open your favorate browser and navigate to the casbah web-site at [http://localhost:8080/](http://localhost:8080/)
 
-
-
-### git
-Alternately casbah can be installed with git from github.  Ensure git is installed on your computer, open a cmd window and enter following...
+### git (windows)
+Alternately, casbah can be installed with git directly from github.  Ensure git is installed on your computer, open a cmd window and enter following...
 ```
 >git clone https://github.com/asiddeley/casbah.git
 >cd casbah
 >npm install
+```
+Once the casbah is cloned (and folder structure created), the casbah server can be launched like so...
+```
+>cd casbah
 >npm run cas
 ```
-
-
+The casbah server should be running and serving on port 8080.  Open your favorate browser and navigate to the casbah web-site at [http://localhost:8080/](http://localhost:8080/)
 
 ## Introduction
-In Architectural practice, a project goes through various phases from concept to construction.  Contact Administration (CA) is one of the latter phases and is the process of administering the contract between the Owner and Constructor to get the project built.  Casbah facilitates this process by managing the paperwork.  
+In Architectural practice, a building project goes through various phases from concept to construction.  Contact Administration (CA) is one of the latter phases and is the process of administering the contract between the Owner and Constructor to assist in getting the project built.  Casbah facilitates this process by managing the paperwork.  
 
-Casbah is a web-site that manages CA documents...
+Casbah is an open source web-server and site that helps manage documents and workflows for Architectural Contract Administrators. 
 
+Casbah works by maintaining a couple of folder structures in it's working directory.  The folder structures contain uploaded files as well as json files for storing data (Although casbah was initially built around a database this was dropped in favour of a strucuted file-system storage approach).  An  __uploads__ folder structure keeps incoming CA documents of varying types such as  drawings (pdf), GC billing (pdf), sketches(pdf), site photos (png, jpg).  Casbah also provides an efficient way of generating documents from folders containing templates and images, for an example see reports/site reviews.  A __wiki__ folder structure keeps searchable casbah help and support articles as well as user entries for anything related to casbah, such as notes, tips, lessons learned etc. 
+
+Casbah log-in and multiple users are not supported at this time.  
 ## Casbah Overview
 Breakdown of the casbah main page and the 9 basic tabs follows...
 
@@ -121,10 +134,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 After editing and testing code, use git to commit and update the repository... 
 ```
 >git add .
->git commit -m 
+>git commit -m "brief summary of changes"
 >git push
 ```
-Then update the verion number and publish to npm thus...
+Then update the verion number and publish to npm as shown below.  A __patch__ increment is meant for the a small addition, correction or feature enhancement. A __minor__ increment is meant for the addition of a new feature. A __major__ increment it meant for a significant change, addition, or if the code breaks backward-compatibilty.
 ```
 >npm version [major|minor|patch]
 >npm publish

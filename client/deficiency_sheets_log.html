@@ -91,8 +91,6 @@ deficiency_sheets_log.goto=function(ev){
 
 deficiency_sheets_log.head=$("#deficiency_sheets_log_head").html();
 
-deficiency_sheets_log.hi=new casbah.Highlighter("highlite");
-
 deficiency_sheets_log.refresh=function(){
 
 	//var fd=new FormData();
@@ -114,6 +112,7 @@ deficiency_sheets_log.refresh=function(){
 		success: function(result){
 			var html=deficiency_sheets_log.template(result);
 			$("#deficiency_sheets_log_placeholder").html(html);
+
 		},
 		type:"POST",
 		url:"/uploads"
@@ -123,7 +122,6 @@ deficiency_sheets_log.refresh=function(){
 
 deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
 
-
 ///////////////////////////////////
 
 deficiency_sheets_log.refresh();
@@ -131,37 +129,44 @@ deficiency_sheets_log.refresh();
 /////////////////////////////////
 </script>
 
-<div id="deficiency_sheets_log_placeholder"></div>
+<div id="deficiency_sheets_log_placeholder">placeholder</div>
 
 <template id='deficiency_sheets_log' type="text/x-handlebars-template">
 	<div class="container">
 	
 	<div class="row">
-	<div class="col-xs-8"><img src="/uploads/{{project_number}}/logo.png"></div>	
-	<div class="col-xs-4"><h2 class="topMarginZero">DEFICIENCY SHEETS LOG</h2></div>
+	<div id="deficiency_sheets_log_logo"
+	class="col-xs-8"><img src="uploads/{{project_id}}/logo.png" alt="CASBAH"></div>
+	
+	<div class="col-xs-4"><h2 class="topMarginZero">Room Deficiency Report Log</h2></div>
 	</div>	
 	
 	<div class="panel panel-default page">
 	<div class="panel-heading"
-		onmouseenter="deficiency_sheets_log.hi.light(this);" 
-		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		title="Click to change current project."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"	
 		onclick="casbah.project.modal(deficiency_sheets_log.refresh);"
-	><small>Project number:&nbsp;</small>{{project_id}}</div>
+	><strong>Project number:&nbsp;</strong>{{project_id}}</div>
 	<div class="panel-body">
-	The following is a list of deficiency sheet-sets for this project.  Click on each one to open.  Drop image files on each one to ammend.<br>
-	<a onclick="deficiency_sheets_log.add();">Add a new sheet-set...</a><br> 
-	<a onclick="casbah.project.modal(deficiency_sheets_log.refresh);">Select another project...</a> 
+	The following is a list of Room Deficiency Reports for this project.<br>
+	<div
+		title="Click to create a new report."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"
+		onclick="deficiency_sheets_log.add();">Total Reports: {{dirs.length}}</div>
 	</div>	
 	<!-- List group -->
 	<ul class="list-group">
 	{{#each dirs}}
 	<li class="list-group-item"
-		onmouseenter="deficiency_sheets_log.hi.light(this);" 
-		onmouseleave="deficiency_sheets_log.hi.dark(this);"	
+		title="Click to open report, Drop room-plan images to ammend report."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"	
 		onclick="deficiency_sheets_log.goto(event);"
-		ondragenter="event.preventDefault();deficiency_sheets_log.hi.light(this);"
+		ondragenter="event.preventDefault();$(this).addClass('highlite');"
 		ondragover="event.preventDefault();" 
-		ondragleave="event.preventDefault();deficiency_sheets_log.hi.dark(this);"	
+		ondragleave="event.preventDefault();$(this).removeClass('highlite');"	
 		ondrop="deficiency_sheets_log.drop(event);"
 	>{{dir}}</li>
 	{{/each}}

@@ -398,6 +398,7 @@ req.files... populated by middle-ware from ajaxed formData
 	// Site Review Reports
 	case "SVR-CHANGE":reports.svr_change(req, res); break;	
 	case "SVR-SELECT":reports.svr_select(req, res); break;	
+	case "SVR-UPLOAD":reports.svr_upload(req, res); break;	
 
 	// Site Review Reports Log
 	case "SVRL-INSERT":reports.svrl_insert(req, res); break;	

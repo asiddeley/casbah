@@ -77,6 +77,23 @@ const filedate=function(image){
 	return d
 }
 
+const filemover=function(files, dest, req, res){
+	//this recursive filemover required because file.mv(dest, caallback) is synchronous
+	//files - array of files eg. from req.files, which was prepared by express middleware
+	//path - destination path eg. "uploads/prj-001/reports/site reviews/svr-001"
+	//callback - function to call back after all files moved eg. res.json(...)
+	console.log("filemover:",files.length);
+	if (files.length>0){
+		var key=files.shift()
+		var file=req.files[key]
+		file.mv(path.join(dest, file.name), function(){
+			filemover(files, dest, req, res)
+		})
+	}
+	//no more files so execute callback
+	else if (typeof res != "undefined") {res.json({dirs:[], err:null})}
+}
+
 ////////////////////////////////////////////////////
 // rdss - Room Deficiency Sheets LOG
 const rdss_dir="deficiency sheets"
@@ -94,16 +111,23 @@ const rdss_json={
 
 exports.rdss_insert=function(req, res){
 
-	//Makes a folder, returns a list of folders including the new folder
+	// Makes a new dir for rdss then returns a list of folders including the new folder
+	var p
 	
-	try {
-		var p=path.join(
+	// Ensure parent rdss_dir exists...		
+	try { 		
+		p=path.join(
 			global.appRoot, 
-			req.body.uploads_dir, 
+			global.uploads_dir, 
 			req.body.project_id, 
 			reports_dir, 
-			rdss_dir );
-		console.log("RDSS INSERT:", p, req.body.insert)
+			rdss_dir )
+		if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
+	} 
+	catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
+	// Make new dir...
+	try {
+		console.log("RDSS_INSERT try:", p, req.body.insert)
 		
 		fs.mkdirSync(path.join(p, req.body.insert))
 		//result {dirs:[{dir:"name"}, {dir:"name"}...]}
@@ -113,7 +137,7 @@ exports.rdss_insert=function(req, res){
 		});
 	}
 	catch(err) {
-		console.log(err);
+		console.log("RDSS_INSERT catch:", err);
 		res.json({
 			folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
 			err:err,
@@ -126,7 +150,11 @@ exports.rdss_select=function(req, res){
 	//returns all rdss
 	var p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, rdss_dir);
 	//empty result
-	var r={dirs:[{dir:"", jsonfile:"", jsontext:""}], json:rdss_json} 
+	var r={
+		dirs:[{dir:"", jsonfile:"", jsontext:""}], 
+		json:rdss_json,
+		project_id:req.body.project_id
+	} 
 	console.log("RDSS select:", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
@@ -139,9 +167,9 @@ exports.rdss_select=function(req, res){
 			//include dirs field... {dirs:rar, defrow:{}}
 			r.dirs=rar
 			res.json(r)
-			console.log("RDSS success:")
+			console.log("RDSS_SELECT success")
 		} 
-		else {res.json(r); console.log("RDSS error:", err.code)}
+		else {res.json(r); console.log("RDSS_SELECT, error:", err.code)}
 	})
 }
 
@@ -149,38 +177,26 @@ exports.rdss_select=function(req, res){
 exports.rdss_upload=function(req, res){
 	
 	if (!req.files) {
-		var err="RDS-UPLOAD error, missing files"
+		var err="RDS-UPLOAD files not found."
 		console.log(err)
 		res.json({dirs:[], err:err}) 
 		return
 	}
-	//required arguments...
-	var p=path.join(
-		global.appRoot, 
-		req.body.uploads_dir, 
-		req.body.project_id, 
-		reports_dir, 
-		rdss_dir,
-		req.body.rdss_id
-	)
-	console.log("RDS-UPLOAD file(s):", Object.keys(req.files))
-	console.log("RDS-UPLOAD to:", p)
 	try {
-		var dest, file;
-		for (var f in req.files){
-			file=req.files[f]
-			dest=path.join(p, file.name)
-			//console.log("RDS-UPLOAD file:", dest)
-			//.mv function added by 'express-fileupload' middleware
-			file.mv(dest, function(err) {
-				if (err) {console.log ("RDS-UPLOAD failed to move:", dest, err)} 
-				else {console.log ("RDS-UPLOAD file uploaded:", dest)}
-			})
-		}			
+		console.log("RDS-UPLOAD try...")
+		var home=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, 
+			rdss_dir,
+			req.body.rdss_id
+		)	
+		filemover(Object.keys(req.files), home, req, res) 
 	}
 	catch(err) {		
 		res.json({dirs:[], err:err})
-		console.log(err)
+		console.log("RDS-UPLOAD catch:",err)
 	}	
 }
 
@@ -288,7 +304,7 @@ exports.svrl_insert=function(req, res){
 	} 
 	catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
 	
-	//ensure site reviews dir exists...
+	//ensure site_reviews dir exists...
 	try {		
 		p=path.join(p, svr_dir)
 		if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
@@ -321,7 +337,7 @@ exports.svr_select=function(req, res){
 
 	try {
 		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		console.log("SVR select:", p);	
+		console.log("SVR SELECT...");	
 		root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
 		rr={
 			svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
@@ -394,11 +410,38 @@ exports.svr_select=function(req, res){
 		})
 		
 		res.json(rr)
-		console.log("SVR success:", rr)
+		//console.log("SVR success:", rr)
 	}
 	catch(err){
 		rr.err=err
 		res.json(rr)
 		console.log("SVR catch:", rr)
 	}
+}
+
+
+exports.svr_upload=function(req, res){
+	
+	if (!req.files) {
+		var err="SVR-UPLOAD files not found"
+		console.log(err)
+		res.json({dirs:[], err:err}) 
+		return
+	}
+	try {
+		console.log("SVR-UPLOAD try...")
+		var home=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, 
+			svr_dir,
+			req.body.svr_id
+		)		
+		filemover(Object.keys(req.files), home, req, res) 
+	}
+	catch(err) {		
+		res.json({dirs:[], err:err})
+		console.log("SVR-UPLOAD catch:", err)
+	}	
 }

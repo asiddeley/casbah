@@ -192,12 +192,51 @@ svr.notes.update=function(row, rowid){
 	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
 };
 
-
 /////////////////
 // PHOTOS
 svr.photos={}
 
-svr.photos.layout_row_filler=function(rx, i, row){
+svr.photos.ondrop=function(ev){
+	/***
+	https://msdn.microsoft.com/en-us/ie/ms536929(v=vs.94)
+	You must cancel the default action for ondragenter and ondragover in order for ondrop to fire. In the case of a div, the default action is not to drop. This can be contrasted with the case of an input type=text element, where the default action is to drop. In order to allow a drag-and-drop action on a div, you must cancel the default action by specifying window.event.returnValue=false in both the ondragenter and ondragover event handlers. Only then will ondrop fire.
+	
+	https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	Re. processData:false solves 'append called on an object that does not implement interface FormData'
+
+	***/
+	//ev.preventDefault();
+	console.log("ONDROP...");
+	var fd=new FormData();
+	//load up form data with dropped files...
+	for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+		//console.log("name:", ev.dataTransfer.files[i].name);
+		//console.log("filetype:", ev.dataTransfer.files[i].type);
+		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+	}
+	fd.append("action","SVR-UPLOAD");
+	fd.append("project_id", localStorage.getItem("project_id"));
+	fd.append("svr_id",localStorage.getItem("svr_id"));
+	fd.append("upload_file",true);
+	
+	$.ajax({	
+		data:fd,
+		contentType:false,
+		error:function(err){console.log("Error uploading:",err);},
+		processData:false, 
+		success:function(result){
+			console.log("Success uploading, refresh everything...");
+			svr.refresh();
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+
+};
+
+svr.photos.formats={};
+
+svr.photos.formats.filler=function(rx, i, row){
 	var keys=Object.keys(rx);
 	var vals=Object.values(rx);
 	var j=keys.indexOf(i)+1;
@@ -208,17 +247,18 @@ svr.photos.layout_row_filler=function(rx, i, row){
 		//span=Number(vals[j].col.split("-")[2]); //col-xs-2 => 2
 		if(vals[j].available==true ){
 			if(vals[j].format=="landscape" && svr.photos.cc+5<=12) {
-				svr.photos.layout_landscape(rx, keys[j], row);
+				svr.photos.formats.landscape(rx, keys[j], row);
 			}
 			else if (vals[j].format=="portrait"&& svr.photos.cc+3<=12){
-				svr.photos.layout_portrait(rx, keys[j], row);}
+				svr.photos.formats.portrait(rx, keys[j], row);}
 		}
 		j+=1;
 	}
 	svr.photos.cc=0; //assume row filled so reset column count
 };
 
-svr.photos.layout_landscape=function(rx, i, row){
+
+svr.photos.formats.landscape=function(rx, i, row){
 	row.push({
 		fig:true, 
 		captions:rx[i].captions, 
@@ -232,7 +272,7 @@ svr.photos.layout_landscape=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.photos.layout_portrait=function(rx, i, row){
+svr.photos.formats.portrait=function(rx, i, row){
 	row.push({
 		fig:true, 
 		captions:rx[i].captions, 
@@ -246,7 +286,7 @@ svr.photos.layout_portrait=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.photos.layout_wide=function(rx, i, row){
+svr.photos.formats.wide=function(rx, i, row){
 	row.push({
 		fig:true, 
 		captions:rx[i].captions, 
@@ -274,13 +314,13 @@ svr.photos.layouts.azEasy=function(svrdata){
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
 				if (svr.photos.cc > 6) {rows.push(row); row=[]; svr.photos.cc=0;}
-				svr.photos.layout_landscape(rx, i, row);
+				svr.photos.formats.landscape(rx, i, row);
 			} else if (rx[i].format=="portrait") {
 				if (svr.photos.cc > 7) {rows.push(row); row=[]; svr.photos.cc=0;}
-				svr.photos.layout_portrait(rx, i, row);
+				svr.photos.formats.portrait(rx, i, row);
 			} else if (rx[i].format=="wide") {
 				if (svr.photos.cc > 1) {rows.push(row); row=[]; svr.photos.cc=0;}
-				svr.photos.layout_wide(rx, i, row);
+				svr.photos.formats.wide(rx, i, row);
 			}
 		};
 	};			
@@ -298,16 +338,16 @@ svr.photos.layouts.azTight=function(svrdata){
 	for (var i in rx){
 		if(rx[i].available==true){
 			if(rx[i].format=="landscape") {
-				svr.photos.layout_landscape(rx, i, row);
-				svr.photos.layout_row_filler(rx, i, row);
+				svr.photos.formats.landscape(rx, i, row);
+				svr.photos.formats.filler(rx, i, row);
 				rows.push(row); row=[];
 			} else if (rx[i].format=="portrait") {
-				svr.photos.layout_portrait(rx, i, row);
-				svr.photos.layout_row_filler(rx, i, row);
+				svr.photos.formats.portrait(rx, i, row);
+				svr.photos.formats.filler(rx, i, row);
 				rows.push(row); row=[];
 			} else if (rx[i].format=="wide") {
-				svr.photos.layout_wide(rx, i, row);
-				svr.photos.layout_row_filler(rx, i, row);
+				svr.photos.formats.wide(rx, i, row);
+				svr.photos.formats.filler(rx, i, row);
 				rows.push(row); row=[];				
 			}
 		};
@@ -415,15 +455,16 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 <div class="container">
 	<div id="svr-header-placeholder">placeholder</div>
 	<div class="row">
-	<div id="svr-titleblock-left-placeholder" class="col-xs-6">titleblock - project info placeholder</div>
-	<div id="svr-titleblock-right-placeholder" class="col-xs-6">titleblock - report info placeholder</div>
+	<div id="svr-titleblock-left-placeholder" class="col-xs-6">Project part of titleblock</div>
+	<div id="svr-titleblock-right-placeholder" class="col-xs-6">Report part of titleblock</div>
 	</div>
 	
 	<p class="row row__" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
 	</p>
 	<br><br>
-	<div id="svr-notes-placeholder" class="marz"></div>
-	<div id="svr-photos-placeholder" class="marz"></div>
+	<div id="svr-notes-placeholder" class="marz">notes-placeholder</div>
+	<div id="svr-photos-placeholder"
+	class="marz">photos-placeholder</div>
 	<br><br>
 </div>
 
@@ -579,7 +620,12 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
 	<div class="row marz" 
-		oncontextmenuNOT="casbah.showMenu(svr.photo.menu, event)">
+	title="Drop photos here to add to report..."
+	ondragenter="event.preventDefault();$(this).addClass('highlite');"
+	ondragover="event.preventDefault();" 
+	ondragleave="event.preventDefault();$(this).removeClass('highlite');"	
+	ondrop="svr.photos.ondrop(event);"
+	oncontextmenuNOT="casbah.showMenu(svr.photo.menu, event)">
 		<h3 class="col-xs-1 marz" >5.0</h3>
 		<h3 class="col-xs-10 border-left marz">Photos</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
