@@ -16,7 +16,7 @@ svrl.edit=function(el){
 	});
 };
 
-svrl.hi=new casbah.Highlighter("highlite");
+//svrl.hi=new casbah.Highlighter("highlite");
 
 svrl.insert=function(){
 	//create new report...
@@ -40,7 +40,7 @@ svrl.insert=function(){
 			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 			error:function(err){console.log("Error from server:", err);},
 			success:function(result){
-				$("#svrl-content").html(svrl.content(result));
+				$("#svrl-content").html(svrl.content.template(result));
 			},
 			type:"POST",
 			url:"/uploads"
@@ -57,24 +57,27 @@ svrl.goto=function(e){
 	casbah.view("site_review.html");
 };
 
-svrl.refresh_content=function(result, delta){
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"SVR-SELECT",
-			filter:{},
-			project_id:localStorage.getItem("project_id")
-		}),
-		error: function(err){console.log(err.message);},
-		success: function(result){
-			$("#svrl-content").html(svrl.content(result));
-		},
-		type:"POST",
-		url:"/uploads"
-	});
-};
+svrl.update=function(){
+	console.log("svrl_update in progress...");
+}
 
-svrl.refresh_titleblock=function(){
+svrl.header={};
+svrl.header.refresh=function(){
+	if (typeof svrl.header.template=="undefined"){
+		$.get("client/header.html", function(htm){
+			svrl.header.template=Handlebars.compile(htm);
+			$("#svrl-header").html(svrl.header.template({doc_type:"Site Review Log"}));
+		});
+	}
+	else {
+		$("#svrl-header").html(svrl.header.template({doc_type:"Site Review Log"}));
+	}
+}
+	
+	
+svrl.titleblock={};
+svrl.titleblock.template=Handlebars.compile($("#svrl-titleblock-template").html());
+svrl.titleblock.refresh=function(){
 	console.log("PROJECT SELECT");
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -84,34 +87,39 @@ svrl.refresh_titleblock=function(){
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			$("#svrl-titleblock").html(svrl.titleblock(result));
+			$("#svrl-titleblock").html(svrl.titleblock.template(result));
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 
-svrl.update=function(){
-	console.log("svrl_update in progress...");
-}
+svrl.content={};
+svrl.content.template=Handlebars.compile($("#svrl-content-template").html());
+svrl.content.refresh=function(result, delta){
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-SELECT",
+			filter:{},
+			project_id:localStorage.getItem("project_id")
+		}),
+		error: function(err){console.log(err.message);},
+		success: function(result){
+			$("#svrl-content").html(svrl.content.template(result));
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
 
-
-///////////////////////////////////////////
-//load templates and compile...
-$.get("client/header.html", function(htm){
-	//beware - this function is asynchronous so svrl.header may not yet be defined if called outside this function
-	//console.log('HEADER LOADED...');
-	svrl.header=Handlebars.compile(htm);
-	$("#svrl-header").html(svrl.header({doc_type:"Site Review Log"}));
-});
-
-svrl.titleblock=Handlebars.compile($("#svrl-titleblock-template").html());
-svrl.content=Handlebars.compile($("#svrl-content-template").html());
 
 ///////////////
 // Render page
-svrl.refresh_titleblock();
-svrl.refresh_content();
+svrl.titleblock.refresh();
+svrl.content.refresh();
+svrl.header.refresh();
+
 
 //activate tooltips
 $(".tooltip").tooltip();
@@ -157,9 +165,9 @@ $(".tooltip").tooltip();
 <template id="svrl-content-template" type="text/x-handlebars-template">
 
 	<div class="row marz"
+		title="Click to create a new report..."
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		title="Click to create a new report..."
 		onclick="svrl.insert(this)"> 
 		<small class="col-xs-1 row-head marz">0</small>
 		<span class="col-xs-5 row-head marz border-left">Total Reports: {{svrs.length}}</span>
@@ -168,8 +176,8 @@ $(".tooltip").tooltip();
 	{{#each svrs}}
 	<div class="row marz row row-head zebra" 
 		title="click to add a new report..."
-		onmouseenter="svrl.hi.light(this);" 
-		onmouseleave="svrl.hi.dark(this);"
+		onmouseenter="$(this).addClass('highlight')" 
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.insert(this)">
 	<p class="col-xs-1 row-head marz">{{plusOne @index}}</p>	
 	<p class="col-xs-2 border-left row-head marz">SVR No.</p>
@@ -179,8 +187,8 @@ $(".tooltip").tooltip();
 	</div>
 
 	<div class="row marz"
-		onmouseenterNOT="svrl.hi.light(this);"
-		onmouseleaveNOT="svrl.hi.dark(this);">		
+		onmouseenterNOT="$(this).addClass('highlight')"
+		onmouseleaveNOT="$(this).removeClass('highlight')">		
 	<p 	class="col-xs-1 marz "></p>	
 	<div class="border-left col-xs-11 marz" >
 	<p 	class="col-xs-2 marz" 
@@ -191,32 +199,35 @@ $(".tooltip").tooltip();
 	<p 	class="col-xs-3 marz"
 		title="click to edit..." 
 		field="title" 
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.title}}</p>
 	<p 	class="col-xs-3 marz" 
 		title="click to edit..."
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.date}}</p>
 	<p 	class="col-xs-3 marz"
-		title="click to edit..." 
+		title="click to edit..."
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.date_issued}}</p>
 	</div>	
 	</div>
 
 	<div class="row marz row-head" 
 		title="click to add a new report..."
-		onmouseenterNOT="svrl.hi.light(this);" 
-		onmouseleaveNOT="svrl.hi.dark(this);"
+		onmouseenter="$(this).addClass('highlight')" 
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.insert(this)">
 	<p class="col-xs-1 row-head marz"></p>	
 	<p class="col-xs-2 border-left row-head marz">author</p>
-	<p class="col-xs-3 row-head marz">comments...</p>
-	<p class="col-xs-3 row-head marz">issues...</p>
-	<p class="col-xs-3 row-head marz">photos...</p>
+	<p class="col-xs-3 row-head marz">comments</p>
+	<p class="col-xs-3 row-head marz">issues</p>
+	<p class="col-xs-3 row-head marz">photos</p>
 	</div>	
 	
-	<div class="row marz zebra-stripe"
-		onmouseenterNOT="svrl.hi.light(this);"
-		onmouseleaveNOT="svrl.hi.dark(this);"
-		onclick="svrl.goto(this)">
+	<div class="row marz zebra-stripe">
 
 	<p class="col-xs-1 marz "></p>
 	<div class="col-xs-11 border-left marz">
@@ -226,23 +237,31 @@ $(".tooltip").tooltip();
 		field="by"
 		rowid="{{rowid}}"
 		style="height:100%;"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.author}}</p>	
 			
 	<p 	class="col-xs-3 marz "
 		title="click to edit..."
 		field="comment.ids"
 		rowid="{{rowid}}"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.comment_ids}}</p>
 		
 	<p 	class="col-xs-3 marz "
 		title="click to edit..."
 		field="issue.ids"
 		rowid="{{rowid}}"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.issue_ids}}</p>
 	<p 	class="col-xs-3 marz "
 		title="click to edit..."
 		field="picture.ids"
 		rowid="{{rowid}}"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
 		onclick="svrl.edit(this);">{{this.picture_ids}}</p>	
 	</div>		
 	</div>

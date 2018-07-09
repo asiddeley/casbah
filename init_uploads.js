@@ -23,23 +23,22 @@ SOFTWARE.
 ********************************/
 
 const fs = require('fs')
-//const fsp=require(__dirname+"\\server\\fs+")
-//const url = require('url')
 const path = require('path')
 
-//const dbname="casbah.db";
 const dirs={
-	//database:"database",
 	uploads:"uploads",
 	example:"uploads/x-project",
 	contract:"uploads/x-project/contract",
 	gallery:"uploads/x-project/gallery",
 	photos:"uploads/x-project/photos",
 	reports:"uploads/x-project/reports",
+	svrs:"uploads/x-project/reports/site reviews",
+	rdss:"uploads/x-project/reports/deficiency sheets",
 	wiki:"wiki"
 };
 
-//Create directories if not already
+// Creates CASBAH folder structure for user files and data
+// Not necessary since CASBAH creates folders on the fly as required
 for (var d in dirs){
 	try {fs.mkdirSync(path.join(__dirname, dirs[d]), 0744); console.log("Created:", dirs[d]);}
 	catch(er){console.log("Dir exists:", dirs[d])}
