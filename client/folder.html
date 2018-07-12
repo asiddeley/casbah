@@ -116,34 +116,63 @@ project.refresh();
 
 */
 
-var directory={};
-directory.refresh=function(){
+var folder={};
+folder.refresh=function(el){
+	if (typeof el=="undefined") {var folder_path="";}
+	else {var folder_path=$(el).attr("folder_path");}
+	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"DIRECTORY-SELECT"}),
+		data: $.param({
+			action:"FOLDER-SELECT",
+			folder_path:folder_path
+		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			//casbah.renderFX("project-content", project.content, result, delta);
-			$("#directory-placeholder").html(directory.template(result));
+			//result={folder_path:"uploads/", folders:[], files:[]}
+			$("#folder-placeholder").html(folder.template(result));
+			//foreach folders: folder.refresh_data(folder_path, folder)
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 
-directory.insert=function(ev){
-	// Inserts a new casbah_doc_type into current folder  
+folder.refresh_data=function(folder_path, folder_name)
+	
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"FOLDER-DATA",
+			folder_path:folder_path,
+			folder_name:folder_name
+		}),
+		error: function(err){ console.log("Error", err);},
+		success: function(result){
+			//result={folder_name:"somename", folder_type:"", desc:""}
+			//note using multiple selectors without comma means AND... 
+			$("[folder_name='"+result.folder_name+"'][field='type']").text(result.folder_type);
+			$("[folder_name='"+result.folder_name+"'][field='desc']").text(result.desc);
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
+
+
+folder.insert=function(ev){
+	// Inserts a new sub-folder into current folder  
 	// Called from Menu 
-	var caller=directory.menu.menu("option","caller");
+	var caller=folder.menu.menu("option","caller");
 	// parent info stored in element {{parent}}
-	var parent=$(caller).attr("parent");
+	var path=$(caller).attr("path");
 	// doc_type set in menu
-	var doc_type=directory.menu.menu("option","doc_type");
+	var folder_type=folder.menu.menu("option","folder_type");
 	//var parent=$(ev.target).attr("parent");
 	var folder=prompt("New folder");
 	if (folder != "" && folder != null){
 		$.ajax({
-			data:$.param({action:"DIRECTORY-INSERT", folder:folder, parent:parent, doc_type:doc_type}),
+			data:$.param({action:"FOLDER-INSERT", folder:folder, parent:parent, doc_type:doc_type}),
 			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 			error:function(err){console.log("Error from server:", err);},
 			success:function(result){project.refresh();	},
@@ -153,8 +182,8 @@ directory.insert=function(ev){
 	}
 };
 
-directory.template=Handlebars.compile($("#project-template").html());
-directory.refresh();
+folder.template=Handlebars.compile($("#folder-template").html());
+folder.refresh();
 
 </script>
 </head>
@@ -163,8 +192,8 @@ directory.refresh();
 <!-- PAGE -->
 
 <div class="container">
-	<div id="directory-header-placeholder">placeholder</div>
-	<div id="directory-placeholder">placeholder</div>
+	<div id="folder-header-placeholder">placeholder</div>
+	<div id="folder-placeholder">placeholder</div>
 	<br><br><br><br>
 </div>
 
@@ -173,12 +202,12 @@ directory.refresh();
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Right-click for menu..."
-		oncontextmenu="casbah.showMenu(project.menu, event)"> 
+		oncontextmenu="casbah.showMenu(folder.menu, event)">
 		<small class="col-xs-1 row-head marz">0</small>
-		<span class="border-left col-xs-2 row-head marz">Folder count: {{projects.length}}</span>
+		<span class="border-left col-xs-2 row-head marz">Folder count: {{folders.length}}</span>
 	</div>
 
-	{{#each dirs}}
+	{{#each folders }}
 	
 	<div class="row marz row zebra" >
 		<small class="col-xs-1 row-head marz">{{plusOne @index}}</small>
@@ -187,121 +216,38 @@ directory.refresh();
 		<span class="col-xs-6 row-head marz">Description</span>
 	</div>	
 	
-	<div class="row marz"
-		project_id="{{dir}}"
-		oncontextmenu="casbah.showMenu(project.menu, event)">
+	<div class="row marz">
 	<p 	class="col-xs-1 marz"></p>		
 	<div class="border-left col-xs-11 marz" >
 	<p 	class="col-xs-2 marz"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		title="Click to make current"
-		field="project_id"
-		rowid="{{rowid}}"
-		onclick="project.current_page(this);">{{project_id}}</p>
+		title="Click to view"
+		folder_path="{{../folder_path}}"
+		onclick="folder.refresh(this);">{{this}}</p>
 		
 	<p 	class="col-xs-3 marz"
-		pid="{{project_id}}"
-		field="project_name"
-		title="Click to edit"
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{project_name}}</p>
+		field="type"
+		folder_path="{{../folder_path}}"
+		folder_name="{{this}}">type</p>
 	
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="client"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{owner}}</p>
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="date"
-		title="Click to edit"
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{date}}</p>
-		
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="contractor"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{contractor}}</p>
-	</div>	
-	</div>
-	
-	<div class="row marz">
-	<p class="col-xs-1 row-head marz">&nbsp;</p>
-	<div class="border-left col-xs-11 marz" >
-	
-	<p class="col-xs-2 row-head marz">Permit</p>
-	<p class="col-xs-3 row-head marz">Address</p>
-	<p class="col-xs-2 row-head marz">Status</p>
-	<p class="col-xs-2 row-head marz">Date Done</p>
-	<p class="col-xs-2 row-head marz">xdata</p>
-	</div>	
-	</div>
-	
-	<div class="row marz"
-		project_id="{{dir}}"
-		oncontextmenu="casbah.showMenu(project.menu, event)">
+	<p 	class="col-xs-6 marz"
+		field="desc"
+		folder_path="{{../folder_path}}"
+		folder_name="{{this}}">description</p>
 
-	<p class="col-xs-1 marz ">&nbsp;</p>
-	<div class="border-left marz col-xs-11">
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="permit"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{permit}}</p>	
-			
-	<p 	class="col-xs-3 marz"
-		pid="{{project_id}}"
-		field="address"
-		title="Click to edit"
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{address}}</p>
-		
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="date_closed"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{date_closed}}</p>
-		
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="status"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{status}}</p>
-		
-	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
-		field="xdata"
-		title="Click to edit"	
-		onmouseenter="$(this).addClass('highlight')"
-		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{xdata}}</p>
-	</div>		
+	</div>	
 	</div>
 	{{/each}}	
+
 </template>
 
 
 <!-- MENUS -->
-<ul id="project-menu" onmouseleave="project.menu.hide()" class="hide9999">
-<li onclick="project.insert_menu();">New Project</li>
-<li onclick="project.current_menu();">Make Current</li>
-<li onclick="project.refresh();">Refresh Page</li>
-<li onclick="project.menu.hide()">Exit Menu</li>
+<ul id="folder-menu" onmouseleave="project.menu.hide()" class="hide9999">
+<li onclick="folder.insert_menu();">New Folder</li>
+<li onclick="folder.refresh();">Refresh Page</li>
+<li onclick="folder.menu.hide()">Exit Menu</li>
 </ul >
 
 
