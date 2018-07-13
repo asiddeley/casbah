@@ -117,28 +117,36 @@ project.refresh();
 */
 
 var folder={};
+
 folder.refresh=function(el){
-	if (typeof el=="undefined") {var folder_path="";}
-	else {var folder_path=$(el).attr("folder_path");}
+	var folder_path;
+	if (typeof el=="undefined") {folder_path=localStorage.getItem("folder_path");}
+	else {folder_path=$(el).attr("folder_path");}
+	if (typeof folder_path=="undefined") {folder_path="";}
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"FOLDER-SELECT",
-			folder_path:folder_path
+			folder_path:folder_path,
+			project_id:localStorage.getItem("project_id")
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			//result={folder_path:"uploads/", folders:[], files:[]}
+			//result={folder_path:"uploads/prj-001", folders:[], files:[]}
+			//render list of folders
 			$("#folder-placeholder").html(folder.template(result));
-			//foreach folders: folder.refresh_data(folder_path, folder)
+			//then render data related to each folder
+			for (var i in result.folders){				
+				//folder.refresh_data(result.folder_path, result.folders[i])
+			} 
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 
-folder.refresh_data=function(folder_path, folder_name)
+folder.refresh_data=function(folder_path, folder_name){
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -151,8 +159,8 @@ folder.refresh_data=function(folder_path, folder_name)
 		success: function(result){
 			//result={folder_name:"somename", folder_type:"", desc:""}
 			//note using multiple selectors without comma means AND... 
-			$("[folder_name='"+result.folder_name+"'][field='type']").text(result.folder_type);
-			$("[folder_name='"+result.folder_name+"'][field='desc']").text(result.desc);
+			$("[folder_name='"+result.folder_name+"'][folder_type]").text(result.folder_type);
+			$("[folder_name='"+result.folder_name+"'][folder_desc]").text(result.folder_desc);
 		},
 		type:"POST",
 		url:"/uploads"
@@ -175,7 +183,7 @@ folder.insert=function(ev){
 			data:$.param({action:"FOLDER-INSERT", folder:folder, parent:parent, doc_type:doc_type}),
 			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 			error:function(err){console.log("Error from server:", err);},
-			success:function(result){project.refresh();	},
+			success:function(result){folder.refresh();	},
 			type:"POST",
 			url:"/uploads"
 		});	
@@ -197,7 +205,7 @@ folder.refresh();
 	<br><br><br><br>
 </div>
 
-<template id="directory-template" type="text/x-handlebars-template">
+<template id="folder-template" type="text/x-handlebars-template">
 	<div class="row marz row__"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
@@ -227,12 +235,12 @@ folder.refresh();
 		onclick="folder.refresh(this);">{{this}}</p>
 		
 	<p 	class="col-xs-3 marz"
-		field="type"
+		folder_type
 		folder_path="{{../folder_path}}"
 		folder_name="{{this}}">type</p>
 	
 	<p 	class="col-xs-6 marz"
-		field="desc"
+		folder_desc
 		folder_path="{{../folder_path}}"
 		folder_name="{{this}}">description</p>
 
@@ -244,7 +252,7 @@ folder.refresh();
 
 
 <!-- MENUS -->
-<ul id="folder-menu" onmouseleave="project.menu.hide()" class="hide9999">
+<ul id="folder-menu" onmouseleave="folder.menu.hide()" class="hide9999">
 <li onclick="folder.insert_menu();">New Folder</li>
 <li onclick="folder.refresh();">Refresh Page</li>
 <li onclick="folder.menu.hide()">Exit Menu</li>

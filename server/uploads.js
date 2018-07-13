@@ -35,6 +35,8 @@ const fileUpload = require('express-fileupload')
 const fsp = require(path.join(__dirname,"fs+"))
 const project=require(path.join(__dirname,"projects"))
 const reports=require(path.join(__dirname,"reports"))
+const folder=require(path.join(__dirname,"folder"))
+
 
 //const uploads_dir="uploads"
 const uploads_dir=global.uploads_dir
@@ -358,28 +360,9 @@ req.files... populated by middle-ware from ajaxed formData
 			})
 		} 
 	break;
-	
-	case "FOLDERS":
-		//reg.body.project_number
-		//req.body.tab, 
-		//req.body.folder
-		console.log("Request for folders in:", root, req.body.tab, req.body.folder);
-		try {
-			res.json({
-				folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
-				project_id:req.body.project_id
-			});
-		} 
-		catch(err) {
-			console.log(err);
-			res.json({
-				folders:[], 
-				err:err, 
-				project_id:req.body.project_id
-			});
-		}
-	break;
 
+	case "FOLDER-SELECT":folder.select(req, res); break;
+	
 	// Project log and project modal (aka dialog box)
 	case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
 	case "PROJECT-IDLIST":project.idlist(req, res); break;
