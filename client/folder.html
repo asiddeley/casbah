@@ -118,6 +118,30 @@ project.refresh();
 
 var folder={};
 
+folder.insert=function(ev){
+	// Inserts a new sub-folder into current folder  
+	// Called from Menu 
+	var caller=folder.menu$.menu("option","caller");
+	// parent info stored in element {{parent}}
+	var path=$(caller).attr("path");
+	// doc_type set in menu
+	var folder_type=folder.menu$.menu("option","folder_type");
+	//var parent=$(ev.target).attr("parent");
+	var folder=prompt("New folder");
+	if (folder != "" && folder != null){
+		$.ajax({
+			data:$.param({action:"FOLDER-INSERT", folder:folder, parent:parent, doc_type:doc_type}),
+			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+			error:function(err){console.log("Error from server:", err);},
+			success:function(result){folder.refresh();	},
+			type:"POST",
+			url:"/uploads"
+		});	
+	}
+};
+folder.menu$=$("#folder-menu").menu().css("position","absolute", "width", "200px").hide();
+
+
 folder.refresh=function(el){
 	var folder_path;
 	if (typeof el=="undefined") {folder_path=localStorage.getItem("folder_path");}
@@ -133,15 +157,7 @@ folder.refresh=function(el){
 			project_id:localStorage.getItem("project_id")
 		}),
 		error: function(err){ console.log("Error", err);},
-		success: function(result){
-			//result={folder_path:"uploads/prj-001", folders:[], files:[]}
-			//render list of folders
-			$("#folder-placeholder").html(folder.template(result));
-			//then render data related to each folder
-			for (var i in result.folders){				
-				//folder.refresh_data(result.folder_path, result.folders[i])
-			} 
-		},
+		success: function(result){folder.render(result);},
 		type:"POST",
 		url:"/uploads"
 	});
@@ -168,30 +184,48 @@ folder.refresh_data=function(folder_path, folder_name){
 	});
 };
 
+folder.render=function(result){
 
-folder.insert=function(ev){
-	// Inserts a new sub-folder into current folder  
-	// Called from Menu 
-	var caller=folder.menu.menu("option","caller");
-	// parent info stored in element {{parent}}
-	var path=$(caller).attr("path");
-	// doc_type set in menu
-	var folder_type=folder.menu.menu("option","folder_type");
-	//var parent=$(ev.target).attr("parent");
-	var folder=prompt("New folder");
+	//result={folder_path:"uploads/prj-001", folders:[], files:[]}
+	//render list of folders
+	$("#folder-placeholder").html(folder.template(result));
+	//then render data related to each folder
+	for (var i in result.folders){				
+		//folder.refresh_data(result.folder_path, result.folders[i])
+	} 
+}
+
+
+folder.template=Handlebars.compile($("#folder-template").html());
+
+folder.up=function(el){
+	// goes to the parent folder 
+	var folder_path;
+	if (typeof el=="undefined"){folder_path="";}
+	else {folder_path=$(el).text();		
+		folder_path=folder_path.split("\\");
+		folder_path.pop();
+		folder_path=folder_path.join("\\");
+	}
+	
 	if (folder != "" && folder != null){
 		$.ajax({
-			data:$.param({action:"FOLDER-INSERT", folder:folder, parent:parent, doc_type:doc_type}),
+			data: $.param({
+				action:"FOLDER-SELECT",
+				folder_path:folder_path,
+				project_id:localStorage.getItem("project_id")
+			}),			
 			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 			error:function(err){console.log("Error from server:", err);},
-			success:function(result){folder.refresh();	},
+			success:function(result){folder.render(result);},
 			type:"POST",
 			url:"/uploads"
 		});	
 	}
-};
+}
 
-folder.template=Handlebars.compile($("#folder-template").html());
+// Render page...
+
 folder.refresh();
 
 </script>
@@ -206,36 +240,39 @@ folder.refresh();
 </div>
 
 <template id="folder-template" type="text/x-handlebars-template">
-	<div class="row"
+	<div class="row">
+		<h3 
+		class="col-xs-12"
+		onclick="folder.up(this)"
+		oncontextmenu="casbah.showMenu(folder.menu$, event)"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		title="Right-click for menu..."
-		oncontextmenu="casbah.showMenu(folder.menu, event)">
-		<h3 class="col-xs-12">{{folder_path}}</h3>
+		path="{{folder_path}}"
+		title="click to go up a folder, right-click for menu..."
+		>{{folder_path}}</h3>
 	</div>
 
-
-	<div class="row zebra row__" >
-		<span class="col-xs-6 row-head marz">Sub-folders ({{folders.length}})</span>
-		<span class="col-xs-1 row-head marz">Type</span>
-		<span class="col-xs-5 row-head marz">Description</span>
+	<div class="row zebra row__">
+		<span class="col-xs-6 row-head">Folders ({{folders.length}})</span>
+		<span class="col-xs-1 row-head">Type</span>
+		<span class="col-xs-5 row-head">Description</span>
 	</div>		
-	
+
 	{{#each folders }}
-	
+
 	<div class="row">
-	<p 	class="col-xs-6 marz"
+	<p 	class="col-xs-6"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Click to view"
 		folder_path="{{../folder_path}}"
 		onclick="folder.refresh(this);">{{this}}</p>
-		
+
 	<p 	class="col-xs-1 marz"
 		folder_type
 		folder_path="{{../folder_path}}"
 		folder_name="{{this}}">--</p>
-	
+
 	<p 	class="col-xs-5 marz"
 		folder_desc
 		folder_path="{{../folder_path}}"
@@ -244,7 +281,6 @@ folder.refresh();
 
 	</div>
 	{{/each}}
-	
 	
 	<div class="row zebra" >
 		<span class="col-xs-6 row-head">Files ({{files.length}})</span>
@@ -281,9 +317,9 @@ folder.refresh();
 
 <!-- MENUS -->
 <ul id="folder-menu" onmouseleave="folder.menu.hide()" class="hide9999">
-<li onclick="folder.insert_menu();">New Folder</li>
+<li onclick="folder.insert();">New Folder</li>
 <li onclick="folder.refresh();">Refresh Page</li>
-<li onclick="folder.menu.hide()">Exit Menu</li>
+<li onclick="folder.menu$.hide()">Exit Menu</li>
 </ul >
 
 
