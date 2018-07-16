@@ -121,7 +121,8 @@ var folder={};
 folder.refresh=function(el){
 	var folder_path;
 	if (typeof el=="undefined") {folder_path=localStorage.getItem("folder_path");}
-	else {folder_path=$(el).attr("folder_path");}
+	else {folder_path=$(el).attr("folder_path")+"\\"+$(el).text();}
+	
 	if (typeof folder_path=="undefined") {folder_path="";}
 	
 	$.ajax({
@@ -200,54 +201,81 @@ folder.refresh();
 <!-- PAGE -->
 
 <div class="container">
-	<div id="folder-header-placeholder">placeholder</div>
 	<div id="folder-placeholder">placeholder</div>
 	<br><br><br><br>
 </div>
 
 <template id="folder-template" type="text/x-handlebars-template">
-	<div class="row marz row__"
+	<div class="row"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Right-click for menu..."
 		oncontextmenu="casbah.showMenu(folder.menu, event)">
-		<small class="col-xs-1 row-head marz">0</small>
-		<span class="border-left col-xs-2 row-head marz">Folder count: {{folders.length}}</span>
+		<h3 class="col-xs-12">{{folder_path}}</h3>
 	</div>
 
+
+	<div class="row zebra row__" >
+		<span class="col-xs-6 row-head marz">Sub-folders ({{folders.length}})</span>
+		<span class="col-xs-1 row-head marz">Type</span>
+		<span class="col-xs-5 row-head marz">Description</span>
+	</div>		
+	
 	{{#each folders }}
 	
-	<div class="row marz row zebra" >
-		<small class="col-xs-1 row-head marz">{{plusOne @index}}</small>
-		<span class="col-xs-2 row-head marz border-left">Folder</span>
-		<span class="col-xs-3 row-head marz">Type</span>
-		<span class="col-xs-6 row-head marz">Description</span>
-	</div>	
-	
-	<div class="row marz">
-	<p 	class="col-xs-1 marz"></p>		
-	<div class="border-left col-xs-11 marz" >
-	<p 	class="col-xs-2 marz"
+	<div class="row">
+	<p 	class="col-xs-6 marz"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Click to view"
 		folder_path="{{../folder_path}}"
 		onclick="folder.refresh(this);">{{this}}</p>
 		
-	<p 	class="col-xs-3 marz"
+	<p 	class="col-xs-1 marz"
 		folder_type
 		folder_path="{{../folder_path}}"
-		folder_name="{{this}}">type</p>
+		folder_name="{{this}}">--</p>
 	
-	<p 	class="col-xs-6 marz"
+	<p 	class="col-xs-5 marz"
 		folder_desc
 		folder_path="{{../folder_path}}"
-		folder_name="{{this}}">description</p>
+		folder_name="{{this}}">--</p>
 
-	</div>	
+
 	</div>
-	{{/each}}	
+	{{/each}}
+	
+	
+	<div class="row zebra" >
+		<span class="col-xs-6 row-head">Files ({{files.length}})</span>
+		<span class="col-xs-1 row-head">Type</span>
+		<span class="col-xs-5 row-head">Description</span>
+	</div>		
+	
+	{{#each files }}
 
+	<div class="row marz">
+	<p 	class="col-xs-6"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		title="Click to view"
+		folder_path="{{../folder_path}}"
+		onclick="folder.refresh(this);">{{this}}</p>
+		
+	<p 	class="col-xs-1"
+		file_type
+		folder_path="{{../folder_path}}"
+		folder_name="{{this}}">--</p>
+	
+	<p 	class="col-xs-5"
+		file_desc
+		folder_path="{{../folder_path}}"
+		folder_name="{{this}}">--</p>
+	</div>
+	{{/each}}
+		
+	
+	
 </template>
 
 

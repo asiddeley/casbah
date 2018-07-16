@@ -30,7 +30,7 @@ const path = require("path")
 const fs = require("fs")
 //const fsp = require(path.join(global.appRoot,"server","fs+"))
 const fsp = require(path.join(__dirname,"fs+"))
-
+const fsx=require("fs-extra")
 
 //const projects_dir="uploads"
 const project_jsonfile="__projectData.json"
@@ -46,6 +46,22 @@ const project_json={
 	status:"status",
 	xdata:"none"
 }
+
+/**** not required, folders made as required elsewhere
+const project_struct=[
+"projects",
+path.join("projects", "actions"),
+path.join("projects", "billing"),
+path.join("projects", "contract"),
+path.join("projects", "gallery"),
+path.join("projects", "letters"),
+path.join("projects", "meetings"),
+path.join("projects", "reports"),
+path.join("projects", "reports", "site reviews"),
+path.join("projects", "shops"),
+path.join("projects", "welcome"),
+]
+*/
 
 //////////////////////
 // EXPORTS
@@ -92,24 +108,22 @@ exports.idlist=function(req, res){
 		res.json({ids:[]});
 	}	
 }
+
 exports.insert=function(req, res){
-	var err, p
+	var err=null, p
 	try {
-		//Make a new project folder...
-		err=null
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id)
 		console.log("PROJECT INSERT Try...")
-		fs.mkdirSync(p)
+		//Make a new project folder...
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id)
+		//fs.mkdirSync(p)
+		fsx.ensureDirSync(p)
 		console.log("PROJECT INSERT Created folder:",p)
-		//Make a new jsonfile with default project data for the folder...
-		//not necessary because default jsonfile created by SELECT dirSync_json...
-		//fs.writeFileSync(path.join(p, project_jsonfile), JSON.stringify(project_json))
-		//console.log("PROJECT INSERT Created jsonfile:",path.join(p, project_jsonfile))
-		res.json({msg:"Project created"});
+		res.json({msg:"Project created", err:err});
 	}
 	catch(e) {	
-		console.log("PROJECT INSERT CATCH:",e)	
-		res.json({err:e});
+		err=e
+		res.json({err:err});
+		console.log("PROJECT INSERT CATCH:",err)	
 	} 
 }
 
