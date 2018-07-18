@@ -93,6 +93,14 @@ deficiency_sheets.refresh();
 
 <template id='deficiency_sheets' type="text/x-handlebars-template">
 	<div class="container">	
+	
+	<!-- head -->
+	<div class="row">
+	<div class="col-xs-9"><img src="/uploads/{{../project_number}}/logo.png"></div>	
+	<div class="col-xs-3" onclick="casbah.view('deficiency_sheets_log.html');"><h2 class="topMarginZero segoe"
+	>DEFICIENCIES</h2></div>
+	</div>
+	<!-- end of head -->	
 	<!-- title page -->	
 	<div class="panel panel-default page">
 		<div class="panel-heading" onclick="casbah.view('deficiency_sheets_log.html');"
