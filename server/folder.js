@@ -51,11 +51,11 @@ exports.select=function(req, res){
 	var r={folder_path:"", folders:[], files:[], err:null} 
 	try{
 		if (typeof req.body.folder_path == "undefined" || req.body.folder_path==""){
-			r.folder_path=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id)
+			r.folder_path=path.join(req.body.uploads_dir, req.body.project_id)
 		} 
 		else {r.folder_path=req.body.folder_path} 
 		console.log("FOLDER SELECT try...", r.folder_path)
-		r.folders=fsp.getDirsSync(r.folder_path)
+		r.folders=fsp.getDirsSync(r.folder_path) //)path.join(global.appRoot,
 		r.files=fsp.getFilesSync(r.folder_path)
  		res.json(r)
 	}
