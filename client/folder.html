@@ -188,15 +188,21 @@ folder.render=function(result){
 
 	//result={folder_path:"uploads/prj-001", folders:[], files:[]}
 	//render list of folders
-	$("#folder-placeholder").html(folder.template(result));
+	$("#folder-placeholder").html(folder.templates.folder(result));
+	$("#file-placeholder").html(folder.templates.file(result));
+	
+	
 	//then render data related to each folder
 	for (var i in result.folders){				
 		//folder.refresh_data(result.folder_path, result.folders[i])
 	} 
 }
 
+folder.templates={};
+folder.templates.folder=Handlebars.compile($("#folder-template").html());
+folder.templates.file=Handlebars.compile($("#file-template").html());
 
-folder.template=Handlebars.compile($("#folder-template").html());
+
 
 folder.up=function(el){
 	// goes to the parent folder 
@@ -236,6 +242,7 @@ folder.refresh();
 
 <div class="container">
 	<div id="folder-placeholder">placeholder</div>
+	<div id="file-placeholder">placeholder</div>
 	<br><br><br><br>
 </div>
 
@@ -281,6 +288,10 @@ folder.refresh();
 
 	</div>
 	{{/each}}
+</template>
+
+
+<template id="file-template" type="text/x-handlebars-template">
 	
 	<div class="row zebra" >
 		<span class="col-xs-6 row-head">Files ({{files.length}})</span>

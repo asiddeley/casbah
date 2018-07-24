@@ -29,10 +29,12 @@ SOFTWARE.
 const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"fs+"))
+const fsx = require("fs-extra")
 
 
 //const projects_dir="uploads"
-const folder_jsonfile="__folderData.json"
+/*
+const folder_jsonfile="__folder.json"
 const folder_json={
 	datafile:"name of datafile",
 	description:"describes type of folder",
@@ -42,13 +44,42 @@ const folder_json={
 	template:"template.html",
 	xdata:"none"
 }
+*/
+const folder_types={
+	folder:{
+		desc:"folder with sub-folders (default)",
+		jsonfile:"__folder.json", 
+		icon:"imagename",
+		template:"folder.html",
+		xdata:"none",
+	},
+	svr:{
+		desc:"site visit report", 
+		jsonfile:"__svrData.json"
+	}
+}
+
+
+const folder_type=function(r){
+	//r={folder_path:"", folders:[], files:[], err:null, casbah_type:{}} 
+	if (r.files.indexof(folder_jsonfile)==-1){
+		//find available json files - should only be one but what if more?
+		//create folder_jsonfile
+	}
+	else {
+		//read folder_jsonfile
+		
+		
+	}
+	
+}
 
 //////////////////////
 // EXPORTS
 
 exports.select=function(req, res){
 	
-	var r={folder_path:"", folders:[], files:[], err:null} 
+	var r={folder_path:"", folders:[], files:[], err:null, casbah_type:{}} 
 	try{
 		if (typeof req.body.folder_path == "undefined" || req.body.folder_path==""){
 			r.folder_path=path.join(req.body.uploads_dir, req.body.project_id)
@@ -57,6 +88,7 @@ exports.select=function(req, res){
 		console.log("FOLDER SELECT try...", r.folder_path)
 		r.folders=fsp.getDirsSync(r.folder_path) //)path.join(global.appRoot,
 		r.files=fsp.getFilesSync(r.folder_path)
+		//r.folder_type=folder_type(r);
  		res.json(r)
 	}
 	catch(e){
