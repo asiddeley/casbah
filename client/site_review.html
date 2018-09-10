@@ -16,6 +16,8 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 .fullwidth {width:100%;}
 .printable {display:none;}
 .noprint {display:default;}
+p {padding-bottom:1em;}
+h3 {padding-bottom:1em;}
 
 @media print {
 	.noprint {display:none;}
@@ -34,7 +36,7 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 var svr={};
 
 // cache
-svr.data={};
+svr.cache={};
 
 svr.change=function(field, valu, callback){
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
@@ -55,12 +57,13 @@ svr.change=function(field, valu, callback){
 };
 
 svr.disclaimer={};
-svr.disclaimer.html="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
 svr.disclaimer.refresh=function(){
+	var h="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
+	
 	//screen version...
-	$("#svr-disclaimer-placeholder").html(svr.disclaimer.html);
+	$("#svr-disclaimer-placeholder").html(h);
 	//printable version...
-	$("#svr-disclaimer-printable").html(svr.disclaimer.html);
+	$("#svr-disclaimer-printable").html(h);
 };
 
 
@@ -73,18 +76,18 @@ svr.header.edit=function(el){
 	svr.ed.text(el, function(){
 		var field=$(el).attr("field"); //eg. 'title'
 		var text=svr.ed.val();
-		svr.data[field]=text;
+		svr.cache[field]=text;
 		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		svr.change(field, svr.data[field], function(){
+		svr.change(field, svr.cache[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			//svr.titleblock.render(svr.data);
-			var h=svr.header.template({svr:svr.data});
+			var h=svr.header.template({svr:svr.cache});
 			//screen
-			$("#svr-header-placeholder").html(r);
+			$("#svr-header-placeholder").html(h);
 			//printable version
-			$("#svr-header-printable").html(r);
+			$("#svr-header-printable").html(h);
 		});
 	});
 };
@@ -99,8 +102,8 @@ svr.notes.insert=function(){
 	var copy=$(caller).text();
 	console.log("INSERT:", sn);
 	//insert copy of text into section 
-	svr.data[sn].splice(si, 0, copy);
-	svr.change(sn, svr.data[sn], svr.notes.render);
+	svr.cache[sn].splice(si, 0, copy);
+	svr.change(sn, svr.cache[sn], svr.notes.render);
 };
 
 svr.notes.menu=$("#svr-notes-menu").menu();
@@ -111,13 +114,13 @@ svr.notes.edit=function(el){
 		var field=svr.ed.target_attr("section_name"); //eg. 'comments'
 		var index=svr.ed.target_attr("section_index");
 		var text=svr.ed.val();
-		svr.data[field][index]=text;
+		svr.cache[field][index]=text;
 		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		svr.change(field, svr.data[field], function(){
+		svr.change(field, svr.cache[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
-			svr.notes.render(svr.data);
+			svr.notes.render(svr.cache);
 		});
 	});
 };
@@ -147,17 +150,17 @@ svr.notes.ondrop=function(el, ev){
 		//console.log("drag from:", fsi, fsn, " drop to:", tsi, tsn);
 		if (fsn == tsn){
 			//same section 
-			casbah.array_fromindex_toindex(svr.data[tsn], fsi, tsi);
+			casbah.array_fromindex_toindex(svr.cache[tsn], fsi, tsi);
 			//save changes then callback render
-			svr.change(tsn, svr.data[tsn], svr.notes.render );
+			svr.change(tsn, svr.cache[tsn], svr.notes.render );
 		} else if (fsn != tsn) {
 			//different sections 
 			//insert item at 'to' section
-			svr.data[tsn].splice(tsi, 0, svr.data[fsn][fsi]);
+			svr.cache[tsn].splice(tsi, 0, svr.cache[fsn][fsi]);
 			//remove item at 'from' section
-			svr.data[fsn].splice(fsi, 1);
+			svr.cache[fsn].splice(fsi, 1);
 			//save change for 'to' sections, then save change for 'from' section then callback renderer
-			svr.change(tsn, svr.data[tsn], function(){ svr.change(fsn, svr.data[fsn], svr.notes.render);});
+			svr.change(tsn, svr.cache[tsn], function(){ svr.change(fsn, svr.cache[fsn], svr.notes.render);});
 		}
 	}	
 };
@@ -168,10 +171,10 @@ svr.notes.render=function(r){
 	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
 
 	// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
-	if(typeof r == "undefined"){ r=svr.data;} else { svr.data=r;}
+	if(typeof r == "undefined"){ r=svr.cache;} else { svr.cache=r;}
 	
 	//reformat result to suit comments template
-	svr.data.rows=[].concat(
+	svr.cache.rows=[].concat(
 		svr.notes.reformat(r.generals, "generals", 1, "General Notes"),
 		svr.notes.reformat(r.comments, "comments", 2, "Comments & Observations"),
 		svr.notes.reformat(r.issues_closed, "issues_closed", 3, "Closed Issues"),
@@ -181,7 +184,7 @@ svr.notes.render=function(r){
 	//get updated HTML...
 	var h=svr.header.template({svr:r});
 	var rtb=svr.titleblock_right.template({svr:r});
-	var n=svr.notes.template({rows:svr.data.rows})
+	var n=svr.notes.template({rows:svr.cache.rows})
 	//put it to screen...
 	$("#svr-header-placeholder").html(h);
 	$("#svr-titleblock-right-placeholder").html(rtb);
@@ -211,9 +214,9 @@ svr.notes.remove=function(el){
 	var sn=$(caller).attr("section_name");
 	var si=$(caller).attr("section_index");
 	//delete note from section 
-	svr.data[sn].splice(si, 1);
+	svr.cache[sn].splice(si, 1);
 	//save change for 'to' sections, then save change for 'from' section then callback renderer
-	svr.change(sn, svr.data[sn], svr.notes.render);
+	svr.change(sn, svr.cache[sn], svr.notes.render);
 };
 
 svr.notes.template=Handlebars.compile($("#svr-notes-template").html());
@@ -387,9 +390,9 @@ svr.photos.layouts.azTight=function(svrdata){
 svr.photos.render=function(svrdata){
 	//layout photos in svrdata.xdata to photorows as required for handlebar template
 	//svr.data.photorows=svr.layouts.azEasy(svrdata)
-	svr.data.photorows=svr.photos.layouts.azTight(svrdata);
+	svr.cache.photorows=svr.photos.layouts.azTight(svrdata);
 	//get updated html
-	var h=svr.photos.template({rows:svr.data.photorows})
+	var h=svr.photos.template({rows:svr.cache.photorows})
 	//put it to screen...
 	$("#svr-photos-placeholder").html(h);
 	//put it to printable...
@@ -432,14 +435,14 @@ svr.titleblock_right.edit=function(el){
 	svr.ed.text(el, function(){
 		var field=$(el).attr("field"); //eg. 'date'
 		var text=svr.ed.val();
-		svr.data[field]=text;
+		svr.cache[field]=text;
 		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		svr.change(field, svr.data[field], function(){
+		svr.change(field, svr.cache[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			//svr.titleblock.render(svr.data);
-			$("#svr-titleblock-right-placeholder").html(svr.titleblock_right.template({svr:svr.data}));
+			$("#svr-titleblock-right-placeholder").html(svr.titleblock_right.template({svr:svr.cache}));
 		});
 	});
 };
