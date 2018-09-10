@@ -11,7 +11,15 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 
 .photo-image {max-width:100%; padding-left:5px; float:left;}
 .break-line {margins:auto;}
+
+.halfwidth {width:50%;}
+.fullwidth {width:100%;}
+.printable {display:none;}
+.noprint {display:default;}
+
 @media print {
+	.noprint {display:none;}
+	.printable {display:block;}
 	.row {page-break-inside:avoid; !important;}
 	.control-joint {page-break-inside:auto; !important;}
 }
@@ -46,26 +54,38 @@ svr.change=function(field, valu, callback){
 	});
 };
 
+svr.disclaimer={};
+svr.disclaimer.html="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
+svr.disclaimer.refresh=function(){
+	//screen version...
+	$("#svr-disclaimer-placeholder").html(svr.disclaimer.html);
+	//printable version...
+	$("#svr-disclaimer-printable").html(svr.disclaimer.html);
+};
+
+
 // text editor
 svr.ed=new casbah.Editor();
 
-svr.refresh=function(result, delta){
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"SVR-SELECT",
-			project_id:localStorage.getItem("project_id"),
-			svr_id:localStorage.getItem("svr_id")
-		}),
-		error: function(err){ console.log(err.message);},
-		success: function(result){
-			console.log("SVR-SUCCESS");
-			svr.notes.render(result.svrs[0]);
-			svr.photos.render(result.svrs[0]);
-		},
-		type:"POST",
-		url:"/uploads"
+svr.header={};
+svr.header.template=Handlebars.compile($("#svr-header").html());
+svr.header.edit=function(el){
+	svr.ed.text(el, function(){
+		var field=$(el).attr("field"); //eg. 'title'
+		var text=svr.ed.val();
+		svr.data[field]=text;
+		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
+		console.log("FIELD",field, " UPDATED TEXT:", text);
+		svr.change(field, svr.data[field], function(){
+			svr.ed.hide();
+			//refresh (server request and render) or just render cache for now...
+			//svr.titleblock.render(svr.data);
+			var h=svr.header.template({svr:svr.data});
+			//screen
+			$("#svr-header-placeholder").html(r);
+			//printable version
+			$("#svr-header-printable").html(r);
+		});
 	});
 };
 
@@ -157,10 +177,19 @@ svr.notes.render=function(r){
 		svr.notes.reformat(r.issues_closed, "issues_closed", 3, "Closed Issues"),
 		svr.notes.reformat(r.issues, "issues", 4, "New and Ongoing Issues")
 	);
-	console.log("SVR data:", svr.data);
-	$("#svr-header-placeholder").html(svr.header.template({svr:r}));
-	$("#svr-titleblock-right-placeholder").html(svr.titleblock_right.template({svr:r}));
-	$("#svr-notes-placeholder").html(svr.notes.template({rows:svr.data.rows}));
+	//console.log("SVR data:", svr.data);
+	//get updated HTML...
+	var h=svr.header.template({svr:r});
+	var rtb=svr.titleblock_right.template({svr:r});
+	var n=svr.notes.template({rows:svr.data.rows})
+	//put it to screen...
+	$("#svr-header-placeholder").html(h);
+	$("#svr-titleblock-right-placeholder").html(rtb);
+	$("#svr-notes-placeholder").html(n);
+	//put it to printable...
+	$("#svr-header-printable").html(h);
+	$("#svr-titleblock-report-printable").html(rtb);
+	$("#svr-notes-printable").html(n);
 }
 
 svr.notes.reformat=function(section, section_name, section_num, section_title){
@@ -359,11 +388,39 @@ svr.photos.render=function(svrdata){
 	//layout photos in svrdata.xdata to photorows as required for handlebar template
 	//svr.data.photorows=svr.layouts.azEasy(svrdata)
 	svr.data.photorows=svr.photos.layouts.azTight(svrdata);
-	$("#svr-photos-placeholder").html(svr.photos.template({rows:svr.data.photorows}));
+	//get updated html
+	var h=svr.photos.template({rows:svr.data.photorows})
+	//put it to screen...
+	$("#svr-photos-placeholder").html(h);
+	//put it to printable...
+	$("#svr-photos-printable").html(h);
 }
 
 svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
 
+
+/////////////////////
+// Refresh
+
+svr.refresh=function(result, delta){
+	//console.log("SVR_ID", localStorage.getItem("svr_id"))
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR-SELECT",
+			project_id:localStorage.getItem("project_id"),
+			svr_id:localStorage.getItem("svr_id")
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){
+			console.log("SVR-SUCCESS");
+			svr.notes.render(result.svrs[0]);
+			svr.photos.render(result.svrs[0]);
+		},
+		type:"POST",
+		url:"/uploads"
+	});
+};
 
 
 /////////////
@@ -400,7 +457,12 @@ svr.titleblock_left.refresh=function(){
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			$("#svr-titleblock-left-placeholder").html(svr.titleblock_left.template(result));
+			//update html
+			var h=svr.titleblock_left.template(result);
+			//put it to screen
+			$("#svr-titleblock-left-placeholder").html(h);
+			//put it to printable
+			$("#svr-titleblock-project-printable").html(h);
 		},
 		type:"POST",
 		url:"/uploads"
@@ -410,63 +472,45 @@ svr.titleblock_left.refresh=function(){
 svr.titleblock_left.template=Handlebars.compile($("#svr-titleblock-left").html());
 svr.titleblock_right.template=Handlebars.compile($("#svr-titleblock-right").html());
 
-svr.header={};
-svr.header.template=Handlebars.compile($("#svr-header").html());
-svr.header.edit=function(el){
-	svr.ed.text(el, function(){
-		var field=$(el).attr("field"); //eg. 'title'
-		var text=svr.ed.val();
-		svr.data[field]=text;
-		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
-		console.log("FIELD",field, " UPDATED TEXT:", text);
-		svr.change(field, svr.data[field], function(){
-			svr.ed.hide();
-			//refresh (server request and render) or just render cache for now...
-			//svr.titleblock.render(svr.data);
-			$("#svr-header-placeholder").html(svr.header.template({svr:svr.data}));
-		});
-	});
-};
-
-
-/**
-///////////////////////////////////////
-// Render page header and titleblock 
-$.get("client/header.html", function(htm){
-	//console.log('tbh loaded:', htm);
-	if (typeof svr.header=="undefined"){svr.header={};}
-	svr.header.template=Handlebars.compile(htm);
-	$("#svr-header").html(svr.header.template({doc_type:"Site Visit Review"}));
-});
-*/
-
 
 
 ///////////////////////////////////////
 // Render page 
 
 svr.titleblock_left.refresh(); //renders titleblock_left IE project info
+svr.disclaimer.refresh();
 svr.refresh(); //renders header, notes & titleblock_right IE report info 
 
 </script>
 
-<!-- PAGE STARTS HERE -->
 
-<div class="container">
+<!-- SCREEN VERSION -->
+<div class="container noprint">
 	<div id="svr-header-placeholder">placeholder</div>
 	<div class="row">
 	<div id="svr-titleblock-left-placeholder" class="col-xs-6">Project part of titleblock</div>
 	<div id="svr-titleblock-right-placeholder" class="col-xs-6">Report part of titleblock</div>
 	</div>
-	
-	<p class="row row__" >This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.  
-	</p>
+	<div id="svr-disclaimer-placeholder" class="row row__" >disclaimer</div>
 	<br><br>
 	<div id="svr-notes-placeholder" class="marz">notes-placeholder</div>
-	<div id="svr-photos-placeholder"
-	class="marz">photos-placeholder</div>
+	<div id="svr-photos-placeholder" class="marz">photos-placeholder</div>
 	<br><br>
 </div>
+
+<!-- PRINTABLE VERSION -->
+<table class="printable">
+	<thead id="svr-header-printable"></thead>
+	<tbody>
+	<tr><td>
+	<div id="svr-titleblock-project-printable" class="col-xs-6">project title block</div>
+	<div id="svr-titleblock-report-printable" class="col-xs-6">report title block</div>
+	</td></tr>
+	<tr><td id="svr-disclaimer-printable" class="row__">disclaimer</td></tr>
+	<tr><td id="svr-notes-printable">notes-printable</td></tr>
+	<tr><td id="svr-photos-printable">photos-printable</td></tr>
+	</tbody>
+</table>
 
 
 <!-- TEMPLATES -->
@@ -632,7 +676,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	</div>
 	
 	{{#each rows as |row ri|}}
-	<div class="row marz">
+	<div class="row col-xs-12">
 	{{#each row as |item ii|}}
 	{{#if item.img}}
 	<div class="{{item.col}} photo-frame border" onclick="svr.photos.onclick(this)">
@@ -661,7 +705,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	<p onclick="svr.notes.remove()">Delete</p>
 	<p onclick="svr.notes.edit(svr.notes.menu.menu('option', 'caller'))">Edit</p>
 	<p onclick="svr.notes.insert()">Insert</p>
-	<p onclick="svr.notes.menu.hide()">Exit</p>
+	<p onclick="svr.notes.menu.hide()">Exit menu</p>
 	<p onclick="svr.refresh();svr.notes.menu.hide()">Refresh</p>
 </div>
 

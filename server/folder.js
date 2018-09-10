@@ -45,9 +45,9 @@ const folder_json={
 	xdata:"none"
 }
 */
-const folder_types={
-	folder:{
-		desc:"folder with sub-folders (default)",
+const castypes={
+	binder:{
+		desc:"logged document and binder container",
 		jsonfile:"__folder.json", 
 		icon:"imagename",
 		template:"folder.html",
