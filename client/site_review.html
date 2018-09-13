@@ -1,29 +1,24 @@
 <!doctype html>
 <style>
-.picBox{ max-height:350px; max-width:100%;}
+
 caption{ font-size:10pt; font-family:'segoe UI'; }
 figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 
-.border-not {border-color:black; border-style:solid; border-width:1px;}
-.photo-frame-not{ padding-left:5px; padding-top:15px; border-color:black; border-style:solid; border-width:1px; }
-.photo-frame{ padding-left:5px; padding-top:15px;}
-.photo-text{ padding-left:5px; padding-top:15px;}
-
+.photo-pads {padding-left:5px; padding-top:15px;}
 .photo-image {max-width:100%; padding-left:5px; float:left;}
-.break-line {margins:auto;}
 
-.halfwidth {width:50%;}
-.fullwidth {width:100%;}
 .printable {display:none;}
-.noprint {display:default;}
+.print-not {display:default;}
+.breakable {page-break-inside:auto;}
+.break-not {page-break-inside:avoid; !important;}
+
 p {padding-bottom:1em;}
 h3 {padding-bottom:1em;}
 
 @media print {
-	.noprint {display:none;}
+	.print-not {display:none;}
 	.printable {display:block;}
 	.row {page-break-inside:avoid; !important;}
-	.control-joint {page-break-inside:auto; !important;}
 }
 
 </style>
@@ -57,7 +52,7 @@ svr.change=function(field, valu, callback){
 };
 
 svr.disclaimer={};
-svr.disclaimer.refresh=function(){
+svr.disclaimer.render=function(){
 	var h="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
 	
 	//screen version...
@@ -173,7 +168,7 @@ svr.notes.render=function(r){
 	// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
 	if(typeof r == "undefined"){ r=svr.cache;} else { svr.cache=r;}
 	
-	//reformat result to suit comments template
+	//reformat result r to suit the notes template
 	svr.cache.rows=[].concat(
 		svr.notes.reformat(r.generals, "generals", 1, "General Notes"),
 		svr.notes.reformat(r.comments, "comments", 2, "Comments & Observations"),
@@ -447,7 +442,7 @@ svr.titleblock_right.edit=function(el){
 	});
 };
 
-svr.titleblock_left.refresh=function(){
+svr.titleblock_left.render=function(){
 	//console.log("PROJECT SELECT");
 	//var svr_id=localStorage.getItem("svr_id");
 	
@@ -480,15 +475,15 @@ svr.titleblock_right.template=Handlebars.compile($("#svr-titleblock-right").html
 ///////////////////////////////////////
 // Render page 
 
-svr.titleblock_left.refresh(); //renders titleblock_left IE project info
-svr.disclaimer.refresh();
+svr.titleblock_left.render(); //renders titleblock_left IE project info
+svr.disclaimer.render();
 svr.refresh(); //renders header, notes & titleblock_right IE report info 
 
 </script>
 
 
 <!-- SCREEN VERSION -->
-<div class="container noprint">
+<div class="container print-not">
 	<div id="svr-header-placeholder">placeholder</div>
 	<div class="row">
 	<div id="svr-titleblock-left-placeholder" class="col-xs-6">Project part of titleblock</div>
@@ -503,15 +498,16 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 
 <!-- PRINTABLE VERSION -->
 <table class="printable">
-	<thead id="svr-header-printable"></thead>
+	<col width="100%">
+	<thead><tr><th id="svr-header-printable" class="col-xs-12"></th></tr></thead>
 	<tbody>
-	<tr><td>
-	<div id="svr-titleblock-project-printable" class="col-xs-6">project title block</div>
-	<div id="svr-titleblock-report-printable" class="col-xs-6">report title block</div>
-	</td></tr>
-	<tr><td id="svr-disclaimer-printable" class="row__">disclaimer</td></tr>
-	<tr><td id="svr-notes-printable">notes-printable</td></tr>
-	<tr><td id="svr-photos-printable">photos-printable</td></tr>
+		<tr><td>
+		<div id="svr-titleblock-project-printable" class="col-xs-6">project title block</div>
+		<div id="svr-titleblock-report-printable" class="col-xs-6">report title block</div>
+		</td></tr>
+		<tr class="breakable"><td id="svr-disclaimer-printable" class="row__">disclaimer</td></tr>
+		<tr class="breakable"><td id="svr-notes-printable">notes-printable</td></tr>
+		<tr class="breakable"><td id="svr-photos-printable">photos-printable</td></tr>
 	</tbody>
 </table>
 
@@ -663,7 +659,7 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	
 </template>
 
-
+	
 <template id='svr-photos-template' type="text/x-handlebars-template">
 
 	<div class="row marz" 
@@ -679,24 +675,20 @@ svr.refresh(); //renders header, notes & titleblock_right IE report info
 	</div>
 	
 	{{#each rows as |row ri|}}
-	<div class="row col-xs-12">
+	<div class="row col-xs-12 break-not">
 	{{#each row as |item ii|}}
 	{{#if item.img}}
-	<div class="{{item.col}} photo-frame border" onclick="svr.photos.onclick(this)">
-		<img class="photo-image" src="{{item.img}}">
-	</div>
+		<img class="{{item.col}} photo-pads" onclick="svr.photos.onclick(this)" src="{{item.img}}">
 	{{/if}}
 	{{#if item.fig}}
-	<div class="{{item.col}} photo-text border"
-		title="{{item.key}}">
-		<figure style="display:inline;">5.{{plusOne item.index}}</figure>
+	<div class="{{item.col}} photo-pads break-not" title="{{item.key}}">
+		<figure>5.{{plusOne item.index}}</figure>
 		<caption>{{array item.captions}}</caption>
 		<p>{{item.dateTaken}}</p>
 	</div>
 	{{/if}}
 	{{/each}}	
 	</div>
-	<div class="control-joint"></div>
 	{{/each}}
 
 	
