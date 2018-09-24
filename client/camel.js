@@ -26,59 +26,50 @@ SOFTWARE.
 
 ********************************/
 
-// Start of closure
-if (typeof casbah.Camel!="function"){casbah.Camel=function(){
 	
 ///////////////////////
-// CAMEL = Contract Admin Main Explorer & Lister
+// CAMEL = Contract Admin Multi-ELevator.  Brings up requested pages
 
 function Camel(argo){
+	that=this;
+	
 	//argument object
 	this.argo=$.extend({
-		//folder to render
-		path:"uploads\", 
 		//element for all camels
-		_base:null,
 		name:null,
+		//folder to render
+		path:"uploads" 
 	}, argo);
 	
-	//init static base element where all camels display
-	if (!this.argo._base){
-		Camel.prototype._base=$("<div></div>");
-		$("body").append(Camel.prototype._base);		
-	}
+	//init view as static variable to all Camels
+	if (!Camel.prototype.view$) {Camel.prototype.view$=$("#camel-view");}
 
-	//init or else update static list of all Camels that have been instanciated
-	if (typeof Camel.prototype._camels=="undefined"){Camel.prototype._camels=[this];}
-	else {Camel.prototype._camels.push(this);}
+	//init or else update static list of all instantiated camels
+	if (typeof Camel.prototype.camels=="undefined"){Camel.prototype.camels=[this];}
+	else {Camel.prototype.camels.push(this);}
 	
-	//init or else update static Camel menu
-	if (typeof Camel.prototype._menue=="undefined"){
-		Camel.prototype._menue=$("<div></div>");
-		var li=$("<li>"+this.argo.name+"</li>").click(function(){this.run();});
-		li.appentTo(Camel.prototype._menue);
-		Camel.prototype._menu=$.menu(Camel.prototype._menue);
-	} else {
-		$("<li>"+this.argo.name+"</li>").appentTo(Camel.prototype._menue);
-		Camel.prototype._menu.menu("refresh");
-	}	
+	//init name - if not provided in argo, default name is a nato code
+	if (!this.argo.name){this.argo.name=this.nato[Camel.prototype.camels.length-1];}
 	
+	//init camel names list if necessary
+	if (typeof Camel.prototype.name$=="undefined"){Camel.prototype.name$=$("#camel-names");}
+	//update camel names, list of all instantiated camel names	
+	var li=$("<li id='camel-"+this.argo.name+"'><a href='#'>"+this.argo.name+"</a></li>");
+	li.appendTo(Camel.prototype.name$);
+	li.click(function(){ that.run(that.argo.name);});
+	//alert("Run camel run");
 
 };
 
-Camel.prototype.nato=["alpha", "bravo", "charlie", "delta", "echo", "foxtrot"];
-
-Camel.prototype.list=function(){
-	//show list of all camels
-	
-}
-
-Camel.prototype.run=function(){
-	//focus on this camel, render path
-	
-}
+Camel.prototype.nato=["Alpha", "Bravo", 
+	"Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
+	"Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", 
+	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu"];
 
 
+Camel.prototype.run=function(name){
+	//name becomes active camel
+	alert("run " + name + " run");
+};
 
-//end of closure
-return Camel;}();}
+

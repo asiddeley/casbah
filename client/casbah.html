@@ -20,6 +20,8 @@
 <!-- casbah libraries & CSS -->
 <script type="text/javascript" src="client/casbah.js"></script>
 <link rel="stylesheet" type="text/css" href="client/casbah.css">
+<script type="text/javascript" src="client/camel.js"></script>
+
 
 <!-- Handlebars Template engine -->
 <script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
@@ -59,7 +61,12 @@ $(function() {
 
 	$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
 
-	//load html from file the first time otherwise just show the right element containing the html   
+	//load...
+	//$.getScript("camel.js");
+	//alert("camel..." + Camel);
+	camel=new Camel();
+	
+	//load html from file the first time otherwise just show the right element containing the html  
 	casbah.view("welcome.html");
 }); 
 
@@ -82,8 +89,8 @@ $(function() {
 		
 		<li class="dropdown">
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Action<span class="caret"></span></a>
-		<ul class="dropdown-menu">
+		>Admin<span class="caret"></span></a>
+		<ul id="camel-names"  class="dropdown-menu">
 			<li onclick="casbah.view('project_log.html')"><a href="#">Project Log</a></li>
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">Action Items</a></li>
@@ -91,7 +98,7 @@ $(function() {
 			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
 			<li class="disabled"><a href="#">Outstanding Shops</a></li>
 			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
+			<li class="disabled"><a href="#">Camels:</a></li>
 		</ul>
 		</li>
 
@@ -210,7 +217,7 @@ $(function() {
 
 <div id="BUMPER" >bumper</div>
 <div id="VIEW"></div>
-
+<div id="camel-view"></div>
 
 <div id="project_modal" class="modal fade" role="dialog" >
 	<div class="modal-dialog modal-sm">
