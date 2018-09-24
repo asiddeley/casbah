@@ -29,7 +29,7 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"server","fs+"))
 const url = require("url")
-const bodyParser = require("body-parser") 
+const bodyParser = require("body-parser")
 const fileUpload = require("express-fileupload")
 
 const app = express()
