@@ -27,28 +27,28 @@ SOFTWARE.
 ********************************/
 
 // start of closure
-if (typeof casbah.SVR!="function"){casbah.SVR=function(){
+if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
 ///////////////////////
 // Site visit report
 // 
 function svr(element){
 	//place for report
-	this.$e=$(element);
+	this.e$=$(element);
 	// init text editor
 	this.ed=new casbah.Editor();
 	// init header
-	this.header.template=Handlebars.compile(this.$e.find("#svr-header").html());
+	this.header.template=Handlebars.compile(this.e$.find("#svr-header").html());
 	// init context menu with jquery menu
-	this.notes.menu=this.$e.find("#svr-notes-menu").menu();
+	this.notes.menu=this.e$.find("#svr-notes-menu").menu();
 	this.notes.menu.css("position","absolute", "width", "200px").hide();
 	// init notes
-	this.notes.template=Handlebars.compile(this.$e.find("#svr-notes-template").html());
+	this.notes.template=Handlebars.compile(this.e$.find("#svr-notes-template").html());
 	// init photos
-	this.photos.template=Handlebars.compile(this.$e.find("#svr-photos-template").html());
+	this.photos.template=Handlebars.compile(this.e$.find("#svr-photos-template").html());
 	// init titleblocks
-	this.titleblock_left.template=Handlebars.compile(this.$e.find("#svr-titleblock-left").html());
-	this.titleblock_right.template=Handlebars.compile(this.$e.find("#svr-titleblock-right").html());
+	this.titleblock_left.template=Handlebars.compile(this.e$.find("#svr-titleblock-left").html());
+	this.titleblock_right.template=Handlebars.compile(this.e$.find("#svr-titleblock-right").html());
 	///////////////////////////////////////
 	// Render 
 	this.titleblock_left.render(); //renders titleblock_left IE project info
@@ -80,9 +80,9 @@ svr.prototype.disclaimer.render=function(){
 	var h="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
 	
 	//screen version...
-	this.$e.find("#svr-disclaimer-placeholder").html(h);
+	this.e$.find("#svr-disclaimer-placeholder").html(h);
 	//printable version...
-	this.$e.find("#svr-disclaimer-printable").html(h);
+	this.e$.find("#svr-disclaimer-printable").html(h);
 };
 
 
@@ -106,9 +106,9 @@ svr.prototype.header.edit=function(el){
 			//svr.titleblock.render(svr.data);
 			var h=svr.header.template({svr:svr.cache});
 			//screen
-			svr.$e.find("#svr-header-placeholder").html(h);
+			svr.e$.find("#svr-header-placeholder").html(h);
 			//printable version
-			svr.$e.find("#svr-header-printable").html(h);
+			svr.e$.find("#svr-header-printable").html(h);
 		});
 	});
 };
@@ -212,13 +212,13 @@ svr.prototype.notes.render=function(r){
 	var rtb=svr.titleblock_right.template({svr:r});
 	var n=svr.notes.template({rows:svr.cache.rows})
 	//put it to screen...
-	svr.$e.find("#svr-header-placeholder").html(h);
-	svr.$e.find("#svr-titleblock-right-placeholder").html(rtb);
-	svr.$e.find("#svr-notes-placeholder").html(n);
+	svr.e$.find("#svr-header-placeholder").html(h);
+	svr.e$.find("#svr-titleblock-right-placeholder").html(rtb);
+	svr.e$.find("#svr-notes-placeholder").html(n);
 	//put it to printable...
-	svr.$e.find("#svr-header-printable").html(h);
-	svr.$e.find("#svr-titleblock-report-printable").html(rtb);
-	svr.$e.find("#svr-notes-printable").html(n);
+	svr.e$.find("#svr-header-printable").html(h);
+	svr.e$.find("#svr-titleblock-report-printable").html(rtb);
+	svr.e$.find("#svr-notes-printable").html(n);
 }
 
 svr.prototype.notes.reformat=function(section, section_name, section_num, section_title){
@@ -430,9 +430,9 @@ svr.prototype.photos.render=function(svrdata){
 	//get updated html
 	var h=svr.photos.template({rows:svr.cache.photorows})
 	//put it to screen...
-	svr.$e.find("#svr-photos-placeholder").html(h);
+	svr.e$.find("#svr-photos-placeholder").html(h);
 	//put it to printable...
-	svr.$e.find("#svr-photos-printable").html(h);
+	svr.e$.find("#svr-photos-printable").html(h);
 }
 
 //init photos
@@ -482,10 +482,10 @@ svr.prototype.titleblock_right.edit=function(el){
 			//refresh (server request and render) or just render cache for now...
 			var h=svr.titleblock_right.template({svr:svr.cache});
 			//svr.titleblock.render(svr.data);
-			svr.$e.find("#svr-titleblock-right-placeholder").html(h);
+			svr.e$.find("#svr-titleblock-right-placeholder").html(h);
 			
 			//untested
-			svr.$e.find("#svr-titleblock-report-printable").html(h);			
+			svr.e$.find("#svr-titleblock-report-printable").html(h);			
 		});
 	});
 };
@@ -507,9 +507,9 @@ svr.prototype.titleblock_left.render=function(){
 			//update html
 			var h=svr.titleblock_left.template(result);
 			//put it to screen
-			svr.$e.find("#svr-titleblock-left-placeholder").html(h);
+			svr.e$.find("#svr-titleblock-left-placeholder").html(h);
 			//put it to printable
-			svr.$e.find("#svr-titleblock-project-printable").html(h);
+			svr.e$.find("#svr-titleblock-project-printable").html(h);
 		},
 		type:"POST",
 		url:"/uploads"

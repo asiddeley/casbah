@@ -271,7 +271,8 @@ exports.svr_change=function(req, res){
 			global.appRoot, 
 			req.body.uploads_dir, 
 			req.body.project_id, 
-			reports_dir, svr_dir, 
+			reports_dir, 
+			svr_dir, 
 			req.body.svr_id, 
 			svr_jsonfile )
 		field=req.body.field

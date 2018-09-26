@@ -177,7 +177,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break;
 
 	case "DF-CREATE":
-		//creates a tables from defrow and saves it as datafile 
+		//creates a table from defrow and saves it as datafile 
 		//defrow - {nam:val,...}
 		//datafile - {0:{rowid:0, nam:val,...}}
 		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
