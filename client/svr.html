@@ -1,0 +1,247 @@
+<!doctype html>
+<style>
+
+caption{ font-size:10pt; font-family:'segoe UI'; }
+figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
+
+.photo-pads {padding-left:5px; padding-top:15px;}
+.photo-image {max-width:100%; padding-left:5px; float:left;}
+
+.printable {display:none;}
+.print-not {display:default;}
+.breakable {page-break-inside:auto;}
+.break-not {page-break-inside:avoid; !important;}
+
+p {padding-bottom:1em;}
+h3 {padding-bottom:1em;}
+
+@media print {
+	.print-not {display:none;}
+	.printable {display:block;}
+	.row {page-break-inside:avoid; !important;}
+}
+
+</style>
+
+<!-- SCREEN VERSION -->
+<div class="container print-not">
+	<div id="svr-header-placeholder">placeholder</div>
+	<div class="row">
+	<div id="svr-titleblock-left-placeholder" class="col-xs-6">Project part of titleblock</div>
+	<div id="svr-titleblock-right-placeholder" class="col-xs-6">Report part of titleblock</div>
+	</div>
+	<div id="svr-disclaimer-placeholder" class="row row__" >disclaimer</div>
+	<br><br>
+	<div id="svr-notes-placeholder" class="marz">notes-placeholder</div>
+	<div id="svr-photos-placeholder" class="marz">photos-placeholder</div>
+	<br><br>
+</div>
+
+<!-- PRINTABLE VERSION -->
+<table class="printable">
+	<col width="100%">
+	<thead><tr><th id="svr-header-printable" class="col-xs-12"></th></tr></thead>
+	<tbody>
+		<tr><td>
+		<div id="svr-titleblock-project-printable" class="col-xs-6">project title block</div>
+		<div id="svr-titleblock-report-printable" class="col-xs-6">report title block</div>
+		</td></tr>
+		<tr class="breakable"><td id="svr-disclaimer-printable" class="row__">disclaimer</td></tr>
+		<tr class="breakable"><td id="svr-notes-printable">notes-printable</td></tr>
+		<tr class="breakable"><td id="svr-photos-printable">photos-printable</td></tr>
+	</tbody>
+</table>
+
+
+<!-- TEMPLATES -->
+<template id='svr-header' type="text/x-handlebars-template">
+	{{#with svr}}
+	<div id="backup-logo"></div>
+	<img style="width:100px; float:left;"
+		src="uploads/logo.png" 
+		alt=""
+		onerror="$('#backup-logo').load('client/casbah_logo.html');">
+	<h2  style="float:right;" 
+		field="title"
+		onmouseenter="$(this).addClass('highlite')"
+		onmouseleave="$(this).removeClass('highlite')"
+		onclick="svr.header.edit(this)">{{title}}</h2>
+	<div style="clear:both"></div>
+	{{/with}}
+</template>
+
+
+
+<template id='svr-titleblock-left' type="text/x-handlebars-template">
+{{#each projects}}
+<div class="row row__">
+	<strong class="col-xs-4">Project Id:</strong>
+	<p class="col-xs-8">{{project_id}}</p>
+</div>
+
+<div class="row row">
+	<strong class="col-xs-4">Project Name:</strong>
+	<p class="col-xs-8">{{project_name}}</p>
+</div>
+
+<div class="row row">
+	<strong class="col-xs-4">Project Address:</strong>
+	<p class="col-xs-8">{{address}}</p>
+</div>
+
+<div class="row row">
+	<strong class="col-xs-4">Contractor:</strong>
+	<p class="col-xs-8">{{contractor}}</p>
+</div>
+
+<div class="row row">
+	<strong class="col-xs-4">Permit No:</strong>
+	<p id="svr-permit" class="col-xs-8">{{permit}}</p>
+</div>
+{{/each}}
+</template>
+
+<template id='svr-titleblock-right' type="text/x-handlebars-template">
+{{#with svr}}
+<div class="row row__">
+	<strong class="col-xs-4">Report Id:</strong>
+	<p class="col-xs-8">{{svr_id}}</p>
+</div>
+
+<div class="row row">
+	<strong id="svr-date" class="col-xs-4">Date of Visit:</strong>
+	<p class="col-xs-8"
+	title="click to edit, then double-click to save..."
+	field="date"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="svr.titleblock_right.edit(this)">{{date}}</p>
+</div>
+
+<div class="row row">
+	<strong  class="col-xs-4">Date Issued:</strong>
+	<p class="col-xs-8"	
+	title="click to edit, then double-click to save..."
+	field="date_issued"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="svr.titleblock_right.edit(this)">{{date_issued}}</p>
+</div>
+
+<div class="row row">
+	<strong  class="col-xs-4">Reviewer:</strong>
+	<p class="col-xs-8"	
+	title="click to edit, then double-click to save..."
+	field="author"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="svr.titleblock_right.edit(this)">{{author}}</p>
+</div>
+
+<div class="row row">
+	<strong class="col-xs-4"
+	title="click to edit, then double-click to save..."
+	field="misc_key"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="svr.titleblock_right.edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
+	<p class="col-xs-8"
+	title="click to edit, then double-click to save..."
+	field="misc_valu"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="svr.titleblock_right.edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
+</div>
+
+{{/with}}
+</template>
+
+
+<template id='svr-notes-template' type="text/x-handlebars-template">
+
+	{{#each rows as |row rowindex|}}
+	{{#if row.section_heading}}
+	<div class="row marz" 
+		section_name="{{row.section_name}}"
+		section_num="{{row.section_num}}"
+		section_index="{{row.section_index}}"
+		ondrop="svr.notes.ondrop(this, event)">
+		<h3 class="col-xs-1 marz" >{{row.section_num}}</h3>
+		<h3 class="col-xs-10 border-left marz"
+			section_name="{{row.section_name}}"
+			section_index="{{row.section_index}}"		
+			oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</h3>
+		<h3 class="col-xs-1 marz" ></h3>
+	</div>	
+	{{/if}}
+	{{#if row.section_item}}	
+	<div class="row marz"
+		section_name="{{row.section_name}}"
+		section_num="{{row.section_num}}"
+		section_index="{{row.section_index}}"
+		draggable="true"
+		ondragstart="svr.notes.ondragstart(this, event)"
+		ondragover="event.preventDefault()"
+		ondrop="svr.notes.ondrop(this, event)">		
+	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.section_index}}</p>
+	<p 	class="col-xs-10 border-left marz"
+		title="click to edit, then double-click to save"
+		section_name="{{row.section_name}}"
+		section_num="{{row.section_num}}"
+		section_index="{{row.section_index}}"
+		onmouseenter="$(this).addClass('highlite')"
+		onmouseleave="$(this).removeClass('highlite')"
+		onclick="svr.notes.edit(this)"		
+		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</p>	
+	<p 	class="col-xs-1 marz"></p>	
+	</div>
+	{{/if}}
+	{{/each}}
+	
+</template>
+
+	
+<template id='svr-photos-template' type="text/x-handlebars-template">
+
+	<div class="row marz" 
+	title="Drop photos here to add to report..."
+	ondragenter="event.preventDefault();$(this).addClass('highlite');"
+	ondragover="event.preventDefault();" 
+	ondragleave="event.preventDefault();$(this).removeClass('highlite');"	
+	ondrop="svr.photos.ondrop(event);"
+	oncontextmenuNOT="casbah.showMenu(svr.photo.menu, event)">
+		<h3 class="col-xs-1 marz" >5.0</h3>
+		<h3 class="col-xs-10 border-left marz">Photos</h3>
+		<h3 class="col-xs-1 marz" >&nbsp;</h3>
+	</div>
+	
+	{{#each rows as |row ri|}}
+	<div class="row col-xs-12 break-not">
+	{{#each row as |item ii|}}
+	{{#if item.img}}
+		<img class="{{item.col}} photo-pads" onclick="svr.photos.onclick(this)" src="{{item.img}}">
+	{{/if}}
+	{{#if item.fig}}
+	<div class="{{item.col}} photo-pads break-not" title="{{item.key}}">
+		<figure>5.{{plusOne item.index}}</figure>
+		<caption>{{array item.captions}}</caption>
+		<p>{{item.dateTaken}}</p>
+	</div>
+	{{/if}}
+	{{/each}}	
+	</div>
+	{{/each}}
+
+	
+</template>
+
+
+<!-- MENUS -->
+<div id="svr-notes-menu" onmouseleave="svr.notes.menu.hide()" class="hide9999">
+	<p onclick="svr.notes.remove()">Delete</p>
+	<p onclick="svr.notes.edit(svr.notes.menu.menu('option', 'caller'))">Edit</p>
+	<p onclick="svr.notes.insert()">Insert</p>
+	<p onclick="svr.notes.menu.hide()">Exit menu</p>
+	<p onclick="svr.refresh();svr.notes.menu.hide()">Refresh</p>
+</div>
+

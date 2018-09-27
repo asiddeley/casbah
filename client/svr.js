@@ -26,7 +26,7 @@ SOFTWARE.
 
 ********************************/
 
-// start of closure
+// start of closure 
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
 ///////////////////////
@@ -51,9 +51,8 @@ function svr(element){
 	this.titleblock_right.template=Handlebars.compile(this.e$.find("#svr-titleblock-right").html());
 	///////////////////////////////////////
 	// Render 
-	this.titleblock_left.render(); //renders titleblock_left IE project info
-	this.disclaimer.render();
-	this.refresh(); //renders header, notes & titleblock_right IE report info 
+	this.render();
+
 };
 
 svr.prototype.cache={};
@@ -85,13 +84,8 @@ svr.prototype.disclaimer.render=function(){
 	this.e$.find("#svr-disclaimer-printable").html(h);
 };
 
-
-// text editor
-//svr.prototype.ed=new casbah.Editor();
-
 svr.prototype.header={};
-//init header
-//svr.header.template=Handlebars.compile($("#svr-header").html());
+
 svr.prototype.header.edit=function(el){
 	var svr=this;
 	svr.ed.text(el, function(){
@@ -127,10 +121,6 @@ svr.prototype.notes.insert=function(){
 	svr.cache[sn].splice(si, 0, copy);
 	svr.change(sn, svr.cache[sn], svr.notes.render);
 };
-
-// setup context menu
-//svr.notes.menu=$("#svr-notes-menu").menu();
-//svr.notes.menu.css("position","absolute", "width", "200px").hide();
 
 svr.prototype.notes.edit=function(el){
 	var svr=this;
@@ -286,8 +276,10 @@ svr.prototype.photos.ondrop=function(ev){
 		error:function(err){console.log("Error uploading:",err);},
 		processData:false, 
 		success:function(result){
-			console.log("Success uploading, refresh everything...");
-			svr.refresh();
+			//console.log("Success uploading, refresh everything...");
+			//svr.refresh();
+			console.log("Success uploading, rendering just photos...");
+			svr.photos.render();
 		},
 		type:"POST",
 		url:"/uploads"
@@ -435,14 +427,16 @@ svr.prototype.photos.render=function(svrdata){
 	svr.e$.find("#svr-photos-printable").html(h);
 }
 
-//init photos
-//svr.photos.template=Handlebars.compile($("#svr-photos-template").html());
+////////////////////
+// render everything, includes data project and document refreshes
 
-
-/////////////////////
-// Refresh
-
-svr.prototype.refresh=function(result, delta){
+svr.prototype.render=function(){
+	
+	//renders titleblock_left IE project info
+	this.titleblock_left.render(); 
+	this.disclaimer.render();
+	
+	//renders header, notes & titleblock_right IE report info 
 	var svr=this;
 	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
@@ -460,8 +454,9 @@ svr.prototype.refresh=function(result, delta){
 		},
 		type:"POST",
 		url:"/uploads"
-	});
+	});	
 };
+
 
 
 /////////////
@@ -515,17 +510,6 @@ svr.prototype.titleblock_left.render=function(){
 		url:"/uploads"
 	});
 };
-
-// init titleblocks
-//svr.titleblock_left.template=Handlebars.compile($("#svr-titleblock-left").html());
-//svr.titleblock_right.template=Handlebars.compile($("#svr-titleblock-right").html());
-
-///////////////////////////////////////
-// Render page 
-//svr.titleblock_left.render(); //renders titleblock_left IE project info
-//svr.disclaimer.render();
-//svr.refresh(); //renders header, notes & titleblock_right IE report info 
-
 
 
 
