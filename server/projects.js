@@ -149,3 +149,25 @@ exports.select=function(req, res){
 	})
 }
 
+
+//////////////
+//NEW with req.body.path instead of req.body.project_id
+exports.__select=function(req, res){
+	
+	//select all projects with suplementary data
+	var p=path.join(global.appRoot, req.body.uploads_dir);
+	//empty result
+	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:project_json} 
+	console.log("PROJECT select:");
+	fs.stat(p, function(err, stat){
+		if (!err){
+			//if req.body.project_id is undefined then all info for all projects returned
+			var rar=fsp.dirSync_json(p, project_jsonfile, project_json, req.body.project_id)
+			rar=fsp.jsonify(rar)
+			r.projects=fsp.dirasid(rar, "project_id")		
+ 			res.json(r)
+			console.log("PROJECT select success")
+		}
+		else {res.json(r); console.log("PROJECT select error:", err.code)}
+	})
+}

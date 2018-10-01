@@ -369,7 +369,9 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PROJECT-INSERT":project.insert(req, res); break;	
 	case "PROJECT-REMOVE":project.remove(req, res); break;	
 	case "PROJECT-SELECT":project.select(req, res); break;	
+	case "PROJECT--SELECT":project.__select(req, res); break;	//NEW with path only
 
+	
 	// Room Deficiency Sheets
 	case "RDS-IMAGES":reports.rds_images(req, res); break;
 	
@@ -378,10 +380,16 @@ req.files... populated by middle-ware from ajaxed formData
 	case "RDSS-SELECT":reports.rdss_select(req, res); break;
 	case "RDSS-UPLOAD":reports.rdss_upload(req, res); break;
 	
-	// Site Review Reports
+	// Site Visit Reports
 	case "SVR-CHANGE":reports.svr_change(req, res); break;	
 	case "SVR-SELECT":reports.svr_select(req, res); break;	
 	case "SVR-UPLOAD":reports.svr_upload(req, res); break;	
+	
+	// Site Visit Reports NEW with path only
+	case "SVR--CHANGE":reports.svr__change(req, res); break;	
+	case "SVR--SELECT":reports.svr__select(req, res); break;	
+	case "SVR--UPLOAD":reports.svr__upload(req, res); break;	
+	
 
 	// Site Review Reports Log
 	case "SVRL-INSERT":reports.svrl_insert(req, res); break;	

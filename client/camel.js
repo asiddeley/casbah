@@ -28,7 +28,7 @@ SOFTWARE.
 
 	
 ///////////////////////
-// CAMEL = Contract Admin Main/Many Exploratory Llama.  
+// CAMEL = Contract Admin Many Exploratory Llamas.  
 
 function Camel(argo){
 	that=this;
@@ -36,7 +36,7 @@ function Camel(argo){
 	//argument object
 	argo=$.extend({
 		name:null,
-		path:"uploads" 
+		path:"/uploads" 
 	}, argo);
 	
 	//only one camel active at a time, this camel is now the main one 
@@ -84,12 +84,12 @@ Camel.prototype.list(){
 
 Camel.prototype.main=function(name){
 	//Make named camel the main camel. Returns main camel if called without argument
-	if (typeof name=="undefined") {return Camel.mainCamel;}
+	if (typeof name=="undefined") {return Camel.prototype.mainCamel;}
 	//find camel with name
 	var mc=this.camels.filter(function(c){return (c.name==name);});
 	//update mainCamel property in all camels...
 	if (mc.length==1){Camel.prototype.mainCamel=mc[0];}
-	console.log("Main camel is " + Camel.mainCamel);	
+	console.log("Main camel is " + Camel.prototype.mainCamel);	
 	this.view();
 };
 
@@ -113,22 +113,23 @@ Camel.prototype.retire=funtion(name){
 };
 
 Camel.prototype.view=function(path){
-	//render the folder in path as per its assigned CASDOC
-	
-	var that=this.mainCamel;	
-	if (typeof path=="string") {that.path=path;}	
+	//var camel=this;
+	//for the current camel, render the folder in its path as per its assigned CASDOC
+	var camel=this.mainCamel;
+
+	if (typeof path=="string") {camel.path=path;}	
 	//reset the camel view
 	Camel.prototype.view$.empty();
 	//append any camel info here
 	
 	//add the div that will hold the document contents
-	Camel.prototype.view$.append(that.casdo$);
+	Camel.prototype.view$.append(camel.casdo$);
 
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"CAMEL-VIEW",
-			path:this.mainCamel.path
+			path:camel.path
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(r){ 
@@ -144,10 +145,10 @@ Camel.prototype.view=function(path){
 				$.load(r.html, function(h){
 					console.log( "$load " + r.html);	
 					//reset jquery element casdo$ with applicable document templates
-					that.casdo$.html(h);
+					camel.casdo$.html(h);
 					//create document object passing jquery element casdo$
-					that.casdoo=casbah.creators[r.casdoc](that.casdo$);
-					that.casdoo.render();					
+					camel.casdoo=casbah.creators[r.casdoc](that.casdo$, camel.path);
+					camel.casdoo.render();					
 				});
 			});	
 		},

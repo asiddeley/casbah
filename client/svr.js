@@ -36,9 +36,11 @@ casbah.creators["site visit report"]=function(template_element){
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
 // Site visit report
-function svr(template_element){
-	//place for report
-	this.e$=$(template_element);
+function svr(site$, path){
+	// report site and templates
+	this.e$=$(site$);
+	// path instead of project_id & svr_id
+	this.path=path;
 	// init text editor
 	this.ed=new casbah.Editor();
 	// init header
@@ -53,10 +55,8 @@ function svr(template_element){
 	// init titleblocks
 	this.titleblock_left.template=Handlebars.compile(this.e$.find("#svr-titleblock-left").html());
 	this.titleblock_right.template=Handlebars.compile(this.e$.find("#svr-titleblock-right").html());
-	///////////////////////////////////////
-	// Render 
+	// render 
 	this.render();
-
 };
 
 svr.prototype.cache={};
@@ -65,9 +65,10 @@ svr.prototype.change=function(field, valu, callback){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"SVR-CHANGE",
-			project_id:localStorage.getItem("project_id"),
-			svr_id:localStorage.getItem("svr_id"),
+			action:"SVR--CHANGE",
+			path:this.path, //NEW!!
+			//project_id:localStorage.getItem("project_id"), //DEP
+			//svr_id:localStorage.getItem("svr_id"), // DEP
 			field:field,
 			valu:valu
 		}),
@@ -269,9 +270,10 @@ svr.prototype.photos.ondrop=function(ev){
 		//console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
-	fd.append("action","SVR-UPLOAD");
-	fd.append("project_id", localStorage.getItem("project_id"));
-	fd.append("svr_id",localStorage.getItem("svr_id"));
+	fd.append("action","SVR--UPLOAD");
+	fd.append("path", svr.path); //NEW!!
+	//fd.append("project_id", localStorage.getItem("project_id")); //DEP
+	//fd.append("svr_id",localStorage.getItem("svr_id")); //DEP
 	fd.append("upload_file",true);
 	
 	$.ajax({	
@@ -446,9 +448,10 @@ svr.prototype.render=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"SVR-SELECT",
-			project_id:localStorage.getItem("project_id"),
-			svr_id:localStorage.getItem("svr_id")
+			action:"SVR--SELECT",
+			path:svr.path //NEW!!
+			//project_id:localStorage.getItem("project_id"), //DEP
+			//svr_id:localStorage.getItem("svr_id") //DEP
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
@@ -481,8 +484,7 @@ svr.prototype.titleblock_right.edit=function(el){
 			//refresh (server request and render) or just render cache for now...
 			var h=svr.titleblock_right.template({svr:svr.cache});
 			//svr.titleblock.render(svr.data);
-			svr.e$.find("#svr-titleblock-right-placeholder").html(h);
-			
+			svr.e$.find("#svr-titleblock-right-placeholder").html(h);			
 			//untested
 			svr.e$.find("#svr-titleblock-report-printable").html(h);			
 		});
@@ -497,9 +499,9 @@ svr.prototype.titleblock_left.render=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"PROJECT-SELECT",
-			//select info for this project only...
-			project_id:localStorage.getItem("project_id")
+			action:"PROJECT--SELECT",
+			path:svr.path //NEW
+			//project_id:localStorage.getItem("project_id") //DEP			
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){

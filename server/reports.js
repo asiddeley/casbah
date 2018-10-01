@@ -1,5 +1,5 @@
 /**********************************
-CASBAH * Contract Admin Site * Be Architectural Heroes
+CASBAH * Contract Admin System Be Architectural Heroes *
 
 
 MIT License
@@ -364,27 +364,25 @@ exports.svr_select=function(req, res){
 			extensions:".jpg .png"
 		})
 		
-		//get from each result, jsontext, parse it to an object then merge it into each result
+		// get from each result, jsontext, parse it to an object then merge it into each result
 		svrs=fsp.jsonify(svrs)
 		
-		//add to each result, svr_id property with it's value being the directory
+		// add to each result, svr_id property with it's value being the directory
 		rr.svrs=fsp.dirasid(svrs, "svr_id")
-		
-		/**
-		Add image information to xdata - new files only
-		svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
-		xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
-		**/
+
+		// Add image information to xdata - new files only
+		// svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
+		// xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
 		rr.svrs.map(function(svr){
 			svr.files.map(function(f){
-				//f!="uploads/project_dir/reports/site visit/FRR-001/image1__caption1__caption2.jpg"
-				//f="image1__caption1__caption2.jpg"
-				//key=image1
+				// f!="uploads/project_dir/reports/site visit/FRR-001/image1__caption1__caption2.jpg"
+				// f="image1__caption1__caption2.jpg"
+				// key=image1
 
 				var key, captions, p=path.join(root, svr.dir, f)
 
 				if (f.indexOf("__")!=-1){
-					//break filenam into key and array of captions
+					//break filename into key and array of captions
 					//filename="key__caption1__caption2__caption3.ext"
 					key=f.substring(0, f.indexOf("__"))
 					captions=f.substring(f.indexOf("__")+2, f.lastIndexOf(".")).split("__")
@@ -394,7 +392,6 @@ exports.svr_select=function(req, res){
 					captions=f.substring(0, f.lastIndexOf("."))
 				}
 				console.log("f:",f, " key:",key)
-				//if (typeof(svr.xdata[f])=="undefined" ){
 				if (typeof(svr.xdata[key])=="undefined" ){
 					svr.xdata[key]={
 						available:true,
@@ -422,6 +419,154 @@ exports.svr_select=function(req, res){
 
 
 exports.svr_upload=function(req, res){
+	
+	if (!req.files) {
+		var err="SVR-UPLOAD files not found"
+		console.log(err)
+		res.json({dirs:[], err:err}) 
+		return
+	}
+	try {
+		console.log("SVR-UPLOAD try...")
+		var home=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, 
+			svr_dir,
+			req.body.svr_id
+		)		
+		filemover(Object.keys(req.files), home, req, res) 
+	}
+	catch(err) {		
+		res.json({dirs:[], err:err})
+		console.log("SVR-UPLOAD catch:", err)
+	}	
+}
+
+////////////////////// 
+// NEW 
+// with req.body.path instead of req.body.uploads_dir, req.body.project_id, etc
+
+exports.svr__change=function(req, res){
+	var p, field, valu, stat, json
+
+	try{
+		p=path.join(
+			global.appRoot, 
+			req.body.uploads_dir, 
+			req.body.project_id, 
+			reports_dir, 
+			svr_dir, 
+			req.body.svr_id, 
+			svr_jsonfile )
+		field=req.body.field
+		valu=req.body.valu
+		stat="OK"
+		console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
+		json=JSON.parse(fs.readFileSync(p))
+		json[field]=valu
+		fs.writeFileSync(p,JSON.stringify(json))
+	}
+	catch(err) {
+		stat=err
+		console.log("SVR_CHANGE Catch:",err)
+	} 
+	finally {
+		var result={data:[json],stat:stat}
+		res.json(result);
+		console.log("SVR_CHANGE finally:", result)
+	}
+}
+
+
+exports.svr__select=function(req, res){
+	//returns all site reviews
+	var p, root, rr
+
+	try {
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		console.log("SVR SELECT...");	
+		root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		rr={
+			svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
+			project_id:req.body.project_id,
+			root:"place-holder/for/root/path",
+			err:null
+		} 
+		
+		//check if exists - catch error otherwise
+		fs.statSync (p)
+		/******
+		Get list of directories and corresponding jsonfile
+		since fourth argument is supplied, only information for than directory will be returned, not all 
+		var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
+		svrs = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
+		*/		
+		
+		var svrs=fsp.dirSync_json({
+			dir:p,
+			jsonfile:svr_jsonfile,
+			json:svr_json,
+			id:req.body.svr_id,
+			extensions:".jpg .png"
+		})
+		
+		// get from each result, jsontext, parse it to an object then merge it into each result
+		svrs=fsp.jsonify(svrs)
+		
+		// add to each result, svr_id property with it's value being the directory
+		rr.svrs=fsp.dirasid(svrs, "svr_id")
+
+		// Add image information to xdata - new files only
+		// svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
+		// xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
+		rr.svrs.map(function(svr){
+			svr.files.map(function(f){
+				// f!="uploads/project_dir/reports/site visit/FRR-001/image1__caption1__caption2.jpg"
+				// f="image1__caption1__caption2.jpg"
+				// key=image1
+
+				var key, captions, p=path.join(root, svr.dir, f)
+
+				if (f.indexOf("__")!=-1){
+					//break filename into key and array of captions
+					//filename="key__caption1__caption2__caption3.ext"
+					key=f.substring(0, f.indexOf("__"))
+					captions=f.substring(f.indexOf("__")+2, f.lastIndexOf(".")).split("__")
+				} else {
+					//short filename so make caption same as key
+					key=f.substring(0, f.lastIndexOf("."))
+					captions=f.substring(0, f.lastIndexOf("."))
+				}
+				console.log("f:",f, " key:",key)
+				if (typeof(svr.xdata[key])=="undefined" ){
+					svr.xdata[key]={
+						available:true,
+						captions:captions,
+						format:frameType(p),
+						key:key,
+						path:p
+					}
+					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
+					svr.xdata[key][frameType(p)]=true
+				}
+			})
+			//console.log ("SVR xdata:", svr.xdata)
+		})
+		
+		res.json(rr)
+		//console.log("SVR success:", rr)
+	}
+	catch(err){
+		rr.err=err
+		res.json(rr)
+		console.log("SVR catch:", rr)
+	}
+}
+
+
+exports.svr__upload=function(req, res){
 	
 	if (!req.files) {
 		var err="SVR-UPLOAD files not found"
