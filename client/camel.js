@@ -28,7 +28,7 @@ SOFTWARE.
 
 	
 ///////////////////////
-// CAMEL = Contract Admin Main Exploratory Llama.  
+// CAMEL = Contract Admin Main/Many Exploratory Llama.  
 
 function Camel(argo){
 	that=this;
@@ -38,107 +38,123 @@ function Camel(argo){
 		name:null,
 		path:"uploads" 
 	}, argo);
-
-	//Main camel is last Camel instantiated unless changed by user via camel.main
-	this.mainCamel=this;
 	
-	//init view$ as static variable, jquery element for displaying content from all camels
-	Camel.prototype.view$=$("#camel-view");
+	//only one camel active at a time, this camel is now the main one 
+	Camel.prototype.mainCamel=this;
 
 	//update static list of all instantiated camels
 	Camel.prototype.camels.push(this);}
 	
-	//init name.  If not provided in argo, default name is the next nato code
+	//init name. If not provided in argo, default name is the next nato code
 	if (!argo.name){this.name=this.nato[Camel.prototype.camels.length-1];}
 	
 	//init camel names list if necessary
 	if (typeof Camel.prototype.name$=="undefined"){Camel.prototype.name$=$("#camel-names");}
 	
-	//update list of all instantiated camel names	
-	var li=$("<li id='camel-"+this.argo.name+"'><a href='#'>"+this.argo.name+"</a></li>");
-	li.appendTo(Camel.prototype.name$);
-	li.click(function(){ that.main(that.argo.name);});
+	//path for this camel to view
+	this.path=argo.path;
+	
+	//init just once and for all camels, jquery element for displaying camel content
+	if (argo.view$){Camel.prototype.view$=argo.view$;}
+	if (!Camel.prototype.view$) {Camel.prototype.view$=$("#camel-view");}
+	
+	this.casdoc=""; //document - "site visit report"
+	this.casdoo=null; //document object - new casbah.Svr();
+	this.casdo$=$("<div class='CASDOC'></div>"); //jquery element or place for document templates 
+	
+	//render
+	//update list of all instantiated camel names.  Ensure it comes after name$ is defined
+	this.list();
+	//update camel contents
+	this.view();
+};
 
-
+Camel.prototype.list(){
+	//delete existing list
+	$(".CAMELNAME").remove();
+	
+	//Recreate list of all instantiated camel names for the CASBAH admin menu	
+	this.camels.forEach(function(n){
+		var li=$("<li class='CAMELNAME'><a href='#'>"+n+"</a></li>");
+		li.appendTo(Camel.prototype.name$);
+		li.click(function(){ that.main(that.argo.name);});
+	});
 };
 
 
+Camel.prototype.main=function(name){
+	//Make named camel the main camel. Returns main camel if called without argument
+	if (typeof name=="undefined") {return Camel.mainCamel;}
+	//find camel with name
+	var mc=this.camels.filter(function(c){return (c.name==name);});
+	//update mainCamel property in all camels...
+	if (mc.length==1){Camel.prototype.mainCamel=mc[0];}
+	console.log("Main camel is " + Camel.mainCamel);	
+	this.view();
+};
+
+Camel.prototype.mainCamel=null;
 
 //list of all intantiated camels
 Camel.prototype.camels=[];
-
-Camel.prototype.main=function(name){
-	//make the camel name, the main camel 
-	//called from the CASBAH admin menu when user wishes to change camels
-	console.log("Main camel shall be " + name);
-	var mc=this.camels.filter(function(camel){return (camel.name==name);});
-	if (mc.length==1){this.mainCamel=mc[0];}
-	this.view();
-};
 
 Camel.prototype.name="unnamed";
 
 Camel.prototype.nato=["Alpha", "Bravo", 
 	"Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
 	"Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", 
-	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu"];
-
-Camel.prototype.retire=funtion(name){
-	//kill the camel name
-	//called from the CASBAH admin menu
+	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu"];
 	
-}
+Camel.prototype.retire=funtion(name){
+	//close a camel
+	Camel.prototype.camels=this.camels.filter(function(c){return (c.name!=name);});
+	//redo the CASBAH admin tab camel list
+	this.list();
+};
 
 Camel.prototype.view=function(path){
-	// render the folder in path, per assigned CASDOC
+	//render the folder in path as per its assigned CASDOC
+	
+	var that=this.mainCamel;	
+	if (typeof path=="string") {that.path=path;}	
+	//reset the camel view
+	Camel.prototype.view$.empty();
+	//append any camel info here
+	
+	//add the div that will hold the document contents
+	Camel.prototype.view$.append(that.casdo$);
 
-	/* What is path?
-	Constructed from variables and constants...
-	Eg. server/reports.js, path.join(
-		global.appRoot, req.body.uploads_dir, req.body.project_id, 
-		reports_dir, svr_dir, req.body.svr_id, svr_jsonfile )
-	GENERALIZED...
-	approot + uploads + PID + DocTab + DocType + DocID	
-
-	Adjusted as navigation occur... 
-	Eg. client/folder.html, 
-	GENERALIZED... 
-	approot + uploads + project_id + path
-	
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"FOLDER-SELECT",
-			folder_path:folder_path,
-			project_id:localStorage.getItem("project_id")
-		}),
-		error: function(err){ console.log("Error", err);},
-		success: function(result){folder.render(result);},
-		type:"POST",
-		url:"/uploads"
-	});
-		
-	*/
-	
-	
-	
-	if (typeof path=="string") {this.mainCamel.path=path;}
-	// view = this.view$
-	// path = this.mainCamel.path
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"CAMEL-VIEW",
-			project_id:this.project_id,
 			path:this.mainCamel.path
 		}),
 		error: function(err){ console.log(err.message);},
-		success: function(result){ if (typeof callback =="function"){callback();}},
+		success: function(r){ 
+			//r={casdoc:"site visit report", js:"client/svr.js", html:"client/svr.html"}
+			//load and execute script...
+			$.getScript(r.js, function(data, textStatus, jqxhr ){
+				console.log( "$getScript " + r.js);	
+				//console.log( data ); // Data returned
+				//console.log( textStatus ); // Success
+				//console.log( jqxhr.status ); // 200
+				
+				//then load template
+				$.load(r.html, function(h){
+					console.log( "$load " + r.html);	
+					//reset jquery element casdo$ with applicable document templates
+					that.casdo$.html(h);
+					//create document object passing jquery element casdo$
+					that.casdoo=casbah.creators[r.casdoc](that.casdo$);
+					that.casdoo.render();					
+				});
+			});	
+		},
 		type:"POST",
 		url:"/uploads"
 	});
-	
-}
+};
 
 Camel.prototype.view$=null;
 

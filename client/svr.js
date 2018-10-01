@@ -26,15 +26,19 @@ SOFTWARE.
 
 ********************************/
 
-// start of closure 
+// site visit report - first add creater function
+if (typeof casbah.creators == "undefined"){casbah.creators={};};
+casbah.creators["site visit report"]=function(template_element){
+	return new casbah.Svr(template_element);
+};
+
+// open closure 
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
-///////////////////////
 // Site visit report
-// 
-function svr(element){
+function svr(template_element){
 	//place for report
-	this.e$=$(element);
+	this.e$=$(template_element);
 	// init text editor
 	this.ed=new casbah.Editor();
 	// init header
