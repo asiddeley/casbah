@@ -26,6 +26,9 @@ SOFTWARE.
 
 ********************************/
 
+////////////////
+// Folder
+// client side
 
 function Folder(element){
 	this.e$=$(element);

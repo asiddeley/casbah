@@ -26,36 +26,44 @@ SOFTWARE.
 
 ********************************/
 
-/////////////////////////////////
-// folder 
-// server side component
-
-// Node modules
-const path = require("path")
-const fs = require("fs")
-const fsp = require(path.join(__dirname,"fs+"))
-const fsx = require("fs-extra")
-
-
-
-// exports
-exports.select=function(req, res){
-	
-	var r={folder_path:"", folders:[], files:[], err:null, casbah_type:{}} 
-	try{
-		if (typeof req.body.folder_path == "undefined" || req.body.folder_path==""){
-			r.folder_path=path.join(req.body.uploads_dir, req.body.project_id)
-		} 
-		else {r.folder_path=req.body.folder_path} 
-		console.log("FOLDER SELECT try...", r.folder_path)
-		r.folders=fsp.getDirsSync(r.folder_path) //)path.join(global.appRoot,
-		r.files=fsp.getFilesSync(r.folder_path)
-		//r.folder_type=folder_type(r);
- 		res.json(r)
-	}
-	catch(e){
-		r.err=e
-		res.json(r); 
-		console.log("FOLDER SELECT catch..", e)
-	}
+//////////////////////
+// Exports
+// CASbah DOCument definitions
+ 
+exports.folder={
+	name:"folder",
+	base:"",
+	clue:null,
+	desc:"A indexed holder of casdoc folders or regular folders",
+	html:"client/folder.html",
+	icon:"client/folder.png",
+	jscr:"client/folder.js",
+	json:"__folder.json"
 }
+
+exports.rdss={
+	name:"room deficiency sheets",
+	//default base or location in filesystem under uploads/project_id
+	base:"reports/deficinecy sheets",
+	clue:"/RDSS-",		
+	desc:"A collection of room sheets with checklists, one per dropped image (i.e. room plan)", 
+	html:"client/rdss.html",
+	icon:"client/rdss.png",
+	jscr:"client/rdss.js",
+	json:"__rdss.json",
+	seed:"RDSS-##"
+}
+
+exports.svr={
+	name:"site visit report",
+	base:"reports/site reviews",
+	clue:"/SVR-A",		
+	desc:"A document with a project_block, doc_block, editable notes and an image drop", 
+	html:"client/svr.html",
+	icon:"client/svr.png",
+	jscr:"client/svr.js",
+	json:"__svrData.json",
+	seed:"SVR-A##"
+}
+
+

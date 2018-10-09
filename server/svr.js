@@ -26,12 +26,17 @@ SOFTWARE.
 
 ********************************/
 
+//////////////////////////
+// svr = site visit report
+// Server side
+
+// import node libraries
 const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"fs+"))
 const sizeOf = require('image-size');
 
-
+// common functions
 const frameType=function(image){
 	var dims=sizeOf(image) 
 	var ratio=dims.height/dims.width
@@ -56,7 +61,7 @@ const filedate=function(image){
 }
 
 const filemover=function(files, dest, req, res){
-	//this recursive filemover required because file.mv(dest, caallback) is synchronous
+	//this recursive filemover required because file.mv(dest, callback) is synchronous
 	//files - array of files eg. from req.files, which was prepared by express middleware
 	//path - destination path eg. "uploads/prj-001/reports/site reviews/svr-001"
 	//callback - function to call back after all files moved eg. res.json(...)
@@ -73,9 +78,6 @@ const filemover=function(files, dest, req, res){
 }
 
 
-
-////////////////////
-// site visit review
 
 //const svr_dir="site reviews"
 const svr_jsonfile="__svrData.json"
@@ -94,7 +96,7 @@ const svr_json={
 	xdata:{}
 }
 
-exports.svr_change=function(req, res){
+exports.change=function(req, res){
 	var p, field, valu, stat, json
 
 	try{
@@ -105,7 +107,7 @@ exports.svr_change=function(req, res){
 			//reports_dir, 
 			//svr_dir, 
 			//req.body.svr_id, 
-			req.body.path,
+			req.body.branch,
 			svr_jsonfile )
 		field=req.body.field
 		valu=req.body.valu
@@ -117,27 +119,27 @@ exports.svr_change=function(req, res){
 	}
 	catch(err) {
 		stat=err
-		console.log("SVR_CHANGE Catch:",err)
+		console.log("SVR CHANGE Catch:",err)
 	} 
 	finally {
 		var result={data:[json],stat:stat}
 		res.json(result);
-		console.log("SVR_CHANGE finally:", result)
+		console.log("SVR CHANGE finally:", result)
 	}
 }
 
-//PREVIOUSLY svrl_insert
-exports.svr_new=function(req, res){
+//FORMERLY svrl_insert
+exports.create=function(req, res){
 
 	var err, p
+	p=path.join(global.appRoot, req.body.uploads_dir, req.body.branch)
 	
 	//ensure reports_dir exists...
-	try {		
+	//try {		
 		//p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir)
-		p=path.join(global.appRoot, req.body.path)
-		if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
-	} 
-	catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
+		//if (!fs.statSync(p).isDirectory()){fs.mkdirSync(p)}
+	//} 
+	//catch(err){if (err.code="ENOENT"){fs.mkdirSync(p)}}
 	
 	//ensure site_reviews dir exists...
 	//try {		
@@ -149,10 +151,13 @@ exports.svr_new=function(req, res){
 	//Make a folder then returns a list of folders including the new folder...
 	try {		
 		err=null
-		console.log("SVR NEW dir:", req.body.svr_id, " path:", p)
+		console.log("SVR CREATE try:", path.join(p, req.body.svr_id))
 		fs.mkdirSync(path.join(p, req.body.svr_id))
 	}
-	catch(e) {err=e; console.log(err);} 
+	catch(e) {
+		console.log("SVR CREATE catch:",e)
+		console.log(e);
+	} 
 	finally {
 		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
 		var svrs=fsp.jsonify(fsp.dirSync_json(p, svr_jsonfile, svr_json))
@@ -162,23 +167,24 @@ exports.svr_new=function(req, res){
 			project_id:req.body.project_id
 		}
 		res.json(r);
-		console.log("SVRL INSERT finally:",r)
+		console.log("SVR CREATE finally:",r)
 	}
 }
 
-exports.svr_select=function(req, res){
+exports.select=function(req, res){
 	//returns all site reviews
 	var p, root, rr
 
 	try {
 		//p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		p=path.join(global.appRoot, req.body.branch)
-		console.log("SVR SELECT...");	
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.branch)
+		console.log("SVR SELECT try...", p);	
 		//root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
 		rr={
 			svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
-			project_id:req.body.project_id,
-			root:"place-holder/for/root/of/path",
+			//project_id:req.body.project_id,
+			//root:"place-holder/for/root/of/path",
+			branch:"placeholer",
 			err:null
 		} 
 		
@@ -248,12 +254,12 @@ exports.svr_select=function(req, res){
 	catch(err){
 		rr.err=err
 		res.json(rr)
-		console.log("SVR catch:", rr)
+		console.log("SVR SELECT catch:", rr)
 	}
 }
 
 
-exports.svr_upload=function(req, res){
+exports.upload=function(req, res){
 	
 	if (!req.files) {
 		var err="SVR-UPLOAD files not found"

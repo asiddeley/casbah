@@ -1,5 +1,5 @@
-/**********************************
-CASBAH * Contract Admin Site * Be Architectural Heroes
+/*******************************************************
+CASBAH * Contract Admin System Be Architectural Heroes *
 
 
 MIT License
@@ -29,14 +29,12 @@ SOFTWARE.
 const path = require("path")
 const fs = require("fs")
 const fileUpload = require('express-fileupload')
-//const fsp = require(path.join(global.appRoot,"server","fs+"))
-//const project=require(path.join(global.appRoot,"server","projects"))
-//const reports=require(path.join(global.appRoot,"server","reports"))
 const fsp = require(path.join(__dirname,"fs+"))
 const project=require(path.join(__dirname,"projects"))
 const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
 const folder=require(path.join(__dirname,"svr"))
+const camel=require(path.join(__dirname,"camel"))
 
 //const uploads_dir="uploads"
 const uploads_dir=global.uploads_dir
@@ -394,6 +392,9 @@ req.files... populated by middle-ware from ajaxed formData
 	case "SVR SELECT":svr.select(req, res); break;	
 	case "SVR UPLOAD":svr.upload(req, res); break;	
 	case "SVR CREATE":svr.create(req, res); break;	
+
+	// Camel
+	case "CAMEL VIEW":camel.view(req, res); break;	
 	
 	
 	} //switch

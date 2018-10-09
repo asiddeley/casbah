@@ -26,21 +26,27 @@ SOFTWARE.
 
 ********************************/
 
-// site visit report - first add creater function
+//////////////////////////
+// Svr = Site Visit Report
+// Client Side
+
+// Add Svr creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
 casbah.creators["site visit report"]=function(template_element){
 	return new casbah.Svr(template_element);
 };
 
-// open closure 
+// Add Svr function to casbah library if missing
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
 // Site visit report
-function svr(site$, path){
-	// report site and templates
-	this.e$=$(site$);
-	// path instead of project_id & svr_id
-	this.path=path;
+function svr(site$, branch){
+	// site$=$("<div class='CASDOC'></div>")
+	// branch = "prj-001/reports/site visit reports/SVR-A01"
+
+	this.e$=site$;
+	// branch instead of project_id & svr_id
+	this.branch=branch;
 	// init text editor
 	this.ed=new casbah.Editor();
 	// init header
@@ -56,7 +62,7 @@ function svr(site$, path){
 	this.titleblock_left.template=Handlebars.compile(this.e$.find("#svr-titleblock-left").html());
 	this.titleblock_right.template=Handlebars.compile(this.e$.find("#svr-titleblock-right").html());
 	// render 
-	this.render();
+	this.view();
 };
 
 svr.prototype.cache={};
@@ -65,8 +71,8 @@ svr.prototype.change=function(field, valu, callback){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"SVR--CHANGE",
-			path:this.path, //NEW!!
+			action:"SVR CHANGE",
+			branch:this.branch, //NEW!!
 			//project_id:localStorage.getItem("project_id"), //DEP
 			//svr_id:localStorage.getItem("svr_id"), // DEP
 			field:field,
@@ -271,7 +277,7 @@ svr.prototype.photos.ondrop=function(ev){
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
 	fd.append("action","SVR--UPLOAD");
-	fd.append("path", svr.path); //NEW!!
+	fd.append("branch", svr.branch); //NEW!!
 	//fd.append("project_id", localStorage.getItem("project_id")); //DEP
 	//fd.append("svr_id",localStorage.getItem("svr_id")); //DEP
 	fd.append("upload_file",true);
@@ -431,40 +437,7 @@ svr.prototype.photos.render=function(svrdata){
 	svr.e$.find("#svr-photos-placeholder").html(h);
 	//put it to printable...
 	svr.e$.find("#svr-photos-printable").html(h);
-}
-
-////////////////////
-// render everything, includes data project and document refreshes
-
-svr.prototype.render=function(){
-	
-	//renders titleblock_left IE project info
-	this.titleblock_left.render(); 
-	this.disclaimer.render();
-	
-	//renders header, notes & titleblock_right IE report info 
-	var svr=this;
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"SVR--SELECT",
-			path:svr.path //NEW!!
-			//project_id:localStorage.getItem("project_id"), //DEP
-			//svr_id:localStorage.getItem("svr_id") //DEP
-		}),
-		error: function(err){ console.log(err.message);},
-		success: function(result){
-			console.log("SVR-SUCCESS");
-			svr.notes.render(result.svrs[0]);
-			svr.photos.render(result.svrs[0]);
-		},
-		type:"POST",
-		url:"/uploads"
-	});	
 };
-
-
 
 /////////////
 // titleblocks
@@ -500,7 +473,7 @@ svr.prototype.titleblock_left.render=function(){
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"PROJECT--SELECT",
-			path:svr.path //NEW
+			branch:svr.branch //NEW
 			//project_id:localStorage.getItem("project_id") //DEP			
 		}),
 		error: function(err){ console.log("Error", err);},
@@ -518,6 +491,36 @@ svr.prototype.titleblock_left.render=function(){
 };
 
 
+////////////////////
+// view or render everything, includes data project and document refreshes
+
+svr.prototype.view=function(){
+	
+	//renders titleblock_left IE project info
+	this.titleblock_left.render(); 
+	this.disclaimer.render();
+	
+	//renders header, notes & titleblock_right IE report info 
+	var svr=this;
+	//console.log("SVR_ID", localStorage.getItem("svr_id"))
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"SVR SELECT",
+			branch:svr.branch //NEW!!
+			//project_id:localStorage.getItem("project_id"), //DEP
+			//svr_id:localStorage.getItem("svr_id") //DEP
+		}),
+		error: function(err){ console.log(err.message);},
+		success: function(result){
+			console.log("SVR-SUCCESS");
+			svr.notes.render(result.svrs[0]);
+			svr.photos.render(result.svrs[0]);
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+};
 
 //END OF CLOSURE
 return svr;}();}
