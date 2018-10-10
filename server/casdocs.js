@@ -28,7 +28,7 @@ SOFTWARE.
 
 //////////////////////
 // Exports
-// CASbah DOCument definitions
+// casdocs are CASbah DOCuments
  
 exports.folder={
 	name:"folder",

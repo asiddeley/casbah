@@ -20,7 +20,7 @@
 <!-- casbah libraries & CSS -->
 <script type="text/javascript" src="client/casbah.js"></script>
 <link rel="stylesheet" type="text/css" href="client/casbah.css">
-<script type="text/javascript" src="client/camel.js"></script>
+<!--script type="text/javascript" src="client/camel.js"></script -->
 
 
 <!-- Handlebars Template engine -->
@@ -38,6 +38,7 @@ $(window).on({
 //inhibit the browser's right-click context menu
 $(document).on("contextmenu", false);
 
+var camel;
 
 //READY
 $(function() { 
@@ -62,9 +63,10 @@ $(function() {
 	$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
 
 	//load...
-	//$.getScript("camel.js");
+	$.getScript("client/camel.js", function(){
+		camel=new Camel();
+	});
 	//alert("camel..." + Camel);
-	camel=new Camel();
 	
 	//load html from file the first time otherwise just show the right element containing the html  
 	casbah.view("welcome.html");
@@ -181,6 +183,8 @@ $(function() {
 		<li class="disabled" id="rpllog-btn"><a href="#">General Deficiencies</a></li>
 		<li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Room Deficiencies</a></li>
 		<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Review</a></li>
+		<li class="divider"><li>
+		<li onclick="camel.view('svr')"><a href="#">Site Visit (by camel)</a></li>
 		<li class="divider"><li>
 		<li onclick="casbah.view('folder.html')"><a href="#">View Folder...</a></li>
 		</ul>	

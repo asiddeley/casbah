@@ -37,16 +37,18 @@ const fsp = require(path.join(__dirname,"fs+"))
 const fsx = require("fs-extra")
 const casdocs = require(path.join(__dirname,"casdocs"))
 
-/*
-casdocs.svr={
-	name:"site visit report",
-	clue:"/SVR-",		
-	desc:"A document with a project_block, doc_block, editable notes and an image drop", 
-	html:"client/svr.html",
-	icon:"client/svr.png",
-	jscr:"client/svr.js",
-	json:"__svrData.json",
-	path:"reports/site reviews"
+/* casdocs 
+{...
+	svr:{
+		name:"site visit report",
+		clue:"/SVR-",		
+		desc:"A document with a project_block, doc_block, editable notes and an image drop", 
+		html:"client/svr.html",
+		icon:"client/svr.png",
+		jscr:"client/svr.js",
+		json:"__svrData.json",
+		path:"reports/site reviews"
+	}
 }
 */
 
@@ -70,7 +72,7 @@ const casdoc_check=function(r){
 	// FYI, path=uploads_dir + project_id + branch
 	for (var k in casdocs){
 		casdocs[k].clue.split(",").forEach(function(clue){
-			if (branch.indexOf(casdocs[k].clue)i!=-1){
+			if (branch.indexOf(casdocs[k].clue)!=-1){
 				//clue found, put result in r
 				r.casdoc=casdocs[k]
 				//done
@@ -89,20 +91,20 @@ const casdoc_check=function(r){
 exports.view=function(req, res){
 	
 	// check arguments...
-	//if (typeof req.body.branch == "undefined"){req.body.branch=null}
-	//if (typeof req.body.casdoc == "undefined"){req.body.casdoc=null}
-	//if (typeof req.body.docuid == "undefined"){req.body.docuid=null}
-	//if (typeof req.body.path == "undefined"){req.body.path=null}
-	//if (typeof req.body.projid == "undefined"){req.body.projid=null}
+	if (typeof req.body.branch == "undefined"){req.body.branch=null}
+	if (typeof req.body.casdoc == "undefined"){req.body.casdoc=null} //req'd
+	if (typeof req.body.docuid == "undefined"){req.body.docuid=null}
+	if (typeof req.body.path   == "undefined"){req.body.path=null}
+	if (typeof req.body.projid == "undefined"){req.body.projid=null} //req'd
 	
 	// determine server path p from whatever arguments are provided
 	var p=null
 	if (req.body.path){p=path.join(req.body.uploads_dir, req.body.path)}
 	else if (!req.body.projid){p=req.body.uploads_dir}
 	else if (req.body.branch){p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)}	
-	else if (req.body.casdoc){ //this casdoc is actually casdoc name
+	else if (req.body.casdoc){ 
 		for (var c in casdocs){
-			if (casdocs[c].name==req.body.casdoc){ //eg. "site report" == "site report"
+			if (c==req.body.casdoc){ //casdoc key, "svr" for "site report"
 				req.body.branch=casdocs[c].base //eg. "reports/site reports"
 				p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)
 			}
@@ -111,18 +113,18 @@ exports.view=function(req, res){
 	}
 
 	// init the return object
-	var r={branch:req.body.branch, folders:[], files:[], err:null, casdoc:{}}
+	var r={branch:req.body.branch, folders:[], files:[], err:null, casdoc:req.body.casdoc}
 	
 	try{
-		console.log("FOLDER SELECT try...", p)
+		console.log("CAMEL VIEW try...", p)
 		r.folders=fsp.getDirsSync(p) 
 		r.files=fsp.getFilesSync(p)
 		casdoc_check(r)
  		res.json(r)
 	}
 	catch(e){
+		console.log("CAMEL VIEW catch...", e)
 		r.err=e
 		res.json(r); 
-		console.log("FOLDER SELECT catch..", e)
 	}
 }

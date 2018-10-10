@@ -33,7 +33,7 @@ const fsp = require(path.join(__dirname,"fs+"))
 const project=require(path.join(__dirname,"projects"))
 const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
-const folder=require(path.join(__dirname,"svr"))
+const svr=require(path.join(__dirname,"svr"))
 const camel=require(path.join(__dirname,"camel"))
 
 //const uploads_dir="uploads"

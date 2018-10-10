@@ -1,6 +1,6 @@
 
-/******************************************************************
-* CASBAH * Contract Administration System Be Architectural Heroes *
+/****************************************************************
+CASBAH * Contract Administration System Be Architectural Heroes *
 
 MIT License
 
@@ -32,20 +32,17 @@ SOFTWARE.
 // Client side
 
 function Camel(argo){
-	that=this;
+	//that=this;
 	
-	//init name. If not provided in argo, default name is the next nato code
-	if (typeof argo=="object" && typeof argo.name=="string"){this.name=argo.name} 
-	else {this.name=this.nato[Camel.prototype.camels.length-1];}
+	//update static list of all instantiated camels
+	Camel.prototype.allcamels.push(this);	
 	
-	//argument object
-	argoSave(argo);
+	this.name=this.autoname[this.allcamels.length-1];
+
+	this.argoSave(argo);
 	
 	//only one camel active at a time, this camel is now the main one 
 	Camel.prototype.mainCamel=this;
-
-	//update static list of all instantiated camels
-	Camel.prototype.camels.push(this);
 	
 	//init camel names list if necessary
 	if (typeof Camel.prototype.name$=="undefined"){Camel.prototype.name$=$("#camel-names");}
@@ -54,60 +51,76 @@ function Camel(argo){
 	//this.branch=argo.branch;
 	
 	//init just once and for all camels, jquery element for displaying camel content
-	if (argo.view$){Camel.prototype.view$=argo.view$;}
-	if (!Camel.prototype.view$) {Camel.prototype.view$=$("#camel-view");}
+	// NEEDS WORK...
+	//if (argo.view$){Camel.prototype.view$=argo.view$;}
+	if (!this.view$) {Camel.prototype.view$=$("#camel-view");}
 	
-	this.casdoc=""; //document - "site visit report"
-	this.casdoo=null; //document object - new casbah.Svr();
+	this.casdoc=""; //casbah document key eg. "svr" for "site visit report"
+	this.casdoo=null; //casbah document object - new casbah.Svr();
 	this.casdo$=$("<div class='CASDOC'></div>"); //jquery element or place for document templates 
 	
-	//render
 	//update list of all instantiated camel names.  Ensure it comes after name$ is defined
 	this.list();
-	//update camel contents
-	this.view();
+
+	//update camel contents - only when called
+	//this.view(); 
+	console.log("camel named:", this.name);
 };
 
-Camel.prototype.argo={};
+//list of all intantiated camels.  Must be defined before Camel.prototype.argo
+Camel.prototype.allcamels=[];
+
+//default camel names.  Must be defined before Camel.prototype.argo
+Camel.prototype.autoname=["Alpha", "Bravo", 
+	"Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
+	"Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", 
+	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu"];
+
+// argument object with factory settings
+Camel.prototype.argo={
+	//name:this.autoname[this.allcamels.length-1],
+	name:null,
+	casdoc:null, 
+	docuid:null, 
+	projid:null
+};
+
+// update and save argument object
 Camel.prototype.argoSave=function(argo){
-	//argument update
-	//relies on camel.name, must be set!
-	
-	//casdoc = casdoc.name eg. "site visit report" (=> casdoc.base "reports/site reviews/" by casdoc)
-	//branch = pro_id + casdoc.base + doc_id (as calculated and returned by casbah)
-	//path = pro_id + casdoc.base+doc_id
-	
-	argo=$.extend(
-		//local storage.  localStorage returns null if item not found
-		{
-			casdoc:localStorage.getItem("camel-casdoc-"+this.name),
-			docuid:localStorage.getItem("camel-docuid-"+this.name),
-			projid:localStorage.getItem("camel-projid-"+this.name)
-		},
-		//existing 		
-		this.argo,
-		//new 
-		((typeof argo=="undefined")?{}:argo)
+
+	//casdoc = key eg. "svr" for "site visit report" 
+	//branch = casdoc.base returned by casbah server given casdoc key. eg. "reports/site visit reports/"
+	//path = pro_id + casdoc.base + doc_id eg. "prj-001/reports/site visit reports/svr-A01/"
+	var a=this.name;
+	var c=localStorage.getItem("camel-casdoc-"+a);
+	var d=localStorage.getItem("camel-docuid-"+a);
+	var	p=localStorage.getItem("camel-projid-"+a);
+
+	$.extend(
+		// factory settings 		
+		this.argo,	
+		// local storage. localStorage returns null if item not found
+		{casdoc:(c?c:this.argo.casdoc), docuid:(d?d:this.argo.docuid), projid:(p?p:this.argo.projid)},
+		// new argument object provided thru constructor Camel(argo)
+		((typeof argo=="object")?argo:{})
 	);
-	
-	this.argo=argo;
-	localStorage.setItem("camel-casdoc-"+this.name, argo.casdoc);
-	localStorage.setItem("camel-docuid-"+this.name, argo.docuid);
-	localStorage.setItem("camel-projid-"+this.name, argo.projid);
-	
-	
+
+	localStorage.setItem("camel-casdoc-"+a, this.argo.casdoc);
+	localStorage.setItem("camel-docuid-"+a, this.argo.docuid);
+	localStorage.setItem("camel-projid-"+a, this.argo.projid);
+
 };
 
 //result of argo.casdoc, argo.doc_id & argo.pro_id as provided by ajax call
 Camel.prototype.branch=null;
 
-Camel.prototype.list(){
+Camel.prototype.list=function(){
 	//delete existing list
 	$(".CAMELNAME").remove();
 	
 	//Recreate list of all instantiated camel names for the CASBAH admin menu	
-	this.camels.forEach(function(n){
-		var li=$("<li class='CAMELNAME'><a href='#'>"+n+"</a></li>");
+	this.allcamels.forEach(function(n){
+		var li=$("<li class='CAMELNAME'><a href='#'>"+n.name+"</a></li>");
 		li.appendTo(Camel.prototype.name$);
 		li.click(function(){ that.main(that.argo.name);});
 	});
@@ -118,7 +131,7 @@ Camel.prototype.main=function(name){
 	//Make named camel the main camel. Returns main camel if called without argument
 	if (typeof name=="undefined") {return Camel.prototype.mainCamel;}
 	//find camel with name
-	var mc=this.camels.filter(function(c){return (c.name==name);});
+	var mc=this.allcamels.filter(function(c){return (c.name==name);});
 	//update mainCamel property in all camels...
 	if (mc.length==1){Camel.prototype.mainCamel=mc[0];}
 	console.log("Main camel is " + Camel.prototype.mainCamel);	
@@ -127,31 +140,27 @@ Camel.prototype.main=function(name){
 
 Camel.prototype.mainCamel=null;
 
-//list of all intantiated camels
-Camel.prototype.camels=[];
-
 Camel.prototype.name="unnamed";
-
-Camel.prototype.nato=["Alpha", "Bravo", 
-	"Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
-	"Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", 
-	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu"];
 	
-Camel.prototype.retire=funtion(name){
+Camel.prototype.retire=function(name){
 	//remove camel by name
-	Camel.prototype.camels=Camel.prototype.camels.filter(function(c){return (c.name!=name);});
+	Camel.prototype.allcamels=Camel.prototype.allcamels.filter(function(c){return (c.name!=name);});
 	//redo the CASBAH admin tab camel list
 	this.list();
 };
 
-Camel.prototype.view=function(argo){
-
+Camel.prototype.view=function(casdoc){
 	//with current camel, render the branch as per its assigned CASDOC
 	//var camel=this;
 	var camel=this.mainCamel;	
-	
-	//update arguments
-	argoSave(argo);
+
+	console.log("CAMEL.VIEW()...");
+	console.log("projid...", this.argo.projid);
+	if (this.argo.projid==null){
+		var p=prompt("Enter project id");		
+		this.argoSave({projid:p});
+	};
+	if (typeof casdoc == "string"){this.argoSave({casdoc:casdoc});}
 	
 	//reset the camel view
 	Camel.prototype.view$.empty();
@@ -199,3 +208,5 @@ Camel.prototype.view=function(argo){
 
 Camel.prototype.view$=null;
 
+
+console.log("camel loaded...");
