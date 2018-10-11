@@ -32,7 +32,7 @@ SOFTWARE.
 
 // Add Svr creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators["site visit report"]=function(template_element){
+casbah.creators["svr"]=function(template_element){
 	return new casbah.Svr(template_element);
 };
 
@@ -45,6 +45,7 @@ function svr(site$, branch){
 	// branch = "prj-001/reports/site visit reports/SVR-A01"
 
 	this.e$=site$;
+	console.log("SVR e$", this.e$);
 	// branch instead of project_id & svr_id
 	this.branch=branch;
 	// init text editor
@@ -524,3 +525,5 @@ svr.prototype.view=function(){
 
 //END OF CLOSURE
 return svr;}();}
+
+console.log("svr.js loaded");

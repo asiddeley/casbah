@@ -33,7 +33,7 @@ SOFTWARE.
 exports.folder={
 	name:"folder",
 	base:"",
-	clue:null,
+	clue:"",
 	desc:"A indexed holder of casdoc folders or regular folders",
 	html:"client/folder.html",
 	icon:"client/folder.png",
@@ -51,19 +51,19 @@ exports.rdss={
 	icon:"client/rdss.png",
 	jscr:"client/rdss.js",
 	json:"__rdss.json",
-	seed:"RDSS-##"
+	seed:"RDSS-@##"
 }
 
 exports.svr={
 	name:"site visit report",
 	base:"reports/site reviews",
-	clue:"/SVR-A",		
+	clue:"/SVR-",		
 	desc:"A document with a project_block, doc_block, editable notes and an image drop", 
 	html:"client/svr.html",
 	icon:"client/svr.png",
 	jscr:"client/svr.js",
 	json:"__svrData.json",
-	seed:"SVR-A##"
+	seed:"SVR-@##"
 }
 
 

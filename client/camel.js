@@ -34,9 +34,10 @@ SOFTWARE.
 function Camel(argo){
 	//that=this;
 	
-	//update static list of all instantiated camels
-	Camel.prototype.allcamels.push(this);	
+	// add this camel to static list of all instantiated camels
+	Camel.prototype.allcamels.push(this);
 	
+	// default name for camel
 	this.name=this.autoname[this.allcamels.length-1];
 
 	this.argoSave(argo);
@@ -56,8 +57,9 @@ function Camel(argo){
 	if (!this.view$) {Camel.prototype.view$=$("#camel-view");}
 	
 	this.casdoc=""; //casbah document key eg. "svr" for "site visit report"
-	this.casdoo=null; //casbah document object - new casbah.Svr();
+	this.casdoi=null; //casbah document instance - new casbah.Svr();
 	this.casdo$=$("<div class='CASDOC'></div>"); //jquery element or place for document templates 
+	this.casdo$.appendTo(this.view$);
 	
 	//update list of all instantiated camel names.  Ensure it comes after name$ is defined
 	this.list();
@@ -70,6 +72,9 @@ function Camel(argo){
 //list of all intantiated camels.  Must be defined before Camel.prototype.argo
 Camel.prototype.allcamels=[];
 
+//default background colours
+Camel.prototype.autoback=["beige", "orange", "orangered", "cyan", "royalblue", "yellow", "gold", "green", "olive", "tan", "brown", "gray"];
+
 //default camel names.  Must be defined before Camel.prototype.argo
 Camel.prototype.autoname=["Alpha", "Bravo", 
 	"Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
@@ -78,9 +83,8 @@ Camel.prototype.autoname=["Alpha", "Bravo",
 
 // argument object with factory settings
 Camel.prototype.argo={
-	//name:this.autoname[this.allcamels.length-1],
 	name:null,
-	casdoc:null, 
+	casdok:null, 
 	docuid:null, 
 	projid:null
 };
@@ -92,22 +96,25 @@ Camel.prototype.argoSave=function(argo){
 	//branch = casdoc.base returned by casbah server given casdoc key. eg. "reports/site visit reports/"
 	//path = pro_id + casdoc.base + doc_id eg. "prj-001/reports/site visit reports/svr-A01/"
 	var a=this.name;
-	var c=localStorage.getItem("camel-casdoc-"+a);
+	var c=localStorage.getItem("camel-casdok-"+a);
 	var d=localStorage.getItem("camel-docuid-"+a);
 	var	p=localStorage.getItem("camel-projid-"+a);
-
+	
+	console.log("this.argo before...", this.argo);
 	$.extend(
 		// factory settings 		
 		this.argo,	
 		// local storage. localStorage returns null if item not found
-		{casdoc:(c?c:this.argo.casdoc), docuid:(d?d:this.argo.docuid), projid:(p?p:this.argo.projid)},
+		{casdoc:(c?c:this.argo.casdok), docuid:(d?d:this.argo.docuid), projid:(p?p:this.argo.projid)},
 		// new argument object provided thru constructor Camel(argo)
 		((typeof argo=="object")?argo:{})
 	);
-
-	localStorage.setItem("camel-casdoc-"+a, this.argo.casdoc);
-	localStorage.setItem("camel-docuid-"+a, this.argo.docuid);
-	localStorage.setItem("camel-projid-"+a, this.argo.projid);
+	
+	console.log("this.argo after...", this.argo);
+	
+	if(this.argo.casdoc){localStorage.setItem("camel-casdok-"+a, this.argo.casdok);}
+	if(this.argo.docuid){localStorage.setItem("camel-docuid-"+a, this.argo.docuid);}
+	if(this.argo.projid){localStorage.setItem("camel-projid-"+a, this.argo.projid);}
 
 };
 
@@ -115,14 +122,20 @@ Camel.prototype.argoSave=function(argo){
 Camel.prototype.branch=null;
 
 Camel.prototype.list=function(){
+	var camel=this;
+	
 	//delete existing list
 	$(".CAMELNAME").remove();
-	
+
 	//Recreate list of all instantiated camel names for the CASBAH admin menu	
 	this.allcamels.forEach(function(n){
+		//calculate background colour, recycle colours if there are more camels than colours
+		var bc=camel.autoback[camel.autoname.indexOf(n.name) % camel.autoback.length];	
+		//console.log("background-color:"+bc);
 		var li=$("<li class='CAMELNAME'><a href='#'>"+n.name+"</a></li>");
 		li.appendTo(Camel.prototype.name$);
-		li.click(function(){ that.main(that.argo.name);});
+		li.css("background-color",bc);
+		li.click(function(){ camel.main(camel.argo.name);});
 	});
 };
 
@@ -149,18 +162,19 @@ Camel.prototype.retire=function(name){
 	this.list();
 };
 
-Camel.prototype.view=function(casdoc){
+Camel.prototype.view=function(casdok){
+	//casdok - the casdoc key eg. "svr" for "site visit report"
 	//with current camel, render the branch as per its assigned CASDOC
-	//var camel=this;
 	var camel=this.mainCamel;	
 
 	console.log("CAMEL.VIEW()...");
 	console.log("projid...", this.argo.projid);
 	if (this.argo.projid==null){
-		var p=prompt("Enter project id");		
+		var p=prompt("Enter project id");
 		this.argoSave({projid:p});
 	};
-	if (typeof casdoc == "string"){this.argoSave({casdoc:casdoc});}
+	//argument provided so update
+	if (typeof casdok == "string"){this.argoSave({casdok:casdok});}
 	
 	//reset the camel view
 	Camel.prototype.view$.empty();
@@ -174,7 +188,7 @@ Camel.prototype.view=function(casdoc){
 		data: $.param({
 			action:"CAMEL VIEW",
 			branch:camel.branch, //null or result of args below
-			casdoc:camel.argo.casdoc,
+			casdok:camel.argo.casdok,
 			docuid:camel.argo.docuid,
 			projid:camel.argo.projid
 		}),
@@ -184,20 +198,19 @@ Camel.prototype.view=function(casdoc){
 			//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
 			camel.branch=r.branch;
 			//load and execute script...
+			console.log( "$getScript..." + r.casdoc.jscr);
 			$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
-				console.log( "camel $getScript:" + r.casdoc.jscr);	
+				console.log( "loaded..." + r.casdoc.jscr);	
 				//console.log( data ); // Data returned
 				//console.log( textStatus ); // Success
 				//console.log( jqxhr.status ); // 200
 				
-				//then load template
-				$.load(r.casdoc.html, function(h){
+				//reset jquery element casdo$ with applicable document templates
+				camel.casdo$.load(r.casdoc.html, function(){
 					console.log( "camel $load:" + r.casdoc.html);	
-					//reset jquery element casdo$ with applicable document templates
-					camel.casdo$.html(h);
 					//create document object passing jquery element casdo$
-					camel.casdoo=casbah.creators[r.casdoc.name](that.casdo$, r.branch);
-					camel.casdoo.view();					
+					camel.casdoi=casbah.creators[r.casdok](camel.casdo$, r.branch);
+					camel.casdoi.view();					
 				});
 			});
 		},

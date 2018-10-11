@@ -52,12 +52,21 @@ const casdocs = require(path.join(__dirname,"casdocs"))
 }
 */
 
-// analyses the folder for the applicable casdoc, finding put in r
+// analyse the folder for the applicable casdoc, update r with result
 const casdoc_check=function(r){
-	
+	console.log("casdoc_check:",r)
+
+	// casdoc provided by client is valid
+	if (Object.keys(casdocs).indexOf(r.casdok) != -1){
+		//swap key for actual casdoc object
+		r.casdoc=casdocs[r.casdok]
+		return
+	}
+
 	// check if folder has a casdoc json files
 	r.files.forEach(function(f){
 		for (var k in casdocs){
+			//console.log("camel checking ",f,"==",k)
 			if (casdocs[k].json==f){
 				//put result in r
 				r.casdoc=casdocs[k]
@@ -72,12 +81,12 @@ const casdoc_check=function(r){
 	// FYI, path=uploads_dir + project_id + branch
 	for (var k in casdocs){
 		casdocs[k].clue.split(",").forEach(function(clue){
-			if (branch.indexOf(casdocs[k].clue)!=-1){
+			if (r.branch.indexOf(casdocs[k].clue)!=-1){
 				//clue found, put result in r
 				r.casdoc=casdocs[k]
 				//done
 				return
-			}			
+			}
 		})
 	}
 	
@@ -92,7 +101,7 @@ exports.view=function(req, res){
 	
 	// check arguments...
 	if (typeof req.body.branch == "undefined"){req.body.branch=null}
-	if (typeof req.body.casdoc == "undefined"){req.body.casdoc=null} //req'd
+	if (typeof req.body.casdok == "undefined"){req.body.casdok=null} //req'd
 	if (typeof req.body.docuid == "undefined"){req.body.docuid=null}
 	if (typeof req.body.path   == "undefined"){req.body.path=null}
 	if (typeof req.body.projid == "undefined"){req.body.projid=null} //req'd
@@ -102,10 +111,10 @@ exports.view=function(req, res){
 	if (req.body.path){p=path.join(req.body.uploads_dir, req.body.path)}
 	else if (!req.body.projid){p=req.body.uploads_dir}
 	else if (req.body.branch){p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)}	
-	else if (req.body.casdoc){ 
-		for (var c in casdocs){
-			if (c==req.body.casdoc){ //casdoc key, "svr" for "site report"
-				req.body.branch=casdocs[c].base //eg. "reports/site reports"
+	else if (req.body.casdok){ 
+		for (var k in casdocs){
+			if (k==req.body.casdok){ //casdoc key, "svr" for "site report"
+				req.body.branch=casdocs[k].base //eg. "reports/site reports"
 				p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)
 			}
 		}
@@ -113,7 +122,14 @@ exports.view=function(req, res){
 	}
 
 	// init the return object
-	var r={branch:req.body.branch, folders:[], files:[], err:null, casdoc:req.body.casdoc}
+	var r={
+		branch:req.body.branch, 
+		folders:[], 
+		files:[], 
+		err:null, 
+		casdoc:{},
+		casdok:req.body.casdok
+	}
 	
 	try{
 		console.log("CAMEL VIEW try...", p)
