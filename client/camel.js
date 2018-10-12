@@ -65,7 +65,7 @@ function Camel(argo){
 	this.list();
 
 	//update camel contents - only when called
-	//this.view(); 
+	this.view("welcome"); 
 	console.log("camel named:", this.name);
 };
 
@@ -164,7 +164,10 @@ Camel.prototype.retire=function(name){
 
 Camel.prototype.view=function(casdok){
 	//casdok - the casdoc key eg. "svr" for "site visit report"
-	//with current camel, render the branch as per its assigned CASDOC
+	//Render the current camel's contents depending on its arguments is this.argo ie. casdok or branch  
+	//If casdok is not provided, currently set casdok is used
+	//If current casdok is null (or 'welcome') then welcome page is displayed
+	
 	var camel=this.mainCamel;	
 
 	console.log("CAMEL.VIEW()...");
@@ -197,10 +200,23 @@ Camel.prototype.view=function(casdok){
 			//r={branch:"", folders:[], files:[], err:null, casdoc:{}} 
 			//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
 			camel.branch=r.branch;
-			//load and execute script...
-			console.log( "$getScript..." + r.casdoc.jscr);
+			//load and execute script...	
+			console.log( "camel $load(html)..." + r.casdoc.html);	
+			camel.casdo$.load(r.casdoc.html, function(){
+				console.log( "camel $getScript..." + r.casdoc.jscr);
+				$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
+					//console.log( data ); // Data returned
+					//console.log( textStatus ); // Success
+					//console.log( jqxhr.status ); // 200
+					//create document object passing jquery element casdo$
+					camel.casdoi=casbah.creators[r.casdok](camel);
+					camel.casdoi.view();
+				});
+			});
+			
+			
+/***
 			$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
-				console.log( "loaded..." + r.casdoc.jscr);	
 				//console.log( data ); // Data returned
 				//console.log( textStatus ); // Success
 				//console.log( jqxhr.status ); // 200
@@ -213,6 +229,7 @@ Camel.prototype.view=function(casdok){
 					camel.casdoi.view();					
 				});
 			});
+***/
 		},
 		type:"POST",
 		url:"/uploads"

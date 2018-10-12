@@ -177,7 +177,8 @@ exports.select=function(req, res){
 
 	try {
 		//p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.branch)
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.projid, req.body.branch)
+		
 		console.log("SVR SELECT try...", p);	
 		//root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
 		rr={

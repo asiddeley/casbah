@@ -64,12 +64,12 @@ $(function() {
 
 	//load...
 	$.getScript("client/camel.js", function(){
+		//Without arguments {casdok:"welcome"}, welcome page is displayed
 		camel=new Camel();
 	});
-	//alert("camel..." + Camel);
 	
 	//load html from file the first time otherwise just show the right element containing the html  
-	casbah.view("welcome.html");
+	//casbah.view("welcome.html");
 }); 
 
 

@@ -91,7 +91,8 @@ const casdoc_check=function(r){
 	}
 	
 	// default
-	r.casdoc=casdocs.folder
+	//r.casdoc=casdocs.folder
+	r.casdoc=casdocs.welcome
 }
 
 //////////////////////

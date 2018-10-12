@@ -66,4 +66,14 @@ exports.svr={
 	seed:"SVR-@##"
 }
 
-
+exports.welcome={
+	name:"welcome",
+	base:"",
+	clue:"",		
+	desc:"Welcome splash page", 
+	html:"client/welcome.html",
+	icon:"",
+	jscr:"",
+	json:"",
+	seed:""
+}
