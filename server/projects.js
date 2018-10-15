@@ -26,11 +26,11 @@ SOFTWARE.
 
 ********************************/
 
-const path = require("path")
-const fs = require("fs")
-//const fsp = require(path.join(global.appRoot,"server","fs+"))
-const fsp = require(path.join(__dirname,"fs+"))
+const path=require("path")
+const fs=require("fs")
+const fsp=require(path.join(__dirname,"fs+"))
 const fsx=require("fs-extra")
+const val=require(path.join(__dirname,"validator"))
 
 //const projects_dir="uploads"
 const project_jsonfile="__projectData.json"
@@ -46,22 +46,6 @@ const project_json={
 	status:"status",
 	xdata:"none"
 }
-
-/**** not required, folders made as required elsewhere
-const project_struct=[
-"projects",
-path.join("projects", "actions"),
-path.join("projects", "billing"),
-path.join("projects", "contract"),
-path.join("projects", "gallery"),
-path.join("projects", "letters"),
-path.join("projects", "meetings"),
-path.join("projects", "reports"),
-path.join("projects", "reports", "site reviews"),
-path.join("projects", "shops"),
-path.join("projects", "welcome"),
-]
-*/
 
 //////////////////////
 // EXPORTS
@@ -152,17 +136,17 @@ exports.select=function(req, res){
 
 //////////////
 //NEW with req.body.path instead of req.body.project_id
-exports.__select=function(req, res){
+exports.selectR1=function(req, res){
 	
-	//select all projects with suplementary data
+	//select all projects 
 	var p=path.join(global.appRoot, req.body.uploads_dir);
 	//empty result
-	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:project_json} 
+	var r={projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], json:project_json} 
 	console.log("PROJECT select:");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned
-			var rar=fsp.dirSync_json(p, project_jsonfile, project_json, req.body.project_id)
+			var rar=fsp.dirSync_json(p, project_jsonfile, project_json, val.pronum(req.body))
 			rar=fsp.jsonify(rar)
 			r.projects=fsp.dirasid(rar, "project_id")		
  			res.json(r)

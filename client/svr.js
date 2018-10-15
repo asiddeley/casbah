@@ -32,23 +32,15 @@ SOFTWARE.
 
 // Add Svr creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators["svr"]=function(template_element){
-	return new casbah.Svr(template_element);
-};
+casbah.creators.svr=function(camel){return new casbah.Svr(camel);};
 
 // Add Svr function to casbah library if missing
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
-// Site visit report
 function svr(camel){
 	
-	//function svr(site$, branch){
-	// site$=$("<div class='CASDOC'></div>")
-	// branch = "prj-001/reports/site visit reports/SVR-A01"
 	this.camel=camel;
 	this.e$=camel.casdo$;
-	//this.branch=camel.branch;
-
 	// init text editor
 	this.ed=new casbah.Editor();
 	// init header
@@ -69,14 +61,11 @@ function svr(camel){
 
 svr.prototype.cache={};
 svr.prototype.change=function(field, valu, callback){
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SVR CHANGE",
-			branch:this.camel.branch, //NEW!!
-			//project_id:localStorage.getItem("project_id"), //DEP
-			//svr_id:localStorage.getItem("svr_id"), // DEP
+			branch:this.camel.argo.branch, 
 			field:field,
 			valu:valu
 		}),
@@ -90,7 +79,6 @@ svr.prototype.change=function(field, valu, callback){
 //svr.prototype.disclaimer={};
 svr.prototype.disclaimer_view=function(){
 	var h="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
-	
 	//screen version...
 	this.e$.find("#svr-disclaimer-placeholder").html(h);
 	//printable version...
@@ -105,12 +93,11 @@ svr.prototype.header_edit=function(el){
 		var field=$(el).attr("field"); //eg. 'title'
 		var text=svr.ed.val();
 		svr.cache[field]=text;
-		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
+		//svr.cache[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
 		svr.change(field, svr.cache[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
-			//svr.titleblock.render(svr.data);
 			var h=svr.header.template({svr:svr.cache});
 			//screen
 			svr.e$.find("#svr-header-placeholder").html(h);
@@ -202,7 +189,7 @@ svr.prototype.notes_view=function(r){
 	//result from server or undefined
 	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
 
-	// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
+	// svr.notes.view called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
 	if(typeof r == "undefined"){ r=svr.cache;} else { svr.cache=r;}
 	
 	//reformat result r to suit the notes template
@@ -281,12 +268,12 @@ svr.prototype.photos_ondrop=function(ev){
 		//console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
-	fd.append("action","SVR--UPLOAD");
-	fd.append("branch", svr.branch); //NEW!!
-	//fd.append("project_id", localStorage.getItem("project_id")); //DEP
-	//fd.append("svr_id",localStorage.getItem("svr_id")); //DEP
+	fd.append("action","SVR UPLOAD");
+	fd.append("branch", svr.camel.branch); //NEW!!
+	fd.append("docnum", svr.camel.docnum); //NEW!!
+	fd.append("pronum", svr.camel.pronum); //NEW!!
 	fd.append("upload_file",true);
-	
+
 	$.ajax({	
 		data:fd,
 		contentType:false,
@@ -294,17 +281,15 @@ svr.prototype.photos_ondrop=function(ev){
 		processData:false, 
 		success:function(result){
 			//console.log("Success uploading, refresh everything...");
-			//svr.refresh();
+			//svr.view();
 			console.log("Success uploading, rendering just photos...");
-			svr.photos_render();
+			svr.photos_view(result.svrs[0]);
 		},
 		type:"POST",
 		url:"/uploads"
 	});	
 
 };
-
-//svr.prototype.photos.formats={};
 
 svr.prototype.photos_formats_filler=function(rx, i, row){
 	var svr=this;
@@ -327,7 +312,6 @@ svr.prototype.photos_formats_filler=function(rx, i, row){
 	}
 	svr.photos.cc=0; //assume row filled so reset column count
 };
-
 
 svr.prototype.photos_formats_landscape=function(rx, i, row){
 	var svr=this;
@@ -373,8 +357,6 @@ svr.prototype.photos_formats_wide=function(rx, i, row){
 	svr.photos.index+=1;	
 	rx[i].available=false;
 };
-
-//svr.prototype.photos.layouts={};
 
 svr.prototype.photos_layouts_azEasy=function(svrdata){
 	var svr=this;
@@ -444,11 +426,7 @@ svr.prototype.photos_view=function(svrdata){
 	svr.e$.find("#svr-photos-printable").html(h);
 };
 
-/////////////
 // titleblocks
-//svr.prototype.titleblock_left={};
-//svr.prototype.titleblock_right={};
-
 svr.prototype.titleblock_right_edit=function(el){
 	var svr=this;
 	svr.ed.text(el, function(){
@@ -461,9 +439,9 @@ svr.prototype.titleblock_right_edit=function(el){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			var h=svr.titleblock_right_template({svr:svr.cache});
-			//svr.titleblock.render(svr.data);
+			//screen
 			svr.e$.find("#svr-titleblock-right-placeholder").html(h);			
-			//untested
+			//printable
 			svr.e$.find("#svr-titleblock-report-printable").html(h);			
 		});
 	});
@@ -471,16 +449,12 @@ svr.prototype.titleblock_right_edit=function(el){
 
 svr.prototype.titleblock_left_view=function(){
 	var svr=this;
-	//console.log("PROJECT SELECT");
-	//var svr_id=localStorage.getItem("svr_id");
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"PROJECT SELECT",
-			branch:svr.branch, //NEW
-			projid:svr.projid
-			//project_id:localStorage.getItem("project_id") //DEP			
+			pronum:svr.camel.argo.pronum //NEW
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
@@ -496,31 +470,23 @@ svr.prototype.titleblock_left_view=function(){
 	});
 };
 
-
-////////////////////
 // view or render everything, includes data project and document refreshes
-
 svr.prototype.view=function(){
-	
-	//renders titleblock_left IE project info
+
+	var svr=this;	
 	this.titleblock_left_view(); 
 	this.disclaimer_view();
-	
-	//renders header, notes & titleblock_right IE report info 
-	var svr=this;
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SVR SELECT",
-			branch:svr.camel.branch, //NEW!!
-			projid:svr.camel.projid	//NEW!!
-			//project_id:localStorage.getItem("project_id"), //DEP
-			//svr_id:localStorage.getItem("svr_id") //DEP
+			branch:svr.camel.argo.branch,
+			pronum:svr.camel.argo.pronum, 
+			docnum:svr.camel.argo.docnum 
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			console.log("SVR-SUCCESS");
+			//console.log("svr.view success");
 			svr.notes_view(result.svrs[0]);
 			svr.photos_view(result.svrs[0]);
 		},
@@ -532,4 +498,4 @@ svr.prototype.view=function(){
 //END OF CLOSURE
 return svr;}();}
 
-console.log("svr.js loaded");
+//console.log("svr.js loaded");

@@ -103,20 +103,26 @@ exports.view=function(req, res){
 	// check arguments...
 	if (typeof req.body.branch == "undefined"){req.body.branch=null}
 	if (typeof req.body.casdok == "undefined"){req.body.casdok=null} //req'd
-	if (typeof req.body.docuid == "undefined"){req.body.docuid=null}
+	if (typeof req.body.docnum == "undefined"){req.body.docnum=null}
 	if (typeof req.body.path   == "undefined"){req.body.path=null}
-	if (typeof req.body.projid == "undefined"){req.body.projid=null} //req'd
+	
+	//TO DO differenciate string number that is meant to be a name rather than ordinal  
+	if (typeof req.body.pronum == "undefined"){req.body.pronum=null} 
+	else if (Number(req.body.pronum)){
+		// change pronum from an ordinal number to the nth folder name
+		req.body.pronum=fsp.getDirsSync(req.body.uploads_dir)[Number(req.body.pronum)]
+	}
 	
 	// determine server path p from whatever arguments are provided
 	var p=null
 	if (req.body.path){p=path.join(req.body.uploads_dir, req.body.path)}
-	else if (!req.body.projid){p=req.body.uploads_dir}
-	else if (req.body.branch){p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)}	
+	else if (!req.body.pronum){p=req.body.uploads_dir}
+	else if (req.body.branch){p=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)}	
 	else if (req.body.casdok){ 
 		for (var k in casdocs){
 			if (k==req.body.casdok){ //casdoc key, "svr" for "site report"
 				req.body.branch=casdocs[k].base //eg. "reports/site reports"
-				p=path.join(req.body.uploads_dir, req.body.projid, req.body.branch)
+				p=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
 			}
 		}
 		if (!p){p=req.body.uploads_dir}
@@ -124,22 +130,25 @@ exports.view=function(req, res){
 
 	// init the return object
 	var r={
+		//provided
 		branch:req.body.branch, 
+		casdok:req.body.casdok,
+		docnum:req.body.docnum,
+		pronum:req.body.pronum,	
+		//derived
 		folders:[], 
 		files:[], 
 		err:null, 
-		casdoc:{},
-		casdok:req.body.casdok
+		casdoc:{}
 	}
 	
-	try{
+	try {
 		console.log("CAMEL VIEW try...", p)
 		r.folders=fsp.getDirsSync(p) 
 		r.files=fsp.getFilesSync(p)
 		casdoc_check(r)
  		res.json(r)
-	}
-	catch(e){
+	} catch(e){
 		console.log("CAMEL VIEW catch...", e)
 		r.err=e
 		res.json(r); 

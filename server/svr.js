@@ -35,6 +35,7 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"fs+"))
 const sizeOf = require('image-size');
+const val = require(path.join(__dirname,"validator"))
 
 // common functions
 const frameType=function(image){
@@ -80,7 +81,9 @@ const filemover=function(files, dest, req, res){
 
 
 //const svr_dir="site reviews"
+//TODO get this value from server/casdocs.js
 const svr_jsonfile="__svrData.json"
+
 const svr_json={
 	project_id:"$project_id",
 	svr_id:"$dir",
@@ -102,12 +105,10 @@ exports.change=function(req, res){
 	try{
 		p=path.join(
 			global.appRoot, 
-			//req.body.uploads_dir, 
-			//req.body.project_id, 
-			//reports_dir, 
-			//svr_dir, 
-			//req.body.svr_id, 
+			req.body.uploads_dir, 
+			val.pronum(req.body),
 			req.body.branch,
+			val.docnum(reg.body),
 			svr_jsonfile )
 		field=req.body.field
 		valu=req.body.valu
@@ -151,8 +152,8 @@ exports.create=function(req, res){
 	//Make a folder then returns a list of folders including the new folder...
 	try {		
 		err=null
-		console.log("SVR CREATE try:", path.join(p, req.body.svr_id))
-		fs.mkdirSync(path.join(p, req.body.svr_id))
+		console.log("SVR CREATE try:", path.join(p, req.body.docnum))
+		fs.mkdirSync(path.join(p, req.body.docnum))
 	}
 	catch(e) {
 		console.log("SVR CREATE catch:",e)
@@ -166,8 +167,9 @@ exports.create=function(req, res){
 			svrs:fsp.dirasid(svrs, "svr_id"),
 			project_id:req.body.project_id
 		}
-		res.json(r);
 		console.log("SVR CREATE finally:",r)
+		res.json(r);
+
 	}
 }
 
@@ -177,12 +179,13 @@ exports.select=function(req, res){
 
 	try {
 		//p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.projid, req.body.branch)
+		p=path.join(global.appRoot, req.body.uploads_dir, req.body.pronum, req.body.branch)
 		
 		console.log("SVR SELECT try...", p);	
 		//root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
+		root=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
 		rr={
-			svrs:[{svr_id:"", jsonfile:"", jsontext:""}],
+			svrs:[{docnum:"", jsonfile:"", jsontext:""}],
 			//project_id:req.body.project_id,
 			//root:"place-holder/for/root/of/path",
 			branch:"placeholer",
@@ -196,13 +199,17 @@ exports.select=function(req, res){
 		since fourth argument is supplied, only information for than directory will be returned, not all 
 		var svrs=fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
 		svrs = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
-		*/		
+		*/
 		
 		var svrs=fsp.dirSync_json({
 			dir:p,
 			jsonfile:svr_jsonfile,
 			json:svr_json,
-			id:req.body.svr_id,
+			//subdir...
+			//if it's a string and subdir in dir, then info from this subdir is returned 
+			//if it's a number, then info from the nth subdir in dir is returned
+			//otherwise info from all subdirs in dir is returned
+			subdir:val.docnum(req.body), 
 			extensions:".jpg .png"
 		})
 		
@@ -210,7 +217,7 @@ exports.select=function(req, res){
 		svrs=fsp.jsonify(svrs)
 		
 		// add to each result, svr_id property with it's value being the directory
-		rr.svrs=fsp.dirasid(svrs, "svr_id")
+		rr.svrs=fsp.dirasid(svrs, "docnum")
 
 		// Add image information to xdata - new files only
 		// svrs = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
@@ -247,8 +254,7 @@ exports.select=function(req, res){
 				}
 			})
 			//console.log ("SVR xdata:", svr.xdata)
-		})
-		
+		})	
 		res.json(rr)
 		//console.log("SVR success:", rr)
 	}
@@ -259,29 +265,33 @@ exports.select=function(req, res){
 	}
 }
 
-
 exports.upload=function(req, res){
-	
 	if (!req.files) {
-		var err="SVR-UPLOAD files not found"
+		var err="SVR UPLOAD files not found"
 		console.log(err)
 		res.json({dirs:[], err:err}) 
 		return
 	}
 	try {
-		console.log("SVR-UPLOAD try...")
+		console.log("SVR UPLOAD try...")
 		var home=path.join(
-			global.appRoot, 
+			global.appRoot,
 			req.body.uploads_dir, 
-			req.body.project_id, 
-			reports_dir, 
-			svr_dir,
-			req.body.svr_id
+			req.body.pronum, 
+			req.body.branch,
+			req.body.docnum
 		)		
 		filemover(Object.keys(req.files), home, req, res) 
 	}
 	catch(err) {		
 		res.json({dirs:[], err:err})
-		console.log("SVR-UPLOAD catch:", err)
+		console.log("SVR UPLOAD catch:", err)
 	}	
+}
+
+// TO DO...
+// SVR Log
+exports.report=function(req, res){
+	
+	
 }

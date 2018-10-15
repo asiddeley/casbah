@@ -369,7 +369,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PROJECT-SELECT":project.select(req, res); break;	
 	
 	//NEW (with path as only argument)
-	case "PROJECT SELECT":project.__select(req, res); break;	
+	case "PROJECT SELECT":project.selectR1(req, res); break;	
 	
 	// Room Deficiency Sheets
 	case "RDS-IMAGES":reports.rds_images(req, res); break;
@@ -387,14 +387,19 @@ req.files... populated by middle-ware from ajaxed formData
 	// Site Review Report Log DEPRECATED
 	case "SVRL-INSERT":reports.svrl_insert(req, res); break;
 	
-	// Site Visit Report NEW (with branch as only argument)
+	////////////////////////
+	// CAMEL Compatible...
+	
+	// Camel
+	case "CAMEL VIEW":camel.view(req, res); break;	
+	
+	// Site Visit Report NEW!
 	case "SVR CHANGE":svr.change(req, res); break;	
 	case "SVR SELECT":svr.select(req, res); break;	
 	case "SVR UPLOAD":svr.upload(req, res); break;	
 	case "SVR CREATE":svr.create(req, res); break;	
+	case "SVR REPORT":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
 
-	// Camel
-	case "CAMEL VIEW":camel.view(req, res); break;	
 	
 	
 	} //switch

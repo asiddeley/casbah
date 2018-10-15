@@ -1,0 +1,183 @@
+<!doctype html>
+
+
+<style>
+.picBox{ max-height:400px; max-width:100%;}
+.columns2{column-count:2;}
+.columns4{column-count:4;}
+.checklistArch{column-count:4; line-height: 120%;font-size:10pt;}
+.topMarginZero{margin-top:0;}
+@media print {
+   div.panel, div.panel-default {
+        page-break-after: always !important;
+   }
+}
+.segoe, h1, h2, h3, h4{font-family:segoe UI, sans-serif;}
+
+</style>
+
+<script type='text/javascript'>
+
+casbah.project.check();
+
+var deficiency_sheets_log={};
+
+deficiency_sheets_log.add=function(){
+	var name=prompt("Name of new deficiency sheetset");
+	if (name == "" || name == null){return;}
+	else {
+	//var fd=new FormData();
+	//fd.append("action","ADD");
+	//fd.append("project_number", localStorage.getItem("project_number"));
+	//fd.append("tab","reports");
+	//fd.append("folder","deficiency_sheets");
+	//fd.append("subfolder", name);
+	
+	$.ajax({
+		data:$.param({
+			action:"RDSS-INSERT",
+			project_id:localStorage.getItem("project_id"),
+			insert:name
+		}),
+		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+		error:function(err){console.log("Error adding deficiency sheetset:",err);},
+		success:function(result){
+			var html=deficiency_sheets_log.template(result);
+			$("#deficiency_sheets_log_placeholder").html(html);
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+}};
+
+deficiency_sheets_log.drop=function(ev){
+	/***
+	https://msdn.microsoft.com/en-us/ie/ms536929(v=vs.94)
+	You must cancel the default action for ondragenter and ondragover in order for ondrop to fire. In the case of a div, the default action is not to drop. This can be contrasted with the case of an input type=text element, where the default action is to drop. In order to allow a drag-and-drop action on a div, you must cancel the default action by specifying window.event.returnValue=false in both the ondragenter and ondragover event handlers. Only then will ondrop fire.
+	
+	https://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+	Re. processData:false solves 'append called on an object that does not implement interface FormData'
+
+	***/
+	//ev.preventDefault();
+	
+	var fd=new FormData();
+	//load up form data with dropped files...
+	for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+		//console.log("name:", ev.dataTransfer.files[i].name);
+		//console.log("filetype:", ev.dataTransfer.files[i].type);
+		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+	}
+	fd.append("action","RDSS-UPLOAD");
+	fd.append("project_id", localStorage.getItem("project_id"));
+	fd.append("rdss_id",$(ev.target).text());
+	fd.append("upload_file",true);
+	
+	$.ajax({	
+		data:fd,
+		contentType:false,
+		error:function(err){console.log("Error uploading:",err);},
+		processData:false, 
+		success:function(result){console.log("Success uploading");},
+		type:"POST",
+		url:"/uploads"
+	});	
+};
+
+deficiency_sheets_log.goto=function(ev){
+	localStorage.setItem("rdss_id", $(ev.target).text());
+	casbah.view("deficiency_sheets.html");
+};
+
+deficiency_sheets_log.head=$("#deficiency_sheets_log_head").html();
+
+deficiency_sheets_log.refresh=function(){
+
+	//var fd=new FormData();
+	//fd.append("action", "LOG");
+	//fd.append("project_number", localStorage.getItem("project_number"));
+	//fd.append("report_type", "deficiency_sheets");
+	//fd.append("extension", ".png");
+	//console.log("refresh", fd);
+
+	$.ajax({
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: $.param({
+			action:"RDSS-SELECT",
+			project_id:localStorage.getItem("project_id")
+		}),
+		//data: fd,
+		//contentType: false,
+		error: function(err){ console.log("Ajax failed, server error", err); },
+		success: function(result){
+			var html=deficiency_sheets_log.template(result);
+			$("#deficiency_sheets_log_placeholder").html(html);
+
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+};
+
+
+deficiency_sheets_log.template=Handlebars.compile($("#deficiency_sheets_log").html());
+
+///////////////////////////////////
+
+deficiency_sheets_log.refresh();
+
+/////////////////////////////////
+</script>
+
+<div id="deficiency_sheets_log_placeholder">placeholder</div>
+
+<template id='deficiency_sheets_log' type="text/x-handlebars-template">
+	<div class="container">
+	
+	<div class="row">
+	<div id="deficiency_sheets_log_logo"
+	class="col-xs-8"><img src="uploads/{{project_id}}/logo.png" alt="CASBAH"></div>
+	
+	<div class="col-xs-4"><h2 class="topMarginZero">Room Deficiency Report Log</h2></div>
+	</div>	
+	
+	<div class="panel panel-default page">
+	<div class="panel-heading"
+		title="Click to change current project."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"	
+		onclick="casbah.project.modal(deficiency_sheets_log.refresh);"
+	><strong>Project number:&nbsp;</strong>{{project_id}}</div>
+	<div class="panel-body">
+	The following is a list of Room Deficiency Reports for this project.<br>
+	<div
+		title="Click to create a new report."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"
+		onclick="deficiency_sheets_log.add();">Total Reports: {{dirs.length}}</div>
+	</div>	
+	<!-- List group -->
+	<ul class="list-group">
+	{{#each dirs}}
+	<li class="list-group-item"
+		title="Click to open report, Drop room-plan images to ammend report."
+		onmouseenter="$(this).addClass('highlite');" 
+		onmouseleave="$(this).removeClass('highlite');"	
+		onclick="deficiency_sheets_log.goto(event);"
+		ondragenter="event.preventDefault();$(this).addClass('highlite');"
+		ondragover="event.preventDefault();" 
+		ondragleave="event.preventDefault();$(this).removeClass('highlite');"	
+		ondrop="deficiency_sheets_log.drop(event);"
+	>{{dir}}</li>
+	{{/each}}
+	</ul>
+	</div>
+	</div>
+   
+</template>
+
+
+
+
+
+

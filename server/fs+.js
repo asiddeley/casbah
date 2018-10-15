@@ -64,37 +64,59 @@ SOFTWARE.
 
 ********************************/
 
-exports.dirSync_json=function(dir, jsonfile, json, id, exts) {
-	/**
+exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
+	/*
 	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  If no jsonfile is found, one is created by default with contents provided in json. 
 	Used for a file system type of database where the json file carries data pertaining to its parents directory.
 	Optionally, if exts is specified, the result includes a list of files of specified extensions 
 	Optionally, if id is specified and is found in directory dir then only that dir and its json file and specified file-names will be returned
 	**/
 	
+	// arguments can be passed individually or all in first argument...
 	if (typeof dir == "object"){
 		jsonfile=dir.jsonfile
 		json=dir.json
-		id=dir.id
+		subdir=(typeof dir.id!="undefined")?dir.id:dir.subdir //look for dir.id or dir.subdir
 		exts=dir.extensions || null	
 		dir=dir.dir
 	} 
 	
-	//else if (typeof variant == "string"){dir=variant}
+	// else if (typeof variant == "string"){dir=variant}
 		
-	var  dd, jp, jt, ff=[], result=[], ss	
+	var  dd, jp, jt, ff=[], result=[], ss
 	
-	if (typeof id == "undefined"){
-		//dir_item not provided so return all dir_items
+	if (typeof subdir == "string"){
+		//subdir provided so return only information from it
+		dd=fs.readdirSync(dir).filter(function (file) {
+			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==subdir))
+		})		
+	} else {
+		//subdir not provided so return all dir_items
 		dd=fs.readdirSync(dir).filter(function (file) {
 			return fs.statSync(path.join(dir,file)).isDirectory()
 		})		
-	} else {
-		//dir_item provided so return only information on that id 
+	}
+	
+	/***
+	if (typeof subdir == "string"){
+		//subdir provided so return only information from it
 		dd=fs.readdirSync(dir).filter(function (file) {
-			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==id))
+			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==subdir))
+		})		
+	} else if (typeof subdir == "number"){
+		//subdir provided is a number so return information from nth subdir
+		var count=0;
+		dd=fs.readdirSync(dir).filter(function (file) {
+			count+=1;
+			return (fs.statSync(path.join(dir,file)).isDirectory() && (count==subdir))
+		})		
+	} else {
+		//subdir not provided so return all dir_items
+		dd=fs.readdirSync(dir).filter(function (file) {
+			return fs.statSync(path.join(dir,file)).isDirectory()
 		})		
 	}
+	*/
 
 	for (var i in dd){
 		jp=path.join(dir, dd[i], jsonfile)		

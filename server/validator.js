@@ -1,6 +1,6 @@
+
 /*******************************************************
 CASBAH * Contract Admin System Be Architectural Heroes *
-
 
 MIT License
 
@@ -25,55 +25,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ********************************/
+const fs = require('fs');
+const path = require('path');
 
-//////////////////////
-// Exports
-// casdocs are CASbah DOCuments
- 
-exports.folder={
-	name:"folder",
-	base:"",
-	clue:"",
-	desc:"A indexed holder of casdoc folders or regular folders",
-	html:"client/folder.html",
-	icon:"client/folder.png",
-	jscr:"client/folder.js",
-	json:"__folder.json"
+exports.docnum=function(req_body){
+	//checks whether req.body.docnum is intended as an ordinal number
+	//and if so then converts it to the nth directory name
+	
+	console.log ("validator.docnum--->", req_body, "<---")
+	var dd, count=0, num=Number(req_body.docnum)
+	var dir=path.join(req_body.uploads_dir, req_body.pronum, req_body.branch)
+	if (typeof req_body.docnum=="string" && num){
+		//docnum is a string and number 
+		//now check whether docnum is intended to be an ordinal ie. a number and not found in dir
+		try{
+			fs.statSync(path.join(dir, req_body.docnum)).isDirectory()
+		}
+		catch(e) {
+			dd=fs.readdirSync(dir).filter(function (file) {
+				count+=1;
+				return (fs.statSync(path.join(dir,file)).isDirectory() && (count==num))
+			})
+			//convert docnum from ordinal to nth directory name
+			if (dd.length>0) {req_body.docnum=dd[0]}
+		}
+	}
+	// console.log ("validator.docnum result --->", req_body.docnum)
+	return req_body.docnum
 }
 
-exports.rds={
-	name:"room deficiency sheets",
-	//default base or location in filesystem under uploads/project_id
-	base:"reports/deficinecy sheets",
-	clue:"/RDS-",		
-	desc:"A collection of room sheets with checklists, one per dropped image (i.e. room plan)", 
-	html:"client/rds.html",
-	icon:"client/rds.png",
-	jscr:"client/rds.js",
-	json:"__rdss.json",
-	seed:"RDS-A##"
+exports.pronum=function(req_body){
+	return req_body.pronum	
 }
 
-exports.svr={
-	name:"site visit report",
-	base:"reports/site reviews",
-	clue:"/SVR-",		
-	desc:"A document with a project_block, doc_block, editable notes and an image drop", 
-	html:"client/svr.html",
-	icon:"client/svr.png",
-	jscr:"client/svr.js",
-	json:"__svrData.json",
-	seed:"SVR-A##"
-}
 
-exports.welcome={
-	name:"welcome",
-	base:"",
-	clue:"",		
-	desc:"Welcome splash page", 
-	html:"client/welcome.html",
-	icon:"",
-	jscr:"",
-	json:"",
-	seed:""
-}
+
+
+
+
