@@ -40,12 +40,13 @@ if (typeof casbah.Rds!="function"){casbah.Rds=function(){
 var Rds=function(camel){
 	var rds=this;
 	rds.camel=camel;
+	rds.view$=rds.camel.casdo$;
 	
 	//casbah.project.check();
-	this.checklist=$("#deficiency_sheets_checklist").html();
-	this.comments=$("#deficiency_sheets_comments").html();	
-	this.tblock=$("#deficiency_sheets_tblock").html();
-	this.tools=$("#deficiency_sheets_tools").html();
+	this.checklist=view$.find("#deficiency_sheets_checklist").html();
+	this.comments=view$.find("#deficiency_sheets_comments").html();	
+	this.tblock=view$.find("#deficiency_sheets_tblock").html();
+	this.tools=view$.find("#deficiency_sheets_tools").html();
 	this.template=Handlebars.compile($("#deficiency_sheets").html());
 	this.colcount=0;	
 	
@@ -93,7 +94,7 @@ Rds.prototype.view=function(){
 		success:function(result){
 			//console.log("result,", JSON.stringify(result));
 			var html=rds.template(result);
-			$("#deficiency_sheets_placeholder").html(html);
+			rds.view$.find("#deficiency_sheets_placeholder").html(html);
 		},
 		type: "POST",
 		url:"/uploads"

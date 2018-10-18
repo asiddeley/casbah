@@ -69,7 +69,7 @@ exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
 	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  If no jsonfile is found, one is created by default with contents provided in json. 
 	Used for a file system type of database where the json file carries data pertaining to its parents directory.
 	Optionally, if exts is specified, the result includes a list of files of specified extensions 
-	Optionally, if id is specified and is found in directory dir then only that dir and its json file and specified file-names will be returned
+	Optionally, if subdir is specified and is found in directory dir then only subdir, its json file and any file names with spec'd extensions be returned
 	**/
 	
 	// arguments can be passed individually or all in first argument...

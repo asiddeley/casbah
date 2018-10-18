@@ -41,6 +41,29 @@ exports.folder={
 	json:"__folder.json"
 }
 
+exports.plog={
+	name:"project log",
+	base:"",
+	clue:"",
+	desc:"Root folder for all project files",
+	html:"client/projectLog.html",
+	icon:"client/projectLog.png",
+	jscr:"client/projectLog.js",
+	json:"__projectLog.json",
+	jsob:{
+		project_id:"PRO-001",			
+		project_name:"The Casbah Building",
+		address:"101 Desert Way, The Ville, RTC-RTC",
+		owner:"Owner", 
+		contractor:"CasbahCon",
+		permit:"16 xxxxxx BLD 00 BA",
+		date:"2018-May-10", //Date(),
+		date_closed:"none",
+		status:"status",
+		xdata:"none"
+	}
+}
+
 exports.rds={
 	name:"room deficiency sheets",
 	//default base or location in filesystem under uploads/project_id

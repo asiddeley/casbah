@@ -131,9 +131,15 @@ Camel.prototype.argoSave=function(argo){
 	if(this.argo.pronum){localStorage.setItem("camel-pronum-"+a, this.argo.pronum);}
 };
 
+//returns the current camel's casdoc instance
+Camel.prototype.getCasdoi=function(){
+	var ci=this.mainCamel.casdoi;
+	console.log("camel's current casdoc instance...", ci);
+	return ci;
+}
+
 //result of argo.casdoc, argo.doc_id & argo.pro_id as provided by ajax call
 //Camel.prototype.branch=null;
-
 Camel.prototype.list=function(){
 	var camel=this;
 	

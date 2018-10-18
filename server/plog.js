@@ -30,9 +30,11 @@ const path=require("path")
 const fs=require("fs")
 const fsp=require(path.join(__dirname,"fs+"))
 const fsx=require("fs-extra")
-const val=require(path.join(__dirname,"validator"))
+const valid=require(path.join(__dirname,"validator"))
+const casdocs=require(path.join(__dirname,"casdocs"))
 
 //const projects_dir="uploads"
+/**
 const project_jsonfile="__projectData.json"
 const project_json={
 	project_id:"PROJ-001",			
@@ -46,7 +48,7 @@ const project_json={
 	status:"status",
 	xdata:"none"
 }
-
+**/
 //////////////////////
 // EXPORTS
 exports.change=function(req, res){
@@ -79,7 +81,7 @@ exports.change=function(req, res){
 }
 
 exports.idlist=function(req, res){
-	//Returns a list of project folders
+	//Returns a list of project folders	
 	try {
 		var p=path.join(global.appRoot, req.body.uploads_dir)
 		console.log("PROJECT-IDLIST:", p)		
@@ -113,6 +115,8 @@ exports.insert=function(req, res){
 
 
 exports.remove=function(req, res){}
+
+/**
 exports.select=function(req, res){
 	
 	//select all projects with suplementary data
@@ -132,4 +136,29 @@ exports.select=function(req, res){
 		else {res.json(r); console.log("PROJECT select error:", err.code)}
 	})
 }
+*/
 
+//////////////
+// NEW with req.body.path instead of req.body.project_id
+exports.select=function(req, res){
+
+	//select all projects 
+	var p=path.join(global.appRoot, req.body.uploads_dir);
+	//empty result
+	var r={
+		projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], 
+		json:casdocs.plog.jsob
+	} 
+	console.log("PROJECT select:");
+	fs.stat(p, function(err, stat){
+		if (!err){
+			//if req.body.project_id is undefined then all info for all projects returned
+			var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsob, valid.pronum(req.body))
+			rar=fsp.jsonify(rar)
+			r.projects=fsp.dirasid(rar, "pronum")
+ 			res.json(r)
+			console.log("PROJECT select success")
+		}
+		else {res.json(r); console.log("PROJECT select error:", err.code)}
+	})
+}

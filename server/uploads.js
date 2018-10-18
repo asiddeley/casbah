@@ -35,6 +35,7 @@ const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
 const svr=require(path.join(__dirname,"svr"))
 const camel=require(path.join(__dirname,"camel"))
+const plog=require(path.join(__dirname,"plog"))
 
 //const uploads_dir="uploads"
 const uploads_dir=global.uploads_dir
@@ -362,6 +363,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "FOLDER-SELECT":folder.select(req, res); break;
 	
 	// Project log and project modal (aka dialog box)
+	// DEPRECATED
 	case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
 	case "PROJECT-IDLIST":project.idlist(req, res); break;
 	case "PROJECT-INSERT":project.insert(req, res); break;	
@@ -369,7 +371,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PROJECT-SELECT":project.select(req, res); break;	
 	
 	//NEW (with path as only argument)
-	case "PROJECT SELECT":project.selectR1(req, res); break;	
+	case "PROJECT SELECT":plog.select(req, res); break;	
 	
 	// Room Deficiency Sheets
 	case "RDS-IMAGES":reports.rds_images(req, res); break;
