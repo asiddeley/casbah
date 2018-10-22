@@ -25,17 +25,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ********************************/
-
+////////////////////////////////////////////////////
+// rdss - Room Deficiency Sheets LOG
 const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"fs+"))
-const sizeOf = require('image-size');
-const reports_dir="reports"
+const sizeOf = require('image-size')
 
-////////////////////////////////////////////////////
-// rdss - Room Deficiency Sheets LOG
-//const rdss_dir="deficiency sheets" //use branch req.body.instead
+const casdocs = require(path.join(__dirname,"casdocs"))
+
+/* DEPRECATED
+//const rdss_dir="deficiency sheets" //use req.body.branch instead
+//const reports_dir="reports" //use req.body.branch instead
+
+//use casdocs.rds.json 
 const rdss_jsonfile="__rdss.json"
+
+//use casdocs.rds.jsoc
 const rdss_json={
 	project_id:"!req.body.project_id",			
 	rdss_id:"!req.body.rdss_id",
@@ -46,6 +52,7 @@ const rdss_json={
 	checklist:"[]",
 	xdata:"none"
 }
+*/
 
 //previously  rdss_insert
 exports.create=function(req, res){
@@ -73,7 +80,8 @@ exports.create=function(req, res){
 		//result {dirs:[{dir:"name"}, {dir:"name"}...]}
 		res.json({
 			dirs:fsp.getDirsSync(p).map(i => {return {dir:i}}),
-			project_id:req.body.project_id
+			//project_id:req.body.project_id
+			pronum:req.body.pronum
 		});
 	}
 	catch(err) {
@@ -81,27 +89,38 @@ exports.create=function(req, res){
 		res.json({
 			folders:fsp.getDirsSync(path.join(root, req.body.tab, req.body.folder)),
 			err:err,
-			project_id:req.body.project_id
+			//project_id:req.body.project_id
+			pronum:req.body.pronum
 		})
 	} 
 }
 
 exports.select=function(req, res){
 	//returns all rdss
-	var p=path.join(
+	/*	var p=path.join(
 		global.appRoot, 
 		req.body.uploads_dir, 
 		req.body.project_id, 
-		reports_dir, 
-		rdss_dir
-	);
+		reports_dir,	
+		rdss_dir)*/
+	
+	var p=path.join(
+		global.appRoot, 
+		req.body.uploads_dir,
+		req.body.pronum,
+		req.body.branch,
+		req.body.docnum
+	)	
+	
 	//empty result
 	var r={
 		dirs:[{dir:"", jsonfile:"", jsontext:""}], 
-		json:rdss_json,
-		project_id:req.body.project_id
+		//json:rdss_json,
+		json:casdocs.rds.json,
+		//project_id:req.body.project_id
+		pronum:req.body.pronum		
 	} 
-	console.log("RDSS SELECT...", p);
+	console.log("RDS SELECT...", p);
 	fs.stat(p, function(err, stat){
 		if (!err){
 			var rar=fsp.dirSync_json(p, rdss_jsonfile, rdss_json)
@@ -150,25 +169,24 @@ exports.images=function(req, res){
 	/****
 	Returns a list of files in path matching extension. NOT RECURSIVE
 	Prerequisites
-	//req.body.project_id
-	//req.body.extension... ".jpg .pgn .bmp"
-	//req.body.deficiency_sheets
+	//req.body.pronum
+	//req.body.filext = ".jpg .pgn .bmp"
+	//req.body.docnum
 	*/
 	try {
 		//part path...
 		var pp=path.join(
 			req.body.uploads_dir, 
-			req.body.project_id, 
-			reports_dir, 
-			rdss_dir,
-			req.body.rdss_id
+			req.body.pronum, 
+			req.body.branch, 
+			req.body.docnum
 		);
 		console.log("RDS IMAGES try...", pp)
 		//var files=fsp.walkSync(path.join( //recursive and includes full path
 		//returns current folder only and just filenames without path
 		var files=fsp.getFilesSync(path.join (global.appRoot, pp)); 
 		var images=[];
-		var extarg=(typeof req.body.extension == "undefined")?".PNG .JPG":req.body.extension
+		var extarg=(typeof req.body.extension == "undefined")?".PNG .JPG":req.body.filext
 		var ext;
 		//remove app root dir from each file, uploads/reports/... part of path
 		for (var i=0; i<files.length; i++){

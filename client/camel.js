@@ -131,12 +131,13 @@ Camel.prototype.argoSave=function(argo){
 	if(this.argo.pronum){localStorage.setItem("camel-pronum-"+a, this.argo.pronum);}
 };
 
+//reserved
+Camel.prototype.casdoc=null;
+Camel.prototype.casdoi=null;
+Camel.prototype.casdo$=null;
+
 //returns the current camel's casdoc instance
-Camel.prototype.getCasdoi=function(){
-	var ci=this.mainCamel.casdoi;
-	console.log("camel's current casdoc instance...", ci);
-	return ci;
-}
+Camel.prototype.getCDI=function(){return this.mainCamel.casdoi;};
 
 //result of argo.casdoc, argo.doc_id & argo.pro_id as provided by ajax call
 //Camel.prototype.branch=null;
@@ -180,9 +181,21 @@ Camel.prototype.retire=function(name){
 	this.list();
 };
 
+Camel.prototype.showMenu=function(ev){
+	//Shows the current casdoc's menu
+	var m$=this.mainCamel.casdoi.m$;
+	
+	//first call texteditor with no arguments to turn it off just in case its on
+	//ed.hide();
+	m$.show().position({my:'left top',	at:'left bottom', of:ev});
+	//remember caller, that is the <div> or <p> element that launched the contextMenu
+	m$.menu('option', 'caller', ev.target);
+	return false;
+};
+
 Camel.prototype.view=function(casdok){
 	//casdok - the casdoc key eg. "svr" for "site visit report"
-	//Render the current camel's contents depending on its arguments is this.argo ie. casdok or branch  
+	//Render the current camel's contents depending on its arguments in this.argo ie. casdok or branch  
 	//If casdok is not provided, currently set casdok is used
 	//If current casdok is null (or 'welcome') then welcome page is displayed
 	
@@ -198,11 +211,13 @@ Camel.prototype.view=function(casdok){
 	if (typeof casdok == "string"){this.argoSave({casdok:casdok});}
 	
 	//reset the camel view
-	Camel.prototype.view$.empty();
+	//Camel.prototype.view$.empty();
+	camel.view$.empty();
 	//append any camel info here
 	
 	//add the div element that will hold the document contents
-	Camel.prototype.view$.append(camel.casdo$);
+	//Camel.prototype.view$.append(camel.casdo$);
+	camel.view$.append(camel.casdo$);
 
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",

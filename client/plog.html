@@ -15,7 +15,7 @@
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Right-click for menu..."
 		pronum="PRJ-001"
-		oncontextmenu="casbah.showMenu(camel.getCasdoi().m$, event)"> 
+		oncontextmenu="camel.showMenu(event)"> 
 		<small class="col-xs-1 row-head marz">0</small>
 		<div class="border-left col-xs-11 marz">
 			<span class="col-xs-2 row-head marz">Project count: {{projects.length}}</span>
@@ -37,7 +37,8 @@
 	
 	<div class="row marz"
 		project_id="{{dir}}"
-		oncontextmenu="casbah.showMenu(project.menu, event)">
+		oncontextmenuold="casbah.showMenu(project.menu, event)"
+		oncontextmenu="camel.showMenu(event)">
 	<p 	class="col-xs-1 marz"></p>		
 	<div class="border-left col-xs-11 marz" >
 	<p 	class="col-xs-2 marz"
@@ -46,7 +47,7 @@
 		title="Click to make current"
 		field="pronum"
 		rowid="{{rowid}}"
-		onclick="camel.getCasdoi().current_page(this);">{{project_id}}</p>
+		onclick="camel.getCDI().current(this);">{{project_id}}</p>
 		
 	<p 	class="col-xs-3 marz"
 		pid="{{project_id}}"
@@ -54,7 +55,7 @@
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{project_name}}</p>
+		onclick="camel.getCDI().edit(this);">{{project_name}}</p>
 	
 	<p 	class="col-xs-2 marz"
 		pid="{{project_id}}"
@@ -62,14 +63,14 @@
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{owner}}</p>
+		onclick="camel.getCDI().edit(this);">{{owner}}</p>
 	<p 	class="col-xs-2 marz"
 		pid="{{project_id}}"
 		field="date"
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{date}}</p>
+		onclick="camel.getCDI().edit(this);">{{date}}</p>
 		
 	<p 	class="col-xs-2 marz"
 		pid="{{project_id}}"
@@ -77,7 +78,7 @@
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="project.edit(this);">{{contractor}}</p>
+		onclick="camel.getCDI().edit(this);">{{contractor}}</p>
 	</div>	
 	</div>
 	
@@ -95,49 +96,49 @@
 	
 	<div class="row marz"
 		project_id="{{dir}}"
-		oncontextmenu="casbah.showMenu(camel.getCasdoi().m$, event)">
+		oncontextmenu="camel.showMenu(event)">
 
 	<p class="col-xs-1 marz ">&nbsp;</p>
 	<div class="border-left marz col-xs-11">
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="permit"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="camel.getCasdoi().edit(this);">{{permit}}</p>	
+		onclick="camel.getCDI().edit(this);">{{permit}}</p>	
 			
 	<p 	class="col-xs-3 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="address"
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="camel.getCasdoi().edit(this);">{{address}}</p>
+		onclick="camel.getCDI().edit(this);">{{address}}</p>
 		
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="date_closed"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="camel.getCasdoi().edit(this);">{{date_closed}}</p>
+		onclick="camel.getCDI().edit(this);">{{date_closed}}</p>
 		
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="status"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="camel.getCasdoi().edit(this);">{{status}}</p>
+		onclick="camel.getCDI().edit(this);">{{status}}</p>
 		
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="xdata"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
-		onclick="camel.getCasdoi().edit(this);">{{xdata}}</p>
+		onclick="camel.getCDI().edit(this);">{{xdata}}</p>
 	</div>		
 	</div>
 	{{/each}}	
@@ -145,11 +146,11 @@
 
 
 <!-- MENUS -->
-<ul id="project-menu" onmouseleave="camel.getCasdoi().hide()" class="hide9999">
-<li onclick="camel.getCasdoi().insert_menu();">New Project</li>
-<li onclick="camel.getCasdoi().current_menu();">Make Current</li>
-<li onclick="camel.getCasdoi().refresh();">Refresh Page</li>
-<li onclick="camel.getCasdoi().menu.hide()">Exit Menu</li>
+<ul id="project-menu" onmouseleave="camel.getCDI().m$.hide()" class="hide9999">
+<li onclick="camel.getCDI().create();camel.getCDI().m$.hide()">New Project</li>
+<li onclick="camel.getCDI().current();camel.getCDI().m$.hide()">Make Current</li>
+<li onclick="camel.getCDI().view();camel.getCDI().m$.hide()">Refresh Page</li>
+<li onclick="camel.getCDI().m$.hide()">Exit Menu</li>
 </ul >
 
 

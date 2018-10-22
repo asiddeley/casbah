@@ -369,9 +369,10 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PROJECT-INSERT":project.insert(req, res); break;	
 	case "PROJECT-REMOVE":project.remove(req, res); break;	
 	case "PROJECT-SELECT":project.select(req, res); break;	
+	case "PROJECT SELECT":plog.select(req, res); break;	
 	
 	//NEW (with path as only argument)
-	case "PROJECT SELECT":plog.select(req, res); break;	
+	case "PLOG SELECT":plog.select(req, res); break;	
 	
 	// Room Deficiency Sheets
 	case "RDS-IMAGES":reports.rds_images(req, res); break;

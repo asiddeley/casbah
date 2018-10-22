@@ -35,7 +35,8 @@ const path = require("path")
 const fs = require("fs")
 const fsp = require(path.join(__dirname,"fs+"))
 const sizeOf = require('image-size');
-const val = require(path.join(__dirname,"validator"))
+const validate = require(path.join(__dirname,"validator"))
+const casdocs=require(path.join(__dirname,"casdocs"))
 
 // common functions
 const frameType=function(image){
@@ -82,6 +83,7 @@ const filemover=function(files, dest, req, res){
 
 //const svr_dir="site reviews"
 //TODO get this value from server/casdocs.js
+/*
 const svr_jsonfile="__svrData.json"
 
 const svr_json={
@@ -98,7 +100,7 @@ const svr_json={
 	//files:[], added after json read
 	xdata:{}
 }
-
+*/
 exports.change=function(req, res){
 	var p, field, valu, stat, json
 
@@ -106,9 +108,9 @@ exports.change=function(req, res){
 		p=path.join(
 			global.appRoot, 
 			req.body.uploads_dir, 
-			val.pronum(req.body),
-			req.body.branch,
-			val.docnum(reg.body),
+			validate.pronum(req),
+			validate.branch(req),
+			validate.docnum(req),
 			svr_jsonfile )
 		field=req.body.field
 		valu=req.body.valu
@@ -161,7 +163,7 @@ exports.create=function(req, res){
 	} 
 	finally {
 		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
-		var svrs=fsp.jsonify(fsp.dirSync_json(p, svr_jsonfile, svr_json))
+		var svrs=fsp.jsonify(fsp.dirSync_json(p, casdocs.svr.json, casdocs.svr.jsoc))
 		var r={
 			err:err,
 			svrs:fsp.dirasid(svrs, "svr_id"),
@@ -175,23 +177,29 @@ exports.create=function(req, res){
 
 exports.select=function(req, res){
 	//returns all site reviews
-	var p, root, rr
-
+	var p, root
+	
+	// default return result
+	var rr={
+		svrs:[{docnum:"", jsonfile:"", jsontext:""}],
+		branch:"/reports/site reivews",
+		err:null
+	}
+	
 	try {
-		//p=path.join(global.appRoot, req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.pronum, req.body.branch)
+		console.log("SVR SELECT try...");	
 		
-		console.log("SVR SELECT try...", p);	
+		p=path.join(
+			global.appRoot, 
+			validate.casite(req), //checks for req.body.uploads_dir, copies it to req.body.casite
+			validate.pronum(req), //checks for req.body.pronum, also changes any ordinal to path
+			validate.branch(req) //checks for req.body.branch, also changes any ordinal to path
+			//validate.docnum(req)  //checks for req.body.docnum, also changes any ordinal to path
+		)
+	
 		//root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
-		root=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
-		rr={
-			svrs:[{docnum:"", jsonfile:"", jsontext:""}],
-			//project_id:req.body.project_id,
-			//root:"place-holder/for/root/of/path",
-			branch:"placeholer",
-			err:null
-		} 
-		
+		root=path.join(req.body.casite, req.body.pronum, req.body.branch)
+ 		
 		//check if exists - catch error otherwise
 		fs.statSync (p)
 		/******
@@ -203,14 +211,10 @@ exports.select=function(req, res){
 		
 		var svrs=fsp.dirSync_json({
 			dir:p,
-			jsonfile:svr_jsonfile,
-			json:svr_json,
-			//subdir...
-			//if it's a string and subdir in dir, then info from this subdir is returned 
-			//if it's a number, then info from the nth subdir in dir is returned
-			//otherwise info from all subdirs in dir is returned
-			subdir:val.docnum(req.body), 
-			extensions:".jpg .png"
+			json:casdocs.svr.json,
+			jsoc:casdocs.svr.jsoc,
+			subdir:validate.docnum(req), 
+			filext:".jpg .png"
 		})
 		
 		// get from each result, jsontext, parse it to an object then merge it into each result

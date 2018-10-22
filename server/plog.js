@@ -147,15 +147,17 @@ exports.select=function(req, res){
 	//empty result
 	var r={
 		projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], 
-		json:casdocs.plog.jsob
+		jsoc:casdocs.plog.jsoc
 	} 
-	console.log("PROJECT select:");
+	console.log("PLOG select:");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned
-			var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsob, valid.pronum(req.body))
+			//var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsoc, valid.pronum(req.body))
+			//3 arguments means return info from all project folders
+			var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsoc, valid.pronum(req))
 			rar=fsp.jsonify(rar)
-			r.projects=fsp.dirasid(rar, "pronum")
+			r.projects=fsp.dirasid(rar, "project_id")
  			res.json(r)
 			console.log("PROJECT select success")
 		}

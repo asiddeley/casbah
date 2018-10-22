@@ -64,7 +64,7 @@ SOFTWARE.
 
 ********************************/
 
-exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
+exports.dirSync_json=function(dir, json, jsoc, subdir, exts) {
 	/*
 	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  If no jsonfile is found, one is created by default with contents provided in json. 
 	Used for a file system type of database where the json file carries data pertaining to its parents directory.
@@ -74,10 +74,10 @@ exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
 	
 	// arguments can be passed individually or all in first argument...
 	if (typeof dir == "object"){
-		jsonfile=dir.jsonfile
 		json=dir.json
+		jsoc=dir.jsoc
 		subdir=(typeof dir.id!="undefined")?dir.id:dir.subdir //look for dir.id or dir.subdir
-		exts=dir.extensions || null	
+		exts=dir.filext || null
 		dir=dir.dir
 	} 
 	
@@ -97,29 +97,8 @@ exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
 		})		
 	}
 	
-	/***
-	if (typeof subdir == "string"){
-		//subdir provided so return only information from it
-		dd=fs.readdirSync(dir).filter(function (file) {
-			return (fs.statSync(path.join(dir,file)).isDirectory() && (file==subdir))
-		})		
-	} else if (typeof subdir == "number"){
-		//subdir provided is a number so return information from nth subdir
-		var count=0;
-		dd=fs.readdirSync(dir).filter(function (file) {
-			count+=1;
-			return (fs.statSync(path.join(dir,file)).isDirectory() && (count==subdir))
-		})		
-	} else {
-		//subdir not provided so return all dir_items
-		dd=fs.readdirSync(dir).filter(function (file) {
-			return fs.statSync(path.join(dir,file)).isDirectory()
-		})		
-	}
-	*/
-
 	for (var i in dd){
-		jp=path.join(dir, dd[i], jsonfile)		
+		jp=path.join(dir, dd[i], json)		
 		try {
 			//optional - get list of files
 			if (typeof exts == "string"){
@@ -139,11 +118,11 @@ exports.dirSync_json=function(dir, jsonfile, json, subdir, exts) {
 		catch (err){
 			//Create file if not found
 			console.log("dirSync_json... jsonfile read failed:", err)
-			jt=JSON.stringify(json || {})
+			jt=JSON.stringify(jsoc || {})
 			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
 		finally {
-			result.push({dir:dd[i], files:ff, jsonfile:jsonfile, jsontext:jt})
+			result.push({dir:dd[i], files:ff, jsonfile:json, jsontext:jt})
 			console.log("FS+ DIRSYNC_JSON finally")
 		}
 	}

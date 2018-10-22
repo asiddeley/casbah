@@ -32,7 +32,7 @@ SOFTWARE.
 
 // Adding Plog to casbah creator library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.Plog=function(camel){return new casbah.Plog(camel);};
+casbah.creators.plog=function(camel){return new casbah.Plog(camel);};
 
 // Adding Plog constructor function to casbah library if missing
 if (typeof casbah.Plog!="function"){casbah.Plog=function(){
@@ -42,31 +42,33 @@ var plog=function(camel){
 	var plog=this;
 	plog.camel=camel;
 	// jquery wrapped element for view 
-	var v$=project.camel.casdo$;
+	plog.v$=plog.camel.casdo$;
 	
 	//load templates and render...
 	$.get("client/header.html", function(htm){
 		plog.header_template=Handlebars.compile(htm);
-		v$.find("#project-header-placeholder").html(plog.header_template({doc_type:"Project Log"}));
+		plog.v$.find("#project-header-placeholder").html(plog.header_template({doc_type:"Project Log"}));
 	});
 	
 	// text editor
-	plog.prototype.ed=new casbah.Editor();
+	plog.ed=new casbah.Editor();
 	
 	// jquery wrapped element initialized as a jquery menu... 
-	plog.m$=v$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();
+	plog.m$=plog.v$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();
 
-	plog.template=Handlebars.compile(v$.find("#project-template").html());
+	plog.template=Handlebars.compile(plog.v$.find("#project-template").html());
 	plog.view();
 };
 
 
 plog.prototype.change=function(pronum, field, valu, callback){
+	// Changes information stored in a particular project folder in __projectData.json
 	// change field:values in project_json located in a particular project dir
+	// same as project.change
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"PROJECT CHANGE",
+			action:"PLOG CHANGE",
 			pronum:pronum,
 			field:field,
 			valu:valu
@@ -78,10 +80,11 @@ plog.prototype.change=function(pronum, field, valu, callback){
 	});
 };
 
+/***
 plog.prototype.current_menu=function(){
 	// Called from Menu 
 	var caller=this.m$.menu("option","caller");
-	var pronum=$(caller).closest("[pronum]").attr("pronum");
+	var pronum=$(caller).closest("[project_id]").attr("project_id");
 	$("#browser_tab").text("CASBAH-"+pronum);
 	//localStorage.setItem("project_id", pid);
 	this.camel.argoSave({"pronum":pronum});
@@ -90,44 +93,61 @@ plog.prototype.current_menu=function(){
 plog.prototype.current_page=function(el){
 	// Called from page
 	var pronum=$(el).text();
-	$.("#browser_tab").text("CASBAH ("+pronum+")");
+	$("#browser_tab").text("CASBAH ("+pronum+")");
 	//localStorage.setItem("project_id", pid);
-	this.camel.argoSave({"pronum":pid});
+	this.camel.argoSave({"pronum":pronum});
+};
+*/
+plog.prototype.current=function(caller){
+	
+	var pronum;
+	if (typeof caller=="undefined"){
+		//called from menu
+		caller=this.m$.menu("option","caller");
+		pronum=$(caller).closest("[project_id]").attr("project_id");
+	} else {
+		// Called from page
+		pronum=$(caller).text();
+	}
+	$("#browser_tab").text("CASBAH ("+pronum+")");
+	this.camel.argoSave({"pronum":pronum});
 };
 
 // Open text editor...
 plog.prototype.edit=function(el){
-	project.ed.text(el, function(){
-		project.update(project.ed.row(), project.ed.rowid(), true); 
-		project.ed.hide();
-		var pid=project.ed.target_attr("pid");
-		var field=project.ed.target_attr("field"); 
-		var text=project.ed.val();
+	var plog=this;
+	plog.ed.text(el, function(){
+		plog.update(plog.ed.row(), plog.ed.rowid(), true); 
+		plog.ed.hide();
+		var pronum=plog.ed.target_attr("pronum");
+		var field=plog.ed.target_attr("field"); 
+		var text=plog.ed.val();
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		project.change(pid, field, text, function(){
-			project.ed.hide();
+		plog.change(pronum, field, text, function(){
+			plog.ed.hide();
 			//refresh (server request and render), alt just render cache...
-			project.refresh();
+			plog.view();
 		})	
 	});
 };
 
-plog.prototype.insert_menu=function(){
-	//Called from Menu 
-	var caller=project.menu.menu("option","caller");
-	//var pid=$(caller).closest("[project_id]").attr("project_id");
-	var pid=$(caller).attr("project_id");
-	var project_id=prompt("New Project ID", pid);
-	if (project_id != "" && project_id != null){
-		$.ajax({
-			data:$.param({action:"PROJECT-INSERT", project_id:project_id}),
-			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
-			error:function(err){console.log("Error from server:", err);},
-			success:function(result){project.refresh();	},
-			type:"POST",
-			url:"/uploads"
-		});	
-	}
+//plog.prototype.insert_menu=function(){
+plog.prototype.create=function(){
+	// Creates a new project folder
+	
+	var plog=this;
+
+	var pronum=prompt("New Project Number (or cancel for next logical name)");
+	
+	$.ajax({
+		data:$.param({action:"PLOG CREATE", pronum:pronum}),
+		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+		error:function(err){console.log("Error from server:", err);},
+		success:function(result){plog.view();},
+		type:"POST",
+		url:"/uploads"
+	});	
+
 };
 
 plog.prototype.update=function(row, rowid, flag){
@@ -136,14 +156,13 @@ plog.prototype.update=function(row, rowid, flag){
 };
 
 plog.prototype.view=function(){
-	var plog=
+	var plog=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"PROJECT SELECT"}),
+		data: $.param({action:"PLOG SELECT"}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			//casbah.renderFX("project-content", project.content, result, delta);
-			$("#project-placeholder").html(project.template(result));
+			plog.v$.find("#project-placeholder").html(plog.template(result));
 		},
 		type:"POST",
 		url:"/uploads"

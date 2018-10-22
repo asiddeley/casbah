@@ -26,43 +26,64 @@ SOFTWARE.
 
 ********************************/
 
+////////////////////////////////
+// casdocs are CASbah DOCuments
+
+function extend(obj, src) {
+	Object.keys(src).forEach(function(key) { obj[key] = src[key]; });
+	return obj;
+}
+
+///////////////////
+// Common
+
+var project={
+	name:"project",
+	base:"",
+	clue:"/PRJ-",
+	desc:"Project folder",
+	html:"client/project.html",
+	icon:"client/project.png",
+	jscr:"client/project.js",
+	json:"__projectData.json",
+	jsoc:{
+		project_id:"PRO-001",			
+		project_name:"The Casbah Building",
+		address:"101 Desert Way, The Ville, RTC-RTC",
+		owner:"Owner",
+		contractor:"CasbahCon",
+		permit:"16 xxxxxx BLD 00 BA",
+		date:"2018-May-10", 
+		date_closed:"none",
+		status:"status",
+		xdata:"none"
+	},
+	seed:"PRJ-###"
+}
+ 
 //////////////////////
 // Exports
-// casdocs are CASbah DOCuments
- 
+
 exports.folder={
 	name:"folder",
 	base:"",
 	clue:"",
-	desc:"A indexed holder of casdoc folders or regular folders",
+	desc:"Generic folder",
 	html:"client/folder.html",
 	icon:"client/folder.png",
 	jscr:"client/folder.js",
 	json:"__folder.json"
 }
 
-exports.plog={
-	name:"project log",
-	base:"",
-	clue:"",
-	desc:"Root folder for all project files",
-	html:"client/projectLog.html",
-	icon:"client/projectLog.png",
-	jscr:"client/projectLog.js",
-	json:"__projectLog.json",
-	jsob:{
-		project_id:"PRO-001",			
-		project_name:"The Casbah Building",
-		address:"101 Desert Way, The Ville, RTC-RTC",
-		owner:"Owner", 
-		contractor:"CasbahCon",
-		permit:"16 xxxxxx BLD 00 BA",
-		date:"2018-May-10", //Date(),
-		date_closed:"none",
-		status:"status",
-		xdata:"none"
-	}
-}
+// plog - project log, same data structure and branch as project, but it's another view 
+exports.plog=extend(project, {
+	name:"plog",
+	desc:"Project folder log",
+	html:"client/plog.html",
+	icon:"client/plog.png",
+	jscr:"client/plog.js",
+	json:"__projectData.json"
+})
 
 exports.rds={
 	name:"room deficiency sheets",
@@ -74,6 +95,17 @@ exports.rds={
 	icon:"client/rds.png",
 	jscr:"client/rds.js",
 	json:"__rdss.json",
+	//json file contents
+	jsoc:{
+		project_id:"!req.body.project_id",			
+		rdss_id:"!req.body.rdss_id",
+		rdss_title:"untittled",
+		date:"2018-May-10",
+		date_issued:"none",
+		author:"localStorage.getItem('user')",	
+		checklist:"[]",
+		xdata:"none"
+	},	
 	seed:"RDS-A##"
 }
 
@@ -86,6 +118,20 @@ exports.svr={
 	icon:"client/svr.png",
 	jscr:"client/svr.js",
 	json:"__svrData.json",
+	jsoc:{
+		project_id:"$project_id",
+		svr_id:"$dir",
+		title:"Field Review Report",
+		date:"2018-May-10",
+		date_issued:"none",
+		author:"$user",
+		comments:["Comment", "Another comment"],
+		generals:["General note"],
+		issues:["Issue", "Another issue"],
+		issues_closed:["Closed issue", "Another closed issue"],
+		//files:[], added after json read
+		xdata:{}
+	},
 	seed:"SVR-A##"
 }
 

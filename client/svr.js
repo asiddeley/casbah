@@ -32,9 +32,7 @@ SOFTWARE.
 
 // Add Svr creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators["svr"]=function(template_element){
-	return new casbah.Svr(template_element);
-};
+casbah.creators.svr=function(template_element){return new casbah.Svr(template_element);};
 
 // Add Svr function to casbah library if missing
 if (typeof casbah.Svr!="function"){casbah.Svr=function(){
@@ -258,8 +256,6 @@ svr.prototype.notes_update=function(row, rowid){
 	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
 };
 
-/////////////////
-// PHOTOS
 svr.prototype.photos={}
 
 svr.prototype.photos_ondrop=function(ev){
@@ -304,8 +300,6 @@ svr.prototype.photos_ondrop=function(ev){
 
 };
 
-//svr.prototype.photos.formats={};
-
 svr.prototype.photos_formats_filler=function(rx, i, row){
 	var svr=this;
 	var keys=Object.keys(rx);
@@ -327,7 +321,6 @@ svr.prototype.photos_formats_filler=function(rx, i, row){
 	}
 	svr.photos.cc=0; //assume row filled so reset column count
 };
-
 
 svr.prototype.photos_formats_landscape=function(rx, i, row){
 	var svr=this;
@@ -373,8 +366,6 @@ svr.prototype.photos_formats_wide=function(rx, i, row){
 	svr.photos.index+=1;	
 	rx[i].available=false;
 };
-
-//svr.prototype.photos.layouts={};
 
 svr.prototype.photos_layouts_azEasy=function(svrdata){
 	var svr=this;
@@ -444,11 +435,6 @@ svr.prototype.photos_view=function(svrdata){
 	svr.e$.find("#svr-photos-printable").html(h);
 };
 
-/////////////
-// titleblocks
-//svr.prototype.titleblock_left={};
-//svr.prototype.titleblock_right={};
-
 svr.prototype.titleblock_right_edit=function(el){
 	var svr=this;
 	svr.ed.text(el, function(){
@@ -471,16 +457,14 @@ svr.prototype.titleblock_right_edit=function(el){
 
 svr.prototype.titleblock_left_view=function(){
 	var svr=this;
-	//console.log("PROJECT SELECT");
-	//var svr_id=localStorage.getItem("svr_id");
 	
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
+		data:$.param({
 			action:"PROJECT SELECT",
-			branch:svr.branch, //NEW
-			projid:svr.projid
-			//project_id:localStorage.getItem("project_id") //DEP			
+			branch:svr.camel.argo.branch, 
+			pronum:svr.camel.argo.pronum,
+			docnum:svr.camel.argo.docnum
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
@@ -496,10 +480,7 @@ svr.prototype.titleblock_left_view=function(){
 	});
 };
 
-
-////////////////////
 // view or render everything, includes data project and document refreshes
-
 svr.prototype.view=function(){
 	
 	//renders titleblock_left IE project info
@@ -513,14 +494,13 @@ svr.prototype.view=function(){
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SVR SELECT",
-			branch:svr.camel.branch, //NEW!!
-			projid:svr.camel.projid	//NEW!!
-			//project_id:localStorage.getItem("project_id"), //DEP
-			//svr_id:localStorage.getItem("svr_id") //DEP
+			branch:svr.camel.argo.branch,
+			pronum:svr.camel.argo.pronum,
+			docnum:svr.camel.argo.docnum
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			console.log("SVR SELECT success");
+			console.log("SVR SELECT success", result);
 			svr.notes_view(result.svrs[0]);
 			svr.photos_view(result.svrs[0]);
 		},

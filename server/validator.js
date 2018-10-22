@@ -28,18 +28,34 @@ SOFTWARE.
 const fs = require('fs');
 const path = require('path');
 
-exports.docnum=function(req_body){
+exports.casite=function(req){
+	console.log ("validate site:", req.body.uploads_dir)
+	req.body.casite=req.body.uploads_dir
+	return req.body.uploads_dir	
+}
+
+exports.pronum=function(req){
+	console.log ("validate pronum:", req.body.pronum)
+	return req.body.pronum	
+}
+
+exports.branch=function(req){
+	console.log ("validate branch:", req.body.branch)
+	return req.body.branch	
+}
+
+exports.docnum=function(req){
 	//checks whether req.body.docnum is intended as an ordinal number
 	//and if so then converts it to the nth directory name
 	
-	console.log ("validator.docnum--->", req_body, "<---")
-	var dd, count=0, num=Number(req_body.docnum)
-	var dir=path.join(req_body.uploads_dir, req_body.pronum, req_body.branch)
-	if (typeof req_body.docnum=="string" && num){
+	console.log ("validate docnum:", req.body.docnum)
+	var dd, count=0, num=Number(req.body.docnum)
+	var dir=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
+	if (typeof req.body.docnum=="string" && num){
 		//docnum is a string and number 
 		//now check whether docnum is intended to be an ordinal ie. a number and not found in dir
 		try{
-			fs.statSync(path.join(dir, req_body.docnum)).isDirectory()
+			fs.statSync(path.join(dir, req.body.docnum)).isDirectory()
 		}
 		catch(e) {
 			dd=fs.readdirSync(dir).filter(function (file) {
@@ -47,16 +63,14 @@ exports.docnum=function(req_body){
 				return (fs.statSync(path.join(dir,file)).isDirectory() && (count==num))
 			})
 			//convert docnum from ordinal to nth directory name
-			if (dd.length>0) {req_body.docnum=dd[0]}
+			if (dd.length>0) {req.body.docnum=dd[0]}
 		}
 	}
-	// console.log ("validator.docnum result --->", req_body.docnum)
-	return req_body.docnum
+	console.log ("--->", req.body.docnum)
+	return req.body.docnum
 }
 
-exports.pronum=function(req_body){
-	return req_body.pronum	
-}
+
 
 
 
