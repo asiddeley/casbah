@@ -30,28 +30,14 @@ const path=require("path")
 const fs=require("fs")
 const fsp=require(path.join(__dirname,"fs+"))
 const fsx=require("fs-extra")
-const val=require(path.join(__dirname,"validator"))
-
-//const projects_dir="uploads"
-const project_jsonfile="__projectData.json"
-const project_json={
-	project_id:"PROJ-001",			
-	project_name:"The Casbah Building",
-	address:"101 Desert Way, The Ville, RTC-RTC",
-	owner:"Owner", 
-	contractor:"CasbahCon",
-	permit:"16 xxxxxx BLD 00 BA",
-	date:"2018-May-10", //Date(),
-	date_closed:"none",
-	status:"status",
-	xdata:"none"
-}
+const valid=require(path.join(__dirname,"validator"))
+const casdocs=require(path.join(__dirname,"casdocs"))
 
 //////////////////////
 // EXPORTS
 exports.change=function(req, res){
 	var p, field, valu, stat, json
-
+	/*
 	try{
 		p=path.join(
 			global.appRoot, 
@@ -69,31 +55,19 @@ exports.change=function(req, res){
 	}
 	catch(err) {
 		stat=err
-		console.log("PROJECT_CHANGE Catch:",err)
+		console.log("PRO CHANGE Catch:",err)
 	} 
 	finally {
 		var result={data:[json],stat:stat}
 		res.json(result);
-		console.log("PROJECT_CHANGE finally:", result)
+		console.log("PRO CHANGE finally:", result)
 	}
+	*/
 }
 
-exports.idlist=function(req, res){
-	//Returns a list of project folders
-	try {
-		var p=path.join(global.appRoot, req.body.uploads_dir)
-		console.log("PROJECT-IDLIST:", p)		
-		//getDirsSync returns an array of folders.  Each is just a short name, not path
-		var ids=fsp.getDirsSync(p);
-		res.json({ids:ids});
-	}
-	catch(err) {
-		console.log("PROJECTS err", err);
-		res.json({ids:[]});
-	}	
-}
-
-exports.insert=function(req, res){
+exports.create=function(req, res){
+	
+	/*
 	var err=null, p
 	try {
 		console.log("PROJECT INSERT Try...")
@@ -109,23 +83,83 @@ exports.insert=function(req, res){
 		res.json({err:err});
 		console.log("PROJECT INSERT CATCH:",err)	
 	} 
+	*/
 }
 
+exports.idlist=function(req, res){
+	//Returns a list of project folders	
+	//MOVE INTO LEDGER
+	/*
+	try {
+		var p=path.join(global.appRoot, req.body.uploads_dir)
+		console.log("PROJECT-IDLIST:", p)		
+		//getDirsSync returns an array of folders.  Each is just a short name, not path
+		var ids=fsp.getDirsSync(p);
+		res.json({ids:ids});
+	}
+	catch(err) {
+		console.log("PROJECTS err", err);
+		res.json({ids:[]});
+	}	
+	*/
+}
 
-exports.remove=function(req, res){}
-exports.select=function(req, res){
-	
-	//select all projects with suplementary data
+exports.ledger=function(req, res){
+
+	//select all projects 
 	var p=path.join(global.appRoot, req.body.uploads_dir);
 	//empty result
-	var r={projects:[{dir:"", jsonfile:"", jsontext:"", project_id:""}], json:project_json} 
-	console.log("PROJECT select:");
+	var r={
+		projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], 
+		jsoc:casdocs.project.jsoc
+	} 
+	console.log("PRO LEDGER...");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned
-			var rar=fsp.dirSync_json(p, project_jsonfile, project_json, req.body.project_id)
+			//var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsoc, valid.pronum(req.body))
+			//3 arguments means return info from all project folders
+			var rar=fsp.dirSync_json(p, casdocs.project.json, casdocs.project.jsoc, valid.pronum(req))
 			rar=fsp.jsonify(rar)
-			r.projects=fsp.dirasid(rar, "project_id")		
+			r.projects=fsp.dirasid(rar, "project_id")
+ 			res.json(r)
+			console.log("PROJECT select success")
+		}
+		else {res.json(r); console.log("PROJECT select error:", err.code)}
+	})
+}
+
+
+exports.remove=function(req, res){
+	
+	
+	
+	
+	
+}
+
+
+
+// NEW with req.body.path instead of req.body.project_id
+exports.select=function(req, res){
+
+	//TO DO... Revised to return project status (for a single project), not a log.  Use Ledger for list of all projects
+	//select all projects 
+	var p=path.join(global.appRoot, req.body.uploads_dir);
+	//empty result
+	var r={
+		projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], 
+		jsoc:casdocs.project.jsoc
+	} 
+	console.log("PRO SELECT...");
+	fs.stat(p, function(err, stat){
+		if (!err){
+			//if req.body.project_id is undefined then all info for all projects returned
+			//var rar=fsp.dirSync_json(p, casdocs.plog.json, casdocs.plog.jsoc, valid.pronum(req.body))
+			//3 arguments means return info from all project folders
+			var rar=fsp.dirSync_json(p, casdocs.project.json, casdocs.project.jsoc, valid.pronum(req))
+			rar=fsp.jsonify(rar)
+			r.projects=fsp.dirasid(rar, "project_id")
  			res.json(r)
 			console.log("PROJECT select success")
 		}

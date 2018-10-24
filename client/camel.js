@@ -241,7 +241,7 @@ Camel.prototype.view=function(casdok){
 			// camel.argoMixSet({branch:r.branch});
 			
 			//load and execute script...	
-			console.log( "camel $load(html)..." + r.casdoc.html);	
+			console.log( "camel $load..." + r.casdoc.html);	
 			camel.casdo$.load(r.casdoc.html, function(){
 				console.log( "camel $getScript..." + r.casdoc.jscr);
 				$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
@@ -249,6 +249,7 @@ Camel.prototype.view=function(casdok){
 					//console.log( textStatus ); // Success
 					//console.log( jqxhr.status ); // 200
 					//create document object passing jquery element casdo$
+					console.log("casdok..."+r.casdok);
 					camel.casdoi=casbah.creators[r.casdok](camel);
 					camel.casdoi.view();
 				});

@@ -32,10 +32,14 @@ SOFTWARE.
 
 // Adding Plog to casbah creator library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.prolog=function(camel){return new casbah.Prolog(camel);};
+casbah.creators.project=function(camel){return new casbah.Project(camel);};
+// Remember, in casdocs prolog extends project so prolog also needs a creator...
+casbah.creators.prolog=function(camel){return new casbah.Project(camel);};
 
-// Adding Plog constructor function to casbah library if missing
-if (typeof casbah.Prolog!="function"){casbah.Prolog=function(){
+
+// Adding Project constructor function to casbah library if missing
+if (typeof casbah.Project!="function"){casbah.Project=function(){
+
 
 var plog=function(camel){
 	
@@ -159,7 +163,7 @@ plog.prototype.view=function(){
 	var plog=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"PRO LOG"}),
+		data: $.param({action:"PRO LEDGER"}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
 			plog.v$.find("#project-placeholder").html(plog.template(result));
@@ -175,4 +179,4 @@ plog.prototype.view=function(){
 //END OF CLOSURE
 return plog;}();}
 
-console.log("plog.js loaded");
+console.log("project.js loaded");

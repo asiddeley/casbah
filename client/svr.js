@@ -461,7 +461,7 @@ svr.prototype.titleblock_left_view=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data:$.param({
-			action:"PROJECT SELECT",
+			action:"PRO SELECT",
 			branch:svr.camel.argo.branch, 
 			pronum:svr.camel.argo.pronum,
 			docnum:svr.camel.argo.docnum

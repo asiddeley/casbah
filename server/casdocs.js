@@ -38,7 +38,7 @@ function extend(obj, src) {
 // Common
 
 var project={
-	name:"project",
+	name:"Project",
 	base:"",
 	clue:"/PRJ-",
 	desc:"Project folder",
@@ -65,7 +65,7 @@ var project={
 // Exports
 
 exports.folder={
-	name:"folder",
+	name:"Folder",
 	base:"",
 	clue:"",
 	desc:"Generic folder",
@@ -75,14 +75,12 @@ exports.folder={
 	json:"__folder.json"
 }
 
-// prolog - project log, same data structure and branch as project, but it's another view 
-exports.plog=extend(project, {
-	name:"plog",
+// project & prolog.  Prolog is same data structure and branch as project, but it's another view 
+exports.project=project
+exports.prolog=extend(project, {
+	name:"Project Ledger",
 	desc:"Project folder log",
 	html:"client/prolog.html",
-	icon:"client/prolog.png",
-	jscr:"client/prolog.js",
-	json:"__projectData.json"
 })
 
 exports.rds={

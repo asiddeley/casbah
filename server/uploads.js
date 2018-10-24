@@ -30,12 +30,11 @@ const path = require("path")
 const fs = require("fs")
 const fileUpload = require('express-fileupload')
 const fsp = require(path.join(__dirname,"fs+"))
-const project=require(path.join(__dirname,"projects"))
 const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
 const svr=require(path.join(__dirname,"svr"))
 const camel=require(path.join(__dirname,"camel"))
-const project=require(path.join(__dirname,"prolog"))
+const project=require(path.join(__dirname,"project"))
 
 //const uploads_dir="uploads"
 const uploads_dir=global.uploads_dir
@@ -364,12 +363,12 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	// Project log and project modal (aka dialog box)
 	// DEPRECATED
-	case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
-	case "PROJECT-IDLIST":project.idlist(req, res); break;
-	case "PROJECT-INSERT":project.insert(req, res); break;	
-	case "PROJECT-REMOVE":project.remove(req, res); break;	
-	case "PROJECT-SELECT":project.select(req, res); break;	
-	case "PROJECT SELECT":plog.select(req, res); break;	
+	//case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
+	//case "PROJECT-IDLIST":project.idlist(req, res); break;
+	//case "PROJECT-INSERT":project.insert(req, res); break;	
+	//case "PROJECT-REMOVE":project.remove(req, res); break;	
+	//case "PROJECT-SELECT":project.select(req, res); break;	
+	//case "PROJECT SELECT":plog.select(req, res); break;	
 	
 	
 	// Room Deficiency Sheets
@@ -392,10 +391,11 @@ req.files... populated by middle-ware from ajaxed formData
 	// CAMEL Compatible...
 
 	//NEW (with path as only argument)
-	case "PROJECT CHANGE":project.select(req, res); break;	
-	case "PROJECT SELECT":project.select(req, res); break;	
-	case "PROJECT LEDGER":project.select(req, res); break;	//NEW!  instead of proLog.select 
-
+	case "PRO CHANGE":project.change(req, res); break;	//to do
+	case "PRO CREATE":project.create(req, res); break;	//to do
+	case "PRO LEDGER":project.ledger(req, res); break;	//NEW!  instead of proLog.select 
+	case "PRO REMOVE":project.remove(req, res); break;	//to do
+	case "PRO SELECT":project.select(req, res); break;	//to do
 	
 	// Room Deficiency Sheets
 	case "RDS IMAGES":reports.rds_images(req, res); break;
@@ -405,14 +405,11 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	// Site Visit Report NEW!
 	case "SVR CHANGE":svr.change(req, res); break;	
+	case "SVR LEDGER":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
 	case "SVR SELECT":svr.select(req, res); break;	
 	case "SVR UPLOAD":svr.upload(req, res); break;	
 	case "SVR CREATE":svr.create(req, res); break;	
-	case "SVR LEDGER":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
-
-	
 	
 	} //switch
-	
 }
 
