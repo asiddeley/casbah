@@ -27,15 +27,15 @@ SOFTWARE.
 ********************************/
 
 //////////////////////////
-// Plog = Project Log
+// Project
 // Client Side
 
 // Adding Plog to casbah creator library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.plog=function(camel){return new casbah.Plog(camel);};
+casbah.creators.prolog=function(camel){return new casbah.Prolog(camel);};
 
 // Adding Plog constructor function to casbah library if missing
-if (typeof casbah.Plog!="function"){casbah.Plog=function(){
+if (typeof casbah.Prolog!="function"){casbah.Prolog=function(){
 
 var plog=function(camel){
 	
@@ -68,7 +68,7 @@ plog.prototype.change=function(pronum, field, valu, callback){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"PLOG CHANGE",
+			action:"PRO CHANGE",
 			pronum:pronum,
 			field:field,
 			valu:valu
@@ -140,7 +140,7 @@ plog.prototype.create=function(){
 	var pronum=prompt("New Project Number (or cancel for next logical name)");
 	
 	$.ajax({
-		data:$.param({action:"PLOG CREATE", pronum:pronum}),
+		data:$.param({action:"PRO CREATE", pronum:pronum}),
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error from server:", err);},
 		success:function(result){plog.view();},
@@ -159,7 +159,7 @@ plog.prototype.view=function(){
 	var plog=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"PLOG SELECT"}),
+		data: $.param({action:"PRO LOG"}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
 			plog.v$.find("#project-placeholder").html(plog.template(result));

@@ -35,7 +35,7 @@ const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
 const svr=require(path.join(__dirname,"svr"))
 const camel=require(path.join(__dirname,"camel"))
-const plog=require(path.join(__dirname,"plog"))
+const project=require(path.join(__dirname,"prolog"))
 
 //const uploads_dir="uploads"
 const uploads_dir=global.uploads_dir
@@ -371,11 +371,9 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PROJECT-SELECT":project.select(req, res); break;	
 	case "PROJECT SELECT":plog.select(req, res); break;	
 	
-	//NEW (with path as only argument)
-	case "PLOG SELECT":plog.select(req, res); break;	
 	
 	// Room Deficiency Sheets
-	case "RDS-IMAGES":reports.rds_images(req, res); break;
+	//case "RDS-IMAGES":reports.rds_images(req, res); break;
 	
 	// Room Deficiency Sheets Log
 	case "RDSS-INSERT":reports.rdss_insert(req, res); break;
@@ -383,15 +381,24 @@ req.files... populated by middle-ware from ajaxed formData
 	case "RDSS-UPLOAD":reports.rdss_upload(req, res); break;
 	
 	// Site Visit Report DEPRECATED
-	case "SVR-CHANGE":reports.svr_change(req, res); break;	
-	case "SVR-SELECT":reports.svr_select(req, res); break;	
-	case "SVR-UPLOAD":reports.svr_upload(req, res); break;	
+	//case "SVR-CHANGE":reports.svr_change(req, res); break;	
+	//case "SVR-SELECT":reports.svr_select(req, res); break;	
+	//case "SVR-UPLOAD":reports.svr_upload(req, res); break;	
 	
 	// Site Review Report Log DEPRECATED
-	case "SVRL-INSERT":reports.svrl_insert(req, res); break;
+	//case "SVRL-INSERT":reports.svrl_insert(req, res); break;
 	
 	////////////////////////
 	// CAMEL Compatible...
+
+	//NEW (with path as only argument)
+	case "PROJECT CHANGE":project.select(req, res); break;	
+	case "PROJECT SELECT":project.select(req, res); break;	
+	case "PROJECT LEDGER":project.select(req, res); break;	//NEW!  instead of proLog.select 
+
+	
+	// Room Deficiency Sheets
+	case "RDS IMAGES":reports.rds_images(req, res); break;
 	
 	// Camel
 	case "CAMEL VIEW":camel.view(req, res); break;	
@@ -401,7 +408,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "SVR SELECT":svr.select(req, res); break;	
 	case "SVR UPLOAD":svr.upload(req, res); break;	
 	case "SVR CREATE":svr.create(req, res); break;	
-	case "SVR REPORT":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
+	case "SVR LEDGER":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
 
 	
 	

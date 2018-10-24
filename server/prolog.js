@@ -149,7 +149,7 @@ exports.select=function(req, res){
 		projects:[{dir:"", jsonfile:"", jsontext:"", pronum:""}], 
 		jsoc:casdocs.plog.jsoc
 	} 
-	console.log("PLOG select:");
+	console.log("prolog select:");
 	fs.stat(p, function(err, stat){
 		if (!err){
 			//if req.body.project_id is undefined then all info for all projects returned

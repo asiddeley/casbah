@@ -75,13 +75,13 @@ exports.folder={
 	json:"__folder.json"
 }
 
-// plog - project log, same data structure and branch as project, but it's another view 
+// prolog - project log, same data structure and branch as project, but it's another view 
 exports.plog=extend(project, {
 	name:"plog",
 	desc:"Project folder log",
-	html:"client/plog.html",
-	icon:"client/plog.png",
-	jscr:"client/plog.js",
+	html:"client/prolog.html",
+	icon:"client/prolog.png",
+	jscr:"client/prolog.js",
 	json:"__projectData.json"
 })
 
