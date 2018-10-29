@@ -30,14 +30,14 @@ const path = require("path")
 const fs = require("fs")
 const fileUpload = require('express-fileupload')
 const fsp = require(path.join(__dirname,"fs+"))
-const reports=require(path.join(__dirname,"reports"))
+//const reports=require(path.join(__dirname,"reports"))
 const folder=require(path.join(__dirname,"folder"))
 const svr=require(path.join(__dirname,"svr"))
 const camel=require(path.join(__dirname,"camel"))
 const project=require(path.join(__dirname,"project"))
 
 //const uploads_dir="uploads"
-const uploads_dir=global.uploads_dir
+//const uploads_dir=global.uploads_dir
 
 const df_create=function(datafile, row, callback){
 	//row - {by:"asiddeley", date:"..."}, "1":{rowid:0, by:"asiddeley", date:"..."}
@@ -134,10 +134,13 @@ req.files... populated by middle-ware from ajaxed formData
 **********/
 	
 	//inject uploads, 
-	req.body.uploads_dir=uploads_dir
+	// DEP
+	req.body.uploads_dir=global.casite
+	// NEW!
+	req.body.casite=global.casite
 	
 	//ensure uploads_dir exists
-	var up=path.join(global.appRoot, uploads_dir)
+	var up=path.join(global.appRoot, global.casite)
 	try {if (!fs.statSync(up).isDirectory()){fs.mkdirSync(up)}} 
 	catch(err){if (err.code="ENOENT"){fs.mkdirSync(up)}}
 	
@@ -147,7 +150,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "DF-DELETE":
 		//deletes row named rowid from table saved as datafile 
 		//datafile - {0:{rowid:0, nam:val,...}, 1:{rowid:1, nam:val,...}, ...}
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile)
+		var df=path.join(global.appRoot, global.casite, req.body.datafile)
 		console.log("DF-DELETE:",req.body.rowid, " from:", df)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -178,7 +181,7 @@ req.files... populated by middle-ware from ajaxed formData
 		//creates a table from defrow and saves it as datafile 
 		//defrow - {nam:val,...}
 		//datafile - {0:{rowid:0, nam:val,...}}
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
+		var df=path.join(global.appRoot, global.casite, req.body.datafile);
 		console.log("DF-CREATE:", df, " defrow:", req.body.defrow)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -196,7 +199,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break;	
 
 	case "DF-INSERT":
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile );
+		var df=path.join(global.appRoot, global.casite, req.body.datafile );
 		console.log("DF-INSERT:", df, " row:", req.body.row)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -220,7 +223,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT":
 		//Selects all rows from datafile table.
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile)
+		var df=path.join(global.appRoot, global.casite, req.body.datafile)
 		console.log("DF-SELECT:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -240,7 +243,7 @@ req.files... populated by middle-ware from ajaxed formData
 
 	case "DF-SELECT-FIRST":
 		//Selects first row from datafile table.
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
+		var df=path.join(global.appRoot, global.casite, req.body.datafile);
 		console.log("DF-SELECT-FIRST:", df, " defrow", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -264,7 +267,7 @@ req.files... populated by middle-ware from ajaxed formData
 	
 	case "DF-SELECT-LAST":
 		//Selects Last row from datafile table.
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
+		var df=path.join(global.appRoot, global.casite, req.body.datafile);
 		console.log("DF-SELECT-LAST:", df, " defrow(just in case datafile missing)", req.body.defrow);
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -286,7 +289,7 @@ req.files... populated by middle-ware from ajaxed formData
 	break
 
 	case "DF-UPDATE":
-		var df=path.join(global.appRoot, uploads_dir, req.body.datafile);
+		var df=path.join(global.appRoot, global.casite, req.body.datafile);
 		console.log("DF-UPDATE:", df, " row:", req.body.row, " ROWID:", req.body.rowid)
 		fs.stat(df, function(err, stat){
 			if (!err){
@@ -358,39 +361,14 @@ req.files... populated by middle-ware from ajaxed formData
 			})
 		} 
 	break;
-
-	case "FOLDER-SELECT":folder.select(req, res); break;
 	
-	// Project log and project modal (aka dialog box)
-	// DEPRECATED
-	//case "PROJECT-CHANGE":project.change(req, res); break; //TO DO
-	//case "PROJECT-IDLIST":project.idlist(req, res); break;
-	//case "PROJECT-INSERT":project.insert(req, res); break;	
-	//case "PROJECT-REMOVE":project.remove(req, res); break;	
-	//case "PROJECT-SELECT":project.select(req, res); break;	
-	//case "PROJECT SELECT":plog.select(req, res); break;	
+	// Camel
+	case "CAMEL VIEW":camel.view(req, res); break;	
 	
+	// Folder
+	case "FOLDER-SELECT":folder.select(req, res); break; //to do - make camel compatible
 	
-	// Room Deficiency Sheets
-	//case "RDS-IMAGES":reports.rds_images(req, res); break;
-	
-	// Room Deficiency Sheets Log
-	case "RDSS-INSERT":reports.rdss_insert(req, res); break;
-	case "RDSS-SELECT":reports.rdss_select(req, res); break;
-	case "RDSS-UPLOAD":reports.rdss_upload(req, res); break;
-	
-	// Site Visit Report DEPRECATED
-	//case "SVR-CHANGE":reports.svr_change(req, res); break;	
-	//case "SVR-SELECT":reports.svr_select(req, res); break;	
-	//case "SVR-UPLOAD":reports.svr_upload(req, res); break;	
-	
-	// Site Review Report Log DEPRECATED
-	//case "SVRL-INSERT":reports.svrl_insert(req, res); break;
-	
-	////////////////////////
-	// CAMEL Compatible...
-
-	//NEW (with path as only argument)
+	// NEW (with path as only argument)
 	case "PRO CHANGE":project.change(req, res); break;	//to do
 	case "PRO CREATE":project.create(req, res); break;	//to do
 	case "PRO LEDGER":project.ledger(req, res); break;	//NEW!  instead of proLog.select 
@@ -398,17 +376,17 @@ req.files... populated by middle-ware from ajaxed formData
 	case "PRO SELECT":project.select(req, res); break;	//to do
 	
 	// Room Deficiency Sheets
-	case "RDS IMAGES":reports.rds_images(req, res); break;
-	
-	// Camel
-	case "CAMEL VIEW":camel.view(req, res); break;	
+	case "RDS IMAGES":rds.images(req, res); break; //to do - add call in client rds
+	case "RDS CREATE":rds.create(req, res); break; //to do - add call in client rds
+	case "RDS LEDGER":rds.ledger(req, res); break; //needs testing
+	case "RDS UPLOAD":rds.upload(req, res); break; //to do - add call in client rds
 	
 	// Site Visit Report NEW!
-	case "SVR CHANGE":svr.change(req, res); break;	
-	case "SVR LEDGER":svr.report(req, res); break; //NEW!  instead of SVRL or svr log
-	case "SVR SELECT":svr.select(req, res); break;	
-	case "SVR UPLOAD":svr.upload(req, res); break;	
-	case "SVR CREATE":svr.create(req, res); break;	
+	case "SVR CHANGE":svr.change(req, res); break; //needs testing
+	case "SVR LEDGER":svr.ledger(req, res); break; //NEW!  instead of SVRL or svr log
+	case "SVR SELECT":svr.select(req, res); break; //needs testing
+	case "SVR UPLOAD":svr.upload(req, res); break; //needs testing
+	case "SVR CREATE":svr.create(req, res); break; //needs testing
 	
 	} //switch
 }

@@ -48,10 +48,10 @@ function Camel(argo){
 	// this.argoLoad(argo); //get argo from local store using provided argo as default if not found
 	// this.argoSave(argo); //merge provided argument obj with current argument obj and save locally
 	
-	//only one camel active at a time, this camel is now the main one 
+	// only one camel active at a time, this camel is now the main one 
 	Camel.prototype.mainCamel=this;
 	
-	//init camel names list if necessary
+	// init camel names list if necessary
 	if (typeof Camel.prototype.name$=="undefined"){Camel.prototype.name$=$("#camel-names");}
 	
 	// NEEDS WORK...	

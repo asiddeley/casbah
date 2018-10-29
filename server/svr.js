@@ -80,38 +80,18 @@ const filemover=function(files, dest, req, res){
 }
 
 
-
-//const svr_dir="site reviews"
-//TODO get this value from server/casdocs.js
-/*
-const svr_jsonfile="__svrData.json"
-
-const svr_json={
-	project_id:"$project_id",
-	svr_id:"$dir",
-	title:"Field Review Report",
-	date:"2018-May-10",
-	date_issued:"none",
-	author:"$user",
-	comments:["Comment", "Another comment"],
-	generals:["General note"],
-	issues:["Issue", "Another issue"],
-	issues_closed:["Closed issue", "Another closed issue"],
-	//files:[], added after json read
-	xdata:{}
-}
-*/
 exports.change=function(req, res){
 	var p, field, valu, stat, json
-
+	req.body.branch=casdocs.svr.base
+	
 	try{
 		p=path.join(
 			global.appRoot, 
 			req.body.uploads_dir, 
 			validate.pronum(req),
-			validate.branch(req),
+			casdocs.svr.base,
 			validate.docnum(req),
-			svr_jsonfile )
+			casdocs.svr.json )
 		field=req.body.field
 		valu=req.body.valu
 		stat="OK"

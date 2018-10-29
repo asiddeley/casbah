@@ -220,17 +220,17 @@ casbah.Editor=function (){
 	
 	this.target_attr=function(name){return that.e$.attr(name);};
 	this.val=function(name){return that.x$.val();};
-	
+
 	//INIT
 	//create text area element for editing text
 	this.x$=$("<textarea id='texteditor' style='z-index=999;'></textarea>");
 	$("body").append(this.x$);
 	this.x$.hide();
-	
+
 	//initialize or reset various event handlers...
 	this.x$.on("click keyup resize", that.fit);
 	$(window).on("resize", that.fit);
-	
+
 	$(document).one("viewchange",function(){
 		//console.log("pageturn detected");
 		that.x$.hide();
@@ -375,7 +375,6 @@ casbah.showMenu=function(cm$, ev){
 	return false;
 };
 
-
 casbah.tool=function(htmlfile){
 	console.log("toolchange");	
 	//heads up - close open editors etc
@@ -387,8 +386,6 @@ casbah.tool=function(htmlfile){
 	if (typeof htmlfile == "undefined"){$("#"+id).hide();}
 	else {$("#"+id).show().load("client/"+htmlfile);}
 };
-
-
 
 casbah.__views={};
 

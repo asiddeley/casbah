@@ -83,12 +83,8 @@ Rds.prototype.view=function(){
 		data: $.param({
 			action:"RDS IMAGES",
 			pronum:rds.camel.argo.pronum, //NEW!
-			branch:rds.camel.argo.branch, //NEW!
 			docnum:rds.camel.argo.docnum, //NEW!
 			filext:".PNG .jpg", // NEW! previously extension
-			
-			//project_id:localStorage.getItem("project_id"),
-			//rdss_id:localStorage.getItem("rdss_id")
 		}),
 		error:function(err){console.log("Error:", err.message);},
 		success:function(result){

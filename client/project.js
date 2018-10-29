@@ -30,7 +30,7 @@ SOFTWARE.
 // Project
 // Client Side
 
-// Adding Plog to casbah creator library
+// Adding Pro to casbah creator library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
 casbah.creators.project=function(camel){return new casbah.Project(camel);};
 // Remember, in casdocs prolog extends project so prolog also needs a creator...
@@ -41,31 +41,31 @@ casbah.creators.prolog=function(camel){return new casbah.Project(camel);};
 if (typeof casbah.Project!="function"){casbah.Project=function(){
 
 
-var plog=function(camel){
+var pro=function(camel){
 	
-	var plog=this;
-	plog.camel=camel;
+	var pro=this;
+	pro.camel=camel;
 	// jquery wrapped element for view 
-	plog.v$=plog.camel.casdo$;
+	pro.v$=pro.camel.casdo$;
 	
 	//load templates and render...
 	$.get("client/header.html", function(htm){
-		plog.header_template=Handlebars.compile(htm);
-		plog.v$.find("#project-header-placeholder").html(plog.header_template({doc_type:"Project Log"}));
+		pro.header_template=Handlebars.compile(htm);
+		pro.v$.find("#project-header-placeholder").html(pro.header_template({doc_type:"Project Log"}));
 	});
 	
 	// text editor
-	plog.ed=new casbah.Editor();
+	pro.ed=new casbah.Editor();
 	
 	// jquery wrapped element initialized as a jquery menu... 
-	plog.m$=plog.v$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();
+	pro.m$=pro.v$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();
 
-	plog.template=Handlebars.compile(plog.v$.find("#project-template").html());
-	plog.view();
+	pro.template=Handlebars.compile(pro.v$.find("#project-template").html());
+	pro.view();
 };
 
 
-plog.prototype.change=function(pronum, field, valu, callback){
+pro.prototype.change=function(pronum, field, valu, callback){
 	// Changes information stored in a particular project folder in __projectData.json
 	// change field:values in project_json located in a particular project dir
 	// same as project.change
@@ -84,25 +84,7 @@ plog.prototype.change=function(pronum, field, valu, callback){
 	});
 };
 
-/***
-plog.prototype.current_menu=function(){
-	// Called from Menu 
-	var caller=this.m$.menu("option","caller");
-	var pronum=$(caller).closest("[project_id]").attr("project_id");
-	$("#browser_tab").text("CASBAH-"+pronum);
-	//localStorage.setItem("project_id", pid);
-	this.camel.argoSave({"pronum":pronum});
-};
-
-plog.prototype.current_page=function(el){
-	// Called from page
-	var pronum=$(el).text();
-	$("#browser_tab").text("CASBAH ("+pronum+")");
-	//localStorage.setItem("project_id", pid);
-	this.camel.argoSave({"pronum":pronum});
-};
-*/
-plog.prototype.current=function(caller){
+pro.prototype.current=function(caller){
 	
 	var pronum;
 	if (typeof caller=="undefined"){
@@ -118,28 +100,28 @@ plog.prototype.current=function(caller){
 };
 
 // Open text editor...
-plog.prototype.edit=function(el){
-	var plog=this;
-	plog.ed.text(el, function(){
-		plog.update(plog.ed.row(), plog.ed.rowid(), true); 
-		plog.ed.hide();
-		var pronum=plog.ed.target_attr("pronum");
-		var field=plog.ed.target_attr("field"); 
-		var text=plog.ed.val();
+pro.prototype.edit=function(el){
+	var pro=this;
+	pro.ed.text(el, function(){
+		pro.update(pro.ed.row(), pro.ed.rowid(), true); 
+		pro.ed.hide();
+		var pronum=pro.ed.target_attr("pronum");
+		var field=pro.ed.target_attr("field"); 
+		var text=pro.ed.val();
 		console.log("FIELD",field, " UPDATED TEXT:", text);
-		plog.change(pronum, field, text, function(){
-			plog.ed.hide();
+		pro.change(pronum, field, text, function(){
+			pro.ed.hide();
 			//refresh (server request and render), alt just render cache...
-			plog.view();
+			pro.view();
 		})	
 	});
 };
 
-//plog.prototype.insert_menu=function(){
-plog.prototype.create=function(){
+//pro.prototype.insert_menu=function(){
+pro.prototype.create=function(){
 	// Creates a new project folder
 	
-	var plog=this;
+	var pro=this;
 
 	var pronum=prompt("New Project Number (or cancel for next logical name)");
 	
@@ -147,36 +129,33 @@ plog.prototype.create=function(){
 		data:$.param({action:"PRO CREATE", pronum:pronum}),
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error from server:", err);},
-		success:function(result){plog.view();},
+		success:function(result){pro.view();},
 		type:"POST",
 		url:"/uploads"
 	});	
 
 };
 
-plog.prototype.update=function(row, rowid, flag){
+pro.prototype.update=function(row, rowid, flag){
 	console.log("Project update ROW:",row," ROWID:", rowid);
 	//TO DO...
 };
 
-plog.prototype.view=function(){
-	var plog=this;
+pro.prototype.view=function(){
+	var pro=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({action:"PRO LEDGER"}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			plog.v$.find("#project-placeholder").html(plog.template(result));
+			pro.v$.find("#project-placeholder").html(pro.template(result));
 		},
 		type:"POST",
 		url:"/uploads"
 	});
 };
 
-
-
 //////////////////////////////////////////
 //END OF CLOSURE
-return plog;}();}
-
-console.log("project.js loaded");
+return pro;}();}
+//console.log("project.js loaded");

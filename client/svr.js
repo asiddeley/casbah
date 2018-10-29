@@ -67,21 +67,19 @@ function svr(camel){
 
 svr.prototype.cache={};
 svr.prototype.change=function(field, valu, callback){
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SVR CHANGE",
-			branch:this.camel.branch, //NEW!!
-			//project_id:localStorage.getItem("project_id"), //DEP
-			//svr_id:localStorage.getItem("svr_id"), // DEP
+			pronum:this.camel.argo.pronum, //NEW!
+			docnum:this.camel.argo.docnum, //NEW!
 			field:field,
 			valu:valu
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){ if (typeof callback =="function"){callback();}},
 		type:"POST",
-		url:"/uploads"
+		url:"/casite" //NEW!
 	});
 };
 
@@ -181,7 +179,7 @@ svr.prototype.notes_ondrop=function(el, ev){
 			//same section 
 			casbah.array_fromindex_toindex(svr.cache[tsn], fsi, tsi);
 			//save changes then callback render
-			svr.change(tsn, svr.cache[tsn], svr.notes_view );
+			svr.change(tsn, svr.cache[tsn], function(){svr.notes_view(svr);});
 		} else if (fsn != tsn) {
 			//different sections 
 			//insert item at 'to' section
@@ -189,19 +187,26 @@ svr.prototype.notes_ondrop=function(el, ev){
 			//remove item at 'from' section
 			svr.cache[fsn].splice(fsi, 1);
 			//save change for 'to' sections, then save change for 'from' section then callback renderer
-			svr.change(tsn, svr.cache[tsn], function(){ svr.change(fsn, svr.cache[fsn], svr.notes_view);});
+			svr.change(tsn, svr.cache[tsn], function(){ 
+				svr.change(fsn, svr.cache[fsn], svr.notes_view);
+			});
 		}
 	}	
 };
 
 
-svr.prototype.notes_view=function(r){
-	var svr=this;
-	//result from server or undefined
-	//r={generals:[...], comments:["comment 1", "comment 2",...],...}
+svr.prototype.notes_view=function(svr){
+	
+	if (typeof svr=="undefined"){ svr=this;}
 
+	//r = result from server or undefined
+	//eg. = {generals:[...], comments:["comment 1", "comment 2",...],...}
+	
 	// svr.notes.render called without argument means cache changed and server updated, no need to get result from server just use cache, otherwise update local cache with server results
-	if(typeof r == "undefined"){ r=svr.cache;} else { svr.cache=r;}
+	//if (typeof r=="undefined"){ r=svr.cache;} else { svr.cache=r;}
+	
+	var r=svr.cache;
+	console.log("svr.notes_view...",r);	
 	
 	//reformat result r to suit the notes template
 	svr.cache.rows=[].concat(
@@ -277,10 +282,8 @@ svr.prototype.photos_ondrop=function(ev){
 		//console.log("filetype:", ev.dataTransfer.files[i].type);
 		fd.append(ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
 	}
-	fd.append("action","SVR--UPLOAD");
+	fd.append("action","SVR UPLOAD");
 	fd.append("branch", svr.branch); //NEW!!
-	//fd.append("project_id", localStorage.getItem("project_id")); //DEP
-	//fd.append("svr_id",localStorage.getItem("svr_id")); //DEP
 	fd.append("upload_file",true);
 	
 	$.ajax({	
@@ -295,9 +298,8 @@ svr.prototype.photos_ondrop=function(ev){
 			svr.photos_render();
 		},
 		type:"POST",
-		url:"/uploads"
-	});	
-
+		url:"/casite"
+	});
 };
 
 svr.prototype.photos_formats_filler=function(rx, i, row){
@@ -500,12 +502,13 @@ svr.prototype.view=function(){
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			console.log("SVR SELECT success", result);
-			svr.notes_view(result.svrs[0]);
+			svr.cache=result.svrs[0];
+			console.log("SVR SELECT success...", svr.cache);
+			svr.notes_view(svr);
 			svr.photos_view(result.svrs[0]);
 		},
 		type:"POST",
-		url:"/uploads"
+		url:"/casite"
 	});	
 };
 

@@ -54,9 +54,7 @@ exports.docnum=function(req){
 	if (typeof req.body.docnum=="string" && num){
 		//docnum is a string and number 
 		//now check whether docnum is intended to be an ordinal ie. a number and not found in dir
-		try{
-			fs.statSync(path.join(dir, req.body.docnum)).isDirectory()
-		}
+		try{fs.statSync(path.join(dir, req.body.docnum)).isDirectory()}
 		catch(e) {
 			dd=fs.readdirSync(dir).filter(function (file) {
 				count+=1;

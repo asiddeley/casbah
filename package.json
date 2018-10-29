@@ -4,7 +4,7 @@
   "description": "Contract Administration Site * Be Architecural Heroes *",
   "main": "casbah_server.js",
   "scripts": {
-    "cas": "node casbah_server.js"
+    "cas": "node casbah.js"
   },
   "keywords": [
     "Architect",

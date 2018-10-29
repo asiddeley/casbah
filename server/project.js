@@ -37,13 +37,12 @@ const casdocs=require(path.join(__dirname,"casdocs"))
 // EXPORTS
 exports.change=function(req, res){
 	var p, field, valu, stat, json
-	/*
 	try{
 		p=path.join(
 			global.appRoot, 
-			req.body.uploads_dir, 
-			req.body.project_id, 
-			project_jsonfile
+			req.body.casite, 
+			req.body.pronum, 
+			casdocs.project.json
 		)
 		field=req.body.field
 		valu=req.body.valu
@@ -62,7 +61,6 @@ exports.change=function(req, res){
 		res.json(result);
 		console.log("PRO CHANGE finally:", result)
 	}
-	*/
 }
 
 exports.create=function(req, res){

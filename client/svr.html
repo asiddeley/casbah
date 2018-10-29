@@ -65,7 +65,7 @@ h3 {padding-bottom:1em;}
 		field="title"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="svr.header.edit(this)">{{title}}</h2>
+		onclick="camel.getCDI().header_edit(this)">{{title}}</h2>
 	<div style="clear:both"></div>
 	{{/with}}
 </template>
@@ -115,7 +115,7 @@ h3 {padding-bottom:1em;}
 	field="date"
 	onmouseenter="$(this).addClass('highlite')"
 	onmouseleave="$(this).removeClass('highlite')"
-	onclick="svr.titleblock_right.edit(this)">{{date}}</p>
+	onclick="camel.getCDI().titleblock_right_edit(this)">{{date}}</p>
 </div>
 
 <div class="row row">
@@ -125,7 +125,7 @@ h3 {padding-bottom:1em;}
 	field="date_issued"
 	onmouseenter="$(this).addClass('highlite')"
 	onmouseleave="$(this).removeClass('highlite')"
-	onclick="svr.titleblock_right.edit(this)">{{date_issued}}</p>
+	onclick="camel.getCDI().titleblock_right_edit(this)">{{date_issued}}</p>
 </div>
 
 <div class="row row">
@@ -135,7 +135,7 @@ h3 {padding-bottom:1em;}
 	field="author"
 	onmouseenter="$(this).addClass('highlite')"
 	onmouseleave="$(this).removeClass('highlite')"
-	onclick="svr.titleblock_right.edit(this)">{{author}}</p>
+	onclick="camel.getCDI().titleblock_right_edit(this)">{{author}}</p>
 </div>
 
 <div class="row row">
@@ -144,13 +144,13 @@ h3 {padding-bottom:1em;}
 	field="misc_key"
 	onmouseenter="$(this).addClass('highlite')"
 	onmouseleave="$(this).removeClass('highlite')"
-	onclick="svr.titleblock_right.edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
+	onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
 	<p class="col-xs-8"
 	title="click to edit, then double-click to save..."
 	field="misc_valu"
 	onmouseenter="$(this).addClass('highlite')"
 	onmouseleave="$(this).removeClass('highlite')"
-	onclick="svr.titleblock_right.edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
+	onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
 </div>
 
 {{/with}}
@@ -165,12 +165,14 @@ h3 {padding-bottom:1em;}
 		section_name="{{row.section_name}}"
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
-		ondrop="svr.notes.ondrop(this, event)">
+		ondrop="camel.getCDI().notes_ondrop(this, event)">
 		<h3 class="col-xs-1 marz" >{{row.section_num}}</h3>
 		<h3 class="col-xs-10 border-left marz"
 			section_name="{{row.section_name}}"
 			section_index="{{row.section_index}}"		
-			oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</h3>
+			oncontextmenuOLD="casbah.showMenu(svr.notes.menu, event)"
+			oncontextmenu="camel.showMenu(event)"
+		>{{row.txt}}</h3>			
 		<h3 class="col-xs-1 marz" ></h3>
 	</div>	
 	{{/if}}
@@ -180,9 +182,9 @@ h3 {padding-bottom:1em;}
 		section_num="{{row.section_num}}"
 		section_index="{{row.section_index}}"
 		draggable="true"
-		ondragstart="svr.notes.ondragstart(this, event)"
+		ondragstart="camel.getCDI().notes_ondragstart(this, event)"
 		ondragover="event.preventDefault()"
-		ondrop="svr.notes.ondrop(this, event)">		
+		ondrop="camel.getCDI().notes_ondrop(this, event)">		
 	<p 	class="col-xs-1 marz">{{row.section_num}}.{{plusOne row.section_index}}</p>
 	<p 	class="col-xs-10 border-left marz"
 		title="click to edit, then double-click to save"
@@ -191,8 +193,10 @@ h3 {padding-bottom:1em;}
 		section_index="{{row.section_index}}"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="svr.notes.edit(this)"		
-		oncontextmenu="casbah.showMenu(svr.notes.menu, event)">{{row.txt}}</p>	
+		onclick="camel.getCDI().notes_edit(this)"		
+		oncontextmenuDEP="casbah.showMenu(svr.notes.menu, event)"
+		oncontextmenu="camel.showMenu(event)"
+		>{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz"></p>	
 	</div>
 	{{/if}}
@@ -208,8 +212,10 @@ h3 {padding-bottom:1em;}
 	ondragenter="event.preventDefault();$(this).addClass('highlite');"
 	ondragover="event.preventDefault();" 
 	ondragleave="event.preventDefault();$(this).removeClass('highlite');"	
-	ondrop="svr.photos.ondrop(event);"
-	oncontextmenuNOT="casbah.showMenu(svr.photo.menu, event)">
+	ondrop="camel.getCDI().photos_ondrop(event);"
+	oncontextmenuDEP="casbah.showMenu(svr.photo_menu, event)"
+	oncontextmenu="camel.showMenu(event, camel.getCDI().photo_menu)"
+	>
 		<h3 class="col-xs-1 marz" >5.0</h3>
 		<h3 class="col-xs-10 border-left marz">Photos</h3>
 		<h3 class="col-xs-1 marz" >&nbsp;</h3>
@@ -219,7 +225,10 @@ h3 {padding-bottom:1em;}
 	<div class="row col-xs-12 break-not">
 	{{#each row as |item ii|}}
 	{{#if item.img}}
-		<img class="{{item.col}} photo-pads" onclick="svr.photos.onclick(this)" src="{{item.img}}">
+	<img class="{{item.col}} photo-pads" 
+		onclick="camel.getCDI().photos_onclick(this)" 
+		src="{{item.img}}"
+	>
 	{{/if}}
 	{{#if item.fig}}
 	<div class="{{item.col}} photo-pads break-not" title="{{item.key}}">
@@ -237,11 +246,11 @@ h3 {padding-bottom:1em;}
 
 
 <!-- MENUS -->
-<div id="svr-notes-menu" onmouseleave="svr.notes.menu.hide()" class="hide9999">
-	<p onclick="svr.notes.remove()">Delete</p>
-	<p onclick="svr.notes.edit(svr.notes.menu.menu('option', 'caller'))">Edit</p>
-	<p onclick="svr.notes.insert()">Insert</p>
-	<p onclick="svr.notes.menu.hide()">Exit menu</p>
-	<p onclick="svr.refresh();svr.notes.menu.hide()">Refresh</p>
+<div id="svr-notes-menu" onmouseleave="camel.getCDI().notes_menu_hide()" class="hide9999">
+	<p onclick="camel.getCDI().notes_remove()">Delete</p>
+	<p onclick="camel.getCDI().notes_edit(camel.getCDI().menu.menu('option', 'caller'))">Edit</p>
+	<p onclick="camel.getCDI().notes_insert()">Insert</p>
+	<p onclick="camel.getCDI().notes.menu_hide()">Exit menu</p>
+	<p onclick="camel.getCDI().refresh();camel.getCDI().notes_menu.hide()">Refresh</p>
 </div>
 

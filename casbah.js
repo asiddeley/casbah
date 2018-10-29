@@ -31,32 +31,43 @@ const fsp = require(path.join(__dirname,"server","fs+"))
 const url = require("url")
 const bodyParser = require("body-parser")
 const fileUpload = require("express-fileupload")
+const casite = require(path.join(__dirname, "server", "casite.js"))
 
 const app = express()
 if (typeof global.appRoot=="undefined") {global.appRoot=path.resolve(__dirname)}
-if (typeof global.uploads_dir=="undefined") {global.uploads_dir="uploads"}
 
-//Main entry
+// Site path
+// DEP 
+if (typeof global.uploads_dir=="undefined") {global.uploads_dir="uploads"}
+// NEW
+if (typeof global.casite=="undefined") {global.casite="uploads"}
+
+
+// Main entry
 app.get('/', function (req, res) {res.sendFile(path.join(__dirname,"client","casbah.html"));})
 
-//File server
+// File server
 app.use(express.static(__dirname))
 if (__dirname!=global.appRoot) {app.use(express.static(global.appRoot))}
 
-//Logger
+// Logger
 app.use(function(req, res, next){console.log("LOG...",req.url);	next();});
 
-//Middleware parsers for database queries and uploads
+// Middleware parsers for database queries and uploads
 app.use( bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 10000}));
 app.use( bodyParser.json({limit: '50mb'}));
 
-//Uploader
+// Uploader
 app.use(fileUpload({limits: { fileSize: 50 * 1024 * 1024 }}));
 
-//Server Filesystem Routes 
-app.post("/uploads", require(path.join(__dirname, "server", "uploads.js")).handler);
+// Server Filesystem Routes 
+// DEP
+app.post("/uploads", casite.handler);
+// NEW
+app.post("/casite", casite.handler);
 
-//Start serving...
+
+// Start serving...
 app.listen(8080, function () {console.log("casbah serving on http://localhost:8080/")});
 
 

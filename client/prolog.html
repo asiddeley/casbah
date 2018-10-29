@@ -15,7 +15,7 @@
 		onmouseleave="$(this).removeClass('highlight')"
 		title="Right-click for menu..."
 		pronum="PRJ-001"
-		oncontextmenu="camel.showMenu(event)"> 
+		oncontextmenu="camel.showMenu(event)">
 		<small class="col-xs-1 row-head marz">0</small>
 		<div class="border-left col-xs-11 marz">
 			<span class="col-xs-2 row-head marz">Project count: {{projects.length}}</span>
@@ -50,7 +50,7 @@
 		onclick="camel.getCDI().current(this);">{{project_id}}</p>
 		
 	<p 	class="col-xs-3 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="project_name"
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
@@ -58,14 +58,14 @@
 		onclick="camel.getCDI().edit(this);">{{project_name}}</p>
 	
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="client"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="camel.getCDI().edit(this);">{{owner}}</p>
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		ppronum="{{project_id}}"
 		field="date"
 		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
@@ -73,7 +73,7 @@
 		onclick="camel.getCDI().edit(this);">{{date}}</p>
 		
 	<p 	class="col-xs-2 marz"
-		pid="{{project_id}}"
+		pronum="{{project_id}}"
 		field="contractor"
 		title="Click to edit"	
 		onmouseenter="$(this).addClass('highlight')"
@@ -84,7 +84,7 @@
 	
 	<div class="row marz">
 	<p class="col-xs-1 row-head marz">&nbsp;</p>
-	<div class="border-left col-xs-11 marz" >
+	<div class="border-left col-xs-11 marz">
 	
 	<p class="col-xs-2 row-head marz">Permit</p>
 	<p class="col-xs-3 row-head marz">Address</p>
@@ -119,7 +119,7 @@
 	<p 	class="col-xs-2 marz"
 		pronum="{{project_id}}"
 		field="date_closed"
-		title="Click to edit"	
+		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="camel.getCDI().edit(this);">{{date_closed}}</p>
@@ -127,7 +127,7 @@
 	<p 	class="col-xs-2 marz"
 		pronum="{{project_id}}"
 		field="status"
-		title="Click to edit"	
+		title="Click to edit"
 		onmouseenter="$(this).addClass('highlight')"
 		onmouseleave="$(this).removeClass('highlight')"
 		onclick="camel.getCDI().edit(this);">{{status}}</p>
