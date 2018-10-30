@@ -81,34 +81,26 @@ const filemover=function(files, dest, req, res){
 
 
 exports.change=function(req, res){
-	var p, field, valu, stat, json
-	req.body.branch=casdocs.svr.base
+	var p, json, stat
+	
+	req.body.branch=casdocs.svr.base //NEW!
 	
 	try{
 		p=path.join(
 			global.appRoot, 
-			req.body.uploads_dir, 
+			req.body.casite, 
 			validate.pronum(req),
-			casdocs.svr.base,
+			req.body.branch,
 			validate.docnum(req),
 			casdocs.svr.json )
-		field=req.body.field
-		valu=req.body.valu
-		stat="OK"
-		console.log("SVR CHANGE:", field, " VALUE TO:",valu, " IN:", p)	
+		console.log("SVR CHANGE:", req.body.field, " VALUE TO:", req.body.valu, " IN:", p)	
 		json=JSON.parse(fs.readFileSync(p))
-		json[field]=valu
+		json[req.body.field]=req.body.valu
 		fs.writeFileSync(p,JSON.stringify(json))
+		stat="OK"
 	}
-	catch(err) {
-		stat=err
-		console.log("SVR CHANGE Catch:",err)
-	} 
-	finally {
-		var result={data:[json],stat:stat}
-		res.json(result);
-		console.log("SVR CHANGE finally:", result)
-	}
+	catch(err) {stat=err; console.log("SVR CHANGE Catch:", err)} 
+	finally { res.json(); console.log("SVR CHANGE finally:", {data:[json], stat:stat} )}
 }
 
 //FORMERLY svrl_insert
@@ -156,13 +148,13 @@ exports.create=function(req, res){
 }
 
 exports.select=function(req, res){
-	//returns all site reviews
+	//responds with current site review info
 	var p, root
 	
 	// default return result
 	var rr={
 		svrs:[{docnum:"", jsonfile:"", jsontext:""}],
-		branch:"/reports/site reivews",
+		branch:casdocs.base,
 		err:null
 	}
 	
@@ -171,17 +163,15 @@ exports.select=function(req, res){
 		
 		p=path.join(
 			global.appRoot, 
-			validate.casite(req), //checks for req.body.uploads_dir, copies it to req.body.casite
-			validate.pronum(req), //checks for req.body.pronum, also changes any ordinal to path
-			validate.branch(req) //checks for req.body.branch, also changes any ordinal to path
-			//validate.docnum(req)  //checks for req.body.docnum, also changes any ordinal to path
+			validate.casite(req), 
+			validate.pronum(req),
+			validate.branch(req) 
 		)
-	
-		//root=path.join(req.body.uploads_dir, req.body.project_id, reports_dir, svr_dir)
 		root=path.join(req.body.casite, req.body.pronum, req.body.branch)
  		
-		//check if exists - catch error otherwise
+		//check if exists otherwise catch error
 		fs.statSync (p)
+		
 		/******
 		Get list of directories and corresponding jsonfile
 		since fourth argument is supplied, only information for than directory will be returned, not all 
@@ -273,9 +263,4 @@ exports.upload=function(req, res){
 	}	
 }
 
-// TO DO...
-// SVR Log
-exports.report=function(req, res){
-	
-	
-}
+

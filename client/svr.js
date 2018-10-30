@@ -128,7 +128,7 @@ svr.prototype.notes_insert=function(){
 	console.log("INSERT:", sn);
 	//insert copy of text into section 
 	svr.cache[sn].splice(si, 0, copy);
-	svr.change(sn, svr.cache[sn], svr.notes_view);
+	svr.change(sn, svr.cache[sn], function(){svr.notes_view(svr);});
 };
 
 svr.prototype.notes_edit=function(el){
@@ -143,7 +143,7 @@ svr.prototype.notes_edit=function(el){
 		svr.change(field, svr.cache[field], function(){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
-			svr.notes_view(svr.cache);
+			svr.notes_view(svr);
 		});
 	});
 };
@@ -188,12 +188,13 @@ svr.prototype.notes_ondrop=function(el, ev){
 			svr.cache[fsn].splice(fsi, 1);
 			//save change for 'to' sections, then save change for 'from' section then callback renderer
 			svr.change(tsn, svr.cache[tsn], function(){ 
-				svr.change(fsn, svr.cache[fsn], svr.notes_view);
+				svr.change(fsn, svr.cache[fsn], function(){
+					svr.notes_view(svr);
+				});
 			});
 		}
 	}	
 };
-
 
 svr.prototype.notes_view=function(svr){
 	
@@ -206,14 +207,14 @@ svr.prototype.notes_view=function(svr){
 	//if (typeof r=="undefined"){ r=svr.cache;} else { svr.cache=r;}
 	
 	var r=svr.cache;
-	console.log("svr.notes_view...",r);	
+	//console.log("svr.notes_view...",r);	
 	
 	//reformat result r to suit the notes template
 	svr.cache.rows=[].concat(
-		svr.notes_reformat(r.generals, "generals", 1, "General Notes"),
-		svr.notes_reformat(r.comments, "comments", 2, "Comments & Observations"),
-		svr.notes_reformat(r.issues_closed, "issues_closed", 3, "Closed Issues"),
-		svr.notes_reformat(r.issues, "issues", 4, "New and Ongoing Issues")
+		svr.notes_format(r.generals, "generals", 1, "General Notes"),
+		svr.notes_format(r.comments, "comments", 2, "Comments & Observations"),
+		svr.notes_format(r.issues_closed, "issues_closed", 3, "Closed Issues"),
+		svr.notes_format(r.issues, "issues", 4, "New and Ongoing Issues")
 	);
 	//console.log("SVR data:", svr.data);
 	//get updated HTML...
@@ -230,7 +231,7 @@ svr.prototype.notes_view=function(svr){
 	svr.e$.find("#svr-notes-printable").html(n);
 }
 
-svr.prototype.notes_reformat=function(section, section_name, section_num, section_title){
+svr.prototype.notes_format=function(section, section_name, section_num, section_title){
 	//console.log("reformat_notes:", section);
 	var rows=[{section_heading:true, section_name:section_name, txt:section_title, section_num:section_num, section_index:0}];
 	for (i in section){rows.push({
@@ -252,7 +253,7 @@ svr.prototype.notes_remove=function(el){
 	//delete note from section 
 	svr.cache[sn].splice(si, 1);
 	//save change for 'to' sections, then save change for 'from' section then callback renderer
-	svr.change(sn, svr.cache[sn], svr.notes_view);
+	svr.change(sn, svr.cache[sn], function(){svr.notes_view(svr);});
 };
 
 //init notes
@@ -295,7 +296,7 @@ svr.prototype.photos_ondrop=function(ev){
 			//console.log("Success uploading, refresh everything...");
 			//svr.refresh();
 			console.log("Success uploading, rendering just photos...");
-			svr.photos_render();
+			svr.photos_view();
 		},
 		type:"POST",
 		url:"/casite"
@@ -451,7 +452,6 @@ svr.prototype.titleblock_right_edit=function(el){
 			var h=svr.titleblock_right_template({svr:svr.cache});
 			//svr.titleblock.render(svr.data);
 			svr.e$.find("#svr-titleblock-right-placeholder").html(h);			
-			//untested
 			svr.e$.find("#svr-titleblock-report-printable").html(h);			
 		});
 	});
@@ -478,20 +478,20 @@ svr.prototype.titleblock_left_view=function(){
 			svr.e$.find("#svr-titleblock-project-printable").html(h);
 		},
 		type:"POST",
-		url:"/uploads"
+		url:"/casite"
 	});
 };
 
 // view or render everything, includes data project and document refreshes
 svr.prototype.view=function(){
 	
+	var svr=this;	
+	
 	//renders titleblock_left IE project info
-	this.titleblock_left_view(); 
-	this.disclaimer_view();
+	svr.titleblock_left_view(); 
+	svr.disclaimer_view();
 	
 	//renders header, notes & titleblock_right IE report info 
-	var svr=this;
-	//console.log("SVR_ID", localStorage.getItem("svr_id"))
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
