@@ -15,40 +15,22 @@ figure{ font-size:12pt; font-family:'segoe UI'; font-weight:bold; }
 p {padding-bottom:1em;}
 h3 {padding-bottom:1em;}
 
-@media print {
-	.print-not {display:none;}
-	.printable {display:block;}
-	.row {page-break-inside:avoid; !important;}
-}
+@media print {.row {page-break-inside:avoid; !important;}}
 
 </style>
 
-<!-- SCREEN VERSION -->
-<div class="container print-not">
-	<div id="svr-header-placeholder">placeholder</div>
-	<div class="row">
-	<div id="svr-titleblock-left-placeholder" class="col-xs-6">Project part of titleblock</div>
-	<div id="svr-titleblock-right-placeholder" class="col-xs-6">Report part of titleblock</div>
-	</div>
-	<div id="svr-disclaimer-placeholder" class="row row__" >disclaimer</div>
-	<br><br>
-	<div id="svr-notes-placeholder" class="marz">notes-placeholder</div>
-	<div id="svr-photos-placeholder" class="marz">photos-placeholder</div>
-	<br><br>
-</div>
-
-<!-- PRINTABLE VERSION -->
-<table class="printable">
+<!-- SCREEN & PRINTABLE -->
+<table class="container-placeholder">
 	<col width="100%">
-	<thead><tr><th id="svr-header-printable" class="col-xs-12"></th></tr></thead>
+	<thead><tr><th id="svr-header-placeholder" class="col-xs-12"></th></tr></thead>
 	<tbody>
 		<tr><td>
-		<div id="svr-titleblock-project-printable" class="col-xs-6">project title block</div>
-		<div id="svr-titleblock-report-printable" class="col-xs-6">report title block</div>
+		<div id="svr-titleblock-project-placeholder" class="col-xs-6">project title block</div>
+		<div id="svr-titleblock-report-placeholder" class="col-xs-6">report title block</div>
 		</td></tr>
-		<tr class="breakable"><td id="svr-disclaimer-printable" class="row__">disclaimer</td></tr>
-		<tr class="breakable"><td id="svr-notes-printable">notes-printable</td></tr>
-		<tr class="breakable"><td id="svr-photos-printable">photos-printable</td></tr>
+		<tr class="breakable"><td id="svr-disclaimer-placeholder" class="row__">disclaimer</td></tr>
+		<tr class="breakable"><td id="svr-notes-placeholder">notes-printable</td></tr>
+		<tr class="breakable"><td id="svr-photos-placeholder">photos-printable</td></tr>
 	</tbody>
 </table>
 

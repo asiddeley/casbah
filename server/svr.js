@@ -100,7 +100,10 @@ exports.change=function(req, res){
 		stat="OK"
 	}
 	catch(err) {stat=err; console.log("SVR CHANGE Catch:", err)} 
-	finally { res.json(); console.log("SVR CHANGE finally:", {data:[json], stat:stat} )}
+	finally { 
+		res.json({data:[json], stat:stat}); 
+		console.log("SVR CHANGE finally:", {data:[json], stat:stat} )
+	}
 }
 
 //FORMERLY svrl_insert
@@ -148,7 +151,7 @@ exports.create=function(req, res){
 }
 
 exports.select=function(req, res){
-	//responds with current site review info
+	// responds with current site visit report info
 	var p, root
 	
 	// default return result
@@ -163,9 +166,9 @@ exports.select=function(req, res){
 		
 		p=path.join(
 			global.appRoot, 
-			validate.casite(req), 
+			req.body.casite, 
 			validate.pronum(req),
-			validate.branch(req) 
+			validate.branch(req, casdocs.svr.base)
 		)
 		root=path.join(req.body.casite, req.body.pronum, req.body.branch)
  		

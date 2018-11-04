@@ -39,8 +39,9 @@ exports.pronum=function(req){
 	return req.body.pronum	
 }
 
-exports.branch=function(req){
+exports.branch=function(req, default_branch){
 	console.log ("validate branch:", req.body.branch)
+	if (typeof req.body.branch =="undefined"){req.body.branch=default_branch}
 	return req.body.branch	
 }
 
@@ -50,7 +51,7 @@ exports.docnum=function(req){
 	
 	console.log ("validate docnum:", req.body.docnum)
 	var dd, count=0, num=Number(req.body.docnum)
-	var dir=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
+	var dir=path.join(req.body.casite, req.body.pronum, req.body.branch)
 	if (typeof req.body.docnum=="string" && num){
 		//docnum is a string and number 
 		//now check whether docnum is intended to be an ordinal ie. a number and not found in dir

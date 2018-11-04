@@ -369,6 +369,7 @@ req.files... populated by middle-ware from ajaxed formData
 	case "FOLDER-SELECT":folder.select(req, res); break; //to do - make camel compatible
 	
 	// NEW (with path as only argument)
+	// Project
 	case "PRO CHANGE":project.change(req, res); break;	//to do
 	case "PRO CREATE":project.create(req, res); break;	//to do
 	case "PRO LEDGER":project.ledger(req, res); break;	//NEW!  instead of proLog.select 

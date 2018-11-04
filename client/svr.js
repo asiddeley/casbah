@@ -39,7 +39,7 @@ if (typeof casbah.Svr!="function"){casbah.Svr=function(){
 	
 // Site visit report
 function svr(camel){
-	
+
 	//function svr(site$, branch){
 	// site$=$("<div class='CASDOC'></div>")
 	// branch = "prj-001/reports/site visit reports/SVR-A01"
@@ -67,6 +67,7 @@ function svr(camel){
 
 svr.prototype.cache={};
 svr.prototype.change=function(field, valu, callback){
+	//console.log("CHANGE...", callback);
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
@@ -76,8 +77,14 @@ svr.prototype.change=function(field, valu, callback){
 			field:field,
 			valu:valu
 		}),
-		error: function(err){ console.log(err.message);},
-		success: function(result){ if (typeof callback =="function"){callback();}},
+		error: function(err){ 
+			console.log("Server error...", err);
+			callback();
+		},
+		success: function(result){ if (typeof callback =="function"){
+			console.log("Server success...");
+			callback();
+		}},
 		type:"POST",
 		url:"/casite" //NEW!
 	});
@@ -108,10 +115,7 @@ svr.prototype.header_edit=function(el){
 			//refresh (server request and render) or just render cache for now...
 			//svr.titleblock.render(svr.data);
 			var h=svr.header.template({svr:svr.cache});
-			//screen
 			svr.e$.find("#svr-header-placeholder").html(h);
-			//printable version
-			svr.e$.find("#svr-header-printable").html(h);
 		});
 	});
 };
@@ -132,15 +136,19 @@ svr.prototype.notes_insert=function(){
 };
 
 svr.prototype.notes_edit=function(el){
-	var svr=this;
+
+	svr=this;
+	
 	svr.ed.text(el, function(){
 		var field=svr.ed.target_attr("section_name"); //eg. 'comments'
 		var index=svr.ed.target_attr("section_index");
 		var text=svr.ed.val();
 		svr.cache[field][index]=text;
-		//svr.data[field][index]=; //eg. ['first comment','revised comment 2'...]
+		//svr.cache[field][index]=; //eg. ['first comment','revised comment 2'...]
 		console.log("FIELD",field, " UPDATED TEXT:", text);
+		console.log("valu:",svr.cache[field]);
 		svr.change(field, svr.cache[field], function(){
+			console.log("Ed DONE...");
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			svr.notes_view(svr);
@@ -221,14 +229,10 @@ svr.prototype.notes_view=function(svr){
 	var h=svr.header_template({svr:r});
 	var rtb=svr.titleblock_right_template({svr:r});
 	var n=svr.notes_template({rows:svr.cache.rows})
-	//put it to screen...
+	//render...
 	svr.e$.find("#svr-header-placeholder").html(h);
-	svr.e$.find("#svr-titleblock-right-placeholder").html(rtb);
+	svr.e$.find("#svr-titleblock-report-placeholder").html(rtb);
 	svr.e$.find("#svr-notes-placeholder").html(n);
-	//put it to printable...
-	svr.e$.find("#svr-header-printable").html(h);
-	svr.e$.find("#svr-titleblock-report-printable").html(rtb);
-	svr.e$.find("#svr-notes-printable").html(n);
 }
 
 svr.prototype.notes_format=function(section, section_name, section_num, section_title){
@@ -264,6 +268,8 @@ svr.prototype.notes_update=function(row, rowid){
 
 svr.prototype.photos={}
 
+svr.prototype.photos_onclick=function(ev){}
+
 svr.prototype.photos_ondrop=function(ev){
 	var svr=this;
 	/***
@@ -296,7 +302,7 @@ svr.prototype.photos_ondrop=function(ev){
 			//console.log("Success uploading, refresh everything...");
 			//svr.refresh();
 			console.log("Success uploading, rendering just photos...");
-			svr.photos_view();
+			svr.photos_view(svr);
 		},
 		type:"POST",
 		url:"/casite"
@@ -370,13 +376,17 @@ svr.prototype.photos_formats_wide=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.prototype.photos_layouts_azEasy=function(svrdata){
-	var svr=this;
+svr.prototype.photos_layouts_azEasy=function(svr){
+	//var svr=this;
+	if (typeof svr=="undefined"){svr=this;}
+
 	//reformat result for photos template...
 	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
 	svr.photos.index=0;
 	svr.photos.cc=0; //column counter	
-	var rx=svrdata.xdata;
+	
+	//var rx=svrdata.xdata;
+	var rx=svr.cache.xdata;
 	var rows=[], row=[]; 
 	
 	for (var i in rx){
@@ -397,12 +407,17 @@ svr.prototype.photos_layouts_azEasy=function(svrdata){
 	return rows;
 }
 
-svr.prototype.photos_layouts_azTight=function(svrdata){
-	var svr=this;
-	//svrdata.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
+//svr.prototype.photos_layouts_azTight=function(svrdata){
+svr.prototype.photos_layouts_azTight=function(svr){
+
+	if (typeof svr=="undefined"){svr=this;}
+	
+	//svr.cache.xdata = {img01:{caption:"", date:"", format:"", path:"..."}, ...}		
 	svr.photos.index=0; //image counter
 	svr.photos.cc=0; //column counter, 12 columns is 1 row in bootstrap
-	var rx=svrdata.xdata;
+	
+	//var rx=svrdata.xdata;
+	var rx=svr.cache.xdata;
 	var rows=[],row=[];
 
 	for (var i in rx){
@@ -425,17 +440,18 @@ svr.prototype.photos_layouts_azTight=function(svrdata){
 	return rows;
 }
 
-svr.prototype.photos_view=function(svrdata){
-	var svr=this;
+//svr.prototype.photos_view=function(svrdata){
+svr.prototype.photos_view=function(svr){
+
+	if (typeof svr=="undefined"){svr=this;}
+
 	//layout photos in svrdata.xdata to photorows as required for handlebar template
-	//svr.data.photorows=svr.layouts.azEasy(svrdata)
-	svr.cache.photorows=svr.photos_layouts_azTight(svrdata);
+	//svr.cache.photorows=svr.photos_layouts_azTight(svrdata);
+	svr.cache.photorows=svr.photos_layouts_azTight(svr);
 	//get updated html
 	var h=svr.photos_template({rows:svr.cache.photorows})
-	//put it to screen...
+	//render...
 	svr.e$.find("#svr-photos-placeholder").html(h);
-	//put it to printable...
-	svr.e$.find("#svr-photos-printable").html(h);
 };
 
 svr.prototype.titleblock_right_edit=function(el){
@@ -451,8 +467,7 @@ svr.prototype.titleblock_right_edit=function(el){
 			//refresh (server request and render) or just render cache for now...
 			var h=svr.titleblock_right_template({svr:svr.cache});
 			//svr.titleblock.render(svr.data);
-			svr.e$.find("#svr-titleblock-right-placeholder").html(h);			
-			svr.e$.find("#svr-titleblock-report-printable").html(h);			
+			svr.e$.find("#svr-titleblock-report-placeholder").html(h);			
 		});
 	});
 };
@@ -463,8 +478,8 @@ svr.prototype.titleblock_left_view=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data:$.param({
-			action:"PRO SELECT",
-			branch:svr.camel.argo.branch, 
+			action:"PRO SELECT", //get project information for titleblock
+			//branch:svr.camel.argo.branch, 
 			pronum:svr.camel.argo.pronum,
 			docnum:svr.camel.argo.docnum
 		}),
@@ -472,10 +487,8 @@ svr.prototype.titleblock_left_view=function(){
 		success: function(result){
 			//update html
 			var h=svr.titleblock_left_template(result);
-			//put it to screen
-			svr.e$.find("#svr-titleblock-left-placeholder").html(h);
-			//put it to printable
-			svr.e$.find("#svr-titleblock-project-printable").html(h);
+			//render
+			svr.e$.find("#svr-titleblock-project-placeholder").html(h);
 		},
 		type:"POST",
 		url:"/casite"
@@ -496,7 +509,6 @@ svr.prototype.view=function(){
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
 			action:"SVR SELECT",
-			branch:svr.camel.argo.branch,
 			pronum:svr.camel.argo.pronum,
 			docnum:svr.camel.argo.docnum
 		}),
@@ -505,7 +517,7 @@ svr.prototype.view=function(){
 			svr.cache=result.svrs[0];
 			console.log("SVR SELECT success...", svr.cache);
 			svr.notes_view(svr);
-			svr.photos_view(result.svrs[0]);
+			svr.photos_view(svr);
 		},
 		type:"POST",
 		url:"/casite"
