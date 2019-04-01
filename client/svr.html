@@ -55,7 +55,7 @@ h3 {padding-bottom:1em;}
 
 
 <template id='svr-titleblock-left' type="text/x-handlebars-template">
-{{#each projects}}
+{{#with jsoc}}
 <div class="row row__">
 	<strong class="col-xs-4">Project No:</strong>
 	<p class="col-xs-8">{{project_id}}</p>
@@ -80,7 +80,7 @@ h3 {padding-bottom:1em;}
 	<strong class="col-xs-4">Permit No:</strong>
 	<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 </div>
-{{/each}}
+{{/with}}
 </template>
 
 <template id='svr-titleblock-right' type="text/x-handlebars-template">

@@ -38,11 +38,11 @@ exports.getFilesSync=function(dir) {
 
 
 /**********************************
-CASBAH * Contract Admin Site * Be Architectural Heroes
+CASBAH 
+Contract Admin Site Be Architectural Heroes
+Copyright (c) 2018 Andrew Siddeley
 
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -61,12 +61,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ********************************/
 
 exports.dirSync_json=function(dir, json, jsoc, subdir, exts) {
 	/*
-	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  If no jsonfile is found, one is created by default with contents provided in json. 
+	Returns a list of folders in folder dir, along with contents of jsonfile and any other file-names specified by exts if provided.  (DEPRICATED... If no jsonfile is found, one is created by default with contents provided in json. )
 	Used for a file system type of database where the json file carries data pertaining to its parents directory.
 	Optionally, if exts is specified, the result includes a list of files of specified extensions 
 	Optionally, if subdir is specified and is found in directory dir then only subdir, its json file and any file names with spec'd extensions be returned
@@ -76,11 +75,12 @@ exports.dirSync_json=function(dir, json, jsoc, subdir, exts) {
 	if (typeof dir == "object"){
 		json=dir.json
 		jsoc=dir.jsoc
-		subdir=(typeof dir.id!="undefined")?dir.id:dir.subdir //look for dir.id or dir.subdir
+		//look for dir.id or dir.subdir
+		subdir=(typeof dir.id!="undefined")?dir.id:dir.subdir 
 		exts=dir.filext || null
 		dir=dir.dir
-	} 
-	
+	}
+
 	// else if (typeof variant == "string"){dir=variant}
 		
 	var  dd, jp, jt, ff=[], result=[], ss
@@ -116,10 +116,10 @@ exports.dirSync_json=function(dir, json, jsoc, subdir, exts) {
 			jt=fs.readFileSync(jp,"UTF-8")
 		} 
 		catch (err){
-			//Create file if not found
 			console.log("dirSync_json... jsonfile read failed:", err)
-			jt=JSON.stringify(jsoc || {})
-			if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
+			//DEPRECATED Create file if not found
+			//jt=JSON.stringify(jsoc || {})
+			//if (err.code=="ENOENT") {fs.writeFileSync(jp, jt)}
 		}
 		finally {
 			result.push({dir:dd[i], files:ff, jsonfile:json, jsontext:jt})
@@ -134,7 +134,7 @@ exports.jsonify=function(rar){
 	/**
 	Convert and merge jsontext to object in array objects
 	rar = [{dir:"name", jsontext:"{field:value, ... }" }, ...]
-	ret = [{dir:"name", jsontext:"{field:value, ... }", field:value, ... }, ...]
+	ret = [{dir:"name", field:value, ... }, ...]
 	**/
 
 	for (var i in rar){

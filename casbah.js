@@ -1,10 +1,9 @@
 /**********************************
-CASBAH * Contract Admin Site * Be Architectural Heroes
-
+CASBAH 
+Contract Admin Site Be Architectural Heroes
+Copyright (c) 2018 Andrew Siddeley
 
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +30,8 @@ const fsp = require(path.join(__dirname,"server","fs+"))
 const url = require("url")
 const bodyParser = require("body-parser")
 const fileUpload = require("express-fileupload")
-const casite = require(path.join(__dirname, "server", "casite.js"))
+//const casite = require(path.join(__dirname, "server", "casite.js"))
+const casite = require(path.join(__dirname, "server", "explorer.js"))
 
 const app = express()
 if (typeof global.appRoot=="undefined") {global.appRoot=path.resolve(__dirname)}

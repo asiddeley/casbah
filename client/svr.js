@@ -80,7 +80,8 @@ Svr.prototype.change=function(field, valu, callback){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"SVR CHANGE",
+			action:"CHANGE",
+			casdok:"svr", //NEW!!
 			pronum:this.camel.argo.pronum, //NEW!
 			docnum:this.camel.argo.docnum, //NEW!
 			field:field,
@@ -495,15 +496,17 @@ Svr.prototype.titleblock_left_view=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data:$.param({
-			action:"PRO SELECT", //get project information for titleblock
-			//branch:svr.camel.argo.branch, 
+			action:"SELECT", //get project information for titleblock
+			//branch:svr.camel.argo.branch,
+			casdok:"project",	
 			pronum:svr.camel.argo.pronum,
 			docnum:svr.camel.argo.docnum
 		}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
 			//update html
-			var h=svr.titleblock_left_template(result);
+			console.log("titleblock_left_view:", result.jsoc);
+			var h=svr.titleblock_left_template({jsoc:result.jsoc});
 			//render
 			svr.e$.find("#svr-titleblock-project-placeholder").html(h);
 		},
@@ -525,13 +528,14 @@ Svr.prototype.view=function(){
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: $.param({
-			action:"SVR SELECT",
+			action:"SELECT",	
+			casdok:"svr", //NEW!
 			pronum:svr.camel.argo.pronum,
 			docnum:svr.camel.argo.docnum
 		}),
 		error: function(err){ console.log(err.message);},
 		success: function(result){
-			svr.cache=result.svrs[0];
+			svr.cache=result.folders[0];
 			console.log("SVR SELECT success...", svr.cache);
 			svr.notes_view(svr);
 			svr.photos_view(svr);
