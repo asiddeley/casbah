@@ -35,11 +35,13 @@ function Camel(argo){
 	// agro - argument object
 	// eg. {name:"camel name", branch:null, casdok:"svr", docnum:"SVR-A01", pronum:"BLDG-101"}
 	
+	var proto=Camel.prototype;
+	
 	// add this new camel to static list of all instantiated camels
-	Camel.prototype.allcamels.push(this);
+	proto.allcamels.push(this);
 	
 	// default name for camel
-	this.name=this.autoname[this.allcamels.length-1];
+	this.name=proto.autoname[proto.allcamels.length-1];
 
 	// CHANGE...
 	// retreive locally stored arguments, mix in current arguments and store
@@ -48,16 +50,16 @@ function Camel(argo){
 	// this.argoLoad(argo); //get argo from local store using provided argo as default if not found
 	// this.argoSave(argo); //merge provided argument obj with current argument obj and save locally
 	
-	// only one camel active at a time, this camel is now the main one 
-	Camel.prototype.mainCamel=this;
+	//update currentCamel value in all camels by changing prototype value
+	proto.currentCamel=this;
 	
 	// init camel names list if necessary
-	if (typeof Camel.prototype.name$=="undefined"){Camel.prototype.name$=$("#camel-names");}
+	if (typeof proto.name$=="undefined"){proto.name$=$("#camel-names");}
 	
 	// NEEDS WORK...	
 	// init just once and for all camels, jquery element for displaying camel content
 	// if (argo.view$){Camel.prototype.view$=argo.view$;}
-	if (!this.view$) {Camel.prototype.view$=$("#camel-view");}
+	if (!proto.view$) {proto.view$=$("#camel-view");}
 	
 	this.casdoc=""; //casbah document object
 	this.casdoi=null; //casbah document instance - new casbah.Svr();
@@ -65,7 +67,7 @@ function Camel(argo){
 	this.casdo$.appendTo(this.view$);
 	
 	//update list of all instantiated camel names.  Ensure it comes after name$ is defined
-	this.list();
+	this.updateNamesHTML();
 
 	//update camel contents - only when called
 	this.view("welcome"); 
@@ -137,11 +139,11 @@ Camel.prototype.casdoi=null;
 Camel.prototype.casdo$=null;
 
 //returns the current camel's casdoc instance
-Camel.prototype.getCDI=function(){return this.mainCamel.casdoi;};
+Camel.prototype.getCDI=function(){return this.currentCamel.casdoi;};
 
 //result of argo.casdoc, argo.doc_id & argo.pro_id as provided by ajax call
 //Camel.prototype.branch=null;
-Camel.prototype.list=function(){
+Camel.prototype.updateNamesHTML=function(){
 	var camel=this;
 	
 	//delete existing list
@@ -161,29 +163,32 @@ Camel.prototype.list=function(){
 
 Camel.prototype.main=function(name){
 	//Make named camel the main camel. Returns main camel if called without argument
-	if (typeof name=="undefined") {return Camel.prototype.mainCamel;}
+	if (typeof name=="undefined") {return Camel.prototype.currentCamel;}
 	//find camel with name
 	var mc=this.allcamels.filter(function(c){return (c.name==name);});
-	//update mainCamel property in all camels...
-	if (mc.length==1){Camel.prototype.mainCamel=mc[0];}
-	console.log("Main camel is " + Camel.prototype.mainCamel);	
+	//update currentCamel property in all camels...
+	if (mc.length==1){Camel.prototype.currentCamel=mc[0];}
+	console.log("Main camel is " + Camel.prototype.currentCamel);	
 	this.view();
 };
 
-Camel.prototype.mainCamel=null;
+Camel.prototype.currentCamel=null;
 
 Camel.prototype.name="unnamed";
+
+//element for display of camel names
+Camel.prototype.name$;
 	
 Camel.prototype.retire=function(name){
 	//remove camel by name
 	Camel.prototype.allcamels=Camel.prototype.allcamels.filter(function(c){return (c.name!=name);});
 	//redo the CASBAH admin tab camel list
-	this.list();
+	this.updateNamesHTML();
 };
 
-Camel.prototype.showMenu=function(ev){
+Camel.prototype.showMenu=function(ev, m$){
 	//Shows the current casdoc's menu
-	var m$=this.mainCamel.casdoi.m$;
+	//var m$=this.currentCamel.casdoi.m$;
 	
 	//first call texteditor with no arguments to turn it off just in case its on
 	//ed.hide();
@@ -192,6 +197,10 @@ Camel.prototype.showMenu=function(ev){
 	m$.menu('option', 'caller', ev.target);
 	return false;
 };
+Camel.prototype.hideMenu=function(ev, m$){
+	m$.hide();
+}
+
 
 Camel.prototype.view=function(casdok){
 	//casdok - the casdoc key eg. "svr" for "site visit report"
@@ -199,65 +208,68 @@ Camel.prototype.view=function(casdok){
 	//If casdok is not provided, currently set casdok is used
 	//If current casdok is null (or 'welcome') then welcome page is displayed
 	
-	var camel=this.mainCamel;	
+	var camel=this.currentCamel;	
 
 	console.log("CAMEL.VIEW()...");
 	console.log("pronum...", this.argo.pronum);
+	//no project number so prompt or goto project view
 	if (this.argo.pronum==null){
 		var p=prompt("Enter project num");
 		this.argoSave({pronum:p});
-	};
-	//argument provided so update
-	if (typeof casdok == "string"){this.argoSave({casdok:casdok});}
-	
-	//reset the camel view
-	//Camel.prototype.view$.empty();
-	camel.view$.empty();
-	//append any camel info here
-	
-	//add the div element that will hold the document contents
-	//Camel.prototype.view$.append(camel.casdo$);
-	camel.view$.append(camel.casdo$);
+		this.view(casdok);
+	} else {	
+		//argument provided so update
+		if (typeof casdok == "string"){this.argoSave({casdok:casdok});}
+		
+		//reset the camel view
+		camel.view$.empty();
+		//append any camel info here
+		
+		//add the div element that will hold the document contents
+		camel.view$.append(camel.casdo$);
 
-	$.ajax({
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({
-			action:"CAMEL VIEW",
-			branch:camel.argo.branch, //null or result of args below
-			casdok:camel.argo.casdok,
-			docnum:camel.argo.docnum,
-			pronum:camel.argo.pronum
-		}),
-		error: function(err){ console.log(err.message);},
-		success: function(r){ 
-			//r={branch:"", folders:[], files:[], err:null, casdoc:{}} 
-			//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
-			
-			// REPLACE...
-			//camel.argo.branch=r.branch;
-			//camel.argoSave(r);			
-			
-			// WITH...
-			// camel.argoMixSet({branch:r.branch});
-			
-			//load and execute script...	
-			console.log( "camel $load..." + r.casdoc.html);	
-			camel.casdo$.load(r.casdoc.html, function(){
-				console.log( "camel $getScript..." + r.casdoc.jscr);
-				$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
-					//console.log( data ); // Data returned
-					//console.log( textStatus ); // Success
-					//console.log( jqxhr.status ); // 200
-					//create document object passing jquery element casdo$
-					console.log("casdok..."+r.casdok);
-					camel.casdoi=casbah.creators[r.casdok](camel);
-					camel.casdoi.view();
+		$.ajax({
+			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+			data: $.param({
+				action:"CAMEL VIEW",
+				branch:camel.argo.branch, //null or result of args below
+				casdok:camel.argo.casdok,
+				docnum:camel.argo.docnum,
+				pronum:camel.argo.pronum
+			}),
+			error: function(err){ console.log(err.message);},
+			success: function(r){ 
+				//r={branch:"", folders:[], files:[], err:null, casdoc:{}} 
+				//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
+				
+				// REPLACE...
+				//camel.argo.branch=r.branch;
+				//camel.argoSave(r);			
+				
+				// WITH...
+				// camel.argoMixSet({branch:r.branch});
+				
+				//load and execute script...	
+				console.log( "camel $load..." + r.casdoc.html);	
+				camel.casdo$.load(r.casdoc.html, function(){
+					console.log( "camel $getScript..." + r.casdoc.jscr);
+					$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
+						//console.log( data ); // Data returned
+						//console.log( textStatus ); // Success
+						//console.log( jqxhr.status ); // 200
+						//create document object passing jquery element casdo$
+						console.log("casdok..."+r.casdok);
+						//create document instance
+						camel.casdoi=casbah.creators[r.casdok](camel);
+						//then show it
+						camel.casdoi.view();
+					});
 				});
-			});
-		},
-		type:"POST",
-		url:"/uploads"
-	});
+			},
+			type:"POST",
+			url:"/uploads"
+		});
+	}
 };
 
 Camel.prototype.view$=null;

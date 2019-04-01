@@ -150,6 +150,15 @@ exports.create=function(req, res){
 	}
 }
 
+
+exports.ledger=function(req, res){
+	// responds with current site visit report info
+	var p, root
+	
+	
+}
+
+
 exports.select=function(req, res){
 	// responds with current site visit report info
 	var p, root

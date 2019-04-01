@@ -1,10 +1,10 @@
 
 /**********************************
-CASBAH * Contract Administration System Be Architectural Heroes *
+CASBAH 
+Contract Administration System Be Architectural Heroes
+Copyright (c) 2018, 2019 Andrew Siddeley
 
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,14 +32,16 @@ SOFTWARE.
 
 // Add Svr creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.svr=function(template_element){return new casbah.Svr(template_element);};
+casbah.creators.svr=function(camel){return new casbah.SVR(camel);};
 
 // Add Svr function to casbah library if missing
-if (typeof casbah.Svr!="function"){casbah.Svr=function(){
+if (typeof casbah.SVR!="function"){casbah.SVR=function(){
 	
-// Site visit report
-function svr(camel){
-
+// CONSTRUCTOR - Site visit report 
+function Svr(camel){
+	//inherited from 
+	//casbah.register(this);
+	
 	//function svr(site$, branch){
 	// site$=$("<div class='CASDOC'></div>")
 	// branch = "prj-001/reports/site visit reports/SVR-A01"
@@ -53,7 +55,7 @@ function svr(camel){
 	this.header_template=Handlebars.compile(this.e$.find("#svr-header").html());
 	// init context menu with jquery menu
 	this.notes_menu=this.e$.find("#svr-notes-menu").menu();
-	this.notes_menu.css("position","absolute", "width", "200px").hide();
+	//this.notes_menu.css("position","absolute", "width", "200px").hide();
 	// init notes
 	this.notes_template=Handlebars.compile(this.e$.find("#svr-notes-template").html());
 	// init photos
@@ -61,12 +63,19 @@ function svr(camel){
 	// init titleblocks
 	this.titleblock_left_template=Handlebars.compile(this.e$.find("#svr-titleblock-left").html());
 	this.titleblock_right_template=Handlebars.compile(this.e$.find("#svr-titleblock-right").html());
+	// init docnum menu, link to svrlog
+	this.docnum_menu=this.e$.find("#svr-docnum-menu").menu();
+	//this.docnum_menu.css("position","absolute", "width", "200px").hide();
+	
 	// render 
 	this.view();
 };
 
-svr.prototype.cache={};
-svr.prototype.change=function(field, valu, callback){
+// MIXINS
+// $.extend(Svr.prototype, casbah.casdoc);
+
+Svr.prototype.cache={};
+Svr.prototype.change=function(field, valu, callback){
 	//console.log("CHANGE...", callback);
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -91,7 +100,7 @@ svr.prototype.change=function(field, valu, callback){
 };
 
 //svr.prototype.disclaimer={};
-svr.prototype.disclaimer_view=function(){
+Svr.prototype.disclaimer_view=function(){
 	var h="<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</p>";
 	
 	//screen version...
@@ -100,9 +109,13 @@ svr.prototype.disclaimer_view=function(){
 	this.e$.find("#svr-disclaimer-printable").html(h);
 };
 
-svr.prototype.header={};
+Svr.prototype.docnum_log=function(){
+	this.camel.view("svrlog");
+};
 
-svr.prototype.header_edit=function(el){
+Svr.prototype.header={};
+
+Svr.prototype.header_edit=function(el){
 	var svr=this;
 	svr.ed.text(el, function(){
 		var field=$(el).attr("field"); //eg. 'title'
@@ -120,9 +133,9 @@ svr.prototype.header_edit=function(el){
 	});
 };
 
-svr.prototype.notes={};
+Svr.prototype.notes={};
 
-svr.prototype.notes_insert=function(){
+Svr.prototype.notes_insert=function(){
 	var svr=this;
 	//this function is meant to be called from a context menu and without arguments
 	var caller=svr.notes_menu.menu("option","caller");
@@ -135,7 +148,7 @@ svr.prototype.notes_insert=function(){
 	svr.change(sn, svr.cache[sn], function(){svr.notes_view(svr);});
 };
 
-svr.prototype.notes_edit=function(el){
+Svr.prototype.notes_edit=function(el){
 
 	svr=this;
 	
@@ -157,9 +170,13 @@ svr.prototype.notes_edit=function(el){
 };
 
 //reserved for jquery menu widget, initialized by Constructor
-svr.prototype.notes_menu={};
+Svr.prototype.notes_menu={};
 
-svr.prototype.notes_ondragstart=function(el, ev){
+Svr.prototype.notes_menu_hide=function(){
+	this.notes_menu.menu("widget").hide();	
+};
+
+Svr.prototype.notes_ondragstart=function(el, ev){
 	//note that "Text" argument is required by iexplorer, "text/plain" won't work...
 	ev.dataTransfer.setData("Text", 
 		"section_index:"+$(el).attr("section_index") + " " +
@@ -167,7 +184,7 @@ svr.prototype.notes_ondragstart=function(el, ev){
 	);	
 };
 
-svr.prototype.notes_ondrop=function(el, ev){
+Svr.prototype.notes_ondrop=function(el, ev){
 	var svr=this;
 	console.log("DROP...");
 	//var txt=ev.dataTransfer.getData("text/plain");
@@ -204,7 +221,7 @@ svr.prototype.notes_ondrop=function(el, ev){
 	}	
 };
 
-svr.prototype.notes_view=function(svr){
+Svr.prototype.notes_view=function(svr){
 	
 	if (typeof svr=="undefined"){ svr=this;}
 
@@ -235,7 +252,7 @@ svr.prototype.notes_view=function(svr){
 	svr.e$.find("#svr-notes-placeholder").html(n);
 }
 
-svr.prototype.notes_format=function(section, section_name, section_num, section_title){
+Svr.prototype.notes_format=function(section, section_name, section_num, section_title){
 	//console.log("reformat_notes:", section);
 	var rows=[{section_heading:true, section_name:section_name, txt:section_title, section_num:section_num, section_index:0}];
 	for (i in section){rows.push({
@@ -248,7 +265,7 @@ svr.prototype.notes_format=function(section, section_name, section_num, section_
 	return rows;
 };
 
-svr.prototype.notes_remove=function(el){
+Svr.prototype.notes_remove=function(el){
 	var svr=this;
 	//this function is meant to be called from a context menu and without arguments
 	var caller=svr.notes.menu.menu("option","caller");
@@ -262,15 +279,15 @@ svr.prototype.notes_remove=function(el){
 
 //init notes
 //svr.notes.template=Handlebars.compile($("#svr-notes-template").html());
-svr.prototype.notes_update=function(row, rowid){
+Svr.prototype.notes_update=function(row, rowid){
 	console.log("comments update ROWID:\n", rowid, "ROW:\n",row)
 };
 
-svr.prototype.photos={}
+Svr.prototype.photos={}
 
-svr.prototype.photos_onclick=function(ev){}
+Svr.prototype.photos_onclick=function(ev){}
 
-svr.prototype.photos_ondrop=function(ev){
+Svr.prototype.photos_ondrop=function(ev){
 	var svr=this;
 	/***
 	https://msdn.microsoft.com/en-us/ie/ms536929(v=vs.94)
@@ -309,7 +326,7 @@ svr.prototype.photos_ondrop=function(ev){
 	});
 };
 
-svr.prototype.photos_formats_filler=function(rx, i, row){
+Svr.prototype.photos_formats_filler=function(rx, i, row){
 	var svr=this;
 	var keys=Object.keys(rx);
 	var vals=Object.values(rx);
@@ -331,7 +348,7 @@ svr.prototype.photos_formats_filler=function(rx, i, row){
 	svr.photos.cc=0; //assume row filled so reset column count
 };
 
-svr.prototype.photos_formats_landscape=function(rx, i, row){
+Svr.prototype.photos_formats_landscape=function(rx, i, row){
 	var svr=this;
 	row.push({
 		fig:true, 
@@ -346,7 +363,7 @@ svr.prototype.photos_formats_landscape=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.prototype.photos_formats_portrait=function(rx, i, row){
+Svr.prototype.photos_formats_portrait=function(rx, i, row){
 	var svr=this;
 	row.push({
 		fig:true, 
@@ -361,7 +378,7 @@ svr.prototype.photos_formats_portrait=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.prototype.photos_formats_wide=function(rx, i, row){
+Svr.prototype.photos_formats_wide=function(rx, i, row){
 	var svr=this;
 	row.push({
 		fig:true, 
@@ -376,7 +393,7 @@ svr.prototype.photos_formats_wide=function(rx, i, row){
 	rx[i].available=false;
 };
 
-svr.prototype.photos_layouts_azEasy=function(svr){
+Svr.prototype.photos_layouts_azEasy=function(svr){
 	//var svr=this;
 	if (typeof svr=="undefined"){svr=this;}
 
@@ -408,7 +425,7 @@ svr.prototype.photos_layouts_azEasy=function(svr){
 }
 
 //svr.prototype.photos_layouts_azTight=function(svrdata){
-svr.prototype.photos_layouts_azTight=function(svr){
+Svr.prototype.photos_layouts_azTight=function(svr){
 
 	if (typeof svr=="undefined"){svr=this;}
 	
@@ -441,7 +458,7 @@ svr.prototype.photos_layouts_azTight=function(svr){
 }
 
 //svr.prototype.photos_view=function(svrdata){
-svr.prototype.photos_view=function(svr){
+Svr.prototype.photos_view=function(svr){
 
 	if (typeof svr=="undefined"){svr=this;}
 
@@ -454,7 +471,7 @@ svr.prototype.photos_view=function(svr){
 	svr.e$.find("#svr-photos-placeholder").html(h);
 };
 
-svr.prototype.titleblock_right_edit=function(el){
+Svr.prototype.titleblock_right_edit=function(el){
 	var svr=this;
 	svr.ed.text(el, function(){
 		var field=$(el).attr("field"); //eg. 'date'
@@ -472,7 +489,7 @@ svr.prototype.titleblock_right_edit=function(el){
 	});
 };
 
-svr.prototype.titleblock_left_view=function(){
+Svr.prototype.titleblock_left_view=function(){
 	var svr=this;
 	
 	$.ajax({
@@ -496,7 +513,7 @@ svr.prototype.titleblock_left_view=function(){
 };
 
 // view or render everything, includes data project and document refreshes
-svr.prototype.view=function(){
+Svr.prototype.view=function(){
 	
 	var svr=this;	
 	
@@ -525,6 +542,6 @@ svr.prototype.view=function(){
 };
 
 //END OF CLOSURE
-return svr;}();}
+return Svr;}();}
 
 console.log("svr.js loaded");

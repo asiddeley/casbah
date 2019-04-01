@@ -32,12 +32,15 @@ SOFTWARE.
 
 // Add Rds creator function to casbah library
 if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.rds=function(camel){return new casbah.Rds(camel);};
+casbah.creators.rds=function(camel){return new casbah.RDS(camel);};
 
 // Add Svr function to casbah library if missing
-if (typeof casbah.Rds!="function"){casbah.Rds=function(){
+if (typeof casbah.RDS!="function"){casbah.RDS=function(){
 	
-var Rds=function(camel){
+function Rds(camel){
+	//inherited from doctype
+	//casbah.register(this)
+	
 	var rds=this;
 	rds.camel=camel;
 	rds.view$=rds.camel.casdo$;
@@ -74,6 +77,9 @@ var Rds=function(camel){
 	//previously deficiency_sheets.refresh()
 	rds.view();
 }
+
+//MIXINS
+//$.extend(RDS.prototype, casbah.docmix);
 
 Rds.prototype.view=function(){
 	//get images for deficiency sheets then refresh with success function()...

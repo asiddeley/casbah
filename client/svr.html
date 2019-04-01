@@ -47,7 +47,7 @@ h3 {padding-bottom:1em;}
 		field="title"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().header_edit(this)">{{title}}</h2>
+		onclick="camel.view('svrlog')">{{title}}</h2>
 	<div style="clear:both"></div>
 	{{/with}}
 </template>
@@ -57,7 +57,7 @@ h3 {padding-bottom:1em;}
 <template id='svr-titleblock-left' type="text/x-handlebars-template">
 {{#each projects}}
 <div class="row row__">
-	<strong class="col-xs-4">Project Id:</strong>
+	<strong class="col-xs-4">Project No:</strong>
 	<p class="col-xs-8">{{project_id}}</p>
 </div>
 
@@ -86,8 +86,13 @@ h3 {padding-bottom:1em;}
 <template id='svr-titleblock-right' type="text/x-handlebars-template">
 {{#with svr}}
 <div class="row row__">
-	<strong class="col-xs-4">Report Id:</strong>
-	<p class="col-xs-8">{{docnum}}</p>
+	<strong class="col-xs-4">Report No:</strong>
+	<p class="col-xs-8"
+	title="click for options..."
+	field="docnum"
+	onmouseenter="$(this).addClass('highlite')"
+	onmouseleave="$(this).removeClass('highlite')"
+	onclick="camel.showMenu(event, camel.getCDI().docnum_menu)">{{docnum}}</p>
 </div>
 
 <div class="row row">
@@ -177,7 +182,7 @@ h3 {padding-bottom:1em;}
 		onmouseleave="$(this).removeClass('highlite')"
 		onclick="camel.getCDI().notes_edit(this)"		
 		oncontextmenuDEP="casbah.showMenu(svr.notes.menu, event)"
-		oncontextmenu="camel.showMenu(event)"
+		oncontextmenu="camel.showMenu(event, camel.getCDI().notes_menu)"
 		>{{row.txt}}</p>	
 	<p 	class="col-xs-1 marz"></p>	
 	</div>
@@ -228,11 +233,19 @@ h3 {padding-bottom:1em;}
 
 
 <!-- MENUS -->
-<div id="svr-notes-menu" onmouseleave="camel.getCDI().notes_menu_hide()" class="hide9999">
+<div id="svr-notes-menu" class="hide9999" style="position:absolute; width:200px;"
+	onmouseleave="camel.hideMenu(event, camel.getCDI().notes_menu)">
 	<p onclick="camel.getCDI().notes_remove()">Delete</p>
 	<p onclick="camel.getCDI().notes_edit(camel.getCDI().menu.menu('option', 'caller'))">Edit</p>
 	<p onclick="camel.getCDI().notes_insert()">Insert</p>
-	<p onclick="camel.getCDI().notes.menu_hide()">Exit menu</p>
-	<p onclick="camel.getCDI().refresh();camel.getCDI().notes_menu.hide()">Refresh</p>
+	<p onclick="camel.hideMenu(event, camel.getCDI().notes_menu)">Exit menu</p>
+	<p onclick="camel.getCDI().refresh()">Refresh</p>
 </div>
 
+<div id="svr-docnum-menu" class="hide9999" style="position:absolute; width:200px;"
+	onmouseleave="camel.hideMenu(event, camel.getCDI().docnum_menu)">
+	<p onclick="camel.getCDI().docnum_log()">SVR Log</p>
+	<p onclick="camel.getCDI().docnum_previous()">previous</p>
+	<p onclick="camel.getCDI().docnum_next()">Next</p>
+	<p onclick="camel.hideMenu(event, camel.getCDI().notes_menu)">Exit menu</p>
+</div>

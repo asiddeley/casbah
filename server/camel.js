@@ -120,7 +120,7 @@ exports.view=function(req, res){
 	else if (req.body.branch){p=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)}	
 	else if (req.body.casdok){ 
 		for (var k in casdocs){
-			if (k==req.body.casdok){ //casdoc key, "svr" for "site report"
+			if (k==req.body.casdok){ //casdoc key, "svr" for "site visit report"
 				req.body.branch=casdocs[k].base //eg. "reports/site reports"
 				p=path.join(req.body.uploads_dir, req.body.pronum, req.body.branch)
 			}
