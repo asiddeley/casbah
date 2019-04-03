@@ -1,10 +1,10 @@
 {
   "name": "casbah",
   "version": "0.1.6",
-  "description": "Contract Administration Site * Be Architecural Heroes *",
-  "main": "casbah_server.js",
+  "description": "Contract Administration Site Be Architecural Heroes",
+  "main": "index.js",
   "scripts": {
-    "cas": "node casbah.js"
+    "cas": "node index.js"
   },
   "keywords": [
     "Architect",

@@ -1,10 +1,8 @@
 /*******************************************************
-CASBAH * Contract Admin System Be Architectural Heroes *
-
-
+CASBAH 
+Contract Admin System Be Architectural Heroes 
+Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,36 +24,38 @@ SOFTWARE.
 
 ********************************/
 
-/////////////////////////////////
-// folder 
-// server side component
-
-// Node modules
 const path = require("path")
 const fs = require("fs")
+//const fileUpload = require('express-fileupload')
 const fsp = require(path.join(__dirname,"fs+"))
+//const sizeOf = require('image-size');
+const validate = require(path.join(__dirname,"validator"))
+const casdocs=require(path.join(__dirname,"casdocs"))
 const fsx = require("fs-extra")
 
 
 
-// exports
-exports.select=function(req, res){
+exports.jsonKeyValue=function(req, res){
+	var p, json, stat
 	
-	var r={folder_path:"", folders:[], files:[], err:null, casbah_type:{}} 
 	try{
-		if (typeof req.body.folder_path == "undefined" || req.body.folder_path==""){
-			r.folder_path=path.join(req.body.uploads_dir, req.body.project_id)
-		} 
-		else {r.folder_path=req.body.folder_path} 
-		console.log("FOLDER SELECT try...", r.folder_path)
-		r.folders=fsp.getDirsSync(r.folder_path) //)path.join(global.appRoot,
-		r.files=fsp.getFilesSync(r.folder_path)
-		//r.folder_type=folder_type(r);
- 		res.json(r)
+		req.body.branch=casdocs[req.body.casdok].base //NEW!
+		p=path.join(
+			global.appRoot, 
+			req.body.casite, 
+			validate.pronum(req),
+			req.body.branch,
+			validate.docnum(req),
+			casdocs[req.body.casdok].json )
+		console.log("CHANGE:", req.body.field, " VALUE TO:", req.body.valu, " IN:", p)	
+		json=JSON.parse(fs.readFileSync(p))
+		json[req.body.field]=req.body.valu
+		fs.writeFileSync(p,JSON.stringify(json))
+		stat="OK"
 	}
-	catch(e){
-		r.err=e
-		res.json(r); 
-		console.log("FOLDER SELECT catch..", e)
+	catch(err) {stat=err; console.log("SVR CHANGE Catch:", err)} 
+	finally { 
+		res.json({data:[json], stat:stat}); 
+		console.log("SVR CHANGE finally:", {data:[json], stat:stat} )
 	}
 }

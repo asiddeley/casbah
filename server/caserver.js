@@ -32,6 +32,8 @@ const sizeOf = require('image-size');
 const validate = require(path.join(__dirname,"validator"))
 const casdocs=require(path.join(__dirname,"casdocs"))
 const fsx = require("fs-extra")
+const select = require(path.join(__dirname,"select"))
+const change = require(path.join(__dirname,"change"))
 
 
 // analyse the folder for the applicable casdoc, update r with result
@@ -156,13 +158,6 @@ const df_update=function(df, rowid, row, callback){
 }
 
 
-const frameType=function(image){
-	var dims=sizeOf(image) 
-	var ratio=dims.height/dims.width
-	if (ratio >= 1) {return "portrait"}
-	else if (ratio >= 0.5) {return "landscape"}
-	else {return "wide"}
-}
 
 const filedate=function(image){
 	var d="2018-Feb-31"
@@ -228,105 +223,6 @@ const create=function(req, res){
 }
 
 
-const select=function(req, res){
-	// responds with current site visit report info
-	var casdok, ret={}, p, folders, root
-	try {
-		casdok=req.body.casdok
-		console.log("explorer SELECT try...", casdok)
-
-		// default return result
-		ret={
-			//svrs:[{docnum:"", jsonfile:"", jsontext:""}],
-			folders:[{name:"", jsonfile:"", jsontext:""}],
-			files:[],
-			jsoc:{},
-			branch:casdocs[casdok].base,
-			err:null
-		}		
-		p=path.join(
-			global.appRoot, 		
-			req.body.casite,
-			validate.pronum(req),
-			validate.branch(req, casdocs[casdok].base)
-		)
-		root=path.join(req.body.casite, req.body.pronum, req.body.branch)
- 		
-		//check if path exists otherwise catch error
-		fs.statSync (p)
-		
-		
-		ret.files=fs.readdirSync(p).filter(function (file) {
-			return fs.statSync(path.join(p,file)).isFile()
-		})
-		
-		//jsonify file if it's the applicable json datafile for the casdoc
-		ret.files.map(function(f){
-			if (f == casdocs[casdok].json){
-				ret.jsoc=JSON.parse(fs.readFileSync(path.join(p,f),"UTF-8"))
-			}
-		})
-		
-		/* Get list of directories and corresponding jsonfile. Since fourth argument is supplied, only information for than directory will be returned, not all 
-		folders = fsp.dirSync_json(p, svr_jsonfile, svr_defrow, req.body.svr_id)
-		folders = [{dir:"name", files:[], jsonfile:"name", jsontext:"{field:value, }"}, ...]
-		*/		
-		folders=fsp.dirSync_json({
-			dir:p,
-			json:casdocs[casdok].json,
-			jsoc:casdocs[casdok].jsoc,
-			subdir:validate.docnum(req), 
-			filext:".jpg .png"
-		})
-	
-		
-		// get from each result, jsontext, parse it to an object then merge it into each result
-		folders=fsp.jsonify(folders)
-		
-		// add to each result, svr_id property with it's value being the directory
-		ret.folders=fsp.dirasid(folders, "docnum")
-
-		// Add image information to xdata - new files only
-		// folders = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
-		// xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
-		ret.folders.map(function(svr){
-			svr.files.map(function(f){
-				var key, captions, p=path.join(root, svr.dir, f)
-
-				if (f.indexOf("__")!=-1){
-					//break filename into key and array of captions
-					//filename="key__caption1__caption2__caption3.ext"
-					key=f.substring(0, f.indexOf("__"))
-					captions=f.substring(f.indexOf("__")+2, f.lastIndexOf(".")).split("__")
-				} else {
-					//short filename so make caption same as key
-					key=f.substring(0, f.lastIndexOf("."))
-					captions=f.substring(0, f.lastIndexOf("."))
-				}
-				console.log("f:",f, " key:",key)
-				if (typeof(svr.xdata[key])=="undefined" ){
-					svr.xdata[key]={
-						available:true,
-						captions:captions,
-						format:frameType(p),
-						key:key,
-						path:p
-					}
-					//set frametype as a property, better for handlebars eg. {{if this.portrait}}...
-					svr.xdata[key][frameType(p)]=true
-				}
-			})
-			//console.log ("SVR xdata:", svr.xdata)
-		})	
-		res.json(ret)
-		//console.log("SVR success:", rr)
-	}
-	catch(err){
-		ret.err=err
-		res.json(ret)
-		console.log("explorer SELECT catch:", ret)
-	}
-}
 
 exports.upload=function(req, res){
 	if (!req.files) {
@@ -442,9 +338,9 @@ exports.handler=function (req, res) {
 		// Camel
 		case "CAMEL VIEW":camel_view(req, res); break;	
 	
-		case "CHANGE":change(req, res); break; //needs testing
+		case "CHANGE":change.jsonKeyValue(req, res); break; //needs testing
 		//case "LEDGER":ledger(req, res); break; //NEW!  instead of SVRL or svr log
-		case "SELECT":select(req, res); break; //needs testing
+		case "SELECT":select.foldersFiles(req, res); break; //needs testing
 		case "UPLOAD":upload(req, res); break; //needs testing
 		case "CREATE":create(req, res); break; //needs testing
 	
