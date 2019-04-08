@@ -148,8 +148,8 @@ exports.dirasid=function(rar, id){
 	/**
 	Add id property to object in result and set it to dir
 	id = "some_id"
-	rar = [{dir:"some_dir", jsonfile:"name", ... }, ...]
-	ret = [{dir:"some_dir", jsonfile:"name", some_id:"some_dir", ... }, ...]
+	rar = [{"dir":"some_dir", jsonfile:"name", ... }, ...]
+	ret = [{"some_id":"some_dir", jsonfile:"name", some_id:"some_dir", ... }, ...]
 	**/
 
 	return rar.map(function(i) {

@@ -21,7 +21,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ********************************/
 
 const path = require("path")
@@ -34,6 +33,8 @@ const casdocs=require(path.join(__dirname,"casdocs"))
 const fsx = require("fs-extra")
 const select = require(path.join(__dirname,"select"))
 const change = require(path.join(__dirname,"change"))
+const upload = require(path.join(__dirname,"upload"))
+const create = require(path.join(__dirname,"create"))
 
 
 // analyse the folder for the applicable casdoc, update r with result
@@ -174,79 +175,9 @@ const filedate=function(image){
 	return d
 }
 
-const filemover=function(files, dest, req, res){
-	//this recursive filemover required because file.mv(dest, callback) is synchronous
-	//files - array of files eg. from req.files, which was prepared by express middleware
-	//path - destination path eg. "uploads/prj-001/reports/site reviews/svr-001"
-	//callback - function to call back after all files moved eg. res.json(...)
-	console.log("filemover:",files.length);
-	if (files.length>0){
-		var key=files.shift()
-		var file=req.files[key]
-		file.mv(path.join(dest, file.name), function(){
-			filemover(files, dest, req, res)
-		})
-	}
-	//no more files so execute callback
-	else if (typeof res != "undefined") {res.json({dirs:[], err:null})}
-}
-
 //////////////////////////
 // actions
 
-const create=function(req, res){
-	var err, p, folders, ret, json, jsoc
-	try {		
-		err=null
-		json=casdocs[req.body.casdok].json
-		jsoc=casdocs[req.body.casdok].jsoc
-		p=path.join(global.appRoot, req.body.uploads_dir, req.body.branch)
-		console.log("explorer CREATE try:", path.join(p, req.body.docnum))
-		fs.mkdirSync(path.join(p, req.body.docnum))
-	}
-	catch(e) {
-		console.log("explorer CREATE catch:",e)
-		console.log(e);
-	} 
-	finally {
-		//return {svrs:[{svrs_id:"name"}, {dir:"name"}...]}
-		folders=fsp.jsonify(fsp.dirSync_json(p, json, jsoc))
-		ret={
-			err:err,
-			svrs:fsp.dirasid(svrs, "svr_id"),
-			project_id:req.body.project_id
-		}
-		console.log("explorer CREATE finally:",r)
-		res.json(ret);
-
-	}
-}
-
-
-
-exports.upload=function(req, res){
-	if (!req.files) {
-		var err="UPLOAD files not found"
-		console.log(err)
-		res.json({dirs:[], err:err}) 
-		return
-	}
-	try {
-		console.log("explorer UPLOAD try...")
-		var home=path.join(
-			global.appRoot,
-			req.body.uploads_dir, 
-			req.body.pronum, 
-			req.body.branch,
-			req.body.docnum
-		)		
-		filemover(Object.keys(req.files), home, req, res) 
-	}
-	catch(err) {		
-		res.json({dirs:[], err:err})
-		console.log("SVR UPLOAD catch:", err)
-	}	
-}
 
 const camel_view=function(req, res){
 	
@@ -339,10 +270,10 @@ exports.handler=function (req, res) {
 		case "CAMEL VIEW":camel_view(req, res); break;	
 	
 		case "CHANGE":change.jsonKeyValue(req, res); break; //needs testing
+		case "CREATE":create.folder(req, res); break; //needs testing
 		//case "LEDGER":ledger(req, res); break; //NEW!  instead of SVRL or svr log
 		case "SELECT":select.foldersFiles(req, res); break; //needs testing
-		case "UPLOAD":upload(req, res); break; //needs testing
-		case "CREATE":create(req, res); break; //needs testing
+		case "UPLOAD":upload.files(req, res); break; //needs testing
 	
 	} 
 }

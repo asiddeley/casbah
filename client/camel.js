@@ -1,10 +1,10 @@
 
 /****************************************************************
-CASBAH * Contract Administration System Be Architectural Heroes *
+CASBAH
+Contract Administration System Be Architectural Heroes
+Copyright (c) 2018 Andrew Siddeley
 
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

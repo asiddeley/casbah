@@ -49,7 +49,7 @@ exports.foldersFiles=function(req, res){
 	var casdok, ret={}, p, folders, root
 	try {
 		casdok=req.body.casdok
-		console.log("explorer SELECT try...", casdok)
+		console.log("SELECT foldersFiles...", casdok)
 
 		// default return result
 		ret={
@@ -102,9 +102,9 @@ exports.foldersFiles=function(req, res){
 		// add to each result, svr_id property with it's value being the directory
 		ret.folders=fsp.dirasid(folders, "docnum")
 
-		// Add image information to xdata - new files only
-		// folders = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
-		// xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}
+		/* Add image information to xdata - new files only
+		folders = [{dir:"name", files:[], svr_id:"name", xdata:{...}, ...}, ...]
+		xdata = {image:{frametype:"portrait", path:"...", caption:"title", date:""}, ...}*/
 		ret.folders.map(function(svr){
 			svr.files.map(function(f){
 				var key, captions, p=path.join(root, svr.dir, f)

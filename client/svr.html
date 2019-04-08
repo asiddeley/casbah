@@ -47,7 +47,9 @@ h3 {padding-bottom:1em;}
 		field="title"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.view('svrlog')">{{title}}</h2>
+		onclickNOT="camel.view('svrlog')"
+		onclick="camel.getCDI().header_edit(this)"
+		title="click to edit...">{{title}}</h2>
 	<div style="clear:both"></div>
 	{{/with}}
 </template>

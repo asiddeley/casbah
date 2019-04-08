@@ -128,7 +128,7 @@ Svr.prototype.header_edit=function(el){
 			svr.ed.hide();
 			//refresh (server request and render) or just render cache for now...
 			//svr.titleblock.render(svr.data);
-			var h=svr.header.template({svr:svr.cache});
+			var h=svr.header_template({svr:svr.cache});
 			svr.e$.find("#svr-header-placeholder").html(h);
 		});
 	});
