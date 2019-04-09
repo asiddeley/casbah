@@ -4,7 +4,8 @@
   "description": "Contract Administration Site Be Architecural Heroes",
   "main": "index.js",
   "scripts": {
-    "cas": "node index.js"
+    "cas": "node index.js",
+    "dist": "browserify client/drr.js -o dist/casbah.dist.js"
   },
   "keywords": [
     "Architect",
@@ -24,6 +25,7 @@
     "express": "^4.16.2",
     "express-fileupload": "^0.4.0",
     "fs-extra": "^6.0.1",
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "vue": "^2.6.10"
   }
 }
