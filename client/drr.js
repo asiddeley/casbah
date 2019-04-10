@@ -29,25 +29,25 @@ SOFTWARE.
 const Vue=require("../node_modules/vue");
 var cas;
 
+
+
+
 exports.activate=function(casbah){
 	cas=casbah;
 	//var app=new Vue({
 	//register a global component...  
 	Vue.component("DRR", {
 		data:{},
-		el:"drr_placeholder",
+		el:"casdoc-content",
 		methods:{
-			defic_click:function(ev){cas.edit(ev);}
+			defic_click:function(ev){cas.edit(ev);},
 			defic_delete:function(){}
-			defic_add:			
 		},
-		template:`<casdoc>
-			<project-block></project-block>
+		template:`<project-block></project-block>
 			<title-block></title-block>
 			<comment-section></comment-section>
 			<image-section></image-section>
-			<signature></signature>
-		</casdoc>`
+			<signature></signature>`
 	});	
 
 	
