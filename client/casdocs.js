@@ -26,27 +26,27 @@ SOFTWARE.
 
 ********************************/
 
-const Vue=require("../node_modules/vue");
-const drr=require("./drr");
+var Vue=require("../node_modules/vue");
+var drr=require("./drr");
 var cas;
 
 var casdoc=function(){
 	Vue.component("casdoc", {
-		data:{},
+		data:{title:"casdoc"},
 		el:"casdoc_placeholder",
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
-			title_click:function(ev){alert("change logo...");}
+			change_title:function(){this.title=prompt("title:");}
 		},
 		template:`<div>
 			<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
-			<h2 id="casdoc-title" style="float:right;">{{title}}</h2>
+			<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">{{title}}</h2>
 			<div id="casdoc-content">casdoc content goes here...</div>
 		</div>`
 	});	
 };
 
-var projectBlock=function(){
+var project_block=function(){
 	Vue.component("project-block", {
 		data:{},
 		methods:{
@@ -81,7 +81,7 @@ var projectBlock=function(){
 	});	
 }
 
-var titleBlock=function(){
+var title_block=function(){
 	Vue.component("title-block", {
 		data:{},
 		methods:{
@@ -147,14 +147,69 @@ var titleBlock=function(){
 	});	
 }
 
+
+var comment_section=function(){
+	Vue.component("comment-item",{
+		props:["comment"],
+		template:`
+			<div class="row">
+			<p class="col-xs-1 marz">{{comment.no}}</p>
+			<p class="col-xs-10 border-left marz">{{comment.text}}</p>
+			<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
+			</div>		
+		`			
+	});
+	
+	Vue.component("comment-section", {
+		data:{comments:[{no:1, text:"hello", ref:"--"}]},
+		methods:{
+			logo_click:function(ev){alert("change logo...");},
+			title_click:function(ev){alert("change logo...");}
+		},
+		template:`
+			<div class="row">
+			<h3 class="col-xs-1 marz">No.</h3>
+			<h3 class="col-xs-10 border-left marz">Comment</h3>
+			<h3 class="col-xs-1 border-left marz">Ref</h3>
+			</div>			
+			<comment-item
+				v-for="item in comments"
+				v-bind:comment="item"
+				v-bind:key="item.no">
+			</comment-item>`
+	});
+}
+
+
+var image_section=function(){
+	Vue.component("image-section",{
+		props:["comment"],
+		template:`<h3>Image section...</h3>`
+	});
+}
+
+var signature=function(){
+	Vue.component("signature",{
+		template:`<h3>Signature</h3>
+		<p>A Siddeley</p>
+		<p>date:10-Apr-2019</p>
+		`
+	});
+}
+
+	
 exports.activate=function(casbah){
+	console.log("casdocs.activate() started...");
 	cas=casbah;
 	//register components...
 	casdoc();
-	projectBlock();
-	titleBlock();
+	project_block();
+	title_block();
+	comment_section();
+	image_section();
+	signature();
 	drr.activate();
-
+	console.log("casdocs.activate() done.");
 
 	
 	//return app

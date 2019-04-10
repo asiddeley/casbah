@@ -27,6 +27,9 @@
 <script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
 
 
+<!--script type="text/javascript" src="dist/experimental.js"></script-->
+
+
 <script type="text/javascript">
 
 //prevent accidental image drop
@@ -70,6 +73,10 @@ $(function() {
 	
 	//load html from file the first time otherwise just show the right element containing the html  
 	//casbah.view("welcome.html");
+	
+	//VUE Experimental
+	//casbahVue.casdocs.activate();
+	
 }); 
 
 
@@ -187,7 +194,7 @@ $(function() {
 		<li onclick="casbah.view('rds')"><a href="#">Room Deficiencies</a></li>
 		<li onclick="camel.view('svr')"><a href="#">Site Visit Report</a></li>
 		<li class="divider"><li>
-		<li onclick="camel.view('folder.html')"><a href="#">View Folder...</a></li>
+		<li onclick="camel.view('folder.html')"><a href="#">Deficiency Review Report</a></li>
 		</ul>	
 		</li>
 		
@@ -255,6 +262,7 @@ $(function() {
 </template>
 
 
+<div id="casdoc_placeholder">casdoc placeholder</div>
 
 
 </body>

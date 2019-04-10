@@ -1,9 +1,7 @@
-
 /**********************************
-CASBAH 
-Contract Administration System Be Architectural Heroes
-Copyright (c) 2018, 2019 Andrew Siddeley
-
+CASBAH
+Contract Admin Site Be Architectural Heroes
+Copyright (c) 2018 Andrew Siddeley
 MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,37 +24,10 @@ SOFTWARE.
 
 ********************************/
 
-const Vue=require("../node_modules/vue");
-var cas;
-
-
-
-
-exports.activate=function(casbah){
-	cas=casbah;
-	//var app=new Vue({
-	//register a global component...  
-	Vue.component("DRR", {
-		data:{},
-		el:"casdoc-content",
-		methods:{
-			defic_click:function(ev){cas.edit(ev);},
-			defic_delete:function(){}
-		},
-		template:`<project-block></project-block>
-			<title-block></title-block>
-			<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.<p>
-			<comment-section></comment-section>
-			<image-section></image-section>
-			<signature></signature>`
-	});	
-
+var casbahVue=function(){
+	var r={};
 	
-	//return app
-};
+	r.casdocs=require("./casdocs");
 
-
-
-
-
-
+	return r;
+}();
