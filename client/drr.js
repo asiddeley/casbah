@@ -35,10 +35,10 @@ var cas;
 exports.activate=function(casbah, template$){
 	cas=casbah;
 	var html=template$.find("deficiency-review-report-template");
-	//var app=new Vue({
+	var app=new Vue({
 	//register a global component...  
-	Vue.component("DRR", {
-		data:{},
+	//Vue.component("DRR", {
+		data:function(){return {};},
 		el:"casdoc-content",
 		methods:{
 			defic_click:function(ev){cas.edit(ev);},
@@ -48,7 +48,7 @@ exports.activate=function(casbah, template$){
 	});	
 
 	
-	//return app
+	return app
 };
 
 

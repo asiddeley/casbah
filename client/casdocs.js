@@ -33,21 +33,23 @@ var cas;
 
 var casdoc=function(template$){
 	var html=template$.find("#casdoc-template");
-	Vue.component("casdoc", {
-		data:{title:"casdoc"},
-		el:"casdoc_placeholder",
+	//Vue.component("casdoc", {
+	var vue=new Vue({
+		data:function(){return {title:"casdoc"};},
+		el:"#casdoc-placeholder",
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			change_title:function(){this.title=prompt("title:");}
 		},
 		template:html
 	});	
+	return vue;
 };
 
 var project_block=function(template$){
 	var html=template$.find("#project-block-template");
 	Vue.component("project-block", {
-		data:{},
+		data:function(){return {};},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
@@ -59,7 +61,7 @@ var project_block=function(template$){
 var title_block=function(template$){
 	var html=template$.find("#title-block-template");
 	Vue.component("title-block", {
-		data:{},
+		data:function(){return {};},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
@@ -79,7 +81,7 @@ var comment_section=function(template$){
 	var html=template$.find("#comment-section-template");
 	
 	Vue.component("comment-section", {
-		data:{comments:[{no:1, text:"hello", ref:"--"}]},
+		data:function(){return {comments:[{no:1, text:"hello", ref:"--"}]};},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
