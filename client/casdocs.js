@@ -29,8 +29,10 @@ SOFTWARE.
 var Vue=require("../node_modules/vue");
 var drr=require("./drr");
 var cas;
+//var casdocsHTML=
 
-var casdoc=function(){
+var casdoc=function(template$){
+	var html=template$.find("#casdoc-template");
 	Vue.component("casdoc", {
 		data:{title:"casdoc"},
 		el:"casdoc_placeholder",
@@ -38,127 +40,43 @@ var casdoc=function(){
 			logo_click:function(ev){alert("change logo...");},
 			change_title:function(){this.title=prompt("title:");}
 		},
-		template:`<div>
-			<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
-			<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">{{title}}</h2>
-			<div id="casdoc-content">casdoc content goes here...</div>
-		</div>`
+		template:html
 	});	
 };
 
-var project_block=function(){
+var project_block=function(template$){
+	var html=template$.find("#project-block-template");
 	Vue.component("project-block", {
 		data:{},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
 		},
-		template:`
-			<div class="row row__">
-				<strong class="col-xs-4">Project No:</strong>
-				<p class="col-xs-8">{{project_id}}</p>
-			</div>
-
-			<div class="row row">
-				<strong class="col-xs-4">Project Name:</strong>
-				<p class="col-xs-8">{{project_name}}</p>
-			</div>
-
-			<div class="row row">
-				<strong class="col-xs-4">Project Address:</strong>
-				<p class="col-xs-8">{{address}}</p>
-			</div>
-
-			<div class="row row">
-				<strong class="col-xs-4">Contractor:</strong>
-				<p class="col-xs-8">{{contractor}}</p>
-			</div>
-
-			<div class="row row">
-				<strong class="col-xs-4">Permit No:</strong>
-				<p id="svr-permit" class="col-xs-8">{{permit}}</p>
-			</div>`
+		template:html
 	});	
 }
 
-var title_block=function(){
+var title_block=function(template$){
+	var html=template$.find("#title-block-template");
 	Vue.component("title-block", {
 		data:{},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
 		},
-		template:`
-			<div class="row row__">
-				<strong class="col-xs-4">Report No:</strong>
-				<p class="col-xs-8"
-				title="click for options..."
-				field="docnum"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.showMenu(event, camel.getCDI().docnum_menu)">{{docnum}}</p>
-			</div>
-
-			<div class="row row">
-				<strong id="svr-date" class="col-xs-4">Date of Visit:</strong>
-				<p class="col-xs-8"
-				title="click to edit, then double-click to save..."
-				field="date"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.getCDI().titleblock_right_edit(this)">{{date}}</p>
-			</div>
-
-			<div class="row row">
-				<strong  class="col-xs-4">Date Issued:</strong>
-				<p class="col-xs-8"	
-				title="click to edit, then double-click to save..."
-				field="date_issued"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.getCDI().titleblock_right_edit(this)">{{date_issued}}</p>
-			</div>
-
-			<div class="row row">
-				<strong  class="col-xs-4">Reviewer:</strong>
-				<p class="col-xs-8"	
-				title="click to edit, then double-click to save..."
-				field="author"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.getCDI().titleblock_right_edit(this)">{{author}}</p>
-			</div>
-
-			<div class="row row">
-				<strong class="col-xs-4"
-				title="click to edit, then double-click to save..."
-				field="misc_key"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
-				<p class="col-xs-8"
-				title="click to edit, then double-click to save..."
-				field="misc_valu"
-				onmouseenter="$(this).addClass('highlite')"
-				onmouseleave="$(this).removeClass('highlite')"
-				onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
-			</div>
-			`
+		template:html
 	});	
 }
 
-
-var comment_section=function(){
+var comment_section=function(template$){
+	var html=template$.find("#comment-item-template");
+	
 	Vue.component("comment-item",{
 		props:["comment"],
-		template:`
-			<div class="row">
-			<p class="col-xs-1 marz">{{comment.no}}</p>
-			<p class="col-xs-10 border-left marz">{{comment.text}}</p>
-			<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
-			</div>		
-		`			
+		template:html
 	});
+
+	var html=template$.find("#comment-section-template");
 	
 	Vue.component("comment-section", {
 		data:{comments:[{no:1, text:"hello", ref:"--"}]},
@@ -166,51 +84,43 @@ var comment_section=function(){
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}
 		},
-		template:`
-			<div class="row">
-			<h3 class="col-xs-1 marz">No.</h3>
-			<h3 class="col-xs-10 border-left marz">Comment</h3>
-			<h3 class="col-xs-1 border-left marz">Ref</h3>
-			</div>			
-			<comment-item
-				v-for="item in comments"
-				v-bind:comment="item"
-				v-bind:key="item.no">
-			</comment-item>`
+		template:html
 	});
 }
 
-
-var image_section=function(){
+var image_section=function(template$){
+	var html=template$.find("image-section-template");
 	Vue.component("image-section",{
 		props:["comment"],
-		template:`<h3>Image section...</h3>`
+		template:html
 	});
-}
+};
 
-var signature=function(){
+var signature=function(template$){
+	var html=template$.find("signature-template");
 	Vue.component("signature",{
-		template:`<h3>Signature</h3>
-		<p>A Siddeley</p>
-		<p>date:10-Apr-2019</p>
-		`
+		template:html
 	});
-}
+};
 
-	
+
 exports.activate=function(casbah){
 	console.log("casdocs.activate() started...");
 	cas=casbah;
+	var template$=$("<div></div>").appendTo("body");
+	template$.attr("id","casdoc-templates");
+	template$.css("display","none");
+	template$.load("client/casdocs.html");
+	
 	//register components...
-	casdoc();
-	project_block();
-	title_block();
-	comment_section();
-	image_section();
-	signature();
-	drr.activate();
+	casdoc(template$);
+	project_block(template$);
+	title_block(template$);
+	comment_section(template$);
+	image_section(template$);
+	signature(template$);
+	drr.activate(casbah, template$);
 	console.log("casdocs.activate() done.");
-
 	
 	//return app
 };

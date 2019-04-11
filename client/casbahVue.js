@@ -24,7 +24,7 @@ SOFTWARE.
 
 ********************************/
 
-var casbahVue=function(){
+window.casbahVue=function(){
 	var r={};
 	
 	r.casdocs=require("./casdocs");

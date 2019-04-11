@@ -32,8 +32,9 @@ var cas;
 
 
 
-exports.activate=function(casbah){
+exports.activate=function(casbah, template$){
 	cas=casbah;
+	var html=template$.find("deficiency-review-report-template");
 	//var app=new Vue({
 	//register a global component...  
 	Vue.component("DRR", {
@@ -43,12 +44,7 @@ exports.activate=function(casbah){
 			defic_click:function(ev){cas.edit(ev);},
 			defic_delete:function(){}
 		},
-		template:`<project-block></project-block>
-			<title-block></title-block>
-			<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.<p>
-			<comment-section></comment-section>
-			<image-section></image-section>
-			<signature></signature>`
+		template:html
 	});	
 
 	
