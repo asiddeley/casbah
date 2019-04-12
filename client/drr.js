@@ -26,11 +26,8 @@ SOFTWARE.
 
 ********************************/
 
-//const Vue=require("../node_modules/vue");
+//var Vue=require("../node_modules/vue");
 var cas;
-
-
-
 
 exports.activate=function(casbah, template$){
 	cas=casbah;
@@ -39,8 +36,9 @@ exports.activate=function(casbah, template$){
 	//register a global component...  
 	//Vue.component("DRR", {
 		data:function(){return {};},
-		el:"#casdoc-content",
+		el:"#casdoc-placeholder",
 		methods:{
+			change_title:function(ev){alert("change title")},
 			defic_click:function(ev){cas.edit(ev);},
 			defic_delete:function(){}
 		},

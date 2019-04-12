@@ -34,10 +34,10 @@ var cas;
 var casdoc=function(template$){
 	var html=template$.find("#casdoc-template").html();
 	console.log("casdoc", html);
-	//Vue.component("casdoc", {
-	var vue=new Vue({
+	Vue.component("casdoc", {
+	//var vue=new Vue({
 		data:function(){return {title:"casdoc"};},
-		el:"#casdoc-placeholder",
+		//el:"#casdoc-placeholder",
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			change_title:function(){this.title=prompt("title:");}
@@ -115,7 +115,7 @@ exports.activate=function(casbah){
 	template$.css("display","none");
 	template$.load("client/casdocs.html", function(){	
 		//register components...
-		casdoc(template$);
+		//casdoc(template$);
 		project_block(template$);
 		title_block(template$);
 		comment_section(template$);

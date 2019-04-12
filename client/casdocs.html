@@ -1,4 +1,4 @@
-<div id="casdoc-template">
+<div id="casdoc-template-old">
 	<div>
 		<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
 		<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">{{title}}</h2>
@@ -6,8 +6,22 @@
 	</div>
 </div>
 
+<div id="casdoc-template">
+<table>
+	<thead><tr><th id="header-placeholder" class="col-xs-12"></th></tr></thead>
+	<tbody>
+		<tr><td>
+		<div id="project-block-placeholder" class="col-xs-6">project title block</div>
+		<div id="title-block-placeholder" class="col-xs-6">report title block</div>
+		</td></tr>
+		<tr class="breakable"><td id="svr-disclaimer-placeholder" class="row__">disclaimer</td></tr>
+		<tr class="breakable"><td id="svr-notes-placeholder">notes-printable</td></tr>
+		<tr class="breakable"><td id="svr-photos-placeholder">photos-printable</td></tr>
+	</tbody>
+</table>
+</div>
 
-<div id="project-block-template">
+<div id="project-block-template"><div>
 	<div class="row row__">
 		<strong class="col-xs-4">Project No:</strong>
 		<p class="col-xs-8">{{project_id}}</p>
@@ -32,9 +46,9 @@
 		<strong class="col-xs-4">Permit No:</strong>
 		<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 	</div>
-</div>
+</div></div>
 
-<div id="title-block-template">
+<div id="title-block-template"><div>
 	<div class="row row__">
 		<strong class="col-xs-4">Report No:</strong>
 		<p class="col-xs-8"
@@ -89,17 +103,17 @@
 		onmouseleave="$(this).removeClass('highlite')"
 		onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
 	</div>
-</div>
+</div></div>
 
-<div id="comment-item-template">
+<div id="comment-item-template"><div>
 	<div class="row">
 		<p class="col-xs-1 marz">{{comment.no}}</p>
 		<p class="col-xs-10 border-left marz">{{comment.text}}</p>
 		<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
 	</div>		
-</div>
+</div></div>
 	
-<div id="comment-section-template">
+<div id="comment-section-template"><div>
 	<div class="row">
 	<h3 class="col-xs-1 marz">No.</h3>
 	<h3 class="col-xs-10 border-left marz">Comment</h3>
@@ -110,27 +124,45 @@
 		v-bind:comment="item"
 		v-bind:key="item.no"
 	>comment item here...</comment-item>
-</div>
+</div></div>
 
-<div id="image-section-template">
+<div id="image-section-template"><div>
 	<h3>Image section...</h3>
-</div>
+</div></div>
 
-<div id="signature-template">
+<div id="signature-template"><div>
 	<h3>Signature</h3>
 	<p>A Siddeley</p>
 	<p>date:10-Apr-2019</p>
-</div>
+</div></div>
 
-<div id="deficiency-review-report-template">
+<div id="deficiency-review-report-template-OLD"><div>
 	<project-block></project-block>
 	<title-block></title-block>
 	<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.<p>
 	<comment-section></comment-section>
 	<image-section></image-section>
 	<signature></signature>
-</div>
+</div></div>
 
+<div id="deficiency-review-report-template">
+<table>
+	<thead><tr><th class="col-xs-12">
+		<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
+		<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">title</h2>
+	</th></tr></thead>
+	<tbody>
+		<tr><td>
+		<div class="col-xs-6"><project-block></project-block></div>
+		<div class="col-xs-6"><title-block></title-block></div>
+		</td></tr>
+		<tr class="breakable"><td class="row__">This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</td></tr>
+		<tr class="breakable"><td><comment-section></comment-section></td></tr>
+		<tr class="breakable"><td><image-section></image-section></td></tr>
+		<tr class="breakable"><td><signature></signature></td></tr>
+	</tbody>
+</table>
+</div>
 
 
 
