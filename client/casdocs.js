@@ -26,13 +26,14 @@ SOFTWARE.
 
 ********************************/
 
-var Vue=require("../node_modules/vue");
+//var Vue=require("../node_modules/vue");
 var drr=require("./drr");
 var cas;
 //var casdocsHTML=
 
 var casdoc=function(template$){
-	var html=template$.find("#casdoc-template");
+	var html=template$.find("#casdoc-template").html();
+	console.log("casdoc", html);
 	//Vue.component("casdoc", {
 	var vue=new Vue({
 		data:function(){return {title:"casdoc"};},
@@ -47,7 +48,7 @@ var casdoc=function(template$){
 };
 
 var project_block=function(template$){
-	var html=template$.find("#project-block-template");
+	var html=template$.find("#project-block-template").html();
 	Vue.component("project-block", {
 		data:function(){return {};},
 		methods:{
@@ -59,7 +60,7 @@ var project_block=function(template$){
 }
 
 var title_block=function(template$){
-	var html=template$.find("#title-block-template");
+	var html=template$.find("#title-block-template").html();
 	Vue.component("title-block", {
 		data:function(){return {};},
 		methods:{
@@ -71,14 +72,14 @@ var title_block=function(template$){
 }
 
 var comment_section=function(template$){
-	var html=template$.find("#comment-item-template");
+	var html=template$.find("#comment-item-template").html();
 	
 	Vue.component("comment-item",{
 		props:["comment"],
 		template:html
 	});
 
-	var html=template$.find("#comment-section-template");
+	var html=template$.find("#comment-section-template").html();
 	
 	Vue.component("comment-section", {
 		data:function(){return {comments:[{no:1, text:"hello", ref:"--"}]};},
@@ -91,7 +92,7 @@ var comment_section=function(template$){
 }
 
 var image_section=function(template$){
-	var html=template$.find("image-section-template");
+	var html=template$.find("#image-section-template").html();
 	Vue.component("image-section",{
 		props:["comment"],
 		template:html
@@ -99,7 +100,7 @@ var image_section=function(template$){
 };
 
 var signature=function(template$){
-	var html=template$.find("signature-template");
+	var html=template$.find("#signature-template").html();
 	Vue.component("signature",{
 		template:html
 	});
@@ -112,18 +113,17 @@ exports.activate=function(casbah){
 	var template$=$("<div></div>").appendTo("body");
 	template$.attr("id","casdoc-templates");
 	template$.css("display","none");
-	template$.load("client/casdocs.html");
-	
-	//register components...
-	casdoc(template$);
-	project_block(template$);
-	title_block(template$);
-	comment_section(template$);
-	image_section(template$);
-	signature(template$);
-	drr.activate(casbah, template$);
-	console.log("casdocs.activate() done.");
-	
+	template$.load("client/casdocs.html", function(){	
+		//register components...
+		casdoc(template$);
+		project_block(template$);
+		title_block(template$);
+		comment_section(template$);
+		image_section(template$);
+		signature(template$);
+		drr.activate(casbah, template$);
+		console.log("casdocs.activate() done.");
+	});
 	//return app
 };
 
