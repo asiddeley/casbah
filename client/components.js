@@ -29,7 +29,7 @@ SOFTWARE.
 //var Vue=require("../node_modules/vue");
 var drr=require("./drr");
 var cas;
-//var casdocsHTML=
+
 
 var casdoc=function(template$){
 	var html=template$.find("#casdoc-template").html();
@@ -61,11 +61,37 @@ var project_block=function(template$){
 
 var title_block=function(template$){
 	var html=template$.find("#title-block-template").html();
+	//create Vue component
 	Vue.component("title-block", {
-		data:function(){return {};},
+		data:function(){
+			//return cas.select(pronum, casdoc, docnum);			
+			return {
+			docnum:"DRR-A01",
+			date:"13-Apr-2019",
+			date_issued:"13-Apr-2019",
+			author:"ASiddeley",
+			misc_key:"Weather",
+			misc_valu:"Sunny 15C"};
+		},
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
-			title_click:function(ev){alert("change logo...");}
+			title_click:function(ev){alert("change logo...");},
+			edit:function(ev){
+				var vue=this;
+				console.log("edit", $(ev.target).attr("field"));
+				//editor defined in casdocs.activate();
+				editor.text(ev.target, function(field, oldtext, newtext){
+					console.log("field:",field,", oldtext:",oldtext,", newtext:",newtext);
+					console.log("vue[field]=",vue[field]);
+					vue[field]=newtext;
+					editor.hide();
+					//vue[field]=text;
+					//cas.update(pronum, casdoc, docnum, field, valu);
+				});				
+			},
+			menu:function(){
+				//camel.showMenu(event, camel.getCDI().docnum_menu)
+			}
 		},
 		template:html
 	});	
@@ -110,10 +136,13 @@ var signature=function(template$){
 exports.activate=function(casbah){
 	console.log("casdocs.activate() started...");
 	cas=casbah;
+	//cas=this;
+	editor=new cas.Editor();
+	
 	var template$=$("<div></div>").appendTo("body");
 	template$.attr("id","casdoc-templates");
 	template$.css("display","none");
-	template$.load("client/casdocs.html", function(){	
+	template$.load("client/components.html", function(){	
 		//register components...
 		//casdoc(template$);
 		project_block(template$);

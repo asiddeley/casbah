@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="offline/bootstrap.min.css">
 
 <!-- casbah libraries & CSS -->
-<script type="text/javascript" src="client/casbah.js"></script>
+<script type="text/javascript" src="dist/casbah.dist.js"></script>
 <link rel="stylesheet" type="text/css" href="client/casbah.css">
 <!--script type="text/javascript" src="client/camel.js"></script -->
 
@@ -27,7 +27,7 @@
 <script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
 
 
-<script type="text/javascript" src="dist/experimental.js"></script>
+<!--script type="text/javascript" src="dist/experimental.js"></script-->
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
 
 <script type="text/javascript">
@@ -75,8 +75,11 @@ $(function() {
 	//casbah.view("welcome.html");
 	
 	//VUE Experimental
-	casbahVue.casdocs.activate();
+	//casbah.components.activate(casbah, function(){
+	casbah.activate(function(){
+		//todo after acivation...
 	
+	});	
 }); 
 
 
@@ -191,7 +194,7 @@ $(function() {
 		<!--li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Room Deficiencies</a></li>
 		<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Review</a></li>
 		<li class="divider"><li-->
-		<li onclick="casbah.view('rds')"><a href="#">Room Deficiencies</a></li>
+		<li onclick="casbah.view('rdr')"><a href="#">Room Deficiency Review</a></li>
 		<li onclick="camel.view('svr')"><a href="#">Site Visit Report</a></li>
 		<li class="divider"><li>
 		<li onclick="camel.view('folder.html')"><a href="#">Deficiency Review Report</a></li>
@@ -229,9 +232,9 @@ $(function() {
 </nav>
 
 <div id="BUMPER" >bumper</div>
-<div id="VIEW"></div>
-<div id="camel-view"></div>
-<div id="casdoc-placeholder">casdoc placeholder</div>
+<!--div id="VIEW">view-placeholder</div-->
+<div id="VIEWER-PLACEHOLDER">viewer-placeholder</div>
+<!--div id="casdoc-placeholder">casdoc placeholder</div-->
 
 <div id="project_modal" class="modal fade" role="dialog" >
 	<div class="modal-dialog modal-sm">

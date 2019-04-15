@@ -21,7 +21,8 @@
 </table>
 </div>
 
-<div id="project-block-template"><div>
+<div id="project-block-template">
+<div    >
 	<div class="row row__">
 		<strong class="col-xs-4">Project No:</strong>
 		<p class="col-xs-8">{{project_id}}</p>
@@ -46,9 +47,11 @@
 		<strong class="col-xs-4">Permit No:</strong>
 		<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 	</div>
-</div></div>
+</div>
+</div>
 
-<div id="title-block-template"><div>
+<div id="title-block-template">
+	<div>
 	<div class="row row__">
 		<strong class="col-xs-4">Report No:</strong>
 		<p class="col-xs-8"
@@ -56,7 +59,7 @@
 		field="docnum"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.showMenu(event, camel.getCDI().docnum_menu)">{{docnum}}</p>
+		v-on:click="menu">{{docnum}}</p>
 	</div>
 
 	<div class="row row">
@@ -66,7 +69,8 @@
 		field="date"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().titleblock_right_edit(this)">{{date}}</p>
+		v-on:click="edit"
+		>{{date}}</p>
 	</div>
 
 	<div class="row row">
@@ -76,7 +80,7 @@
 		field="date_issued"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().titleblock_right_edit(this)">{{date_issued}}</p>
+		v-on:click="edit">{{date_issued}}</p>
 	</div>
 
 	<div class="row row">
@@ -86,67 +90,68 @@
 		field="author"
 		onmouseenter="$(this).addClass('highlite')"
 		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().titleblock_right_edit(this)">{{author}}</p>
+		v-on:click="edit">{{author}}</p>
 	</div>
 
 	<div class="row row">
-		<strong class="col-xs-4"
+		<span class="col-xs-4"
 		title="click to edit, then double-click to save..."
-		field="misc_key"
 		onmouseenter="$(this).addClass('highlite')"
-		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_key}}{{misc_key}}{{else}}--{{/if}}</strong>
-		<p class="col-xs-8"
+		onmouseleave="$(this).removeClass('highlite')">
+		<strong field="misc_key" v-on:click="edit" v-if="misc_key">{{misc_key}}</strong>
+		<strong field="misc_key" v-on:click="edit" v-else="misc_key">--</strong>
+		</span>
+		<span class="col-xs-8"
 		title="click to edit, then double-click to save..."
-		field="misc_valu"
 		onmouseenter="$(this).addClass('highlite')"
-		onmouseleave="$(this).removeClass('highlite')"
-		onclick="camel.getCDI().titleblock_right_edit(this)">{{#if misc_valu}}{{misc_valu}}{{else}}--{{/if}}</p>
+		onmouseleave="$(this).removeClass('highlite')">
+		<p field="misc_valu" v-on:click="edit" v-if="misc_valu">{{misc_valu}}</p>
+		<p field="misc_valu" v-on:click="edit" v-else="misc_valu">--</p>
+		</span>
 	</div>
-</div></div>
+	</div>
+</div>
 
-<div id="comment-item-template"><div>
+<div id="comment-item-template">
 	<div class="row">
-		<p class="col-xs-1 marz">{{comment.no}}</p>
-		<p class="col-xs-10 border-left marz">{{comment.text}}</p>
-		<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
+	<p class="col-xs-1 marz">{{comment.no}}</p>
+	<p class="col-xs-10 border-left marz">{{comment.text}}</p>
+	<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
 	</div>		
-</div></div>
+</div>
 	
-<div id="comment-section-template"><div>
+<div id="comment-section-template">
+	<div>
 	<div class="row">
 	<h3 class="col-xs-1 marz">No.</h3>
 	<h3 class="col-xs-10 border-left marz">Comment</h3>
 	<h3 class="col-xs-1 border-left marz">Ref</h3>
-	</div>			
+	</div>
 	<comment-item
 		v-for="item in comments"
 		v-bind:comment="item"
 		v-bind:key="item.no"
-	>comment item here...</comment-item>
-</div></div>
+	>{{item}}</comment-item>
+	</div>
+</div>
 
-<div id="image-section-template"><div>
+<div id="image-section-template">
+	<div>
 	<h3>Image section...</h3>
-</div></div>
+	</div>
+</div>
 
-<div id="signature-template"><div>
+<div id="signature-template">
+	<div>
 	<h3>Signature</h3>
-	<p>A Siddeley</p>
-	<p>date:10-Apr-2019</p>
-</div></div>
+	<p>A Siddeley</p><hr>
+	<p>10-Apr-2019</p>
+	</div>
+</div>
 
-<div id="deficiency-review-report-template-OLD"><div>
-	<project-block></project-block>
-	<title-block></title-block>
-	<p>This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.<p>
-	<comment-section></comment-section>
-	<image-section></image-section>
-	<signature></signature>
-</div></div>
 
 <div id="deficiency-review-report-template">
-<table>
+	<table>
 	<thead><tr><th class="col-xs-12">
 		<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
 		<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">title</h2>
@@ -161,7 +166,7 @@
 		<tr class="breakable"><td><image-section></image-section></td></tr>
 		<tr class="breakable"><td><signature></signature></td></tr>
 	</tbody>
-</table>
+	</table>
 </div>
 
 

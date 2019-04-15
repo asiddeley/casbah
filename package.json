@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "cas": "node index.js",
-    "dist": "browserify client/casbahVue.js -o dist/experimental.js"
+    "dist": "browserify client/casbah.js -o dist/casbah.dist.js"
   },
   "keywords": [
     "Architect",

@@ -24,10 +24,12 @@ SOFTWARE.
 
 ********************************/
 
+
+
 window.casbahVue=function(){
 	var r={};
 	
-	r.casdocs=require("./casdocs");
+	r.components=require("./components");
 
 	return r;
 }();

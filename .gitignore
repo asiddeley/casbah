@@ -65,6 +65,7 @@ typings/
 database/*.db
 uploads/
 wiki/
+dist/
 
 
 
