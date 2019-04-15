@@ -21,10 +21,9 @@ var autoname=["Alpha", "Bravo",
 // argument object with factory settings
 var argodef={
 	branch:null,
-	casdok:"splash", //casdoc key eg. "svr" for "site visit report"
+	casdok:"welcome", //casdoc key eg. "svr" for "site visit report"
 	docnum:null, //document number ie. document folder name or ordinal eg. 1 for first
 	pronum:null, //project id ie. project folder name
-	viewer:null //view name
 };
 
 var argocheck=function(argo){
@@ -36,7 +35,7 @@ var argocheck=function(argo){
 	return argo;	
 };
 
-var argoSave=function(viewer, argo){
+var argoSave=function(viewer){
 	// TO DO...
 	// get argo from local store using provided argo as default if not found
 	// Camel.prototype.argoLoad=function(argo){}
@@ -73,9 +72,6 @@ var argoSave=function(viewer, argo){
 	if(viewer.argo.pronum){localStorage.setItem("viewer-pronum-"+a, viewer.argo.pronum);}
 };
 
-
-var name$;
-
 var updateNamesHTML=function(){
 	var camel=this;
 	
@@ -94,80 +90,74 @@ var updateNamesHTML=function(){
 	});
 };
 
+// place for list of viewer names
+var name$;
+
 //list of all intantiated viewers
 var viewers=[];
 
 //current viewer
 var viewer;
 
-//place for current Vue
-var viev$;
+//place for viewers to display content (ie. Vue instances)
+var viewer$;
 
-
+// Constructor function
 var Viewer=function(argo){
 	// agro - argument object
 	// eg. {name:"camel name", branch:null, casdok:"svr", docnum:"SVR-A01", pronum:"BLDG-101"}
-	
-	// add this new camel to static list of all instantiated camels
+
+	viewer=this;	
 	viewers.push(this);
 	
 	// default name for viewer
 	this.name=autoname[viewers.length-1];
-
-	// CHANGE...
-	// retreive locally stored arguments, mix in current arguments and store
+	
+	//retrieve, merge and save arguments locally
 	this.argoSave(argo);
-	// LIKE...
-	// this.argoLoad(argo); //get argo from local store using provided argo as default if not found
-	// this.argoSave(argo); //merge provided argument obj with current argument obj and save locally
 	
-	//update current viewer 
-	viewer=this;
+	//DEPRECATED, do in exports.activate();
+	//if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
 	
-	// init camel names list if necessary
-	//if (typeof proto.name$=="undefined"){proto.name$=$("#camel-names");}
+	//casbah document object
+	this.casdoc=""; 
 	
-	// NEEDS WORK...	
-	// init just once and for all camels, jquery element for displaying camel content
-	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
+	//DEPRECATED casbah document instance (new casbah.Svr();) 
+	//this.casdoi=null; 
+	//USE Vue instance instead	
+	this.vue=null;
 	
-	this.casdoc=""; //casbah document object
-	this.casdoi=null; //casbah document instance - new casbah.Svr();
-	this.casdo$=$("<div class='CASDOC'></div>"); //jquery element or place for document templates 
-	this.casdo$.appendTo(this.view$);
+	//place for document  
+	this.casdo$=$("<div class='CASDOC'></div>");
+	this.casdo$.appendTo(view$);
+	this.casdo$.attr("id","viewer-"+this.name);
+	this.casdo$.hide();
 	
-	//update list of all instantiated camel names.  Ensure it comes after name$ is defined
+	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
 
 	//update camel contents - only when called
-	view("welcome");
-	console.log("viewer named:", this.name);
+	//view("welcome");
+	console.log("New Viewer created:", this.name);
 };
 
-//reserved
+//casbah document type
 Viewer.prototype.casdoc=null;
+//casbah document instance I.e. vue component instance
 Viewer.prototype.casdoi=null;
+//casbah document place as a jquery wrapped element
 Viewer.prototype.casdo$=null;
 
-//returns the current camel's casdoc instance
-Viewer.prototype.getCDI=function(){return this.currentViewer.casdoi;};
+//returns the current document instnce I.e. vue component instance
+Viewer.prototype.getCDI=function(){return viewer.casdoi;};
 
-//result of argo.casdoc, argo.doc_id & argo.pro_id as provided by ajax call
-//Camel.prototype.branch=null;
-
-
-
-Viewer.prototype.currentViewer=null;
-
+//reserved
 Viewer.prototype.name="unnamed";
-
-//element for display of camel names
-Viewer.prototype.name$;
 	
 Viewer.prototype.retire=function(name){
-	//remove camel by name
+	//remove viewer by name
 	viewers=viewers.filter(function(v){return (v.name!=name);});
-	//redo the CASBAH admin tab camel list
+	//recalculate the CASBAH admin tab camel list
 	this.updateNamesHTML();
 };
 
@@ -191,20 +181,22 @@ Viewer.prototype.hideMenu=function(ev, m$){
 exports.activate=function(casbah){
 	cas=casbah;
 	viewer=new Viewer();
+	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
 };
 
 exports.current=function(name){
 	//Make named viewer the main viewer. Returns main viewer if called without argument
 	if (typeof name=="undefined") {return viewer;}
 	//find viewer by name
-	var mv=viewers.filter(function(c){return (c.name==name);});
+	var mv=viewers.filter(function(v){return (v.name==name);});
 	//update current viewer...
 	if (mv.length==1){viewer=mv[0];}
-	console.log("Current view:",viewer.name);	
+	console.log("Current view:", viewer.name);	
 	//?this.view();
 };
 
 exports.Viewer=Viewer;
+
 
 exports.view=function(casdok){
 	//casdok - the casdoc key eg. "svr" for "site visit report"
@@ -213,7 +205,6 @@ exports.view=function(casdok){
 	//If current casdok is null (or 'welcome') then welcome page is displayed
 	
 	var casbah=this;
-	var viewer=currentViewer;	
 
 	console.log("casbah.view()...");
 	console.log("pronum...", this.argo.pronum);
