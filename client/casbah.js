@@ -31,13 +31,16 @@ window.casbah=function(){
 
 	casbah.activate=function(){
 		this.components.activate(this);		
-		
+		this.viewer.activate(this);
 	};		
 
 	$.extend(casbah, require("./array++"));
 	$.extend(casbah, require("./editor"));
 	//Vue components
 	casbah.components=require("./components");
+	//view (vue) manager
+	$extend(casbah, require("./viewer"));
+	
 
 	casbah.project={};
 	casbah.project.select=function(){
@@ -111,7 +114,8 @@ window.casbah=function(){
 		};		
 	}
 	*/
-
+	/*
+	//included in viewer
 	casbah.showMenu=function(menu$, ev){
 		//first call texteditor with no arguments to turn it off just in case its on
 		//ed.hide();
@@ -120,7 +124,7 @@ window.casbah=function(){
 		menu$.menu('option', 'caller', ev.target);
 		return false;
 	};
-
+	*/
 	/*
 	casbah.tool=function(htmlfile){
 		console.log("toolchange");	

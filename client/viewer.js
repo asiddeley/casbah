@@ -26,19 +26,25 @@ var argodef={
 	pronum:null, //project id ie. project folder name
 };
 
-var argocheck=function(argo){
-	if (typeof argo == "undefined"){
-		argo=argodef;
+var checkOptions=function(options){
+	if (typeof options == "undefined"){
+		options=argodef;
 		//pick project
 	}
 	
-	return argo;	
+	return options;	
 };
 
-var argoSave=function(viewer){
+// view mode
+// 0 - view call uses current view
+// 1 - view call creates new view this time only (mode reverts to 0)
+// 2 - view call creates new view from now on 
+var mode=0;
+
+var saveOptions=function(view){
 	// TO DO...
-	// get argo from local store using provided argo as default if not found
-	// Camel.prototype.argoLoad=function(argo){}
+	// get options from local store using provided options as default if not found
+	// Camel.prototype.argoLoad=function(options){}
 
 	// Change function below to
 	// merge provided argument obj with current argument obj and save locally
@@ -46,30 +52,30 @@ var argoSave=function(viewer){
 	//casdok = casdoc key eg. "svr" for "site visit report" 
 	//branch = casdoc base returned by casbah server given casdoc key. eg. "reports/site visit reports/"
 	//path   = pronum + casdoc.base + docnum eg. "prj-001/reports/site visit reports/svr-A01/"
-	var a=viewer.name;
-	var b=localStorage.getItem("viewer-branch-"+a);	
-	var c=localStorage.getItem("viewer-casdok-"+a);
-	var d=localStorage.getItem("viewer-docnum-"+a);
-	var	p=localStorage.getItem("viewer-pronum-"+a);
-	//console.log("viewer.argo before...", viewer.argo);
+	var a=view.name;
+	var b=localStorage.getItem("view-branch-"+a);	
+	var c=localStorage.getItem("view-casdok-"+a);
+	var d=localStorage.getItem("view-docnum-"+a);
+	var	p=localStorage.getItem("view-pronum-"+a);
+	//console.log("view.options before...", view.options);
 	$.extend(
 		// factory settings 		
-		viewer.argo,	
+		view.options,	
 		// local storage. localStorage returns null if item not found
 		{
-			branch:(b?b:viewer.argo.branch),
-			casdoc:(c?c:viewer.argo.casdok), 
-			docnum:(d?d:viewer.argo.docnum), 
-			pronum:(p?p:viewer.argo.pronum)
+			branch:(b?b:view.options.branch),
+			casdoc:(c?c:view.options.casdok), 
+			docnum:(d?d:view.options.docnum), 
+			pronum:(p?p:view.options.pronum)
 		},
-		// new argument object provided thru constructor Camel(argo)
-		((typeof argo=="object")?argo:{})
+		// new argument object provided thru constructor Camel(options)
+		((typeof options=="object")?options:{})
 	);
-	//console.log("viewer.argo after...", viewer.argo);
-	if(viewer.argo.branch){localStorage.setItem("viewer-branch-"+a, viewer.argo.branch);}
-	if(viewer.argo.casdoc){localStorage.setItem("viewer-casdok-"+a, viewer.argo.casdok);}
-	if(viewer.argo.docnum){localStorage.setItem("viewer-docnum-"+a, viewer.argo.docnum);}
-	if(viewer.argo.pronum){localStorage.setItem("viewer-pronum-"+a, viewer.argo.pronum);}
+	//console.log("view.options after...", view.options);
+	if(view.options.branch){localStorage.setItem("view-branch-"+a, view.options.branch);}
+	if(view.options.casdoc){localStorage.setItem("view-casdok-"+a, view.options.casdok);}
+	if(view.options.docnum){localStorage.setItem("view-docnum-"+a, view.options.docnum);}
+	if(view.options.pronum){localStorage.setItem("view-pronum-"+a, view.options.pronum);}
 };
 
 var updateNamesHTML=function(){
@@ -79,91 +85,95 @@ var updateNamesHTML=function(){
 	$(".CAMELNAME").remove();
 
 	//Recreate list of all instantiated camel names for the CASBAH admin menu	
-	viewers.forEach(function(n){
+	views.forEach(function(n){
 		//calculate background colour, recycle colours if there are more camels than colours
 		var bc=autoback[autoname.indexOf(n.name) % autoback.length];	
 		//console.log("background-color:"+bc);
 		var li=$("<li class='CAMELNAME'><a href='#'>"+n.name+"</a></li>");
 		li.appendTo(name$);
 		li.css("background-color",bc);
-		li.click(function(){ camel.main(camel.argo.name);});
+		li.click(function(){ camel.main(camel.options.name);});
 	});
 };
 
-// place for list of viewer names
+// place for list of view names
 var name$;
 
-//list of all intantiated viewers
-var viewers=[];
+//list of all instantiated views
+var views=[];
 
-//current viewer
-var viewer;
+//current view
+var view;
 
-//place for viewers to display content (ie. Vue instances)
-var viewer$;
+//place for views to display content (ie. Vue instances)
+var view$;
 
 // Constructor function
-var Viewer=function(argo){
-	// agro - argument object
+var View=function(options){
 	// eg. {name:"camel name", branch:null, casdok:"svr", docnum:"SVR-A01", pronum:"BLDG-101"}
 
-	viewer=this;	
-	viewers.push(this);
+	view=this;	
+	views.push(this);
 	
-	// default name for viewer
-	this.name=autoname[viewers.length-1];
+	// default name for view
+	this.name=autoname[views.length-1];
 	
 	//retrieve, merge and save arguments locally
-	this.argoSave(argo);
+	this.saveOptions(options);
 	
-	//DEPRECATED, do in exports.activate();
-	//if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
+	//casbah document type
+	this.casdoc=null; 
 	
-	//casbah document object
-	this.casdoc=""; 
-	
-	//DEPRECATED casbah document instance (new casbah.Svr();) 
-	//this.casdoi=null; 
-	//USE Vue instance instead	
-	this.vue=null;
+	//casbah document instance (previously new casbah.Svr();), now
+	//vue component instance
+	this.casdoi=null; 
 	
 	//place for document  
 	this.casdo$=$("<div class='CASDOC'></div>");
 	this.casdo$.appendTo(view$);
-	this.casdo$.attr("id","viewer-"+this.name);
+	this.casdo$.attr("id","view-"+this.name);
 	this.casdo$.hide();
+	
+	//returns the current document instnce I.e. vue component instance
+	this.getCDI=function(){return view.casdoi;};
 	
 	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
 
 	//update camel contents - only when called
 	//view("welcome");
-	console.log("New Viewer created:", this.name);
+	console.log("New View created:", this.name);
 };
 
-//casbah document type
-Viewer.prototype.casdoc=null;
-//casbah document instance I.e. vue component instance
-Viewer.prototype.casdoi=null;
-//casbah document place as a jquery wrapped element
-Viewer.prototype.casdo$=null;
 
-//returns the current document instnce I.e. vue component instance
-Viewer.prototype.getCDI=function(){return viewer.casdoi;};
 
-//reserved
-Viewer.prototype.name="unnamed";
-	
-Viewer.prototype.retire=function(name){
-	//remove viewer by name
-	viewers=viewers.filter(function(v){return (v.name!=name);});
-	//recalculate the CASBAH admin tab camel list
-	this.updateNamesHTML();
+/////////////////////////////////////////
+// PUBLIC
+
+exports.activate=function(casbah){
+	cas=casbah;
+	view=new View();
+	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
 };
 
-Viewer.prototype.showMenu=function(ev, m$){
+exports.current=function(name){
+	//Make named view the current view. Returns current view if called without argument
+	if (typeof name=="undefined") {return view;}
+	//find view by name
+	var mv=views.filter(function(v){return (v.name==name);});
+	//update current view...
+	if (mv.length==1){view=mv[0];}
+	console.log("Current view:", view.name);	
+	//?this.view();
+};
+
+
+exports.menuHide=function(ev, m$){m$.hide();}
+
+exports.menuShow=function(ev, m$){
 	//Shows the current casdoc's menu
 	//var m$=this.currentViewer.casdoi.m$;
+	//var m$=casbah.current.menu$ ??? HOW TO DEFINE CASDOC CONTEXT MENUS
 	
 	//first call texteditor with no arguments to turn it off just in case its on
 	//ed.hide();
@@ -173,65 +183,62 @@ Viewer.prototype.showMenu=function(ev, m$){
 	return false;
 };
 
-Viewer.prototype.hideMenu=function(ev, m$){
-	m$.hide();
+
+//no need to expose this
+//exports.Viewer=Viewer;
+
+exports.unView=function(name){
+	//remove view by name
+	views=views.filter(function(v){return (v.name!=name);});
+	//recalculate the CASBAH admin tab camel list
+	updateNamesHTML();
+};
+
+exports.viewmode(viewmode){
+	// 0 - view call uses current view
+	// 1 - view call creates new view this time only then mode reverts to 0
+	// 2 - view call creates new view from now on 
+	if (typeof viewmode=="undefined"){
+		return viewmode;
+	} else {
+		mode=viewmode;		
+	}
 }
-
-// PUBLIC
-exports.activate=function(casbah){
-	cas=casbah;
-	viewer=new Viewer();
-	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
-};
-
-exports.current=function(name){
-	//Make named viewer the main viewer. Returns main viewer if called without argument
-	if (typeof name=="undefined") {return viewer;}
-	//find viewer by name
-	var mv=viewers.filter(function(v){return (v.name==name);});
-	//update current viewer...
-	if (mv.length==1){viewer=mv[0];}
-	console.log("Current view:", viewer.name);	
-	//?this.view();
-};
-
-exports.Viewer=Viewer;
-
 
 exports.view=function(casdok){
 	//casdok - the casdoc key eg. "svr" for "site visit report"
-	//Render the current camel's contents depending on its arguments in this.argo ie. casdok or branch  
+	//Render the current camel's contents depending on its arguments in this.options ie. casdok or branch  
 	//If casdok is not provided, currently set casdok is used
 	//If current casdok is null (or 'welcome') then welcome page is displayed
 	
-	var casbah=this;
+	var casbah=this;	
 
 	console.log("casbah.view()...");
-	console.log("pronum...", this.argo.pronum);
+	console.log("pronum...", this.options.pronum);
 	//no project number so prompt or goto project view
-	if (this.argo.pronum==null){
+	if (this.options.pronum==null){
 		var p=prompt("Enter project number...");
-		argoSave({pronum:p});
+		saveOptions({pronum:p});
 		casbah.view(casdok);
 	} else {	
 		//argument provided so update
-		if (typeof casdok == "string"){argoSave({casdok:casdok});}
+		if (typeof casdok == "string"){saveOptions({casdok:casdok});}
 		
 		//reset the camel view
 		view$.empty();
 		//append any camel info here
 		
 		//add the div element that will hold the document contents
-		view$.append(viewer.casdo$);
+		view$.append(view.casdo$);
 
 		$.ajax({
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 			data: $.param({
 				action:"CAMEL VIEW",
-				branch:camel.argo.branch, //null or result of args below
-				casdok:camel.argo.casdok,
-				docnum:camel.argo.docnum,
-				pronum:camel.argo.pronum
+				branch:camel.options.branch, //null or result of args below
+				casdok:camel.options.casdok,
+				docnum:camel.options.docnum,
+				pronum:camel.options.pronum
 			}),
 			error: function(err){ console.log(err.message);},
 			success: function(r){ 
@@ -239,8 +246,8 @@ exports.view=function(casdok){
 				//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
 				
 				// REPLACE...
-				//camel.argo.branch=r.branch;
-				//camel.argoSave(r);			
+				//camel.options.branch=r.branch;
+				//camel.saveOptions(r);			
 				
 				// WITH...
 				// camel.argoMixSet({branch:r.branch});
@@ -248,7 +255,7 @@ exports.view=function(casdok){
 				//load and execute script...	
 				console.log( "camel $load..." + r.casdoc.html);	
 				camel.casdo$.load(r.casdoc.html, function(){
-					console.log( "viewer $getScript..." + r.casdoc.jscr);
+					console.log( "view $getScript..." + r.casdoc.jscr);
 					$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
 						//console.log( data ); // Data returned
 						//console.log( textStatus ); // Success
