@@ -1,42 +1,27 @@
-
-/**********************************
+/*****
 CASBAH 
 Contract Administration System Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
-
 MIT License
+******/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-********************************/
-
-//var Vue=require("../node_modules/vue");
-var cas;
+var create=function(view){
+	var app=new Vue({
+		data:function(){return {};},
+		el:"#"+view.casdo$.attr("id"),
+		template:"<DRR></DRR>"		
+	});
+	return app;
+};
 
 exports.activate=function(casbah, template$){
-	cas=casbah;
+	casbah.creators["drr"]=function(view){return create(view);};
+	
 	var html=template$.find("#deficiency-review-report-template").html();
-	var app=new Vue({
-	//register a global component...  
-	//Vue.component("DRR", {
+	//register drr a global component...  
+	Vue.component("DRR", {
 		data:function(){return {};},
-		el:"#casdoc-placeholder",
+		//el:"#casdoc-placeholder",
 		methods:{
 			change_title:function(ev){alert("change title")},
 			defic_click:function(ev){cas.edit(ev);},
@@ -44,13 +29,5 @@ exports.activate=function(casbah, template$){
 		},
 		template:html
 	});	
-
-	
-	return app
 };
-
-
-
-
-
 

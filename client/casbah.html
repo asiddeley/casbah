@@ -24,7 +24,7 @@
 
 
 <!-- Handlebars Template engine -->
-<script type='text/javascript' src="offline/handlebars-v4.0.10.js"></script>
+<script type="text/javascript" src="offline/handlebars-v4.0.10.js"></script>
 
 
 <!--script type="text/javascript" src="dist/experimental.js"></script-->
@@ -46,11 +46,6 @@ var camel;
 //READY
 $(function() { 
 
-	casbah.project.idlist_template=Handlebars.compile($("#project-idlist-template").html());
-	//casbah.project.$dialog=$("#project_dialog");
-	//casbah.project.$dialog.dialog({autoOpen:false, title:"Projects"});
-	//casbah.project.data_template=Handlebars.compile($("#project-data-template").html());
-
 	//Setup Handlebars
 	Handlebars.registerHelper("plusOne", function(val, options){return parseInt(val)+1;});
 	Handlebars.registerHelper("array", function(arr, options){
@@ -60,25 +55,14 @@ $(function() {
 		return new Handlebars.SafeString(text);	
 	});
 	
-	//bumper shoves the top of the dock-area down to prevent the static navbar from covering it
+	//bumper shoves the top of the content area down to prevent navbar from covering it
 	$("#BUMPER").height($("#NAVBAR").innerHeight());
 
 	$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
 
-	//load...
-	$.getScript("client/camel.js", function(){
-		//Without arguments {casdok:"welcome"}, welcome page is displayed
-		camel=new Camel();
-	});
-	
-	//load html from file the first time otherwise just show the right element containing the html  
-	//casbah.view("welcome.html");
-	
-	//VUE Experimental
-	//casbah.components.activate(casbah, function(){
 	casbah.activate(function(){
 		//todo after acivation...
-	
+		casbah.view("welcome");
 	});	
 }); 
 
@@ -195,9 +179,9 @@ $(function() {
 		<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Review</a></li>
 		<li class="divider"><li-->
 		<li onclick="casbah.view('rdr')"><a href="#">Room Deficiency Review</a></li>
-		<li onclick="camel.view('svr')"><a href="#">Site Visit Report</a></li>
+		<li onclick="casbah.view('svr')"><a href="#">Site Visit Report</a></li>
 		<li class="divider"><li>
-		<li onclick="camel.view('folder.html')"><a href="#">Deficiency Review Report</a></li>
+		<li onclick="casbah.view('drr')"><a href="#">Deficiency Review Report</a></li>
 		</ul>	
 		</li>
 		

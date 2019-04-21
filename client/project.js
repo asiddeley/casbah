@@ -1,47 +1,71 @@
-
-/**********************************
-CASBAH * Contract Administration System Be Architectural Heroes *
-
-MIT License
-
+/*****
+CASBAH
+Contract Administration System Be Architectural Heroes
 Copyright (c) 2018 Andrew Siddeley
+MIT License
+**********/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+// PUBLIC
+exports.activate=function(CASBAH){
+	casbah=CASBAH;
+	casbah.creators.project=function(camel){return new casbah.Project(camel);};
+	// Remember, in casdocs prolog extends project so prolog also needs a creator...
+	casbah.creators.prolog=function(camel){return new casbah.Project(camel);};
+	
+	casbah.project.idlist_template=Handlebars.compile($("#project-idlist-template").html());
+};
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+exports.check=function(){
+	//ensure project number set.  
+	console.log("project_number check:",localStorage.getItem("project_number"));
+	if (typeof localStorage.getItem("project_number") == "undefined") {
+		casbah.project.select();
+		return;
+	} 
+	$("#browser_tab").text("CASBAH - "+localStorage.getItem("project_number"));
+};
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+exports.modal=function(callback){
+	$.ajax({
+		data:$.param({
+			action:"PROJECT-IDLIST",
+			project_id:"dummy"
+		}),
+		//contentType:false,
+		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
+		error:function(err){console.log("Error:",err);},
+		processData:false, 
+		success:function(result){ 
+			//result - [{pnum:"", pname:"", ...},{...},{...}...]
+			console.log("Project modal:", result);
+			//var h=casbah.project.ids_template(result);
+			var h=casbah.project.idlist_template(result);
+			//set callback
+			$("#project_modal").one("hide.bs.modal", function (e) {
+				if (typeof callback=="function"){callback();}
+			});
+			$("#project_modal_content").html(h);
+			$("#project_modal").modal("show");
+		},
+		type:"POST",
+		url:"/uploads"
+	});	
+};
 
-********************************/
+exports.Project=Project;
 
-//////////////////////////
-// Project
-// Client Side
+exports.select=function(){
+	var pnum=prompt("Project number");
+	if (pnum !== "" && pnum != null){
+		localStorage.setItem("project_id", pnum);
+		$("#browser_tab").text("CASBAH - "+pnum);
+	};
+	//casbah.project_dialog.show();
+};
 
-// Adding Pro to casbah creator library
-if (typeof casbah.creators == "undefined"){casbah.creators={};};
-casbah.creators.project=function(camel){return new casbah.Project(camel);};
-// Remember, in casdocs prolog extends project so prolog also needs a creator...
-casbah.creators.prolog=function(camel){return new casbah.Project(camel);};
-
-
-// Adding Project constructor function to casbah library if missing
-if (typeof casbah.Project!="function"){casbah.Project=function(){
-
-
-var pro=function(camel){
+// PRIVATE STATIC
+var casbah;
+var Project=function(camel){
 	
 	var pro=this;
 	pro.camel=camel;
@@ -65,7 +89,7 @@ var pro=function(camel){
 };
 
 
-pro.prototype.change=function(pronum, field, valu, callback){
+Project.prototype.change=function(pronum, field, valu, callback){
 	// Changes information stored in a particular project folder in __projectData.json
 	// change field:values in project_json located in a particular project dir
 	// same as project.change
@@ -84,7 +108,7 @@ pro.prototype.change=function(pronum, field, valu, callback){
 	});
 };
 
-pro.prototype.current=function(caller){
+Project.prototype.current=function(caller){
 	
 	var pronum;
 	if (typeof caller=="undefined"){
@@ -100,7 +124,7 @@ pro.prototype.current=function(caller){
 };
 
 // Open text editor...
-pro.prototype.edit=function(el){
+Project.prototype.edit=function(el){
 	var pro=this;
 	pro.ed.text(el, function(){
 		pro.update(pro.ed.row(), pro.ed.rowid(), true); 
@@ -118,7 +142,7 @@ pro.prototype.edit=function(el){
 };
 
 //pro.prototype.insert_menu=function(){
-pro.prototype.create=function(){
+Project.prototype.create=function(){
 	// Creates a new project folder
 	
 	var pro=this;
@@ -136,12 +160,12 @@ pro.prototype.create=function(){
 
 };
 
-pro.prototype.update=function(row, rowid, flag){
+Project.prototype.update=function(row, rowid, flag){
 	console.log("Project update ROW:",row," ROWID:", rowid);
 	//TO DO...
 };
 
-pro.prototype.view=function(){
+Project.prototype.view=function(){
 	var pro=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -155,7 +179,3 @@ pro.prototype.view=function(){
 	});
 };
 
-//////////////////////////////////////////
-//END OF CLOSURE
-return pro;}();}
-//console.log("project.js loaded");

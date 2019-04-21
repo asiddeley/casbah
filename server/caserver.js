@@ -267,8 +267,8 @@ exports.handler=function (req, res) {
 	switch (req.body.action){
 		
 		// Camel
-		case "CAMEL VIEW":camel_view(req, res); break;	
-	
+		//case "CAMEL VIEW":camel_view(req, res); break;	
+		case "VIEWER":camel_view(req, res); break;		
 		case "CHANGE":change.jsonKeyValue(req, res); break; //needs testing
 		case "CREATE":create.folder(req, res); break; //needs testing
 		//case "LEDGER":ledger(req, res); break; //NEW!  instead of SVRL or svr log

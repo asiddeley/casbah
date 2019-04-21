@@ -22,150 +22,107 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ********************************/
 
-window.casbah=function(){
+//The casbah library object
+var casbah={};
+//mixins
+$.extend(casbah, require("./array++"));
+$.extend(casbah, require("./editor"));
 
-	var casbah={};
+//Vue components
+var components=require("./components");
+//view manager
+var viewer=require("./viewer");
+//project number - move this to components?
+var project=require("./project");
 
-	casbah.activate=function(){
-		this.components.activate(this);		
-		this.viewer.activate(this);
-	};		
+casbah.activate=function(callback){
+	console.log("casbah.activate()...");
+	viewer.activate(casbah);
+	project.activate(casbah);
+	//async function
+	components.activate(casbah, callback);	
+};		
 
-	$.extend(casbah, require("./array++"));
-	$.extend(casbah, require("./editor"));
-	//Vue components
-	casbah.components=require("./components");
-	//view (vue) manager
-	$extend(casbah, require("./viewer"));
-	
+//hash of functions, extended in various activate functions
+casbah.creators={};
 
-	casbah.project={};
-	casbah.project.select=function(){
-		var pnum=prompt("Project number");
-		if (pnum !== "" && pnum != null){
-			localStorage.setItem("project_id", pnum);
-			$("#browser_tab").text("CASBAH - "+pnum);
-		};
-		//casbah.project_dialog.show();
-	};
-	casbah.project.check=function(){
-		//ensure project number set.  
-		console.log("project_number check:",localStorage.getItem("project_number"));
-		if (typeof localStorage.getItem("project_number") == "undefined") {
-			casbah.project.select();
-			return;
-		} 
-		$("#browser_tab").text("CASBAH - "+localStorage.getItem("project_number"));
-	};
+//viewer shortcuts
+casbah.current=viewer.current;//same as view
+casbah.menuHide=viewer.menuHide;
+casbah.menuShow=viewer.menuShow;
+casbah.unView=viewer.unView;	
+casbah.view=viewer.view;
+casbah.viewAdd=function(casdok){viewer.view(casdok,1);};
 
-	casbah.project.modal=function(callback){
-		$.ajax({
-			data:$.param({
-				action:"PROJECT-IDLIST",
-				project_id:"dummy"
-			}),
-			//contentType:false,
-			contentType:"application/x-www-form-urlencoded; charset=UTF-8",
-			error:function(err){console.log("Error:",err);},
-			processData:false, 
-			success:function(result){ 
-				//result - [{pnum:"", pname:"", ...},{...},{...}...]
-				console.log("Project modal:", result);
-				//var h=casbah.project.ids_template(result);
-				var h=casbah.project.idlist_template(result);
-				//set callback
-				$("#project_modal").one("hide.bs.modal", function (e) {
-					if (typeof callback=="function"){callback();}
-				});
-				$("#project_modal_content").html(h);
-				$("#project_modal").modal("show");
-			},
-			type:"POST",
-			url:"/uploads"
-		});	
-	};	
+//project
+casbah.project=project;
+casbah.Project=project.Project;
 
-	/*
-	casbah.renderFX=function(placeholderID, templateFN, result, delta){
-		//as returned from sqlite query...
-		//result {rows:[{field:value, field:value...},{...},...]}
-		if (typeof delta == "undefined"){delta={count:0};};
-		if (placeholderID.indexOf("#")!=0){placeholderID="#"+placeholderID;}
-		switch(delta.count){
-			case(1):
-				////Grand Reveal for added row then run callback function to render result
-				$(placeholderID).html(templateFN(result));
-				//var cr$=$('#comments-row'+delta.rowids[0]);
-				var cr$=$(placeholderID+" > div").find($("[rowid="+delta.rowids[0]+"]"));
-				cr$.css('background','gold').hide().show(500, function(){cr$.css('background','white');});
-			break;
-			case(-1):
-				var cr$=$(placeholderID+" > div").find($("[rowid="+delta.rowids[0]+"]"));
-				////Grand send-off for deleted row then run callback function to render result
-				cr$.css('background','gold').hide(500, function(){
-					$(placeholderID).html(templateFN(result));
-				});
-			break;
-			default: 
-				$(placeholderID).html(templateFN(result));
-		};		
-	}
-	*/
-	/*
-	//included in viewer
-	casbah.showMenu=function(menu$, ev){
-		//first call texteditor with no arguments to turn it off just in case its on
-		//ed.hide();
-		menu$.show().position({my:'left top',	at:'left bottom', of:ev});
-		//remember caller, that is the <div> or <p> element that launched the contextMenu
-		menu$.menu('option', 'caller', ev.target);
-		return false;
-	};
-	*/
-	/*
-	casbah.tool=function(htmlfile){
-		console.log("toolchange");	
-		//heads up - close open editors etc
-		//$(document).trigger("toolchange", htmlfile);
-		const id="TOOLBAR";
-		if (!$("#"+id).length){
-			$("#NAVBAR").append($("<div class='container'></div>").attr("id",id));		
-		}
-		if (typeof htmlfile == "undefined"){$("#"+id).hide();}
-		else {$("#"+id).show().load("client/"+htmlfile);}
-	};
 
-	casbah.__views={};
 
-	casbah.view=function(htmlfile){
-		//htmlfile eg. deficiency_sheets_log.html
-		
-		console.log("viewchange:", htmlfile);	
-		//heads up - close open editors etc
-		$(document).trigger("viewchange", htmlfile);
-		
-		//init - ensure placeholder exists
-		var id="VIEW";
-		if (!$("#"+id).length){
-			var el=$("<div></div>").addr("id",id);
-			$("body").append($("<div></div>").attr("id",id));		
-		}
-		$("#"+id).load("client/"+htmlfile);
+//expose to global environment
+window.casbah=casbah;
 
-	};
-	*/
-	
-return casbah;}();
 
 /////////////////////
-// POLYFILL
+// POLYFILLS
 
 if (!Object.values) { 
 	Object.values = function(obj){
 		return Object.keys(obj).map(function(e){return obj[e]});
 	}
+}
+// https://tc39.github.io/ecma262/#sec-array.prototype.includes
+if (!Array.prototype.includes) {
+  Object.defineProperty(Array.prototype, 'includes', {
+    value: function(valueToFind, fromIndex) {
+
+      if (this == null) {
+        throw new TypeError('"this" is null or not defined');
+      }
+
+      // 1. Let O be ? ToObject(this value).
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If len is 0, return false.
+      if (len === 0) {
+        return false;
+      }
+
+      // 4. Let n be ? ToInteger(fromIndex).
+      //    (If fromIndex is undefined, this step produces the value 0.)
+      var n = fromIndex | 0;
+
+      // 5. If n ≥ 0, then
+      //  a. Let k be n.
+      // 6. Else n < 0,
+      //  a. Let k be len + n.
+      //  b. If k < 0, let k be 0.
+      var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+      function sameValueZero(x, y) {
+        return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
+      }
+
+      // 7. Repeat, while k < len
+      while (k < len) {
+        // a. Let elementK be the result of ? Get(O, ! ToString(k)).
+        // b. If SameValueZero(valueToFind, elementK) is true, return true.
+        if (sameValueZero(o[k], valueToFind)) {
+          return true;
+        }
+        // c. Increase k by 1. 
+        k++;
+      }
+
+      // 8. Return false
+      return false;
+    }
+  });
 }
 
