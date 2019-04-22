@@ -86,9 +86,9 @@ $(function() {
 		<li class="dropdown">
 		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Admin<span class="caret"></span></a>
-		<ul id="camel-names"  class="dropdown-menu">
+		<ul id="VIEW-LIST"  class="dropdown-menu">
 			<!--li onclick="casbah.view('project_log.html')"><a href="#">Project Log</a></li-->
-			<li onclick="camel.view('prolog')"><a href="#">Project Log</a></li>
+			<li onclick="casbah.view('prolog')"><a href="#">Project Log</a></li>
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">Action Items</a></li>
 			<li class="disabled"><a href="#">Project Status</a></li>
@@ -199,13 +199,12 @@ $(function() {
 
 		<li class="dropdown">
 		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown" 
-		onclick="casbah.view('welcome.html');"
+		onclick="casbah.view('welcome');"
 		>Welcome<span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 			<li class="disabled"><a href="#">About</a></li>
 			<li class="disabled"><a href="#">Help</a></li>
-			<li onclick="casbah.view('project_log.html');"><a href="#"
-			>Projects</a></li>
+			<li onclick="casbah.view('welcome',1);"><a href="#">welcome+</a></li>
 			<li onclick="casbah.view('wiki.html');casbah.tool('wiki_tools.html')"><a href="#">Wiki</a></li>	
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">...</a></li>	

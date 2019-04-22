@@ -179,7 +179,7 @@ const filedate=function(image){
 // actions
 
 
-const camel_view=function(req, res){
+const viewer=function(req, res){
 	
 	// check arguments...
 	if (typeof req.body.branch == "undefined"){req.body.branch=null}
@@ -268,7 +268,7 @@ exports.handler=function (req, res) {
 		
 		// Camel
 		//case "CAMEL VIEW":camel_view(req, res); break;	
-		case "VIEWER":camel_view(req, res); break;		
+		case "VIEWER":viewer(req, res); break;	
 		case "CHANGE":change.jsonKeyValue(req, res); break; //needs testing
 		case "CREATE":create.folder(req, res); break; //needs testing
 		//case "LEDGER":ledger(req, res); break; //NEW!  instead of SVRL or svr log

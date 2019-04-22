@@ -53,7 +53,6 @@ var prefix="view-";
 var name$;
 
 var updateNamesHTML=function(){
-	var camel=this;
 	
 	//delete existing list
 	$(".CAMELNAME").remove();
@@ -70,7 +69,7 @@ var updateNamesHTML=function(){
 		li.click(function(ev){ 
 			var n=$(ev.target).text();
 			console.log("current view to be ", n);
-			view(n); 
+			casbah.view(n); 
 		});
 	});
 };
@@ -100,21 +99,23 @@ var View=function(options){
 	$.extend(this.options, options);
 	localSave(prefix+this.name, this.options);
 	
-	//casbah document type is in options
-	//this.casdoc=null; 
-	
-	//casbah document instance (previously new casbah.Svr();), now
-	//vue component instance
-	this.casdoi=null; 
-	
 	//place for document  
-	this.casdo$=$("<div class='CASDOC'></div>");
+	this.casdo$=$("<div></div>");
 	this.casdo$.appendTo(view$);
-	this.casdo$.attr("id","view-"+this.name);
-	this.casdo$.hide();
+	var bc=autoback[autoname.indexOf(this.name) % autoback.length];	
+	this.casdo$.css("border-color", bc);
+	this.casdo$.addClass("CASDOC");
+	this.casdo$.attr("id", prefix+this.name);
+	//this.casdo$.hide();
+	
+	//casbah document instance OR vue component instance
+	this.casdoi=casbah.creators[this.options.casdok](view);
 	
 	//returns the current document instnce I.e. vue component instance
 	this.getCDI=function(){return view.casdoi;};
+	
+	//expose localSave, called from project for updating {pronum:"updatedPronum"}
+	this.localSave=function(options){localSave(prefix+this.name, options);};
 	
 	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
@@ -134,6 +135,7 @@ exports.activate=function(CASBAH){
 
 	//view=new View(new Options());
 	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
+	if (!name$) {name$=$("#VIEW-LIST");}
 };
 
 exports.menuHide=function(ev, m$){m$.hide();}
@@ -166,16 +168,25 @@ exports.view=function(arg, add){
 	var casbah=this;
 
 	console.log("casbah.view()...");
-	console.log("casdoc.creators...", Object.keys(casbah.creators));	
+	//console.log("casdoc.creators...", Object.keys(casbah.creators));	
 
 	//first run
 	if (views.length==0){new View();}
 	
 	if (isCasdok(arg)){
-		//add a new view, it becomes current automaticaly
-		if (add) {new View(new Options());}
+
+		if (add) {
+			//create a new View copying current options, view updated automatically
+			new View(new Options(view.options));
+			view.options.pronum=prompt("Enter project number...",view.options.pronum);
+			localSave(prefix+view.name, view.options);
+		}
 		//change view options, save and render view
-		viewByCasdok({casdok:arg});
+		//viewByCasdok({casdok:arg});
+		//view.casdoi=casbah.creators[options.casdok](view);
+		$(".CASDOC").hide();
+		$("#vue"+view.casdo$.attr("id")).show();
+		if (view.casdoi.render){view.casdoi.render();}		
 	} else {
 		console.log("veiwer.view( arg is NOT a casdok )");
 		//then assume its a view name...
@@ -195,52 +206,26 @@ var isViewName=function(){
 };
 
 var viewByCasdok=function(options){
-	
-	console.log("veiwByCasdok()...");
 
-	$.extend(view.options, options);	
+	$.extend(view.options, options);
+	console.log("veiwByCasdok()...", options);
 	
-	if (view.options.pronum==null){	
+	//if (view.options.pronum==null){	
 		//no project number so prompt or goto project view
-		var p=prompt("Enter project number...");
-		viewCasdok({pronum:p});
-	} 
-	else {
-		localSave(prefix+view.name, view.options);
-		
-		//reset 
-		view$.empty();
-		
-		//add the div element that will hold the document contents
-		view$.append(view.casdo$);
-
-		$.ajax({
-			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-			data: $.param({
-				action:"VIEWER",
-				branch:view.options.branch, //null or result of args below
-				casdok:view.options.casdok,
-				docnum:view.options.docnum,
-				pronum:view.options.pronum
-			}),
-			error: function(err){ console.log(err.message);},
-			success: function(r){
-				//r={casdoc:{html:"", jscr:"", }, casdok:"drr"}
-				console.log("viewSuccess...",r);
-				//delete old vue
-				var status=delete(view.casdoi);
-				console.log("deleting old view.casdoi...", status);
-				//create document instance
-				view.casdoi=casbah.creators[r.casdok](view);
-				//hide all
-				$("CASDOC").hide();
-				//then show new one
-				view.casdo$.show();						
-			},
-			type:"POST",
-			url:"/uploads"
-		});
-	}
+		//view.options.pronum=prompt("Enter project number...");
+		//viewByCasdok({pronum:p});
+	//} else {
+		//localSave(prefix+view.name, view.options);
+		//create new document instance
+		view.casdoi=casbah.creators[options.casdok](view);
+		//hide all other view-instances
+		$(".CASDOC").hide();
+		//then show only the new one
+		//view.casdo$.show();
+		$("#vue"+view.casdo$.attr("id")).show();
+		//refresh data and render it
+		try{ view.casdoi.render(); } catch(e){console.log(e);}
+	//}
 };
 
 var viewByViewName=function(name){
@@ -253,6 +238,8 @@ var viewByViewName=function(name){
 	if (cv.length==1){
 		view=cv[0];
 		console.log("current view:", view.name);
+		console.log("current view-id:", view.casdo$.attr("id"));
+
 		//hide all views
 		$(".CASDOC").hide();
 		//reveal current

@@ -113,10 +113,13 @@ var signature=function(casbah, template$){
 var welcome=function(casbah, template$){
 	//activater function adds casbah creators if component is meant to be casdoc...
 	casbah.creators.welcome=function(view){
-		new Vue({
+		var id=view.casdo$.attr("id");
+		var s="<welcome class='CASDOC' id='vue"+id+"'></welcome>";
+		console.log("welcome()...",id);
+		return new Vue({
 			data:function(){return {};},
 			el:"#"+view.casdo$.attr("id"),
-			template:"<welcome></welcome>"		
+			template:s
 		});
 	};
 	
@@ -148,7 +151,7 @@ exports.activate=function(casbah, callback){
 		signature(casbah, template$);
 		//default splash screen
 		welcome(casbah, template$);
-		//register casdocs...
+		//casdocs...
 		drr.activate(casbah, template$);
 		
 		console.log("components.activate() done.");

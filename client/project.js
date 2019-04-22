@@ -5,14 +5,14 @@ Copyright (c) 2018 Andrew Siddeley
 MIT License
 **********/
 
+
 // PUBLIC
 exports.activate=function(CASBAH){
 	casbah=CASBAH;
-	casbah.creators.project=function(camel){return new casbah.Project(camel);};
-	// Remember, in casdocs prolog extends project so prolog also needs a creator...
-	casbah.creators.prolog=function(camel){return new casbah.Project(camel);};
+	casbah.creators.project=function(view){return new Project(view);};
+	casbah.creators.prolog=function(view){return new Project(view);};
 	
-	casbah.project.idlist_template=Handlebars.compile($("#project-idlist-template").html());
+	//casbah.project.idlist_template=Handlebars.compile($("#project-idlist-template").html());
 };
 
 exports.check=function(){
@@ -52,7 +52,7 @@ exports.modal=function(callback){
 	});	
 };
 
-exports.Project=Project;
+//exports.Project=Project;
 
 exports.select=function(){
 	var pnum=prompt("Project number");
@@ -65,27 +65,25 @@ exports.select=function(){
 
 // PRIVATE STATIC
 var casbah;
-var Project=function(camel){
+var Project=function(view){
 	
 	var pro=this;
-	pro.camel=camel;
-	// jquery wrapped element for view 
-	pro.v$=pro.camel.casdo$;
-	
-	//load templates and render...
-	$.get("client/header.html", function(htm){
-		pro.header_template=Handlebars.compile(htm);
-		pro.v$.find("#project-header-placeholder").html(pro.header_template({doc_type:"Project Log"}));
-	});
+	pro.view=view;
 	
 	// text editor
-	pro.ed=new casbah.Editor();
+	pro.ed=new casbah.Editor();	
 	
-	// jquery wrapped element initialized as a jquery menu... 
-	pro.m$=pro.v$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();
-
-	pro.template=Handlebars.compile(pro.v$.find("#project-template").html());
-	pro.view();
+	pro.el$=view.casdo$;	
+	//load templates and render...
+	pro.el$.load("client/project.html", function(htm){
+		pro.el$.html(htm);
+		pro.header_template=Handlebars.compile(htm);
+		pro.el$.find("#project-header-placeholder").html(pro.header_template({doc_type:"Project Log"}));
+		// jquery wrapped element initialized as a jquery menu... 
+		pro.m$=pro.el$.find("#project-menu").menu().css("position","absolute", "width", "200px").hide();		
+		pro.template=Handlebars.compile(pro.el$.find("#project-template").html());
+		pro.render();			
+	});
 };
 
 
@@ -120,7 +118,7 @@ Project.prototype.current=function(caller){
 		pronum=$(caller).text();
 	}
 	$("#browser_tab").text("CASBAH ("+pronum+")");
-	this.camel.argoSave({"pronum":pronum});
+	this.view.localSave({"pronum":pronum});
 };
 
 // Open text editor...
@@ -136,7 +134,7 @@ Project.prototype.edit=function(el){
 		pro.change(pronum, field, text, function(){
 			pro.ed.hide();
 			//refresh (server request and render), alt just render cache...
-			pro.view();
+			pro.render();
 		})	
 	});
 };
@@ -153,7 +151,7 @@ Project.prototype.create=function(){
 		data:$.param({action:"PRO CREATE", pronum:pronum}),
 		contentType:"application/x-www-form-urlencoded; charset=UTF-8",
 		error:function(err){console.log("Error from server:", err);},
-		success:function(result){pro.view();},
+		success:function(result){pro.render();},
 		type:"POST",
 		url:"/uploads"
 	});	
@@ -165,14 +163,15 @@ Project.prototype.update=function(row, rowid, flag){
 	//TO DO...
 };
 
-Project.prototype.view=function(){
+Project.prototype.render=function(){
+	console.log("project.render()...");
 	var pro=this;
 	$.ajax({
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		data: $.param({action:"PRO LEDGER"}),
+		data: $.param({action:"SELECT", casdok:"project", docnum:1}),
 		error: function(err){ console.log("Error", err);},
 		success: function(result){
-			pro.v$.find("#project-placeholder").html(pro.template(result));
+			pro.el$.find("#project-placeholder").html(pro.template(result));
 		},
 		type:"POST",
 		url:"/uploads"
