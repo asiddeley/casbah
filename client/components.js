@@ -114,10 +114,10 @@ var welcome=function(casbah, template$){
 	//activater function adds casbah creators if component is meant to be casdoc...
 	casbah.creators.welcome=function(view){
 		var id=view.casdo$.attr("id");
-		var s="<welcome class='CASDOC' id='vue"+id+"'></welcome>";
+		var s="<welcome></welcome>";
 		console.log("welcome()...",id);
 		return new Vue({
-			data:function(){return {};},
+			data:function(){return {'visible':true};},
 			el:"#"+view.casdo$.attr("id"),
 			template:s
 		});
@@ -125,6 +125,7 @@ var welcome=function(casbah, template$){
 	
 	var html=template$.find("#welcome-template").html();
 	Vue.component("welcome",{
+		props:["visible"],
 		template:html
 	});
 };

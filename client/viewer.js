@@ -42,7 +42,7 @@ var localSave=function(id, object){
 var localLoad=function(id, object){
 	Object.getOwnPropertyNames(object).forEach(function(k,i,arr){
 		//localStorage.setItem("view-branch-"+a, view.options.branch);	
-		object[k]=localStorage.getItem(id+k);		
+		object[k]=localStorage.getItem(id+k);
 	});
 };
 
@@ -98,6 +98,7 @@ var View=function(options){
 	localLoad(prefix+this.name, this.options);
 	$.extend(this.options, options);
 	localSave(prefix+this.name, this.options);
+	console.log("View.options:", this.options);
 	
 	//place for document  
 	this.casdo$=$("<div></div>");
@@ -171,111 +172,68 @@ exports.view=function(arg, add){
 	//console.log("casdoc.creators...", Object.keys(casbah.creators));	
 
 	//first run
-	if (views.length==0){new View();}
+	if (views.length==0){new View({casdok:"welcome"});}
 	
 	if (isCasdok(arg)){
-
+		console.log("arg is a casdoc key");
 		if (add) {
 			//create a new View copying current options, view updated automatically
 			new View(new Options(view.options));
-			view.options.pronum=prompt("Enter project number...",view.options.pronum);
+			view.options.pronum=prompt("Enter project number...", view.options.pronum);
 			localSave(prefix+view.name, view.options);
+		} else {			
+			// create new instance of vue or casdoc  
+			view.casdoi=casbah.creators[arg](view);
 		}
-		//change view options, save and render view
-		//viewByCasdok({casdok:arg});
-		//view.casdoi=casbah.creators[options.casdok](view);
-		$(".CASDOC").hide();
-		$("#vue"+view.casdo$.attr("id")).show();
-		if (view.casdoi.render){view.casdoi.render();}		
-	} else {
-		console.log("veiwer.view( arg is NOT a casdok )");
-		//then assume its a view name...
-		//call up an existing view by name, add not applicable
-		viewByViewName(arg);
-	}
+		// manage visibilities
+		views.forEach(function(v){
+			//var v=views[i];
+			if (v==view){
+				//show current	
+				if (v.casdoi instanceof Vue){
+					console.log("vue.visible=true");
+					v.casdoi.visible=true;
+				} else {
+					console.log("casdo$.show()");
+					v.casdo$.show();
+				}				
+			} else {
+				//hide others
+				if (v.casdoi instanceof Vue){
+					console.log("vue.visible=false");
+					v.casdoi.visible=false;
+				} else {
+					console.log("casdo$.hide()");
+					v.casdo$.hide();
+				}				
+			}			
+		});
+		if (typeof view.casdoi.render=="function"){view.casdoi.render();}			
+	} 
+	else if (isViewName(arg)) {
+		console.log("arg is a view name");
+		// manage visibilities
+		views.forEach(function(v){
+			//var v=views[i];
+			if (v.name==arg){
+				//show current	
+				if (v.casdoi instanceof Vue){v.casdoi.visible=true;} else {v.casdo$.show();}				
+			} else {
+				//hide others
+				if (v.casdoi instanceof Vue){v.casdoi.visible=false;} else {v.casdo$.hide();}				
+			}			
+		});
+	} else {console.log("arg unknown");}
 };
 
 var isCasdok=function(casdok){
-	//string is a casdoc key
+	// returns true of arg is a casdoc key
 	return (typeof casdok=="string" && Object.keys(casbah.creators).includes(casdok));
 };
 
-var isViewName=function(){
-	
-	
+var isViewName=function(name){
+	// returns true if arg is a view name
+	return (views.filter(function(v){return (v.name==name);}).length > 0);
 };
-
-var viewByCasdok=function(options){
-
-	$.extend(view.options, options);
-	console.log("veiwByCasdok()...", options);
 	
-	//if (view.options.pronum==null){	
-		//no project number so prompt or goto project view
-		//view.options.pronum=prompt("Enter project number...");
-		//viewByCasdok({pronum:p});
-	//} else {
-		//localSave(prefix+view.name, view.options);
-		//create new document instance
-		view.casdoi=casbah.creators[options.casdok](view);
-		//hide all other view-instances
-		$(".CASDOC").hide();
-		//then show only the new one
-		//view.casdo$.show();
-		$("#vue"+view.casdo$.attr("id")).show();
-		//refresh data and render it
-		try{ view.casdoi.render(); } catch(e){console.log(e);}
-	//}
-};
-
-var viewByViewName=function(name){
-	console.log("viewOptions...", view.options);
-	//Make named view the current view. Returns current view if called without argument
-	if (typeof name!="string") {return view;}
-	//find view by name
-	var cv=views.filter(function(v){return (v.name==name);});
-	//update current view...
-	if (cv.length==1){
-		view=cv[0];
-		console.log("current view:", view.name);
-		console.log("current view-id:", view.casdo$.attr("id"));
-
-		//hide all views
-		$(".CASDOC").hide();
-		//reveal current
-		view.casdo$.show();
-		return true;
-	} else {
-		console.log("view not found:", name);
-		return false;
-	}
-};
-
-var viewSuccessOld=function(r){ 
-	//r={branch:"", folders:[], files:[], err:null, casdoc:{}} 
-	//cadsoc={name:"site visit report", jscr:"client/svr.js", html:"client/svr.html"}
 	
-	// REPLACE...
-	//camel.options.branch=r.branch;
-	//camel.saveOptions(r);			
-	
-	// WITH...
-	// camel.argoMixSet({branch:r.branch});
-	
-	//load and execute script...	
-	console.log( "camel $load..." + r.casdoc.html);	
-	camel.casdo$.load(r.casdoc.html, function(){
-		console.log( "view $getScript..." + r.casdoc.jscr);
-		$.getScript(r.casdoc.jscr, function(data, textStatus, jqxhr ){
-			//console.log( data ); // Data returned
-			//console.log( textStatus ); // Success
-			//console.log( jqxhr.status ); // 200
-			//create document object passing jquery element casdo$
-			console.log("casdok..."+r.casdok);
-			//create document instance
-			camel.casdoi=casbah.creators[r.casdok](camel);
-			//then show it
-			camel.casdoi.view();
-		});
-	});
-};		
