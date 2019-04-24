@@ -150,7 +150,7 @@
 </div>
 
 <template id="welcome-template">
-	<div class="container" v-show="visible">
+	<div class="container" v-show="seen" v-bind:style="styleObject">
 	<br><br><br><br>
 	<div class="row">
 	<div class="col-md-1"></div>
@@ -159,6 +159,9 @@
 	<div class="col-md-1 welcome"></div>
 	<div class="col-md-2 welcome">Be<br>Architectural<br>Heroes</div>
 	<div class="col-md-2"></div>
+	</div>
+	<div class="row" >
+	name:{{name}}
 	</div>
 	</div>
 </template>	

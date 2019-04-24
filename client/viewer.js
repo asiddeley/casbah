@@ -92,6 +92,7 @@ var View=function(options){
 
 	// default name for view
 	this.name=autoname[views.length-1];
+	this.bc=autoback[autoname.indexOf(this.name) % autoback.length];	
 
 	//retrieve, merge and save options locally
 	this.options=new Options();	
@@ -103,14 +104,16 @@ var View=function(options){
 	//place for document  
 	this.casdo$=$("<div></div>");
 	this.casdo$.appendTo(view$);
-	var bc=autoback[autoname.indexOf(this.name) % autoback.length];	
-	this.casdo$.css("border-color", bc);
+	//this.casdo$.css("border-color", bc);
 	this.casdo$.addClass("CASDOC");
 	this.casdo$.attr("id", prefix+this.name);
 	//this.casdo$.hide();
 	
 	//casbah document instance OR vue component instance
 	this.casdoi=casbah.creators[this.options.casdok](view);
+	this.casdoi.styleObject["background-color"]=this.bc;
+	this.casdoi.name=this.name;
+	this.casdoi.seen=true;
 	
 	//returns the current document instnce I.e. vue component instance
 	this.getCDI=function(){return view.casdoi;};
@@ -179,50 +182,20 @@ exports.view=function(arg, add){
 		if (add) {
 			//create a new View copying current options, view updated automatically
 			new View(new Options(view.options));
-			view.options.pronum=prompt("Enter project number...", view.options.pronum);
+			//view.options.pronum=prompt("Enter project number...", view.options.pronum);
 			localSave(prefix+view.name, view.options);
 		} else {			
 			// create new instance of vue or casdoc  
 			view.casdoi=casbah.creators[arg](view);
 		}
-		// manage visibilities
-		views.forEach(function(v){
-			//var v=views[i];
-			if (v==view){
-				//show current	
-				if (v.casdoi instanceof Vue){
-					console.log("vue.visible=true");
-					v.casdoi.visible=true;
-				} else {
-					console.log("casdo$.show()");
-					v.casdo$.show();
-				}				
-			} else {
-				//hide others
-				if (v.casdoi instanceof Vue){
-					console.log("vue.visible=false");
-					v.casdoi.visible=false;
-				} else {
-					console.log("casdo$.hide()");
-					v.casdo$.hide();
-				}				
-			}			
-		});
+		//isolate the current vue
+		showHide(function(v){return v==view;});
+		//if not a vue then call its renderer
 		if (typeof view.casdoi.render=="function"){view.casdoi.render();}			
 	} 
 	else if (isViewName(arg)) {
 		console.log("arg is a view name");
-		// manage visibilities
-		views.forEach(function(v){
-			//var v=views[i];
-			if (v.name==arg){
-				//show current	
-				if (v.casdoi instanceof Vue){v.casdoi.visible=true;} else {v.casdo$.show();}				
-			} else {
-				//hide others
-				if (v.casdoi instanceof Vue){v.casdoi.visible=false;} else {v.casdo$.hide();}				
-			}			
-		});
+		showHide(function(v){return v.name==arg;});
 	} else {console.log("arg unknown");}
 };
 
@@ -236,4 +209,29 @@ var isViewName=function(name){
 	return (views.filter(function(v){return (v.name==name);}).length > 0);
 };
 	
+var showHide=function(fn){
+	// manage visibilities
+	views.forEach(function(v){
+		//var v=views[i];
+		if (fn(v)){
+			//show current	
+			if (v.casdoi instanceof Vue){
+				console.log("vue("+v.name+").seen=true");
+				v.casdoi.seen=true;
+			} else {
+				console.log("casdo$.show()");
+				v.casdo$.show();
+			}				
+		} else {
+			//hide others
+			if (v.casdoi instanceof Vue){
+				console.log("vue("+v.name+").seen=false");
+				v.casdoi.seen=false;
+			} else {
+				console.log("casdo$.hide()");
+				v.casdo$.hide();
+			}				
+		}			
+	});
 	
+}

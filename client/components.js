@@ -113,19 +113,21 @@ var signature=function(casbah, template$){
 var welcome=function(casbah, template$){
 	//activater function adds casbah creators if component is meant to be casdoc...
 	casbah.creators.welcome=function(view){
-		var id=view.casdo$.attr("id");
-		var s="<welcome></welcome>";
-		console.log("welcome()...",id);
+		console.log("welcome()...");
 		return new Vue({
-			data:function(){return {'visible':true};},
+			data:{
+				name:"unnamed",
+				seen:true,
+				styleObject:{"background-color":"silver"}
+			},
 			el:"#"+view.casdo$.attr("id"),
-			template:s
+			template:"<welcome v-bind:seen='seen' v-bind:styleObject='styleObject' v-bind:name='name' ></welcome>"
 		});
 	};
 	
 	var html=template$.find("#welcome-template").html();
 	Vue.component("welcome",{
-		props:["visible"],
+		props:["seen", "styleObject", "name"],
 		template:html
 	});
 };
