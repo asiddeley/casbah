@@ -111,17 +111,16 @@ var signature=function(casbah, template$){
 };
 
 var welcome=function(casbah, template$){
-	//activater function adds casbah creators if component is meant to be casdoc...
 	casbah.creators.welcome=function(view){
 		console.log("welcome()...");
 		return new Vue({
 			data:{
-				name:"unnamed",
-				seen:true,
-				styleObject:{"background-color":"silver"}
+				name:view.name,
+				seen:view.seen,
+				styleObject:{"background-color":view.bc}
 			},
-			el:"#"+view.casdo$.attr("id"),
-			template:"<welcome v-bind:seen='seen' v-bind:styleObject='styleObject' v-bind:name='name' ></welcome>"
+			el:"#"+view.el$.attr("id"),
+			template:"<welcome v-bind:styleObject='styleObject' v-bind:name='name' ></welcome>"
 		});
 	};
 	
@@ -131,6 +130,7 @@ var welcome=function(casbah, template$){
 		template:html
 	});
 };
+
 
 
 //PUBLIC
@@ -143,7 +143,7 @@ exports.activate=function(casbah, callback){
 	
 	var template$=$("<div></div>").appendTo("body");
 	template$.attr("id","casdoc-templates");
-	template$.css("display","none");
+	//template$.css("display","none");
 	
 	template$.load("client/components.html", function(){	
 		//register components...

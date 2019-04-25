@@ -1,12 +1,12 @@
-<div id="casdoc-template-old">
+<template id="casdoc-template-old">
 	<div>
 		<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
 		<h2 id="casdoc-title" v-on:click="change_title" style="float:right;">{{title}}</h2>
 		<div id="casdoc-content">casdoc content goes here...</div>
 	</div>
-</div>
+</template>
 
-<div id="casdoc-template">
+<template id="casdoc-template">
 <table>
 	<thead><tr><th id="header-placeholder" class="col-xs-12"></th></tr></thead>
 	<tbody>
@@ -19,9 +19,9 @@
 		<tr class="breakable"><td id="svr-photos-placeholder">photos-printable</td></tr>
 	</tbody>
 </table>
-</div>
+</template>
 
-<div id="project-block-template">
+<template id="project-block-template">
 <div    >
 	<div class="row row__">
 		<strong class="col-xs-4">Project No:</strong>
@@ -48,9 +48,9 @@
 		<p id="svr-permit" class="col-xs-8">{{permit}}</p>
 	</div>
 </div>
-</div>
+</template>
 
-<div id="title-block-template">
+<template id="title-block-template">
 	<div>
 	<div class="row row__">
 		<strong class="col-xs-4">Report No:</strong>
@@ -110,17 +110,17 @@
 		</span>
 	</div>
 	</div>
-</div>
+</template>
 
-<div id="comment-item-template">
+<template id="comment-item-template">
 	<div class="row">
 	<p class="col-xs-1 marz">{{comment.no}}</p>
 	<p class="col-xs-10 border-left marz">{{comment.text}}</p>
 	<p class="col-xs-1 border-left marz">{{comment.ref}}</p>
 	</div>		
-</div>
+</template>
 	
-<div id="comment-section-template">
+<template id="comment-section-template">
 	<div>
 	<div class="row">
 	<h3 class="col-xs-1 marz">No.</h3>
@@ -133,24 +133,24 @@
 		v-bind:key="item.no"
 	>{{item}}</comment-item>
 	</div>
-</div>
+</template>
 
-<div id="image-section-template">
+<template id="image-section-template">
 	<div>
 	<h3>Image section...</h3>
 	</div>
-</div>
+</template>
 
-<div id="signature-template">
+<template id="signature-template">
 	<div>
 	<h3>Signature</h3>
 	<p>A Siddeley</p><hr>
 	<p>10-Apr-2019</p>
 	</div>
-</div>
+</template>
 
 <template id="welcome-template">
-	<div class="container" v-show="seen" v-bind:style="styleObject">
+	<div class="container"  v-bind:style="styleObject">
 	<br><br><br><br>
 	<div class="row">
 	<div class="col-md-1"></div>
@@ -166,7 +166,7 @@
 	</div>
 </template>	
 
-<div id="deficiency-review-report-template">
+<template id="deficiency-review-report-template">
 	<table>
 	<thead><tr><th class="col-xs-12">
 		<img src="./uploads/logo.png" style="width:100px; float:left;"></img>
