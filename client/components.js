@@ -28,13 +28,12 @@ var project_block=function(casbah, template$){
 	var html=template$.find("#project-block-template").html();
 	Vue.component("project-block", {
 		data:function(){return {project:{
-			project_id:"12-345", 
-			project_name:"Bldg", 
+			pronum:"12-345", 
+			name:"Bldg", 
 			address:"123 Avenue St",
 			contractor:"casbahcon",
 			permit:"12-123-456"
 		}};},
-		props:["project"],
 		methods:{
 			logo_click:function(ev){alert("change logo...");},
 			title_click:function(ev){alert("change logo...");}

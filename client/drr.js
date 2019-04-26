@@ -7,13 +7,13 @@ MIT License
 
 var create=function(view){
 	var app=new Vue({
-		data:function(){return {project:{
+		data:{project:{
 			project_id:"12-345", 
 			project_name:"Bldg", 
 			address:"123 Avenue St",
 			contractor:"casbahcon",
 			permit:"12-123-456"
-		}};},
+		}},
 		el:"#"+view.el$.attr("id"),
 		template:"<DRR v-bind:project='project'></DRR>"		
 	});
@@ -27,6 +27,7 @@ exports.activate=function(casbah, template$){
 	//register drr a global component...  
 	Vue.component("DRR", {
 		data:function(){return {};},
+		props:["project"],
 		methods:{
 			change_title:function(ev){alert("change title")},
 			defic_click:function(ev){cas.edit(ev);},
