@@ -21,31 +21,45 @@
 </table>
 </template>
 
+<template id="header-template">
+<div>
+	<br><br>
+	<div id="backup-logo"></div>
+	<img 
+	src="./uploads/logo.png" 
+	alt=""
+	style="width:100px; float:left;"
+	onerror="$('#backup-logo').load('client/casbah_logo.html');">
+	<h2  style="float:right;" >{{doc_type}}</h2>
+	<div style="clear:both"></div>
+</div>
+</template>
+
 <template id="project-block-template">
-<div    >
+<div v-bind:project="project">
 	<div class="row row__">
 		<strong class="col-xs-4">Project No:</strong>
-		<p class="col-xs-8">{{project_id}}</p>
+		<p class="col-xs-8">{{project.project_id}}</p>
 	</div>
 
 	<div class="row row">
 		<strong class="col-xs-4">Project Name:</strong>
-		<p class="col-xs-8">{{project_name}}</p>
+		<p class="col-xs-8">{{project.project_name}}</p>
 	</div>
 
 	<div class="row row">
 		<strong class="col-xs-4">Project Address:</strong>
-		<p class="col-xs-8">{{address}}</p>
+		<p class="col-xs-8">{{project.address}}</p>
 	</div>
 
 	<div class="row row">
 		<strong class="col-xs-4">Contractor:</strong>
-		<p class="col-xs-8">{{contractor}}</p>
+		<p class="col-xs-8">{{project.contractor}}</p>
 	</div>
 
 	<div class="row row">
 		<strong class="col-xs-4">Permit No:</strong>
-		<p id="svr-permit" class="col-xs-8">{{permit}}</p>
+		<p id="svr-permit" class="col-xs-8">{{project.permit}}</p>
 	</div>
 </div>
 </template>
@@ -150,7 +164,7 @@
 </template>
 
 <template id="welcome-template">
-	<div class="container"  v-bind:style="styleObject">
+	<div class="container" >
 	<br><br><br><br>
 	<div class="row">
 	<div class="col-md-1"></div>
@@ -159,9 +173,6 @@
 	<div class="col-md-1 welcome"></div>
 	<div class="col-md-2 welcome">Be<br>Architectural<br>Heroes</div>
 	<div class="col-md-2"></div>
-	</div>
-	<div class="row" >
-	name:{{name}}
 	</div>
 	</div>
 </template>	
@@ -174,7 +185,7 @@
 	</th></tr></thead>
 	<tbody>
 		<tr><td>
-		<div class="col-xs-6"><project-block></project-block></div>
+		<div class="col-xs-6"><project-block v-bind:project='project'></project-block></div>
 		<div class="col-xs-6"><title-block></title-block></div>
 		</td></tr>
 		<tr class="breakable"><td class="row__">This report is a general review of progress and construction activities on site.  Architectural Work was visually reviewed on a random basis for general conformity with Architectural Contract Documents prepared by this firm.  Refer also to Mechanical and Electrical field reports issued separately.</td></tr>

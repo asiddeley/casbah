@@ -100,29 +100,25 @@ var View=function(options){
 	$.extend(this.options, options);
 	localSave(prefix+this.name, this.options);
 	console.log("View.options:", this.options);
-
 	
 	//place for vue element or document  
 	this.casdo$=$("<div></div>");
 	this.casdo$.appendTo(view$);
+	this.casdo$.css({"border-color":this.bc, "border-width":"4px", "border-style":"solid"});
 	this.hide=function(){this.casdo$.hide();};
 	this.show=function(){this.casdo$.show();};
-	//this.casdo$.attr("id", prefix+this.name);
-	//this.casdo$.hide();
+
 	//place for vue
 	this.el$=$("<div></div>");
 	this.el$.attr("id", prefix+this.name);
 	this.el$.appendTo(this.casdo$);
 
-	console.log("View()... casdok:",this.options.casdok);
+	//console.log("View()... casdok:",this.options.casdok);
 	//casbah document instance OR vue component instance
 	this.casdoi=casbah.creators[this.options.casdok](view);
 	//this.casdoi.styleObject["background-color"]=this.bc;
 	this.casdoi.name=this.name;
-	//this.casdoi.seen=true;
-	this.seen=true;
-	this.styleObject={"background-color":this.bc};
-	
+
 	//returns the current document instnce I.e. vue component instance
 	this.getCDI=function(){return this.casdoi;};
 	
@@ -145,31 +141,10 @@ var View=function(options){
 exports.activate=function(CASBAH){
 	casbah=CASBAH;
 
-	//view=new View(new Options());
 	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
-	view$.css({"border-style":"solid", "border-width":"4px", "border-color":"salmon"});
+	//view$.css({"border-style":"solid", "border-width":"4px", "border-color":"salmon"});
 	if (!name$) {name$=$("#VIEW-LIST");}
-	
-	/*
-	//vue manager
-	var currentCasdoc=function(casbah, template$){
-		casbah.creators.currentCasdoc=function(view){
-			console.log("currentCasdoc()...");
-			return new Vue({
-				computed:{
-					currentCasdoc:function(){
-						//need to return vue component name, not instance
-						//return view.casdoi;
-						return view.casdok;
-					}
-				},
-				data:{},
-				el:"#current-casdoc"
-			});
-		}
-	}	
-	*/
-	
+
 };
 
 exports.menuHide=function(ev, m$){m$.hide();}
@@ -202,12 +177,9 @@ exports.view=function(arg, add){
 	var casbah=this;
 
 	console.log("casbah.view()...");
-	//console.log("casdoc.creators...", Object.keys(casbah.creators));	
 
 	//first run
-	//if (views.length==0){new View({casdok:"welcome"});}
 	if (views.length==0){new View({casdok:"welcome"});}
-
 	
 	if (isCasdok(arg)){
 		console.log("arg is a casdoc key");
@@ -221,15 +193,14 @@ exports.view=function(arg, add){
 			view.casdoi=casbah.creators[arg](view);
 		}
 		//isolate the current vue
-		showHide(function(v){return v==view;});
+		views.forEach(function(v){if (v==view){v.show();} else {v.hide();}});	
 		//if not a vue then call its renderer
-		//currentCasdoc(function(v){return v==view;});
 		if (typeof view.casdoi.render=="function"){view.casdoi.render();}			
 	} 
 	else if (isViewName(arg)) {
 		console.log("arg is a view name");
-		showHide(function(v){return v.name==arg;});
-		//currentCasdoc(function(v){return v.name==arg;});
+		//isolate the current vue
+		views.forEach(function(v){if (v.name==arg){v.show();} else {v.hide();}});	
 		} else {console.log("arg unknown");}
 };
 
@@ -242,48 +213,4 @@ var isViewName=function(name){
 	// returns true if arg is a view name
 	return (views.filter(function(v){return (v.name==name);}).length > 0);
 };
-	
-/*
-//non starter
-var currentCasdoc=function(fn){
-	views.forEach(function(v){
-		if (fn(v)){
-			
-		}
-	});
-};	
-*/
-var showHide=function(fn){
-	// manage visibilities
-	views.forEach(function(v){
-		if (fn(v)){v.show();} else {v.hide();}
-	});	
-};
 
-var showHideOld=function(fn){
-	// manage visibilities
-	views.forEach(function(v){
-		//var v=views[i];
-		if (fn(v)){
-			//show current	
-			if (v.casdoi instanceof Vue){
-				console.log("vue("+v.name+").seen=true");
-				v.casdoi.seen=true;
-				v.casdoi.name=v.casdoi.name;
-			} else {
-				console.log("casdo$.show()");
-				v.casdo$.show();
-			}				
-		} else {
-			//hide others
-			if (v.casdoi instanceof Vue){
-				console.log("vue("+v.name+").seen=false");
-				//v.casdoi.seen=false;
-			} else {
-				console.log("casdo$.hide()");
-				v.casdo$.hide();
-			}				
-		}			
-	});
-	
-}
