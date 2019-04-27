@@ -55,21 +55,21 @@ var name$;
 var updateNamesHTML=function(){
 	
 	//delete existing list
-	$(".CAMELNAME").remove();
+	$(".VIEWNAME").remove();
 
 	//Recreate list of all instantiated camel names for the CASBAH admin menu	
 	views.forEach(function(n){
 		//calculate background colour, recycle colours if there are more camels than colours
 		var bc=autoback[autoname.indexOf(n.name) % autoback.length];	
 		//console.log("background-color:"+bc);
-		var li=$("<li class='CAMELNAME'><a href='#'>"+n.name+"</a></li>");
+		var li=$("<li class='VIEWNAME'><a href='#'>"+n.name+"</a></li>");
 		li.appendTo(name$);
 		li.css("background-color",bc);
 		//li.click(function(){ camel.main(camel.options.name);});
 		li.click(function(ev){ 
 			var n=$(ev.target).text();
 			console.log("current view to be ", n);
-			casbah.view(n); 
+			casbah.show(n); 
 		});
 	});
 };
@@ -85,7 +85,6 @@ var view$;
 
 // Constructor function
 var View=function(options){
-	// eg. {name:"camel name", branch:null, casdok:"svr", docnum:"SVR-A01", pronum:"BLDG-101"}
 
 	view=this;
 	views.push(this);
@@ -105,34 +104,49 @@ var View=function(options){
 	this.casdo$=$("<div></div>");
 	this.casdo$.appendTo(view$);
 	this.casdo$.css({"border-color":this.bc, "border-width":"4px", "border-style":"solid"});
-	this.hide=function(){this.casdo$.hide();};
-	this.show=function(){this.casdo$.show();};
 
 	//place for vue
 	this.el$=$("<div></div>");
 	this.el$.attr("id", prefix+this.name);
 	this.el$.appendTo(this.casdo$);
 
-	//console.log("View()... casdok:",this.options.casdok);
 	//casbah document instance OR vue component instance
 	this.casdoi=casbah.creators[this.options.casdok](view);
-	//this.casdoi.styleObject["background-color"]=this.bc;
-	this.casdoi.name=this.name;
-
-	//returns the current document instnce I.e. vue component instance
-	this.getCDI=function(){return this.casdoi;};
-	
-	//expose localSave, called from project for updating {pronum:"updatedPronum"}
-	this.localSave=function(options){localSave(prefix+this.name, options);};
 	
 	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
-
-	//update camel contents - only when called
-	//view("welcome");
-	console.log("View() created:",this.name);
 };
 
+View.prototype.clear=function(){
+	console.log("view.clear()...");
+	if (this.casdoi instanceof Vue){this.casdoi.$destroy();}
+	this.casdo$.empty();
+	//place for vue
+	this.el$=$("<div></div>");
+	this.el$.attr("id", prefix+this.name);
+	this.el$.appendTo(this.casdo$);
+	//return view for chaining
+	return this;
+};
+
+View.prototype.getCDI=function(){
+	//get the casbah document instnce or vue component instance
+	return this.casdoi;
+};
+
+View.prototype.hide=function(){this.casdo$.hide();};
+	
+View.prototype.localSave=function(options){
+	//expose localSave, called from project for updating {pronum:"updatedPronum"}
+	localSave(prefix+this.name, options);
+};
+
+View.prototype.setCDI=function(casdoi){
+	console.log("setCDI()...");
+	this.casdoi=casdoi;
+};
+
+View.prototype.show=function(){this.casdo$.show();};
 
 
 /////////////////////////////////////////
@@ -142,7 +156,6 @@ exports.activate=function(CASBAH){
 	casbah=CASBAH;
 
 	if (!view$) {view$=$("#VIEWER-PLACEHOLDER");}
-	//view$.css({"border-style":"solid", "border-width":"4px", "border-color":"salmon"});
 	if (!name$) {name$=$("#VIEW-LIST");}
 
 };
@@ -172,12 +185,11 @@ exports.unView=function(name){
 
 
 //view manager
-exports.view=function(arg, add){
-	
+exports.show=function(arg, add){
+
 	var casbah=this;
 
 	console.log("casbah.view()...");
-
 	//first run
 	if (views.length==0){new View({casdok:"welcome"});}
 	
@@ -186,11 +198,9 @@ exports.view=function(arg, add){
 		if (add) {
 			//create a new View copying current options, view updated automatically
 			new View(new Options(view.options));
-			//view.options.pronum=prompt("Enter project number...", view.options.pronum);
-			localSave(prefix+view.name, view.options);
-		} else {			
-			// create new instance of vue or casdoc  
-			view.casdoi=casbah.creators[arg](view);
+		} else {
+ 			// create new instance of vue or Casbah Document Instance, but clear() first!
+			view.setCDI(casbah.creators[arg](view.clear()));
 		}
 		//isolate the current vue
 		views.forEach(function(v){if (v==view){v.show();} else {v.hide();}});	
@@ -201,7 +211,7 @@ exports.view=function(arg, add){
 		console.log("arg is a view name");
 		//isolate the current vue
 		views.forEach(function(v){if (v.name==arg){v.show();} else {v.hide();}});	
-		} else {console.log("arg unknown");}
+	} else {console.log("arg unknown");}
 };
 
 var isCasdok=function(casdok){

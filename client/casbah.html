@@ -62,7 +62,7 @@ $(function() {
 
 	casbah.activate(function(){
 		//todo after acivation...
-		casbah.view("welcome");
+		casbah.show("welcome");
 	});	
 }); 
 
@@ -88,7 +88,7 @@ $(function() {
 		>Admin<span class="caret"></span></a>
 		<ul id="VIEW-LIST"  class="dropdown-menu">
 			<!--li onclick="casbah.view('project_log.html')"><a href="#">Project Log</a></li-->
-			<li onclick="casbah.view('prolog')"><a href="#">Project Log</a></li>
+			<li onclick="casbah.show('prolog')"><a href="#">Project Log</a></li>
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">Action Items</a></li>
 			<li class="disabled"><a href="#">Project Status</a></li>
@@ -178,10 +178,10 @@ $(function() {
 		<!--li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Room Deficiencies</a></li>
 		<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Review</a></li>
 		<li class="divider"><li-->
-		<li onclick="casbah.view('rdr')"><a href="#">Room Deficiency Review</a></li>
-		<li onclick="casbah.view('svr')"><a href="#">Site Visit Report</a></li>
+		<li onclick="casbah.show('rdr')"><a href="#">Room Deficiency Review</a></li>
+		<li onclick="casbah.show('svr')"><a href="#">Site Visit Report</a></li>
 		<li class="divider"><li>
-		<li onclick="casbah.view('drr')"><a href="#">Deficiency Review Report</a></li>
+		<li onclick="casbah.show('drr')"><a href="#">Deficiency Review Report</a></li>
 		</ul>	
 		</li>
 		
@@ -199,13 +199,13 @@ $(function() {
 
 		<li class="dropdown">
 		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown" 
-		onclick="casbah.view('welcome');"
+		onclickNOT="casbah.show('welcome');"
 		>Welcome<span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 			<li class="disabled"><a href="#">About</a></li>
 			<li class="disabled"><a href="#">Help</a></li>
-			<li onclick="casbah.view('welcome',1);"><a href="#">welcome+</a></li>
-			<li onclick="casbah.view('wiki.html');casbah.tool('wiki_tools.html')"><a href="#">Wiki</a></li>	
+			<li onclick="casbah.show('welcome',1);"><a href="#">welcome+</a></li>
+			<li onclick="casbah.show('wiki')"><a href="#">Wiki</a></li>	
 			<li class="divider"><li>
 			<li class="disabled"><a href="#">...</a></li>	
 			</ul>

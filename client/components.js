@@ -120,9 +120,9 @@ var welcome=function(casbah, template$){
 		console.log("welcome()...");
 		return new Vue({
 			data:{
-				name:view.name,
-				seen:view.seen,
-				styleObject:{"background-color":view.bc}
+				//name:view.name,
+				//seen:view.seen,
+				//styleObject:{"background-color":view.bc}
 			},
 			el:"#"+view.el$.attr("id"),
 			template:"<welcome v-bind:styleObject='styleObject' v-bind:name='name' ></welcome>"

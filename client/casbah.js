@@ -52,9 +52,9 @@ casbah.creators={};
 casbah.current=viewer.current;//same as view
 casbah.menuHide=viewer.menuHide;
 casbah.menuShow=viewer.menuShow;
-casbah.unView=viewer.unView;	
-casbah.view=viewer.view;
-casbah.viewAdd=function(casdok){viewer.view(casdok,1);};
+//casbah.unView=viewer.unView;	
+casbah.show=viewer.show;
+casbah.showPlus=function(casdok){viewer.show(casdok,1);};
 
 //project
 casbah.project=project;
