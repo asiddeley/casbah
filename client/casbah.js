@@ -32,21 +32,36 @@ $.extend(casbah, require("./editor"));
 
 //Vue components
 var components=require("./components");
+
 //view manager
 var viewer=require("./viewer");
+
 //project number - move this to components?
-var project=require("./project");
+//var project=require("./project");
+
+//query manager
+var query=require("./query");
 
 casbah.activate=function(callback){
 	console.log("casbah.activate()...");
 	viewer.activate(casbah);
 	project.activate(casbah);
-	//async function
+	queries.activate(casbah);
+	
+	//async function last
 	components.activate(casbah, callback);	
+
 };		
 
 //hash of functions, extended in various activate functions
 casbah.creators={};
+//accessor
+casbah.creator=function(name, fn){
+	if (typeof name=="string"){
+		if (typeof fn=="function"){this[name]=fn;}
+		else {return this.creators[name];}
+	}	
+};
 
 //viewer shortcuts
 casbah.current=viewer.current;//same as view
@@ -57,10 +72,13 @@ casbah.show=viewer.show;
 casbah.showPlus=function(casdok){viewer.show(casdok,1);};
 
 //project
-casbah.project=project;
-casbah.Project=project.Project;
+//casbah.project=project;
+//casbah.Project=project.Project;
 
-
+//Query constructor exposed
+casbah.Query=query.Query;
+//query store populated in casbah.activate()
+casbah.queries={};
 
 //expose to global environment
 window.casbah=casbah;

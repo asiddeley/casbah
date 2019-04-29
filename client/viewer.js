@@ -112,6 +112,7 @@ var View=function(options){
 
 	//casbah document instance OR vue component instance
 	this.casdoi=casbah.creators[this.options.casdok](view);
+	//this.casdoi=casbah.creator(this.options.casdok)(view);
 	
 	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
@@ -127,6 +128,11 @@ View.prototype.clear=function(){
 	this.el$.appendTo(this.casdo$);
 	//return view for chaining
 	return this;
+};
+
+view.prototype.el=function(){
+	//required for vue component instance 
+	return ("#"+prefix+this.name);
 };
 
 View.prototype.getCDI=function(){
