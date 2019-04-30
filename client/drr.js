@@ -7,7 +7,7 @@ MIT License
 
 var drrCreator=function(view){
 	//queries
-	var q1=casbah.queries.project.clone(
+	var q1=casbah.queries.project.clone(view.options,
 		{
 			pronum:casbah.current("pronum"),
 			success:function(r){
@@ -20,14 +20,14 @@ var drrCreator=function(view){
 	);
 
 	var q2=new casbah.Query(view.options, {
- 		//casdok:"drr", //also in view.options
-		//docnum:1, //also in view.options
-		//pronum:1, //also in view.options
+ 		//casdok:"drr", //from view.options
+		//docnum:1, //from view.options
+		//pronum:1, //from view.options
+		//pronum:casbah.current("pronum"), //from view.options
+		//docnum:casbah.current("docnum"), //from view.options
 		action:"select",
-		name:"drr",
-		desc:"Selects all DRRs",
-		pronum:casbah.current("pronum"),
-		docnum:casbah.current("docnum"),
+		alias:"DRRselect",
+		title:"Selector of DRR data & files",
 		success:function(r){
 			console.log("drr query for document data success...");
 			app.deficiencies=r.data.deficiencies;

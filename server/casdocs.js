@@ -76,8 +76,8 @@ exports.folder={
 
 // project & prolog.  Prolog is same data structure and branch as project, but it's another view 
 exports.project=project
-exports.prolog=extend(project, {
-	name:"Project Ledger",
+exports.projects=extend(project, {
+	name:"Projects",
 	desc:"Project folder log",
 	html:"client/prolog.html",
 })

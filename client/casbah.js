@@ -53,18 +53,27 @@ casbah.activate=function(callback){
 
 };		
 
-//hash of functions, extended in various activate functions
+//hash of casdoc creator functions, extended in various activate functions
 casbah.creators={};
 //accessor
 casbah.creator=function(name, fn){
 	if (typeof name=="string"){
-		if (typeof fn=="function"){this[name]=fn;}
+		if (typeof fn=="function"){this.creators[name]=fn; return fn;}
 		else {return this.creators[name];}
-	}	
+	} else return null;
+};
+
+//global storage
+casbah.currents={pronum:"TEST19-0001"};
+//accessor
+casbah.current=function(name, val){
+	if (typeof name=="string"){
+		if (typeof val!="undefined"){this.currents[name]=val; return val;}
+		else {return this.currents[name];}
+	} else return null;
 };
 
 //viewer shortcuts
-casbah.current=viewer.current;//same as view
 casbah.menuHide=viewer.menuHide;
 casbah.menuShow=viewer.menuShow;
 //casbah.unView=viewer.unView;	

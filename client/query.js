@@ -8,24 +8,42 @@ MIT License
 // PRIVATE STATIC
 
 
-
 // PUBLIC
 
 exports.activate=function(casbah){
-	//projects is the default new
-	casbah.queries.projects=new casbah.Query();
-	casbah.queries.project=new casbah.Query({
+
+	//register queries in casbah.queries.  Default new Query is projects
+	new casbah.Query("projects");
+	
+	new casbah.Query("project", {
 		alias:"project",
-		action:"select",
+		action:"select ffd",
 		casdok:"projects",	
 		desc:"Project information, for matching pronum",
 		docnum:"",
-		pronum:"(overriden)", 
+		pronum:function(){return casdok.current("pronum")}, 
+		success:function(r){console.log("Query success...", r);}
+	});	
+	
+	new casbah.Query("experimental nested query", {
+		alias:"project",
+		action:"select ffd",
+		casdok:"projects",	
+		desc:"Project information, for matching pronum",
+		docnum:"",
+		pronum:function(){return casdok.current("pronum")}, 
 		success:function(r){
-			r.files.forEach(f){
-				(if f==this.options.pronum){}
-			}
-		}
+			console.log("Query success...");
+			//keyword 'this' will work as intended here
+			r.folders.forEach(function(f){
+				if (f==this.options.pronum){
+					//run sub-query
+					this.query.options.pronum=f;
+					this.query.run();				
+				}
+			});
+		},
+		query:new Query()
 	});	
 };
 
@@ -37,10 +55,9 @@ exports.Query=function(){
 	
 	this.options={
 		alias:"projects",
-		action:"select",
+		action:"select ffd",
 		casdok:"projects",
-		desc:"Returns a list of available project names",
-		docnum:"",
+		docnum:"", //not applicable
 		error:function(){
 			console.log("Query.options.error()...");
 		},
@@ -51,6 +68,7 @@ exports.Query=function(){
 			console.log("Project folders...", result.folders);
 			//result.folders.forEach(function(name){console.log(name);});
 		},
+		title:"List of all project names",
 		field:"none",
 		valu:"none"
 	};
@@ -64,6 +82,9 @@ exports.Query=function(){
 	};
 	
 	this.run=function(){
+		//check options for functions and process
+		//to do
+		
 		var query=this;
 		$.ajax({
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
