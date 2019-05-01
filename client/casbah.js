@@ -45,8 +45,8 @@ var query=require("./query");
 casbah.activate=function(callback){
 	console.log("casbah.activate()...");
 	viewer.activate(casbah);
-	project.activate(casbah);
-	queries.activate(casbah);
+	//project.activate(casbah);
+	query.activate(casbah);
 	
 	//async function last
 	components.activate(casbah, callback);	
@@ -88,6 +88,13 @@ casbah.showPlus=function(casdok){viewer.show(casdok,1);};
 casbah.Query=query.Query;
 //query store populated in casbah.activate()
 casbah.queries={};
+//accessor
+casbah.query=function(name, val){
+	if (typeof name=="string"){
+		if (typeof val!="undefined"){this.queries[name]=val; return val;}
+		else {return this.queries[name];}
+	} else return null;
+};
 
 //expose to global environment
 window.casbah=casbah;

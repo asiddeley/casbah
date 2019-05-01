@@ -118,6 +118,7 @@ var signature=function(casbah, template$){
 var welcome=function(casbah, template$){
 	casbah.creators.welcome=function(view){
 		console.log("welcome()...");
+		casbah.query("projects").run();
 		return new Vue({
 			data:{
 				//name:view.name,
@@ -125,7 +126,7 @@ var welcome=function(casbah, template$){
 				//styleObject:{"background-color":view.bc}
 			},
 			el:"#"+view.el$.attr("id"),
-			template:"<welcome v-bind:styleObject='styleObject' v-bind:name='name' ></welcome>"
+			template:"<welcome></welcome>"
 		});
 	};
 	

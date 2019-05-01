@@ -272,7 +272,8 @@ exports.handler=function (req, res) {
 		case "CHANGE":change.jsonKeyValue(req, res); break; //needs testing
 		case "CREATE":create.folder(req, res); break; //needs testing
 		//case "LEDGER":ledger(req, res); break; //NEW!  instead of SVRL or svr log
-		case "SELECT":select.foldersFiles(req, res); break; //needs testing
+		//case "SELECT":select.foldersFiles(req, res); break; //needs testing
+		case "SELECT":select.dff(req, res); break; //needs testing
 		case "UPLOAD":upload.files(req, res); break; //needs testing
 	
 	} 

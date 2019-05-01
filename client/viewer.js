@@ -130,7 +130,7 @@ View.prototype.clear=function(){
 	return this;
 };
 
-view.prototype.el=function(){
+View.prototype.el=function(){
 	//required for vue component instance 
 	return ("#"+prefix+this.name);
 };

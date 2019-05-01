@@ -1,10 +1,7 @@
 /**********************************
 CASBAH * Contract Admin System Be Architectural Heroes *
-
-
+Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
-
-Copyright (c) 2018 Andrew Siddeley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +39,6 @@ const frameType=function(image){
 	else if (ratio >= 0.5) {return "landscape"}
 	else {return "wide"}
 }
-
 
 exports.foldersFiles=function(req, res){
 	// responds with current site visit report info
@@ -172,5 +168,50 @@ exports.images=function(req, res){
 	catch(err) {
 		res.json({images:[], err:err, project_id:req.body.pronum})
 		console.log("SELECT IMAGES catch...", err)
+	}
+}
+
+//////////////
+// Simpler approach for new casbah.Query
+
+exports.dff=function(req, res){
+	// default return result
+	var ret={data:{}, files:[], folders:[], root:"", err:null};	
+	
+	try {
+		console.log("SELECT FFData...")
+		var casdok=req.body.casdok||null;
+		var p=path.join(global.appRoot, req.body.casite, req.body.branch)
+		ret.root=path.join(req.body.casite, req.body.pronum)
+ 		
+		//check if path exists otherwise catch error
+		fs.statSync (p)
+		
+		var ff=fs.readdirSync(p);
+		
+		//FILES
+		ret.files=ff.filter(function (file) {
+			return fs.statSync(path.join(p, file)).isFile()
+		})
+		
+		//FOLDEERS
+		ret.folders=ff.filter(function (file) {
+			return fs.statSync(path.join(p, file)).isDirectory()
+		})
+		
+		//DATA - jsonify file if it's the applicable json datafile for the casdoc
+		if (casdok){
+			ret.files.map(function(f){
+				if (f == casdocs[casdok].json){
+					ret.data=JSON.parse(fs.readFileSync(path.join(p,f),"UTF-8"))
+				}
+			})
+		}
+		res.json(ret)
+	} 
+	catch(err) {
+		ret.err=err
+		res.json(ret)
+		console.log("SELECT catch:", ret)
 	}
 }

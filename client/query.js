@@ -17,33 +17,33 @@ exports.activate=function(casbah){
 	
 	new casbah.Query("project", {
 		alias:"project",
-		action:"select ffd",
-		casdok:"projects",	
-		desc:"Project information, for matching pronum",
+		action:"SELECT",
+		casdok:"project",	
 		docnum:"",
 		pronum:function(){return casdok.current("pronum")}, 
-		success:function(r){console.log("Query success...", r);}
+		success:function(r){console.log("Query success...", r);},
+		title:"Project information, for matching pronum"
 	});	
 	
-	new casbah.Query("experimental nested query", {
+	new casbah.Query("XQ1", {
 		alias:"project",
-		action:"select ffd",
+		action:"SELECT",
 		casdok:"projects",	
-		desc:"Project information, for matching pronum",
 		docnum:"",
 		pronum:function(){return casdok.current("pronum")}, 
 		success:function(r){
 			console.log("Query success...");
-			//keyword 'this' will work as intended here
+			//keyword 'this' should work as intended here because success is called
 			r.folders.forEach(function(f){
 				if (f==this.options.pronum){
-					//run sub-query
-					this.query.options.pronum=f;
+					//run nexted query
+					this.query.options.branch=f;
 					this.query.run();				
 				}
 			});
 		},
-		query:new Query()
+		title:"experimental query with nested query",
+		query:new casbah.Query()
 	});	
 };
 
@@ -55,29 +55,32 @@ exports.Query=function(){
 	
 	this.options={
 		alias:"projects",
-		action:"select ffd",
-		casdok:"projects",
+		action:"SELECT",
+		branch:"", //like path
+		casdok:"projects", //identifies the datafile
 		docnum:"", //not applicable
 		error:function(){
 			console.log("Query.options.error()...");
 		},
-		pronum:"", //wildcard had no effect and is ignored
+		pronum:"", //not applicable
 		success:function(result){
-			console.log("Query.options.success()...");
-			console.log("Project data...", result.data);
-			console.log("Project folders...", result.folders);
+			console.log("Query.options.success()...", result);
+			//console.log("Project data...", result.data);
+			//console.log("Project files...", result.files);
+			//console.log("Project folders...", result.folders);
 			//result.folders.forEach(function(name){console.log(name);});
 		},
 		title:"List of all project names",
-		field:"none",
-		valu:"none"
+		field:"none", //not applicable
+		valu:"none" //not applicable
 	};
 	
 	for (var a in arguments){
 		if (typeof arguments[a]=="object") {$.extend(this.options, arguments[a]);}
 		else if (typeof arguments[a]=="string"){
 			//Register the query in casbah.queries
-			casbah.queries[arguments[a]]=this;
+			//casbah.queries[arguments[a]]=this;
+			casbah.query(arguments[a], this);
 		}
 	};
 	
