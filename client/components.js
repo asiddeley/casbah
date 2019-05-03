@@ -117,22 +117,30 @@ var signature=function(casbah, template$){
 
 var welcome=function(casbah, template$){
 	casbah.creators.welcome=function(view){
+		var projects=["*none*"];
 		console.log("welcome()...");
-		casbah.query("projects").run();
+		casbah.query("projects").run(
+			{success:function(r){
+				if (typeof r=="undefined"){r={folders:["*empty*"]};}
+				projects=r.folders;
+				vname=view.name;
+				pronum=view.options.pronum;
+			}}
+		);
 		return new Vue({
 			data:{
-				//name:view.name,
-				//seen:view.seen,
-				//styleObject:{"background-color":view.bc}
+				vname:"*error*",
+				pronum:"*error*",
+				projects:["*empty*"]
 			},
 			el:"#"+view.el$.attr("id"),
-			template:"<welcome></welcome>"
+			template:"<welcome v-bind:projects='projects' v-bind:vname='vname' v-bind:vname='pronum'></welcome>"
 		});
 	};
 	
 	var html=template$.find("#welcome-template").html();
 	Vue.component("welcome",{
-		props:["seen", "styleObject", "name"],
+		props:["projects", "vname", "pronum"],
 		template:html
 	});
 };

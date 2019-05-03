@@ -174,7 +174,14 @@
 	<div class="col-md-2 welcome">Be<br>Architectural<br>Heroes</div>
 	<div class="col-md-2"></div>	
 	</div>
-	<br>
+	<hr>
+	<div class="row">
+		<div class="col-md-6" v-bind:pronum="projects">Project No.:{{pronum}}</div>
+		<div class="col-md-6" v-bind:vname="vname">View name:{{vname}}</div>
+	</div>	
+	<ul class="row" v-bind:projects="projects">Project Numbers	
+	<li class="col-md-6" onclick="pronumChange" title="click to make current" v-for="p in projects">{{p}}</li>
+	</ul>
 	</div>
 </template>	
 

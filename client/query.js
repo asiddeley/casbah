@@ -59,8 +59,8 @@ exports.Query=function(){
 		branch:"", //like path
 		casdok:"projects", //identifies the datafile
 		docnum:"", //not applicable
-		error:function(){
-			console.log("Query.options.error()...");
+		error:function(err){
+			console.log("Query.options.error()...", err);
 		},
 		pronum:"", //not applicable
 		success:function(result){
@@ -84,20 +84,22 @@ exports.Query=function(){
 		}
 	};
 	
-	this.run=function(){
-		//check options for functions and process
-		//to do
-		
+	this.run=function(options){
+		//to do - check certain options for functions and process if required
+
 		var query=this;
+		if (typeof options == "object"){$.extend(query.options, options);}
+	
 		$.ajax({
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 			data: $.param(query.options),
 			error: function(err){ 
 				console.log("Server error...", err);
-				query.options.error(result);
+				query.options.error(err);
 			},
-			success: function(result){ 
-				console.log("Query.success...");
+			success: function(result){
+				console.log("Query.success, calling success function...");
+				//console.log(query.options.success.toString());
 				query.options.success.call(query, result);
 			},
 			type:"POST",
