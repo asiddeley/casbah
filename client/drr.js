@@ -5,11 +5,18 @@ Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ******/
 
-var drrCreator=function(view){
-	//queries
-	var q1=casbah.queries.project.clone(view.options,
+var drr=function(place){
+
+	//options - separated from view/place/docket
+	//create new, load from local storage if available
+	//var o=new casbah.Options(place.name, {});
+	//merge and save to local storage
+	//o.merge({});
+	
+	//queries	
+	var q1=casbah.queries.project.clone(place.options,
 		{
-			pronum:casbah.current("pronum"),
+			//pronum:casbah.current("pronum"),
 			success:function(r){
 				//r={files:[], folders:["name1", "name2"], data:{}}	
 				console.log("drr query for project data success...");
@@ -19,12 +26,12 @@ var drrCreator=function(view){
 		}
 	);
 
-	var q2=new casbah.Query(view.options, {
- 		//casdok:"drr", //from view.options
-		//docnum:1, //from view.options
-		//pronum:1, //from view.options
-		//pronum:casbah.current("pronum"), //from view.options
-		//docnum:casbah.current("docnum"), //from view.options
+	var q2=new casbah.Query(place.options, {
+ 		//casdok:"drr", //from place.options
+		//docnum:1, //from place.options
+		//pronum:1, //from place.options
+		//pronum:casbah.current("pronum"), //from place.options
+		//docnum:casbah.current("docnum"), //from place.options
 		action:"select",
 		alias:"DRRselect",
 		title:"Selector of DRR data & files",
@@ -48,7 +55,7 @@ var drrCreator=function(view){
 		//best lifecycle hook to run queries and set variables 
 		mounted:function(){q1.run(); q2.run();},
 		//vue element or place
-		el:view.el(),
+		el:place.el(),
 		template:"<DRR v-bind:project='project'></DRR>"		
 	});
 
@@ -59,8 +66,8 @@ var drrCreator=function(view){
 
 exports.activate=function(casbah, template$){
 	//add the DRR document creator to casbah for viewer to use when needed
-	//casbah.creators["drr"]=function(view){return drrCreator(view);};
-	casbah.creator("drr", function(view){return drrCreator(view);});
+	//casbah.creators["drr"]=function(place){return drrCreator(place);};
+	casbah.doctype("drr", function(place){return drr(place);});
 	
 	//get template html file
 	//var html=template$.find("#deficiency-review-report-template").html();
@@ -71,7 +78,7 @@ exports.activate=function(casbah, template$){
 		props:["project"],
 		methods:{
 			change_title:function(ev){alert("change title")},
-			defic_click:function(ev){cas.edit(ev);},
+			defic_click:function(ev){casbah.edit(ev);},
 			defic_delete:function(){}
 		},
 		template:template$.find("#deficiency-review-report-template").html()

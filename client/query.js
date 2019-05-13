@@ -84,26 +84,34 @@ exports.Query=function(){
 		}
 	};
 	
-	this.run=function(options){
-		//to do - check certain options for functions and process if required
+	this.run=function(){
+		/* arguments: override option object(s) and/or success function to use (just this time) instead of those defined in this.options */
 
-		var query=this;
-		if (typeof options == "object"){$.extend(query.options, options);}
-	
+		var query=this, a, i, override=false;
+		//make a copy this.options
+		var overrides=$.extend({}, query.options);
+		
+		for (i in arguments){
+			a=arguments[i];
+			if (typeof  a== "object"){$.extend(overrides, a); override=true;}
+			else if (typeof a == "function"){overrides.success=a; override=true;}
+		};
+
 		$.ajax({
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-			data: $.param(query.options),
+			data:(override)?$.param(overrides):$.param(query.options),
 			error: function(err){ 
 				console.log("Server error...", err);
-				query.options.error(err);
+				(override)?overrides.error(err):query.options.error(err);
 			},
 			success: function(result){
-				console.log("Query.success, calling success function...");
+				console.log("Query.success, calling success function...", result);
 				//console.log(query.options.success.toString());
-				query.options.success.call(query, result);
+				if (override){return overrides.success.call(query,result);}
+				else{return query.options.success.call(query, result);}
 			},
 			type:"POST",
-			url:"/casite" 
+			url:"/casite"
 		});	
 	};
 	

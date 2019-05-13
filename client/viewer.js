@@ -94,6 +94,7 @@ var View=function(options){
 	this.bc=autoback[autoname.indexOf(this.name) % autoback.length];	
 
 	//retrieve, merge and save options locally
+	if (typeof options == "undefined"){options={};}
 	this.options=new Options();	
 	localLoad(prefix+this.name, this.options);
 	$.extend(this.options, options);
@@ -139,6 +140,10 @@ View.prototype.getCDI=function(){
 	//get the casbah document instnce or vue component instance
 	return this.casdoi;
 };
+View.prototype.getVue=function(){
+	//get the casbah document instnce or vue component instance
+	return this.casdoi;
+};
 
 View.prototype.hide=function(){this.casdo$.hide();};
 	
@@ -148,6 +153,11 @@ View.prototype.localSave=function(options){
 };
 
 View.prototype.setCDI=function(casdoi){
+	console.log("setCDI()...");
+	this.casdoi=casdoi;
+};
+
+View.prototype.setVue=function(casdoi){
 	console.log("setCDI()...");
 	this.casdoi=casdoi;
 };
@@ -182,7 +192,6 @@ exports.menuShow=function(ev, m$){
 };
 
 exports.unView=function(name){
-
 	//remove view by name
 	views=views.filter(function(v){return (v.name!=name);});
 	//recalculate the CASBAH admin tab camel list
@@ -199,14 +208,14 @@ exports.show=function(arg, add){
 	//first run
 	if (views.length==0){new View({casdok:"welcome"});}
 	
-	if (isCasdok(arg)){
-		console.log("arg is a casdoc key");
+	if (isDoctype(arg)){
+		//console.log("arg is a casdoc key");
 		if (add) {
 			//create a new View copying current options, view updated automatically
 			new View(new Options(view.options));
 		} else {
  			// create new instance of vue or Casbah Document Instance, but clear() first!
-			view.setCDI(casbah.creators[arg](view.clear()));
+			view.setVue(casbah.creators[arg](view.clear()));
 		}
 		//isolate the current vue
 		views.forEach(function(v){if (v==view){v.show();} else {v.hide();}});	
@@ -214,13 +223,21 @@ exports.show=function(arg, add){
 		if (typeof view.casdoi.render=="function"){view.casdoi.render();}			
 	} 
 	else if (isViewName(arg)) {
-		console.log("arg is a view name");
+		//console.log("arg is a view name");
 		//isolate the current vue
-		views.forEach(function(v){if (v.name==arg){v.show();} else {v.hide();}});	
-	} else {console.log("arg unknown");}
+		views.forEach(function(v){
+			if (v.name==arg){
+				//show it
+				v.show();
+				//set it as the current view
+				view=v;
+			}
+			else {v.hide();}
+		});	
+	} else {console.log("viewer.show()...  unknown argument.");}
 };
 
-var isCasdok=function(casdok){
+var isDoctype=function(casdok){
 	// returns true of arg is a casdoc key
 	return (typeof casdok=="string" && Object.keys(casbah.creators).includes(casdok));
 };

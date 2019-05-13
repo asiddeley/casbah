@@ -53,15 +53,25 @@ casbah.activate=function(callback){
 
 };		
 
-//hash of casdoc creator functions, extended in various activate functions
-casbah.creators={};
-//accessor
-casbah.creator=function(name, fn){
+casbah.doctype=function(name, fn){
 	if (typeof name=="string"){
 		if (typeof fn=="function"){this.creators[name]=fn; return fn;}
 		else {return this.creators[name];}
 	} else return null;
 };
+
+casbah.addQuery=function(name, val){
+	if (typeof name=="string"){
+		if (typeof val!="undefined"){this.queries[name]=val; return val;}
+		else {return this.queries[name];}
+	} else return null;
+};
+
+//hash of casdoc creator functions, extended in various activate functions
+casbah.creators={};
+//accessor
+casbah.creator=casbah.doctype;
+
 
 //global storage
 casbah.currents={pronum:"TEST19-0001"};
@@ -78,6 +88,7 @@ casbah.menuHide=viewer.menuHide;
 casbah.menuShow=viewer.menuShow;
 //casbah.unView=viewer.unView;	
 casbah.show=viewer.show;
+casbah.doc=viewer.show;
 casbah.showPlus=function(casdok){viewer.show(casdok,1);};
 
 //project
@@ -86,15 +97,11 @@ casbah.showPlus=function(casdok){viewer.show(casdok,1);};
 
 //Query constructor exposed
 casbah.Query=query.Query;
+//accessor
+casbah.query=casbah.addQuery;
 //query store populated in casbah.activate()
 casbah.queries={};
-//accessor
-casbah.query=function(name, val){
-	if (typeof name=="string"){
-		if (typeof val!="undefined"){this.queries[name]=val; return val;}
-		else {return this.queries[name];}
-	} else return null;
-};
+
 
 //expose to global environment
 window.casbah=casbah;

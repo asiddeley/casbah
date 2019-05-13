@@ -116,31 +116,42 @@ var signature=function(casbah, template$){
 };
 
 var welcome=function(casbah, template$){
-	casbah.creators.welcome=function(view){
-		var projects=["*none*"];
-		console.log("welcome()...");
-		casbah.query("projects").run(
-			{success:function(r){
-				if (typeof r=="undefined"){r={folders:["*empty*"]};}
-				projects=r.folders;
-				vname=view.name;
-				pronum=view.options.pronum;
-			}}
-		);
-		return new Vue({
+	casbah.doctype("welcome", function(doc){
+	
+		var vue=new Vue({
 			data:{
-				vname:"*error*",
-				pronum:"*error*",
+				vname:"*unnamed*",
+				pronum:"*none*",
 				projects:["*empty*"]
 			},
-			el:"#"+view.el$.attr("id"),
-			template:"<welcome v-bind:projects='projects' v-bind:vname='vname' v-bind:vname='pronum'></welcome>"
+			el:doc.el(),
+			methods:{getDoc:function(){return doc;}},
+			template:"<welcome v-bind:projects='projects' v-bind:vname='vname' v-bind:pronum='pronum'></welcome>"
 		});
-	};
+
+		casbah.query("projects").run(
+			//override success function
+			function(r){
+				if (typeof r!="undefined"){vue.projects=r.folders;}
+				vue.vname=doc.name;
+				vue.pronum=doc.options.pronum;
+			}
+		);
+
+		return vue;
+	});
 	
 	var html=template$.find("#welcome-template").html();
 	Vue.component("welcome",{
 		props:["projects", "vname", "pronum"],
+		methods:{
+			pronumChange:function(ev){
+				console.log("change pronum...");
+				this.$parent.pronum=$(ev.target).text();
+				this.$parent.getDoc().options.pronum=$(ev.target).text();
+			}				
+		},
+		
 		template:html
 	});
 };
