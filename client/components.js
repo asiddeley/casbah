@@ -132,7 +132,7 @@ var welcome=function(casbah, template$){
 		casbah.query("projects").run(
 			//override success function
 			function(r){
-				if (typeof r!="undefined"){vue.projects=r.folders;}
+				if (typeof r!="undefined"){vue.projects=r.data.pronum;}
 				vue.vname=doc.name;
 				vue.pronum=doc.options.pronum;
 			}

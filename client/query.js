@@ -52,17 +52,17 @@ exports.Query=function(){
 	arguments are any number of option objects {}, {}... which are merged and used as options for an ajax call to the server to access the database.
 	If a string is provided (any order) it's taken to mean the name of the query and that the query is to be saved and available for use in casbah.queries.
 	*/
-	
+
 	this.options={
 		alias:"projects",
-		action:"SELECT",
-		branch:"", //like path
-		casdok:"projects", //identifies the datafile
-		docnum:"", //not applicable
+		//action:"SELECT",
+		//branch:"", //like path
+		//casdok:"projects", //identifies the datafile
+		//docnum:"", //not applicable
 		error:function(err){
 			console.log("Query.options.error()...", err);
 		},
-		pronum:"", //not applicable
+		//pronum:"", //not applicable
 		success:function(result){
 			console.log("Query.options.success()...", result);
 			//console.log("Project data...", result.data);
@@ -70,9 +70,10 @@ exports.Query=function(){
 			//console.log("Project folders...", result.folders);
 			//result.folders.forEach(function(name){console.log(name);});
 		},
-		title:"List of all project names",
-		field:"none", //not applicable
-		valu:"none" //not applicable
+		//title:"List of all project names",
+		//field:"none", //not applicable
+		//valu:"none" //not applicable
+		graphql:"{pronum}"
 	};
 	
 	for (var a in arguments){
@@ -85,33 +86,36 @@ exports.Query=function(){
 	};
 	
 	this.run=function(){
-		/* arguments: override option object(s) and/or success function to use (just this time) instead of those defined in this.options */
-
-		var query=this, a, i, override=false;
+		//arguments: override option object(s) and/or success function for one time use
+		//reworked for graphql
+		
+		var query=this;
 		//make a copy this.options
-		var overrides=$.extend({}, query.options);
+		var options=$.extend({}, query.options);
+		var a, i;
 		
 		for (i in arguments){
 			a=arguments[i];
-			if (typeof  a== "object"){$.extend(overrides, a); override=true;}
-			else if (typeof a == "function"){overrides.success=a; override=true;}
+			if (typeof  a== "object"){$.extend(options, a);}
+			else if (typeof a == "function"){options.success=a;}
 		};
 
 		$.ajax({
-			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-			data:(override)?$.param(overrides):$.param(query.options),
+			//contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+			contentType: "application/json",
+			//data:(override)?$.param(overrides):$.param(query.options),
+			data:JSON.stringify({query:options.graphql}),
 			error: function(err){ 
 				console.log("Server error...", err);
-				(override)?overrides.error(err):query.options.error(err);
+				options.error(err);
 			},
 			success: function(result){
 				console.log("Query.success, calling success function...", result);
-				//console.log(query.options.success.toString());
-				if (override){return overrides.success.call(query,result);}
-				else{return query.options.success.call(query, result);}
+				return options.success.call(query, result);
 			},
 			type:"POST",
-			url:"/casite"
+			//url:"/casite"
+			url:"http://localhost:4000/graphql"
 		});	
 	};
 	
