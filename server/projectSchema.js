@@ -9,14 +9,11 @@ const { gql } = require('apollo-server-express')
 
 var site=path.join(global.appRoot, global.casite)
 
-//gql is a tag literal function that ...
-exports.typeDef=gql`
-
-extend type Query {
-	pronum:[String]
-	projectByNum(pronum:String!):Project
-}
-
+exports.queryFields=`
+	projectIds:[String]
+	projectById(pronum:String!):Project
+`
+exports.typeDefs=`
 type Project {
 	pronum:String
 	name:String
@@ -27,12 +24,10 @@ type Project {
 }
 `
 
-exports.resolvers={}
-
-exports.resolvers.Query={
+exports.resolvers={
 	//Note below how it's posible to define an object of functions without keys.
 	//https://www.apollographql.com/docs/tutorial/resolvers
-	pronum(){
+	projectIds(){
 		console.log("pronum resolver...")
 		//project numbers are the folder names in the site path 
 		return fs.readdirSync(site).filter(function (file) {
@@ -40,7 +35,7 @@ exports.resolvers.Query={
 		})
 	},
 		
-	projectByNum(parent, args, context, info){
+	projectById(parent, args, context, info){
 		
 		console.log("project resolver...", args)
 		//read datafile within each folder

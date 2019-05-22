@@ -9,16 +9,20 @@ const { gql } = require('apollo-server-express')
 
 var site=path.join(global.appRoot, global.casite)
 
-//Combine typeDefs
-exports.typeDefs=[ 
-	//gql is a tag literal function that ...
-	gql`type Query { hello:String } schema {query:Query}`,
-	require("./project").typeDef
-]
+
+//Using .queryFields because the graphql 'extend type query{}' method is ineffective...
+exports.typeDefs= 
+	`type Query{
+		hello:String`+
+		require("./projectSchema").queryFields +
+		require("./DRRschema").queryFields+
+	`}`+
+	require("./projectSchema").typeDefs +
+	require("./DRRschema").typeDefs
 
 //Combine resolvers
-exports.resolvers={}
-exports.resolvers.Query=Object.assign(
-	{ hello(){console.log("hello resolver..."); return 'world'} },
-	require("./project").resolvers.Query
+exports.resolvers=Object.assign(
+	{ hello(){console.log("hello resolver..."); return 'HELLO WORLD!'} },
+	require("./projectSchema").resolvers,
+	require("./DRRschema").resolvers
 )
