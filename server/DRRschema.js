@@ -5,13 +5,10 @@ MIT License
 ********************************/
 const fs = require("fs")
 const path = require("path")
-const { gql } = require('apollo-server-express')
 
-var site=path.join(global.appRoot, global.casite)
+var casite=path.join(global.appRoot, global.casite)
 var branch=path.join("reports", "deficiency reviews")
 
-//gql is a tag literal function that ...
-//exports.typeDef=gql`
 exports.queryFields=`
 	drrId(projectId:String!):[String]
 	drr(projectId:String!, drrId:String!):DRR
@@ -69,27 +66,27 @@ enum DeficiencyStatus{
 
 exports.resolvers={
 
-	drrId(parent, args, context, info){
-		console.log("drrId resolver...", arguments)
-		//drrId numbers are the folder names 
+	drrId({projectId}){
+		console.log("drrId resolver...", projectId, drrId)
+		//drrId are the folder names 
 		//read datafile within each folder
-		var ids
+		var ids=[]
 
 		try {
-			var path=path.join(site, args.projectId, branch)
+			var path=path.join(casite, args.projectId, branch)
 			ids=fs.readdirSync(path).filter(function (file) {
 				return fs.statSync(path.join(path,file)).isDirectory()
 			})			
 		} catch(e) {
-			ids=[]
+			console.log("Error...", e)
 		}
 		return ids		
 	},
 	
 
-	drr(parent, args, context, info){
+	drr({projectId, drrId}){
 		
-		console.log("drr resolver...", arguments)
+		console.log("drr resolver...", args)
 		//read datafile within each folder
 		//var data, figs, rooms
 		//try {

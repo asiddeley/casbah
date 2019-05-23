@@ -13,9 +13,10 @@ var site=path.join(global.appRoot, global.casite)
 //Using .queryFields because the graphql 'extend type query{}' method is ineffective...
 exports.typeDefs= 
 	`type Query{
-		hello:String`+
-		require("./projectSchema").queryFields +
-		require("./DRRschema").queryFields+
+		hello:String  
+	`+
+	require("./projectSchema").queryFields +
+	require("./DRRschema").queryFields+
 	`}`+
 	require("./projectSchema").typeDefs +
 	require("./DRRschema").typeDefs

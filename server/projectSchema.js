@@ -5,17 +5,16 @@ MIT License
 ********************************/
 const fs = require("fs")
 const path = require("path")
-const { gql } = require('apollo-server-express')
 
 var site=path.join(global.appRoot, global.casite)
 
 exports.queryFields=`
 	projectIds:[String]
-	projectById(pronum:String!):Project
+	projectById(projectId:String!):Project
 `
 exports.typeDefs=`
 type Project {
-	pronum:String
+	projectId:String
 	name:String
 	address:String
 	owner:String
@@ -27,25 +26,25 @@ type Project {
 exports.resolvers={
 	//Note below how it's posible to define an object of functions without keys.
 	//https://www.apollographql.com/docs/tutorial/resolvers
-	projectIds(){
-		console.log("pronum resolver...")
+	projectIds(args){
+		console.log("projectId resolver...")
 		//project numbers are the folder names in the site path 
 		return fs.readdirSync(site).filter(function (file) {
 			return fs.statSync(path.join(site,file)).isDirectory()
 		})
 	},
 		
-	projectById(parent, args, context, info){
+	projectById({projectId}){
 		
-		console.log("project resolver...", args)
+		console.log("projectById resolver...", projectId)
 		//read datafile within each folder
-		var data
-		var file=path.join(site, args.pronum, "__data.json")
+		var data={}
 		try {
-			data=fs.readFileSync(file)
+			var file=path.join(site, projectId, "__projectData.json")
+			data=JSON.parse(fs.readFileSync(file))
 		} catch(e) {
-			data=`{"error":"datafile not found"}`
+			console.log("error:",e)
 		}
-		return JSON.parse(data)
+		return data
 	}				
 }
