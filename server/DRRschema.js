@@ -6,8 +6,21 @@ MIT License
 const fs = require("fs")
 const path = require("path")
 
-var casite=path.join(global.appRoot, global.casite)
-var branch=path.join("reports", "deficiency reviews")
+const __drrHead="__drrHead.json"
+const __drrHeadDefault={
+	
+	
+}
+
+
+
+const casite=path.join(global.appRoot, global.casite)
+const branch=path.join("reports", "deficiency reviews")
+
+exports.mutationFields=`
+	drrIdAdd(projectId:String!):String
+	drrUpdate()
+`
 
 exports.queryFields=`
 	drrId(projectId:String!):[String]
@@ -84,44 +97,44 @@ exports.resolvers={
 	},
 	
 
-	drr({projectId, drrId}){
+	drr__DEPRECATED({projectId, drrId}){
 		
 		console.log("drr resolver...", args)
 		//read datafile within each folder
 		//var data, figs, rooms
-		//try {
-		//	var path=path.join(site, args.projectId, "reports", "deficiency reviews", args.drrId)
-		//	var datafile=path.join(path, "__data.json")
-		//	data=fs.readFileSync(file)
-		//} catch(e) {
-		//	data=`{"error":"datafile not found"}`
-		//}
-		//return JSON.parse(data)
+		try {
+			var path=path.join(site, projectId, branch, drrId, __drr)
+			var datafile=path.join(path, "__data.json")
+			data=JSON.parse(fs.readFileSync(file))
+		} catch(e) {
+			data={}
+		}
+		return data
 	},
 
 
-	deficiencyHeader(parent, args, context, info){
-		console.log("deficiencyHeader resolver...", arguments)	
-		/*var data
+	deficiencyHead({projectId, drrId}){
+		console.log("deficiencyHead resolver...")
+		var data={}	
 		try {
-			var datafile=path.join(site, args.projectId, branch, args.drrId,"__headerData.json")
-			data=JSON.parse(fs.readFileSync(datafile))
+			var path=path.join(site, projectId, branch, drrId, __drrHead)
+			data=JSON.parse(fs.readFileSync(path))
 		} catch(e) {
-			console.log("error:", e)
-			data={}
+			data=__drrDefault
 		}
-		return data*/
+		return data
 	},
 	
-	deficiencyGenerals(parent, args, context, info){
-		console.log("deficiencyGenerals resolver...", arguments)		
-		/*try {
-			var datafile=path.join(site, args.projectId, branch, args.drrId, "__generalData.json")
-			data=JSON.parse(fs.readFileSync(datafile))
+	deficiencyGenerals({projectId, drrId}){
+		console.log("deficiencyGenerals resolver...")		
+		var data={}	
+		try {
+			var path=path.join(site, projectId, branch, drrId, __drrGenerals)
+			data=JSON.parse(fs.readFileSync(path))
 		} catch(e) {
-			data={}
+			data=__drrDefault
 		}
-		return data */
+		return data
 	}	
 	
 }
