@@ -5,19 +5,16 @@ MIT License
 ********************************/
 const fs = require("fs")
 const path = require("path")
-const { gql } = require('apollo-server-express')
-
-var site=path.join(global.appRoot, global.casite)
-
 
 //Using .queryFields because the graphql 'extend type query{}' method is ineffective...
-exports.typeDefs= 
-	`type Query{
-		hello:String  
-	`+
+exports.typeDefs="type Query{ hello:String " +
 	require("./projectSchema").queryFields +
-	require("./DRRschema").queryFields+
-	`}`+
+	require("./DRRschema").queryFields +
+	" } " +
+	"type Mutation{ " +
+	require("./projectSchema").mutationFields +
+	require("./DRRschema").mutationFields +
+	" } " +
 	require("./projectSchema").typeDefs +
 	require("./DRRschema").typeDefs
 

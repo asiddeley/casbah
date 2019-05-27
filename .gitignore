@@ -60,7 +60,7 @@ typings/
 ####################################################
 # local bat files such as cmd.bat
 *.bat
-
+*.url
 ## casbah private folders - contains user data & files
 database/*.db
 uploads/

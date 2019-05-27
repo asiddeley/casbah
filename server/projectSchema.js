@@ -6,12 +6,34 @@ MIT License
 const fs = require("fs")
 const path = require("path")
 
-var site=path.join(global.appRoot, global.casite)
+const site=path.join(global.appRoot, global.casite)
+
+//to do...
+//const {gql2obj}=require(path(__dirname,"server","utilities"))
+//const {Project}=gql2json(exports.typeDefs)
+//instead of...
+
+const Project={	
+	projectId:"PROJ-A001",
+	name:"Casbah Building",
+	address:"101 Desert Way",
+	owner:"Casbah Client",
+	contractor:"CasbahCon",
+	permit:"19 123456 00 00 BA"
+}
+
+const datafile="__projectData.json"
+
 
 exports.queryFields=`
 	projectIds:[String]
 	projectById(projectId:String!):Project
 `
+exports.mutationFields=`
+	projectCreate(projectId:String!):Project
+	projectUpdate(projectId:String!, project:Project!):Project
+`
+
 exports.typeDefs=`
 type Project {
 	projectId:String
@@ -20,6 +42,21 @@ type Project {
 	owner:String
 	contractor:String
 	permit:String
+	status:ProjectStatus
+}
+
+enum ProjectStatus{
+	Proposal
+	Pre_design
+	Design
+	Production
+	Tendering
+	Pre_construction
+	Construction
+	Post_construction
+	Hold
+	Closed_built
+	Closed_unbuilt
 }
 `
 
@@ -40,11 +77,25 @@ exports.resolvers={
 		//read datafile within each folder
 		var data={}
 		try {
-			var file=path.join(site, projectId, "__projectData.json")
+			var file=path.join(site, projectId, datafile)
 			data=JSON.parse(fs.readFileSync(file))
 		} catch(e) {
 			console.log("error:",e)
 		}
 		return data
-	}				
+	},	
+
+	projectCreate({projectId}){
+		console.log("projectCreate resolver...", projectId)
+		
+		
+		return Project
+	},
+	
+	projectUpdate({projectId}){
+		console.log("projectUpdate resolver...", projectId)
+		
+		
+		return Project
+	}
 }

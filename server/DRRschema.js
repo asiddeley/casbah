@@ -4,60 +4,139 @@ Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
 const fs = require("fs")
+const fsp = require("fs-plus")
 const path = require("path")
-
-const __drrHead="__drrHead.json"
-const __drrHeadDefault={
-	
-	
-}
-
-
+const {TypeDefs}=require(path.join(__dirname,"toolkit"))
 
 const casite=path.join(global.appRoot, global.casite)
 const branch=path.join("reports", "deficiency reviews")
 
+//Default values for Filesystem database
+var td=new TypeDefs({
+ENUMS:{},
+PROPS:{
+	casite:path.join(global.appRoot, global.casite),
+	branch:path.join("reports", "deficiency reviews"),
+	DrrHeadFile:"__drrHead.json"	
+},
+//mutation type extensions...
+MTYPE:{},
+//query type extensions...
+QTYPE:{
+	drrIds:{ARGS:["projectId:String!"], TYPE:"[String]"},
+	drr:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"Drr"}
+},
+//types
+TYPE:{
+	Drr:{
+		drrHead:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"Drrhead"},
+		drrGenerals:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DrrGeneral]"},
+		deficiencies:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[Deficiency]"}, 
+		drrByRooms:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DrrByRoom]"}, 
+		deficiencyFigs:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DeficiencyFig]"}
+	},
+	DrrHead:{
+		//explicitly defined type and data
+		drrId:{TYPE:"String", DATA:"DRR-A01"},
+		//implied type (string) from data
+		reviewDate:"25-May-2019",
+		reviewBy:"AS",
+		reportDate:"25-May-2019"
+	},
+}})
+ 
+const DrrHeadFile="__drrHead.json"
+const DrrHead={
+	drrId:"DRR-A01",
+	reviewDate:"25-May-2019",
+	reviewBy:"AS",
+	reportDate:"25-May-2019"
+}
+
+const DrrGeneralFile="__drrGeneral.json"
+const DrrGeneral={
+	no:1,
+	note:"General note"
+}
+const DeficiencyFile="__deficiency.json"
+const Deficiency={
+	id:1,
+	description:"Paint touch-up required above window",
+	deficiencyStatus:"open"
+}
+const DrrByRoomFolder="rooms"
+//depends on what images uploaded to rooms folder
+const DrrByRoom={
+	room:"1-01 Lobby",
+	checklist:"[_]paint, [_]hardware...",
+	comments:"",
+	img:"1-01 Lobby.png"
+}
+//depends on what images uploaded to parent folder
+const DeficiencyFig={
+	id:1,
+	img:"image-file",
+	title:"image-filename",
+	date:"25-May-2019"
+}
+
+const Drr={
+	drrHead:DrrHead, //ok
+	drrGenerals:[DrrGeneral], //ok
+	deficiencies:[Deficiency], //ok
+	drrByRooms:[DrrByRoom], //ok
+	deficiencyFigs:[DeficiencyFig] //ok
+}
+
+
+// graphql Schema Definition Language (SDL)
+//exports.mutationFields=Drr.mutationFields()
+
+
 exports.mutationFields=`
-	drrIdAdd(projectId:String!):String
-	drrUpdate()
+	drrCreate(projectId:String!, drrId:String!):Drr
+	drrHeadUpdate(projectId:String!, drrId:String!, drrHead:DrrHead!):Drr
 `
 
 exports.queryFields=`
-	drrId(projectId:String!):[String]
-	drr(projectId:String!, drrId:String!):DRR
+	drrIds(projectId:String!):[String]
+	drr(projectId:String!, drrId:String!):Drr
 `
+console.log("QUERY FIELDS toolkit...", td.queryFields())
+console.log("QUERY FIELDS text...", exports.queryFields)
 
 exports.typeDefs=`
 
-type DRR {
-	deficiencyHead(projectId:String!, drrId:String!):DeficiencyHead
-	deficiencyGenerals(projectId:String!, drrId:String!):[DeficiencyGenerals]
-	deficiencyItems(projectId:String!, drrId:String!):[DeficiencyItem]
-	deficiencyItemsByRoom(projectId:String!, drrId:String!):[DeficiencyItemsByRoom]
+type Drr {
+	drrHead(projectId:String!, drrId:String!):DrrHead
+	drrGenerals(projectId:String!, drrId:String!):[DrrGeneral]
+	drrByRooms(projectId:String!, drrId:String!):[DrrByRoom]
+	deficiencies(projectId:String!, drrId:String!):[Deficiency]
 	deficiencyFigs(projectId:String!, drrId:String!):[DeficiencyFig]
 }
 
-type DeficiencyHead {
+type DrrHead {
 	drrId:String
-	projectID:String
 	reviewDate:String
 	reviewBy:String
 	reportDate:String	
 }
 
-type DeficiencyGenerals {
+type DrrGeneral {
 	id:String
 	note:String
 }
 
-type DeficiencyItem {
-	deficiencyId:String
+type Deficiency {
+	id:String
 	description:String
 	deficiencyStatus:DeficiencyStatus
 }
 
-type DeficiencyItemsByRoom{
+type DrrByRoom{
 	room:String
+	checklist:String
+	comments:String
 	img:String
 }
 
@@ -76,6 +155,15 @@ enum DeficiencyStatus{
 	NA
 }
 `
+console.log("td...", td.typeDefs())
+//console.log("text...", exports.typeDefs)
+
+console.log("td.branch:", td.branch)	
+console.log("td.casite:", td.casite)	
+console.log("td.DrrHeadFile:", td.DrrHeadFile)	
+console.log("td.drrId:", td.drrId)	
+console.log("td.reviewDate:", td.reviewDate)	
+
 
 exports.resolvers={
 
@@ -86,9 +174,10 @@ exports.resolvers={
 		var ids=[]
 
 		try {
-			var path=path.join(casite, args.projectId, branch)
-			ids=fs.readdirSync(path).filter(function (file) {
-				return fs.statSync(path.join(path,file)).isDirectory()
+			var branch=td.branch;
+			var p=path.join(casite, projectId, branch)
+			ids=fs.readdirSync(p).filter(function (file) {
+				return fs.statSync(path.join(p,file)).isDirectory()
 			})			
 		} catch(e) {
 			console.log("Error...", e)
@@ -103,8 +192,8 @@ exports.resolvers={
 		//read datafile within each folder
 		//var data, figs, rooms
 		try {
-			var path=path.join(site, projectId, branch, drrId, __drr)
-			var datafile=path.join(path, "__data.json")
+			var p=path.join(site, projectId, td.branch, drrId, __drr)
+			var datafile=path.join(p, "__data.json")
 			data=JSON.parse(fs.readFileSync(file))
 		} catch(e) {
 			data={}
@@ -113,28 +202,46 @@ exports.resolvers={
 	},
 
 
-	deficiencyHead({projectId, drrId}){
-		console.log("deficiencyHead resolver...")
-		var data={}	
+	drrHead({projectId, drrId}){
+		console.log("DRRhead resolver...")
+		var data=DRRhead //default	
 		try {
-			var path=path.join(site, projectId, branch, drrId, __drrHead)
-			data=JSON.parse(fs.readFileSync(path))
-		} catch(e) {
-			data=__drrDefault
-		}
+			var p=path.join(site, projectId, branch, drrId, drrHeadFile)
+			data=JSON.parse(fs.readFileSync(p))
+		} catch(e) {console.log("error:",e)}
 		return data
 	},
 	
-	deficiencyGenerals({projectId, drrId}){
-		console.log("deficiencyGenerals resolver...")		
-		var data={}	
+	drrGenerals({projectId, drrId}){
+		console.log("drrGenerals resolver...")		
+		var data=DRRgeneral //default	
 		try {
-			var path=path.join(site, projectId, branch, drrId, __drrGenerals)
-			data=JSON.parse(fs.readFileSync(path))
-		} catch(e) {
-			data=__drrDefault
-		}
+			var p=path.join(site, projectId, branch, drrId, drrGeneralsFile)
+			data=JSON.parse(fs.readFileSync(p))
+		} catch(e) {console.log("error:",e)}
 		return data
-	}	
+	},
+
+	drrCreate({projectID, drrId}){
+		console.log("drrCreate resolver...")		
+		try {
+			var p=path.join(site, projectId, branch, drrId)
+			//make folder
+			fsp.makeTreeSync(p)
+			//make datafiles in folder
+			fs.writeFileSync(path.join(p, DrrHeadFile), JSON.stringify([DrrHead]))
+			fs.writeFileSync(path.join(p, DrrGeneralFile), JSON.stringify([DrrGeneral]))
+			fs.writeFileSync(path.join(p, DeficiencyFile), JSON.stringify([Deficiency]))
+			//make rooms folder
+			fsp.makeTreeSync(path.join(p, DeficiencyByRoomFolder))
+
+		} catch(e) {console.log("error:",e)}
+		//return default data
+		return DRR
+	}
+	
+	
+	
+	
 	
 }

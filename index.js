@@ -40,13 +40,9 @@ app.use(express.static(__dirname))
 if (__dirname!=global.appRoot) {app.use(express.static(global.appRoot))}
 
 const { typeDefs, resolvers } = require(path.join(__dirname,"server","caschema"))
-//console.log("resolvers...", resolvers.Query)
-
-var schema=buildSchema(typeDefs)
-//console.log("schema", typeDefs, schema)
 
 app.use('/graphql', graphqlHTTP({
-  schema: schema,
+  schema: buildSchema(typeDefs),
   rootValue: resolvers,
   graphiql: true,
 }));
