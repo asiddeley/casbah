@@ -21,6 +21,10 @@ PROPS:{
 },
 //mutation type extensions...
 MTYPE:{},
+
+//mutation input (instead of type)
+INPUT:{},
+
 //query type extensions...
 QTYPE:{
 	drrIds:{ARGS:["projectId:String!"], TYPE:"[String]"},
@@ -36,9 +40,9 @@ TYPE:{
 		deficiencyFigs:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DeficiencyFig]"}
 	},
 	DrrHead:{
-		//explicitly defined type and data
+		//type and data explicitly defined 
 		drrId:{TYPE:"String", DATA:"DRR-A01"},
-		//implied type (string) from data
+		//type implied as string from default data
 		reviewDate:"25-May-2019",
 		reviewBy:"AS",
 		reportDate:"25-May-2019"
@@ -95,8 +99,9 @@ const Drr={
 
 exports.mutationFields=`
 	drrCreate(projectId:String!, drrId:String!):Drr
-	drrHeadUpdate(projectId:String!, drrId:String!, drrHead:DrrHead!):Drr
+	drrHeadUpdate(projectId:String!, drrId:String!, drrHeadInput:DrrHeadInput!):Drr
 `
+exports.inputDefs=``
 
 exports.queryFields=`
 	drrIds(projectId:String!):[String]
@@ -117,6 +122,12 @@ type Drr {
 
 type DrrHead {
 	drrId:String
+	reviewDate:String
+	reviewBy:String
+	reportDate:String	
+}
+
+input DrrHeadInput {
 	reviewDate:String
 	reviewBy:String
 	reportDate:String	
@@ -203,7 +214,7 @@ exports.resolvers={
 
 
 	drrHead({projectId, drrId}){
-		console.log("DRRhead resolver...")
+		console.log("drrHead resolver...")
 		var data=DRRhead //default	
 		try {
 			var p=path.join(site, projectId, branch, drrId, drrHeadFile)

@@ -6,13 +6,32 @@ MIT License
 const fs = require("fs")
 const path = require("path")
 
-var lookup=function(td, typename){
+//defferedLookup List
+var dll=[]
+var DeferedLookup=function(td, tv, type){
 	/* returns the default value of a defined type or lookup function
 	if value is not ready (ie. at the end of one or more links) */
 	
-	//isolate typename eg. [typename]
+	console.log("deferred lookup for ", type)
+	dll.push(this)
 	
+	this.td=td //eg {...definedType:defaultValue, drrHead:{...}, ...}
+	this.tv=tv //eg {drr:"undefined"}
+	this.isArray=(name.indexOf("[")>=0)?true:false	
+	//strip and isolate name eg. [DrrHead] -> DrrHead
+	this.type=type.replace("[","").replace("]","")
+
+
+	this.lookup=function(){
+		//td[name] finally set
+		(if typeof this.td[this.type] != "undefined"){
+			tv[this.type]=this.td[this.type]
+			dll
+		}
+	}
 }
+
+
 
 TD=function(typo){
 	//validate
@@ -21,19 +40,22 @@ TD=function(typo){
 		ENUMS:{},
 		//graphql mutation fields (for extending type mutation{...} )
 		MTYPE:{},
+		//graphql input
+		INPUT:{},
 		//misc properties for use by resolvers
 		PROPS:{},	
 		//graphql query fields
-		QTYPE:{}
+		QTYPE:{},
+		//graphql types
+		TYPE:{}
 	}	
 	Object.assign(this.typo, typo)
 	Object.assign(this, typo.PROPS)
-
 }
 
 TD.prototype.stringify=function(type, tv){
 
-	if (typeof tv!="object"){tv={}}
+	if (typeof tv != "object"){tv={}}
 	var valu, name, data, retu="\n"
 	for (var name in type){
 		valu=type[name]			
@@ -43,7 +65,9 @@ TD.prototype.stringify=function(type, tv){
 			retu += name + ":String\n"
 			//keep valu as initial valu for database
 			data={}; data[name]=valu
+			//data saved twice, as individual value and 
 			Object.assign(this, data)
+			//as part of its parent type in case summary of parent is requested
 			Object.assign(tv, data)
 		} 
 		else if (typeof valu == "number"){
@@ -55,9 +79,7 @@ TD.prototype.stringify=function(type, tv){
 		else if (typeof valu == "boolean"){
 			retu += name + ":Boolean\n"
 			data={}; data[name]=valu
-			//data saved twice, as individual value and 
 			Object.assign(this, data)
-			//as part of its parent type in case summary of parent is requested
 			Object.assign(tv, data)
 		} 			
 		//Definition explicitly defined in object...
@@ -72,12 +94,17 @@ TD.prototype.stringify=function(type, tv){
 				throw "Error, definition missing 'TYPE' for " + name 
 			}
 			if (typeof valu.DATA != "undefined"){
+				//get data as explicitly defined 
 				data={}; data[name]=valu.DATA
+				//expose it as a TD object property (eg. for use in graphql resolver function)
 				Object.assign(this, data)
+				//and include it in it's parent object (eg. drrId:"aaa-111" inside drrHead:{}   )
 				Object.assign(tv, data)
 			} else {
-				//lookup data
-				
+				/*infer data from type eg. graphql scalar or user defined type such as 'drrHead' but
+				drrHead may not yet be defined if it comes later and it's data won't be available
+				so defer the lookup*/
+				new DeferredLookup(this, tv, valu.TYPE)
 			}			
 		}
 	}		
@@ -100,6 +127,12 @@ TD.prototype.typeDefs=function(){
 		//expose the type-valu (tv) ie. default data
 		Object.assign(this, tv)
 	}	
+	
+	for (name in this.typo.INPUT){
+		tv={}
+		retu += "input " + name + " {\n" + this.stringify(this.typo.INPUT[name], tv) +"\n}\n"
+		Object.assign(this, tv)
+	}
 	
 	return retu
 }

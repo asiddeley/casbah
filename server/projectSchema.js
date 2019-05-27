@@ -24,16 +24,25 @@ const Project={
 
 const datafile="__projectData.json"
 
+exports.mutationFields=`
+	projectCreate(projectId:String!):Project
+	projectUpdate(projectId:String!, project:ProjectInput!):Project
+`
+exports.inputDefs=`
+input ProjectInput{
+	name:String
+	address:String
+	owner:String
+	contractor:String
+	permit:String
+	status:ProjectStatus
+}
+`
 
 exports.queryFields=`
 	projectIds:[String]
 	projectById(projectId:String!):Project
 `
-exports.mutationFields=`
-	projectCreate(projectId:String!):Project
-	projectUpdate(projectId:String!, project:Project!):Project
-`
-
 exports.typeDefs=`
 type Project {
 	projectId:String
@@ -89,7 +98,7 @@ exports.resolvers={
 		console.log("projectCreate resolver...", projectId)
 		
 		
-		return Project
+		return Object.assign(Project, {projectId:projectId})
 	},
 	
 	projectUpdate({projectId}){

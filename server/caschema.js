@@ -16,7 +16,11 @@ exports.typeDefs="type Query{ hello:String " +
 	require("./DRRschema").mutationFields +
 	" } " +
 	require("./projectSchema").typeDefs +
-	require("./DRRschema").typeDefs
+	require("./DRRschema").typeDefs +
+	require("./projectSchema").inputDefs +
+	require("./DRRschema").inputDefs
+	
+	
 
 //Combine resolvers
 exports.resolvers=Object.assign(
