@@ -13,41 +13,55 @@ const branch=path.join("reports", "deficiency reviews")
 
 //Default values for Filesystem database
 var td=new TypeDefs({
-ENUMS:{},
-PROPS:{
+
+PROP:{
 	casite:path.join(global.appRoot, global.casite),
 	branch:path.join("reports", "deficiency reviews"),
 	DrrHeadFile:"__drrHead.json"	
 },
-//mutation type extensions...
+
+//type mutation fields...
 MTYPE:{},
 
-//mutation input (instead of type)
-INPUT:{},
+//inputs (for mutation fields)... 
+INPUT:{
+	DrrHeadInput: {
+		reviewDate:"28-May-2019",
+		reviewBy:"A. Siddeley",
+		reportDate:"28-May-2019"	
+	}
+},
 
-//query type extensions...
+//type query fields...
 QTYPE:{
 	drrIds:{ARGS:["projectId:String!"], TYPE:"[String]"},
 	drr:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"Drr"}
 },
-//types
+
+//types (for query fields)
 TYPE:{
 	Drr:{
-		drrHead:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"Drrhead"},
-		drrGenerals:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DrrGeneral]"},
-		deficiencies:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[Deficiency]"}, 
-		drrByRooms:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DrrByRoom]"}, 
-		deficiencyFigs:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"[DeficiencyFig]"}
+		drrHead:{ARG:["projectId:String!", "drrId:String!"], TYPE:"Drrhead"},
+		drrGenerals:{ARG:["projectId:String!", "drrId:String!"], TYPE:"[DrrGeneral]"},
+		deficiencies:{ARG:["projectId:String!", "drrId:String!"], TYPE:"[Deficiency]"}, 
+		drrByRooms:{ARG:["projectId:String!", "drrId:String!"], TYPE:"[DrrByRoom]"}, 
+		deficiencyFigs:{ARG:["projectId:String!", "drrId:String!"], TYPE:"[DeficiencyFig]"}
 	},
 	DrrHead:{
-		//type and data explicitly defined 
+		//type and default data value explicitly defined 
 		drrId:{TYPE:"String", DATA:"DRR-A01"},
-		//type implied as string from default data
+		//type implied as string from default data value
 		reviewDate:"25-May-2019",
 		reviewBy:"AS",
 		reportDate:"25-May-2019"
 	},
-}})
+},
+ENUM:{
+	
+	
+}
+
+})
  
 const DrrHeadFile="__drrHead.json"
 const DrrHead={
@@ -101,7 +115,6 @@ exports.mutationFields=`
 	drrCreate(projectId:String!, drrId:String!):Drr
 	drrHeadUpdate(projectId:String!, drrId:String!, drrHeadInput:DrrHeadInput!):Drr
 `
-exports.inputDefs=``
 
 exports.queryFields=`
 	drrIds(projectId:String!):[String]
