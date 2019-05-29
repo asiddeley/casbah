@@ -7,54 +7,71 @@ const fs = require("fs")
 const path = require("path")
 
 
-var FieldLookup=function(field){
+var FieldLookup=function(typeDefo, field){
 	/* returns the default value of a defined type or lookup function
 	if value is not ready (ie. at the end of one or more links) */
 	
 	console.log("field lookup for ", field)
-	//dll.push(this)
+	this.typeDefo=typeDefo
 	
-	this.td=td //eg {...definedType:defaultValue, drrHead:{...}, ...}
-	this.tv=tv //eg {drr:"undefined"}
-	this.isArray=(name.indexOf("[")>=0)?true:false	
-	//strip and isolate name eg. [DrrHead] -> DrrHead
-	this.type=type.replace("[","").replace("]","")
+	//this.td=td //eg {...definedType:defaultValue, drrHead:{...}, ...}
+	//this.tv=tv //eg {drr:"undefined"}
+	this.isArray=(field.indexOf("[")>=0)?true:false	
+	//strip spaces and brackets to isolate name eg. [ DrrHead] -> DrrHead
+	this.field=field.replace(" ","").replace("[","").replace("]","")
 }
 
-FieldLookup.prototype.getFieldValue=function(){
+FieldLookup.prototype.fetch=function(){
 	//td[name] finally set
-	(if typeof this.td[this.type] != "undefined"){
-		tv[this.type]=this.td[this.type]
-		dll
+	if (typeof this.typeDefo[this.field] == "undefined"){
+		//value not yet defined so return this FieldLookup for another try later
+		return this
+	} else {
+		//value defined to return it as a value or array of value depending on its TypeDefo definition
+		if (this.isArray){
+			return [this.typeDefo[this.field]]
+		} else {
+			return this.typeDefo[this.field]
+		}
 	}
-	return
 }
 
 
 ///////////////////////////
 
-var TypeLookup=function(){
+var TypeLookup=function(typeDefo, name){
+	this.typeDefo=typeDefo
+	this.name=name
 	this.fields={}
-	//true when all fields are resolved to values (ie. no instanceOf TypeLookup functions)
-	this.done=false
 }
 
-TypeLookup.prototype.storeFieldValue=function(field, Valu){
-	this.fields[field]=valu
-	
+TypeLookup.prototype.store=function(field, valu){
+	this.fields[field]=valu	
 }
 
-TypeLookup.prototype.getFieldValues=function(){
-	//returns the value of the field or itself (instanceOf TypeLookup Object) if field value not ready
 
-
-	return this.done
+TypeLookup.prototype.fetch=function(){
+	//try to resolve any fields that have a TypeLookup instead of a resolved value
+	//returns true if all fields resolved, false if there is at least one TypdLookup on this pass
+	var f, v, success=true
+	for (f in this.fields){
+		v=this.fields[f]
+		if (v instanceof FieldLookup){
+			//returns a value or a FieldLookup if value still undefined
+			v=v.fetch()	
+			this.fields[f]=v
+			if (v instanceof FieldLookup){success=false}
+		}		
+	}
+	return success
 }
+
 
 //////////////////////////////
 
-TD=function(typo){
-	//validate
+TypeDefo=function(typo){
+	
+	//default typo structure
 	this.typo={
 		//graphql enum definitions
 		ENUM:{},
@@ -70,16 +87,22 @@ TD=function(typo){
 		TYPE:{}
 	}	
 	Object.assign(this.typo, typo)
-	Object.assign(this, typo.PROP)
-	
-	//default properties for typeLookup
-	this["String"]="abc"
-	this["Int"]=1
-	this["Boolean"]=true
+	//Store for user defined values extracted from Typo
+	this.prop={}
+	Object.assign(this.prop, typo.PROP)
+	//data store and defaults for use by TypeLookup
+	this.data={}
+	this.data["String"]="abc"
+	this.data["[String]"]=["abc"]
+	this.data["Int"]=1
+	this.data["[Int]"]=[1]
+	this.data["Boolean"]=true
+	this.data["[Boolean]"]=[true]
+
 }
 
-TD.prototype.stringify=function(type, typeLookup){
-	var td=this
+TypeDefo.prototype.stringify=function(type, typeLookup){
+
 	if (typeof typeLookup != "object"){typeLookup=new TypeLookup()}
 	var valu, field, data, retu="\n"
 	for (var field in type){
@@ -88,19 +111,19 @@ TD.prototype.stringify=function(type, typeLookup){
 		//field=drrHead, valu={ARGS...}
 		if (typeof valu == "string"){
 			retu += field + ":String\n"
-			td.storeFieldValue(field, valu)
-			typeLookup.storeFieldValue(field, valu)
+			this.store(field, valu)
+			typeLookup.store(field, valu)
 		} 
 		else if (typeof valu == "number"){
 			retu += field + (Number.isInteger(valu))?":Int\n":":Float\n"
 			data={}; data[field]=valu
-			td.storeFieldValue(field, valu)
-			typeLookup.storeFieldValue(field, valu)
+			this.store(field, valu)
+			typeLookup.store(field, valu)
 		} 
 		else if (typeof valu == "boolean"){
 			retu += field + ":Boolean\n"
-			td.storeFieldValue(field, valu)
-			typeLookup.storeFieldValue(field, valu)
+			this.store(field, valu)
+			typeLookup.store(field, valu)
 		} 			
 		//Definition explicitly defined in object...
 		else if (typeof valu == "object"){
@@ -114,8 +137,8 @@ TD.prototype.stringify=function(type, typeLookup){
 				throw "Error, definition missing 'TYPE' for " + field 
 			}
 			if (typeof valu.DATA != "undefined"){
-				td.storeFieldValue(field, valu.DATA)
-				typeLookup.storeFieldValue(field, valu.DATA)
+				this.store(field, valu.DATA)
+				typeLookup.store(field, valu.DATA)
 			} else {
 				/*
 				infer data from type eg. graphql scalar or user defined type such as 'drrHead' but
@@ -123,10 +146,10 @@ TD.prototype.stringify=function(type, typeLookup){
 				so defer the lookup
 				valu.TYPE = 'String', '[String]' or 'drrHead' or '[drrHead]'
 				*/
-				if (typeof td[valu.TYPE]=="undefined"){
-					typeLookup.storeFieldValue(field, new FieldLookup(valu.TYPE))					
+				if (typeof this.data[valu.TYPE]=="undefined"){
+					typeLookup.store(field, new FieldLookup(this, valu.TYPE))					
 				} else {				
-					td.storeFieldValue(field, valu.TYPE)
+					this.store(field, valu.TYPE)
 				}
 			}			
 		}
@@ -134,22 +157,23 @@ TD.prototype.stringify=function(type, typeLookup){
 	return retu
 }
 
-TD.prototype.storeFieldValue=function(field, valu){
+TypeDefo.prototype.store=function(field, valu){
 	//what if name conflicts with other TD properties and methods?
-	this[field]=valu
+	this.data[field]=valu
 }
 
-TD.prototype.mutationFields=function(){
+TypeDefo.prototype.mutationFields=function(){
 	return this.stringify(this.typo.MTYPE)
 }
 
-TD.prototype.queryFields=function(){
+TypeDefo.prototype.queryFields=function(){
 	return this.stringify(this.typo.QTYPE)
 }
 
-TD.prototype.typeDefs=function(){
-	var typeDefs=this
-	//parse typeDefs formatted as object and convert to graphql string format
+TypeDefo.prototype.toTypeDefs=function(){
+	
+	//parse typeDefo (object) and convert to graphql TypeDefs (string) format
+
 	var name, retu="", i, tl, tll=[]
 	
 	for (name in this.typo.TYPE){
@@ -168,20 +192,22 @@ TD.prototype.typeDefs=function(){
 	}	
 
 	//resolve typeLookups and merge values into this TD
-	var count=0, done=false, limit=(tll.length * tll.length)
-	while(!done && (count < limit)){
+	var count=0, done=false, limit=(tll.length * tll.length), o, success=true 
+	while (!done & (count < limit)) {
 		//exits loop only when all tls are done 
 		//should not loop more than array squared, problem if so
 		//one false tl will make done false and keep while going
 		done=true
 		for (i in tll){
 			tl=tll[i]
-			tl.getFieldValues()
-			done = done && tl.done
-			if (tl.done){
+			success=tl.fetch()
+			done = done && success
+			if (success){
 				//merge typeLookup value into typeDef (this) as a property for user  
 				//tl.fields.drrHead={drrId:1, drrTitle:"hello"} -> typeDefs.drrHead
-				tl.mergeFieldValues(typeDefs) 				
+				o={} 
+				o[tl.name]=tl.fields
+				Object.assign(this.data, o) 				
 			}			
 		}
 		count+=1
@@ -193,4 +219,4 @@ TD.prototype.typeDefs=function(){
 //////////////////////////////
 //PUBLIC
 
-exports.TypeDefs=TD
+exports.TypeDefo=TypeDefo

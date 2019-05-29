@@ -6,13 +6,13 @@ MIT License
 const fs = require("fs")
 const fsp = require("fs-plus")
 const path = require("path")
-const {TypeDefs}=require(path.join(__dirname,"toolkit"))
+const {TypeDefo}=require(path.join(__dirname,"casbah-graphql"))
 
 const casite=path.join(global.appRoot, global.casite)
 const branch=path.join("reports", "deficiency reviews")
 
 //Default values for Filesystem database
-var td=new TypeDefs({
+var td=new TypeDefo({
 
 PROP:{
 	casite:path.join(global.appRoot, global.casite),
@@ -179,14 +179,14 @@ enum DeficiencyStatus{
 	NA
 }
 `
-console.log("td...", td.typeDefs())
+console.log("td...", td.toTypeDefs())
 //console.log("text...", exports.typeDefs)
 
-console.log("td.branch:", td.branch)	
-console.log("td.casite:", td.casite)	
-console.log("td.DrrHeadFile:", td.DrrHeadFile)	
-console.log("td.drrId:", td.drrId)	
-console.log("td.reviewDate:", td.reviewDate)	
+console.log("td.branch:", td.prop.branch)	
+console.log("td.casite:", td.prop.casite)	
+console.log("td.DrrHeadFile:", td.data.DrrHeadFile)	
+console.log("td.drrId:", td.data.drrId)	
+console.log("td.reviewDate:", td.data.reviewDate)	
 
 
 exports.resolvers={
