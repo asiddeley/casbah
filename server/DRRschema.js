@@ -21,7 +21,7 @@ PROP:{
 },
 
 //type mutation fields...
-MTYPE:{},
+TYPE_MUTAION:{},
 
 //inputs (for mutation fields)... 
 INPUT:{
@@ -33,7 +33,7 @@ INPUT:{
 },
 
 //type query fields...
-QTYPE:{
+TYPE_QUERY:{
 	drrIds:{ARGS:["projectId:String!"], TYPE:"[String]"},
 	drr:{ARGS:["projectId:String!", "drrId:String!"], TYPE:"Drr"}
 },
@@ -55,10 +55,27 @@ TYPE:{
 		reviewBy:"AS",
 		reportDate:"25-May-2019"
 	},
+	
+	DrrGeneral:{
+		id:1,
+		note:"--"
+	},
+
+	Deficiency: {
+		id:1,
+		description:"Description of deficiency",
+		deficiencyStatus:DeficiencyStatus
+	}
+
 },
 ENUM:{
-	
-	
+	DeficiencyStatus:[
+		"CLOSED",
+		"CRITICAL",
+		"INFO",
+		"OPEN",
+		"NA"		
+	]	
 }
 
 })
@@ -120,8 +137,8 @@ exports.queryFields=`
 	drrIds(projectId:String!):[String]
 	drr(projectId:String!, drrId:String!):Drr
 `
-console.log("QUERY FIELDS toolkit...", td.queryFields())
-console.log("QUERY FIELDS text...", exports.queryFields)
+//console.log("QUERY FIELDS toolkit...", td.queryFields())
+//console.log("QUERY FIELDS text...", exports.queryFields)
 
 exports.typeDefs=`
 
@@ -179,7 +196,7 @@ enum DeficiencyStatus{
 	NA
 }
 `
-console.log("td...", td.toTypeDefs())
+//console.log("td...", td.toTypeDefs())
 //console.log("text...", exports.typeDefs)
 
 console.log("td.branch:", td.prop.branch)	
@@ -187,6 +204,11 @@ console.log("td.casite:", td.prop.casite)
 console.log("td.DrrHeadFile:", td.data.DrrHeadFile)	
 console.log("td.drrId:", td.data.drrId)	
 console.log("td.reviewDate:", td.data.reviewDate)	
+console.log("-----")
+td.toTypeDefs()
+console.log("td.Drr:",td.data.Drr)
+console.log("td.DrrHead:",td.data.DrrHead)
+console.log("-----")
 
 
 exports.resolvers={

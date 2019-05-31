@@ -11,7 +11,7 @@ var FieldLookup=function(typeDefo, field){
 	/* returns the default value of a defined type or lookup function
 	if value is not ready (ie. at the end of one or more links) */
 	
-	console.log("field lookup for ", field)
+	//console.log("field lookup for ", field)
 	this.typeDefo=typeDefo
 	
 	//this.td=td //eg {...definedType:defaultValue, drrHead:{...}, ...}
@@ -39,32 +39,53 @@ FieldLookup.prototype.fetch=function(){
 
 ///////////////////////////
 
-var TypeLookup=function(typeDefo, name){
-	this.typeDefo=typeDefo
+var TypeLookup=function(name){
 	this.name=name
 	this.fields={}
-}
-
-TypeLookup.prototype.store=function(field, valu){
-	this.fields[field]=valu	
-}
-
-
-TypeLookup.prototype.fetch=function(){
-	//try to resolve any fields that have a TypeLookup instead of a resolved value
-	//returns true if all fields resolved, false if there is at least one TypdLookup on this pass
-	var f, v, success=true
-	for (f in this.fields){
-		v=this.fields[f]
-		if (v instanceof FieldLookup){
-			//returns a value or a FieldLookup if value still undefined
-			v=v.fetch()	
-			this.fields[f]=v
-			if (v instanceof FieldLookup){success=false}
-		}		
+	this.store=function(field, valu){
+		this.fields[field]=valu	
 	}
-	return success
+	this.fetch=function(){
+		//try to resolve any fields that have a TypeLookup instead of a resolved value
+		//returns true if all fields resolved, false if there is at least one TypdLookup on this pass
+		var f, v, success=true
+		for (f in this.fields){
+			v=this.fields[f]
+			if (v instanceof FieldLookup){
+				//returns a value or a FieldLookup if value still undefined
+				v=v.fetch()	
+				this.fields[f]=v
+				if (v instanceof FieldLookup){success=false}
+			}		
+		}
+		return success
+	}	
 }
+
+var EnumLookup=function(name){
+	this.name=name
+	this.fields={}
+	this.store=function(field, valu){
+		//this.fields[field]=valu	
+		this.fields[field]=field	
+	}
+	this.fetch=function(){
+		//try to resolve any fields that have a TypeLookup instead of a resolved value
+		//returns true if all fields resolved, false if there is at least one TypdLookup on this pass
+		var f, success=true
+		for (f in this.fields){
+			v=this.fields[f]
+			if (v instanceof FieldLookup){
+				//returns a value or a FieldLookup if value still undefined
+				v=v.fetch()	
+				this.fields[f]=v
+				if (v instanceof FieldLookup){success=false}
+			}		
+		}
+		return success
+	}	
+}
+
 
 
 //////////////////////////////
@@ -76,13 +97,13 @@ TypeDefo=function(typo){
 		//graphql enum definitions
 		ENUM:{},
 		//graphql mutation fields (for extending type mutation{...} )
-		MTYPE:{},
+		TYPE_MUTAION:{},
 		//graphql input
 		INPUT:{},
 		//misc properties for use by resolvers
 		PROP:{},	
 		//graphql query fields
-		QTYPE:{},
+		TYPE_QUERY:{},
 		//graphql types
 		TYPE:{}
 	}	
@@ -186,9 +207,9 @@ TypeDefo.prototype.toTypeDefs=function(){
 		retu += "input " + name + " {\n" + this.stringify(this.typo.INPUT[name], tl) +"\n}\n"
 	}
 	
-	for (name in this.typo.ENUM){
-		tl=new TypeLookup(name); tll.push(tl)
-		retu += "enum " + name + " {\n" + this.stringify(this.typo.INPUT[name], tl) +"\n}\n"
+	for (i in this.typo.ENUM){
+		tl=new EnumLookup(this.typo.ENUM[i]); tll.push(tl)
+		retu += "enum " + name + " {\n" + this.stringify(this.typo.ENUM[i], tl) +"\n}\n"
 	}	
 
 	//resolve typeLookups and merge values into this TD
@@ -199,15 +220,18 @@ TypeDefo.prototype.toTypeDefs=function(){
 		//one false tl will make done false and keep while going
 		done=true
 		for (i in tll){
+
 			tl=tll[i]
+			//console.log(i, tl)		
 			success=tl.fetch()
 			done = done && success
 			if (success){
 				//merge typeLookup value into typeDef (this) as a property for user  
 				//tl.fields.drrHead={drrId:1, drrTitle:"hello"} -> typeDefs.drrHead
-				o={} 
+				o={}				
 				o[tl.name]=tl.fields
-				Object.assign(this.data, o) 				
+				Object.assign(this.data, o) 
+				//console.log("typeDefo store:", o)
 			}			
 		}
 		count+=1
