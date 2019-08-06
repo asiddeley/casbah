@@ -6,7 +6,7 @@ MIT License
 const fs = require("fs")
 const path = require("path")
 
-//Using .queryFields because the graphql 'extend type query{}' method is ineffective...
+//Using .queryFields because graphql hasn't yet implemented 'extend type query{}' 
 exports.typeDefs="type Query{ hello:String " +
 	require("./projectSchema").queryFields +
 	require("./DRRschema").queryFields +

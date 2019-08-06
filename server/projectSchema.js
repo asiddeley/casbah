@@ -73,7 +73,7 @@ exports.resolvers={
 	//https://www.apollographql.com/docs/tutorial/resolvers
 	projectIds(args){
 		console.log("projectId resolver...")
-		//project numbers are the folder names in the site path 
+		//project numbers are the dir names (filtered from array of file and dirs in site) 
 		return fs.readdirSync(site).filter(function (file) {
 			return fs.statSync(path.join(site,file)).isDirectory()
 		})
@@ -95,7 +95,8 @@ exports.resolvers={
 
 	projectCreate({projectId}){
 		console.log("projectCreate resolver...", projectId)
-		
+		//code to create dir...
+		var dir=projectId
 		
 		return Object.assign(Project, {projectId:projectId})
 	},

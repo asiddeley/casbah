@@ -3,22 +3,30 @@ CASBAH* *Contract Admin System Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
-const fs = require("fs")
-const fsp = require("fs-plus")
-const path = require("path")
-//const {TypeDefo}=require(path.join(__dirname,"casbah-graphql"))
+const FS = require("FS")
+const FSP = require("FS-plus")
+const PATH = require("PATH")
 
-const casite=path.join(global.appRoot, global.casite)
-const branch=path.join("reports", "deficiency reviews")
-//for console.log
+//console codes
 const BLUE="\x1b[34m", RESET="\x1b[0m"
 
+//DRR folders and files 
+const BRANCH=PATH.join("reports", "deficiency reviews")
+const CASITE=PATH.join(global.appRoot, global.casite)//for console.log
+const FILENAME_HEAD="head.json"
+const FILENAME_NOTES="notes.json"
+const FILENAME_DEFICIENCIES="deficiencies.json"
+const FILENAME_PLANS="plans.json"
+const FILENAME_PHOTOS="photos.json"
+const FOLDER_PLANS="plans"
+const FOLDER_PHOTOS="photos"
+
+//support functions
+const {addDays, fileKeyPlus1, getOwn} = require(path.join(__dirname,"support"))
 
 
-
-
-///////////////////////////////////////////////
-//export graphql Schema Definition Language (SDL)
+//////////////////////////////////////////////////
+// export graphql Schema Definition Language (SDL)
 
 
 exports.mutationFields=`
@@ -26,30 +34,63 @@ exports.mutationFields=`
 	drrHeadUpdate(projectId:String!, drrId:String!, drrHeadInput:DrrHeadInput!):Drr
 `
 
-exports.queryFields=`
+exports.queryFields=` 
 	drrIds(projectId:String!):[String]
 	drr(projectId:String!, drrId:String!):Drr
 `
 
-exports.typeDefs=`
+//Drr data structure & default values
+exports.typeDefs=` 
 type Drr {
 	drrHead(projectId:String!, drrId:String!):DrrHead
-	drrGenerals(projectId:String!, drrId:String!):[DrrGeneral]
-	drrByRooms(projectId:String!, drrId:String!):[DrrByRoom]
+	drrNotes(projectId:String!, drrId:String!):[DrrNote]
+	drrPlans(projectId:String!, drrId:String!):[DrrPlan]
 	deficiencies(projectId:String!, drrId:String!):[Deficiency]
-	deficiencyFigs(projectId:String!, drrId:String!):[DeficiencyFig]
+	drrPhotos(projectId:String!, drrId:String!):[DrrPhoto]
 }`
 
-//default data values
-function Drr({projectId, drrId}){
-	this.drrHead=new DrrHead()
-	this.drrGenerals=[new DrrGeneral()]
-	this.drrByRooms=[new DrrByRoom()]
-	this.deficiencies=[new Deficiency()]
-	this.deficiencyFigs=[new DeficiencyFig()]
+function Drr(projectId, drrId){
+
+	//create new drrId based on folder count
+	drrId=drrId||"DRR-A"+folderCountPlus1(PATH.join(CASITE, projectId, BRANCH, projectId))
+	this.home=PATH.join(CASITE, projectId, BRANCH, drrId)
+
+	this.head=new DrrHead(drrId)
+	this.notes=[new DrrNote(PATH.join(this.home, FILENAME_NOTES))]
+	this.deficiencies=[new Deficiency(PATH.join(this.home, FILENAME_DEFICIENCIES))]
+	this.plans=[new DrrPlan(projectId, drrId)]
+	this.photos=[new DrrPhoto()]
 }
 
-exports.typeDefs+=`
+Drr.prototype.getData=function(){
+	return {
+		head:this.head.getData(),
+		notes:this.notes.getData(),
+		plans:this.plans.getData(),
+		deficinecies:this.deficiencies.getData(),
+		photos:this.photos.getData()
+	}	
+}
+
+Drr.prototype.serialize=function(){
+	
+	//TODO...
+	//make datafiles in folder
+	this.head.serialize(this.home)
+	this.notes.serialize(this.home)
+	this.plans.serialize(this.home)
+	this.deficiencies(this.home)
+	this.photos(this.home)
+	//FS.writeFileSync(PATH.join(this.home, FILENAME_HEAD), JSON.stringify(head))
+	//FS.writeFileSync(PATH.join(this.home, FILENAME_NOTES), JSON.stringify(notes))
+	//FS.writeFileSync(PATH.join(this.home, FILENAME_PHOTOS), JSON.stringify(defys))
+	//make rooms folder
+	FSP.makeTreeSync(PATH.join(this.home, FOLDER_PLANS))
+}
+
+
+//drrHead data Structure & default values
+exports.typeDefs+=` 
 type DrrHead {
 	drrId:String
 	reviewDate:String
@@ -57,65 +98,121 @@ type DrrHead {
 	reportDate:String	
 }
 
-
 input DrrHeadInput {
 	reviewDate:String
-	reviewBy:String
+	reviewer:String
 	reportDate:String	
+}`
+
+function DrrHead(drrId, days){
+	var today=new Date()
+	var soon=addDays(today, days||10)
+	this.drrId=drrId
+	this.reviewDate=today.toString().substring(0,15)
+	this.reviewer="Reviewer"
+	this.reportDate=soon.toString().substring(0,15)
+}
+DrrHead.prototype.getData=getOwn
+DrrHead.prototype.serialize=function(home){
+	FS.writeFileSync(PATH.join(home, FILENAME_HEAD), JSON.stringify(this.getData()))
 }
 
-type DrrGeneral {
+//drrNotes Data Structure & default values
+exports.typeDefs+=` 
+type DrrNote {
 	id:String
 	note:String
+}`
+
+function DrrNote(file){
+	this.id=fileKeyPlus1(file, "id")
+	this.note=note||("new note " + this.id.toString())
+}
+DrrNote.prototype.getData=getOwn
+DrrNote.prototype.serialize=function(home){
+	FS.writeFileSync(PATH.join(home, FILENAME_NOTES), JSON.stringify(this.getData()))
 }
 
+//deficiency Data Structure & default values
+exports.typeDefs+=` 
 type Deficiency {
 	id:String
-	description:String
-	deficiencyStatus:DeficiencyStatus
-}
+	desc:String
+	status:DrrStatus
+	pin:DrrPin
+}`
 
-type DrrByRoom{
-	room:String
-	checklist:String
-	comments:String
-	img:String
+function Deficiency(file, desc, status){
+	this.id=fileKeyPlus1(file, "id")
+	this.desc=desc||"description"
+	this.status=status||"open"
 }
+Deficiency.prototype.getOwn=getOwn
 
-type DeficiencyFig{
-	id:String
-	img:String
+
+//DrrPlan Data Structure & default values
+exports.typeDefs+=` 
+type DrrPlan{
 	title:String
-	date:String
-}
+	checklist:String
+	notes:[DrrNotes]
+	deficiencyIds:[String]
+	image:String
+}`
 
-enum DeficiencyStatus{
+function DrrPlan(projectId, planId, checklist, status){
+	var file=PATH.join(CASITE, projectId, BRANCH, drrId, planId, FILENAME_NOTES)
+	this.title=planId||"Room 101"
+	this.checklist=checklist||"standard"
+	this.notes=[new DrrNote(file)]
+	this.status=status||DRR_STATUS[DRR_STATUS.length-1] //last status is default
+}
+DrrPlan.prototype.getOwn=getOwn
+
+//DrrPhoto Data Structure & default values
+exports.typeDefs+=`
+type DrrPhoto{
+	id:String
+	image:String
+	caption:String
+	date:String
+}`
+
+function DrrPhoto(projectId, planId, caption, date, image){
+	var file=PATH.join(CASITE, projectId, BRANCH, drrId, planId, FILENAME_PHOTOS)
+	this.id=fileKeyPlus1(file, "id")
+	this.caption=caption||"caption"
+	this.date=date||(new Date()).toString().substring(0,15) //taday
+	this.image=image||"unnamed.png"
+}
+DrrPhoto.prototype.getOwn=getOwn
+
+//DrrStatus Data Structure & default values
+exports.typeDefs+=`
+enum DrrStatus{
 	CLOSED
 	CRITICAL
+	DROPPED
 	INFO
 	OPEN
-	NA
-}
-`
-///////////////////////////////////
-// Default values
-
+}`
+const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
 
 ////////////////////////////////
 //Resolvers
 
 exports.resolvers={
 
-	drrIds({projectId}){
+	drrIds(projectId){
 		console.log("drrId resolver...", projectId)
 		//drrId are the folder names 
 		//read datafile within each folder
 		var ids=[]
 
 		try {
-			var p=path.join(drr.prop.casite, projectId, drr.prop.branch)
-			ids=fs.readdirSync(p).filter(function (file) {
-				return fs.statSync(path.join(p,file)).isDirectory()
+			var p=PATH.join(CASITE, projectId, BRANCH)
+			ids=FS.readdirSync(p).filter(function (file) {
+				return FS.statSync(PATH.join(p,file)).isDirectory()
 			})			
 		} catch(e) {
 			console.log("Error...", e)
@@ -123,48 +220,52 @@ exports.resolvers={
 		return ids		
 	},
 	
-	drrHead({projectId, drrId}){
+	drrHead(projectId, drrId){
 		console.log("drrHead resolver...")
-		data=drr.data.drrHead //default data 
+		var data
 		try {
-			var p=path.join(
-				drr.prop.casite, 
-				projectId, 
-				drr.prop.branch, 
-				drrId, 
-				drr.prop.drrHeadFile
-			)
-			data=JSON.parse(fs.readFileSync(p))
-		} catch(e) {console.log("error:",e)}
-		return data
-	},
-	
-	drrGenerals({projectId, drrId}){
-		console.log("drrGenerals resolver...")		
-		var data=drr.data.drrGenerals //default data	
-		try {
-			var p=path.join(site, projectId, branch, drrId, drrGeneralsFile)
-			data=JSON.parse(fs.readFileSync(p))
-		} catch(e) {console.log("error:",e)}
+			var p=PATH.join(CASITE,	projectId, BRANCH, drrId, FILENAME_HEAD)
+			console.log("trying FS.readFileSync...", p)
+			data=JSON.parse(FS.readFileSync(p))
+		} catch(e) {
+			console.log("error:",e)
+			//data={err:e, msg:"invalid projectId or drrId"}
+			//testing only
+			data=(new DrrHead()).getOwn()
+		}
 		return data
 	},
 
-	createDrr({projectId, drrId}){
-		console.log("drrCreate resolver...")		
+	drrNotes(projectId, drrId){
+		console.log("drrNotes resolver...")		
+		var data
 		try {
-			var p=path.join(site, projectId, branch, drrId)
-			//make folder
-			fsp.makeTreeSync(p)
-			//make datafiles in folder
-			fs.writeFileSync(path.join(p, DrrHeadFile), JSON.stringify([DrrHead]))
-			fs.writeFileSync(path.join(p, DrrGeneralFile), JSON.stringify([DrrGeneral]))
-			fs.writeFileSync(path.join(p, DeficiencyFile), JSON.stringify([Deficiency]))
-			//make rooms folder
-			fsp.makeTreeSync(path.join(p, DeficiencyByRoomFolder))
+			var p=PATH.join(CASITE, projectId, BRANCH, drrId, FILENAME_NOTES)
+			console.log("trying FS.readFileSync...", p)
+			data=JSON.parse(FS.readFileSync(p))
+		} catch(e) {
+			console.log("error:",e)
+			//data={err:e, msg:"invalid projectId or drrId"}
+			//testing only
+			data=[(new DrrNote()).toJSON()]
+		}
+		return data
+	},
 
-		} catch(e) {console.log("error:",e)}
+	createDrr(projectId){
+		console.log("drrCreate resolver...")
+		var	result
+		try {
+			var drr=new Drr(projectId, null)
+			drr.serialize()
+			result=drr.getOwn()
+		} 
+		catch(e){
+			console.log("error:",e)	
+			result={err:e}			
+		}
 		//return default data
-		return DRR
+		return result
 	}
 }
 
