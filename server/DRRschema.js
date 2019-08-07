@@ -131,6 +131,7 @@ function DrrNote(file){
 DrrNote.prototype.getData=getOwn
 DrrNote.prototype.serialize=function(home){
 	FS.writeFileSync(PATH.join(home, FILENAME_NOTES), JSON.stringify(this.getData()))
+
 }
 
 //deficiency Data Structure & default values
@@ -147,8 +148,8 @@ function Deficiency(file, desc, status){
 	this.desc=desc||"description"
 	this.status=status||"open"
 }
-Deficiency.prototype.getOwn=getOwn
 
+Deficiency.prototype.getOwn=getOwn
 
 //DrrPlan Data Structure & default values
 exports.typeDefs+=` 
@@ -158,7 +159,7 @@ type DrrPlan{
 	notes:[DrrNotes]
 	deficiencyIds:[String]
 	image:String
-}`
+`
 
 function DrrPlan(projectId, planId, checklist, status){
 	var file=PATH.join(CASITE, projectId, BRANCH, drrId, planId, FILENAME_NOTES)
@@ -167,6 +168,7 @@ function DrrPlan(projectId, planId, checklist, status){
 	this.notes=[new DrrNote(file)]
 	this.status=status||DRR_STATUS[DRR_STATUS.length-1] //last status is default
 }
+
 DrrPlan.prototype.getOwn=getOwn
 
 //DrrPhoto Data Structure & default values
@@ -189,7 +191,8 @@ DrrPhoto.prototype.getOwn=getOwn
 
 //DrrStatus Data Structure & default values
 exports.typeDefs+=`
-enum DrrStatus{
+enum DeficiencyStatus{
+	OPEN
 	CLOSED
 	CRITICAL
 	DROPPED
@@ -197,6 +200,7 @@ enum DrrStatus{
 	OPEN
 }`
 const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
+
 
 ////////////////////////////////
 //Resolvers
@@ -266,6 +270,7 @@ exports.resolvers={
 		}
 		//return default data
 		return result
+
 	}
 }
 
