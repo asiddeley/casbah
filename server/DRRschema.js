@@ -88,6 +88,26 @@ Drr.prototype.serialize=function(){
 	FSP.makeTreeSync(PATH.join(this.home, FOLDER_PLANS))
 }
 
+Drr.prototype.typeDef=function(){
+	td=` 
+		type Drr {
+		drrHead(projectId:String!, drrId:String!):DrrHead
+		drrNotes(projectId:String!, drrId:String!):[DrrNote]
+		drrPlans(projectId:String!, drrId:String!):[DrrPlan]
+		deficiencies(projectId:String!, drrId:String!):[Deficiency]
+		drrPhotos(projectId:String!, drrId:String!):[DrrPhoto]
+	}`
+
+	td+=this.head.typeDef()+
+	this.notes.typeDef()+
+	this.plans.typeDef()+
+	this.deficiencies.typeDef()+
+	this.photos.typeDef()
+	return td
+}
+
+
+
 
 //drrHead data Structure & default values
 exports.typeDefs+=` 
