@@ -50,10 +50,12 @@ type Drr {
 }`
 
 function Drr(projectId, drrId){
-
+	//implements graphQL {typeDefs(), queryFields(), mutationFields(), resolvers()} 
+	//implements serialize(), deserialize()
+	
 	//create new drrId based on folder count
 	drrId=drrId||"DRR-A"+folderCountPlus1(PATH.join(CASITE, projectId, BRANCH, projectId))
-	this.home=PATH.join(CASITE, projectId, BRANCH, drrId)
+	//this.home=PATH.join(CASITE, projectId, BRANCH, drrId) //NO because projectId and drrId change
 
 	this.head=new DrrHead(drrId)
 	this.notes=[new DrrNote(PATH.join(this.home, FILENAME_NOTES))]
@@ -88,24 +90,69 @@ Drr.prototype.serialize=function(){
 	FSP.makeTreeSync(PATH.join(this.home, FOLDER_PLANS))
 }
 
-Drr.prototype.typeDef=function(){
-	td=` 
-		type Drr {
-		drrHead(projectId:String!, drrId:String!):DrrHead
-		drrNotes(projectId:String!, drrId:String!):[DrrNote]
-		drrPlans(projectId:String!, drrId:String!):[DrrPlan]
-		deficiencies(projectId:String!, drrId:String!):[Deficiency]
-		drrPhotos(projectId:String!, drrId:String!):[DrrPhoto]
-	}`
+Drr.prototype.queryFields=function(){
+	//returns a string representing the graphQl query Field for this data structure
 
-	td+=this.head.typeDef()+
-	this.notes.typeDef()+
-	this.plans.typeDef()+
-	this.deficiencies.typeDef()+
-	this.photos.typeDef()
-	return td
+ 	return "drr(projectId:String!, drrId:String!):Drr\n"
 }
 
+
+Drr.prototype.typeDefs=function(){
+	//returns a string representing the graphQl type definition for this data structure
+	
+	return (
+	"type DRR {"+
+		this.head.queryFields()+
+		this.notes.queryFields()+
+		this.plans.queryFields()+
+		this.deficiencies.queryFields()+
+		this.photos.queryFields()+
+	"}\n"+
+	this.head.typeDefs()+
+	this.notes.typeDefs()+
+	this.plans.typeDefs()+
+	this.deficiencies.typeDefs()+
+	this.photos.typeDefs()
+	)
+}
+
+Drr.prototype.resolvers=function(){
+	//Returns an object
+	//Notice object initializer shorthand method names in ES2015.  
+	//Eg. {Drr(){...}} initializes {Drr:function(){...} }
+
+	var that=this
+	var ownResolvers={
+		drr(projectId, drrId){that.deserialize()},
+		drrCreate(){that.serialize()},
+		drrIds(projectId){			
+			console.log("drrId resolver...", projectId)
+			//drrId are the folder names 
+			//read datafile within each folder
+			var ids=[]
+
+			try {
+				var p=PATH.join(CASITE, projectId, BRANCH)
+				ids=FS.readdirSync(p).filter(function (file) {
+					return FS.statSync(PATH.join(p,file)).isDirectory()
+				})			
+			} catch(e) {
+				console.log("Error...", e)
+			}
+			return ids		
+
+		}		
+	}	
+	
+	return Object.assign(
+		ownResolvers,
+		this.head.resolvers(),
+		this.notes.resolvers(),
+		this.plans.resolvers(),
+		this.deficiencies.resolvers(),
+		this.photos.resolvers()	
+	)	
+}
 
 
 
@@ -224,6 +271,7 @@ const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
 
 ////////////////////////////////
 //Resolvers
+//function names relate to queryField names
 
 exports.resolvers={
 
