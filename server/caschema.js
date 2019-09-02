@@ -3,8 +3,7 @@ CASBAH* *Contract Admin System Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
-const fs = require("fs")
-const path = require("path")
+
 
 //Using .queryFields because graphql hasn't yet implemented 'extend type query{}' 
 exports.typeDefs="type Query{ hello:String " +
@@ -18,7 +17,15 @@ exports.typeDefs="type Query{ hello:String " +
 	require("./projectSchema").typeDefs +
 	require("./DRRschema").typeDefs 
 	
-	
+/* 
+// EXPERIMENTAL
+const {Project}=require("./projectSchema")
+const project=new Project()
+exports.typeDefs+=project.mutationFields()
+exports.typeDefs+=project.queryFields()
+exports.typeDefs=project.typeDefs()
+exports.typeDefs=project.resolvers()
+*/
 
 //Combine resolvers
 exports.resolvers=Object.assign(

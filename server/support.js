@@ -38,13 +38,14 @@ exports.fileKeyPlus1=function(file, key){
 	return val
 }
 
-exports.FolderCountPlus1=function(path){
-
+exports.dirCountPlus=function(path, inc){
+	inc=inc||0
+	
 	var folders=FS.readdirSync(path).filter(function (item) {
 		return FS.statSync(PATH.join(path,file)).isDirectory()
 	})
 
-	return Number(folders.length+1).toString().padStart(2,"0")
+	return Number(folders.length+inc).toString().padStart(2,"0")
 }
 
 exports.getOwn=function(){

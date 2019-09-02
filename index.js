@@ -21,33 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 **/
-const express = require("express")
-const app = express()
-const path = require("path")
-const fs = require("fs")
-const graphqlHTTP = require('express-graphql');
+const EXPRESS = require("express")
+const APP = EXPRESS()
+const PATH = require("path")
+const GRAPHQL_HTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 
 // Site path
-if (typeof global.appRoot=="undefined") {global.appRoot=path.resolve(__dirname)}
+if (typeof global.appRoot=="undefined") {global.appRoot=PATH.resolve(__dirname)}
 if (typeof global.casite=="undefined") {global.casite="uploads"}
 
 // Main 
-app.get('/', function (req, res) {res.sendFile(path.join(__dirname,"client","casbah.html"));})
+APP.get('/', function (req, res) {res.sendFile(PATH.join(__dirname,"client","casbah.html"));})
 
 // File server - images, libraries, jquery, bootstrap etc
-app.use(express.static(__dirname))
-if (__dirname!=global.appRoot) {app.use(express.static(global.appRoot))}
+APP.use(EXPRESS.static(__dirname))
+if (__dirname!=global.appRoot) {APP.use(EXPRESS.static(global.appRoot))}
 
-const { typeDefs, resolvers } = require(path.join(__dirname,"server","caschema"))
+const { typeDefs, resolvers } = require(PATH.join(__dirname,"server","caschema"))
 
-app.use('/graphql', graphqlHTTP({
+
+APP.use('/graphql', GRAPHQL_HTTP({
   schema: buildSchema(typeDefs),
   rootValue: resolvers,
   graphiql: true,
 }));
 
-app.listen(4000, function(){
+APP.listen(4000, function(){
 	console.log('Casbah site... http://localhost:4000')
 	console.log('Casbah query playground... http://localhost:4000/graphql')
 });

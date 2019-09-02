@@ -3,18 +3,19 @@ CASBAH* *Contract Admin System Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
-const fs = require("fs")
-const path = require("path")
+const FS = require("fs")
+const PATH = require("path")
 
-const site=path.join(global.appRoot, global.casite)
+const SITE=path.join(global.appRoot, global.casite)
+const DATAFILE="__projectData.json"
 
 //to do...
 //const {gql2obj}=require(path(__dirname,"server","utilities"))
 //const {Project}=gql2json(exports.typeDefs)
 //instead of...
 
-const Project={	
-	projectId:"PROJ-A001",
+const PROJECT={	
+	projectId:"PRO-001",
 	name:"Casbah Building",
 	address:"101 Desert Way",
 	owner:"Casbah Client",
@@ -22,7 +23,9 @@ const Project={
 	permit:"19 123456 00 00 BA"
 }
 
-const datafile="__projectData.json"
+exports.current=PROJECT
+
+
 
 exports.mutationFields=`
 	projectCreate(projectId:String!):Project
@@ -74,19 +77,19 @@ exports.resolvers={
 	projectIds(args){
 		console.log("projectId resolver...")
 		//project numbers are the dir names (filtered from array of file and dirs in site) 
-		return fs.readdirSync(site).filter(function (file) {
-			return fs.statSync(path.join(site,file)).isDirectory()
+		return FS.readdirSync(SITE).filter(function (file) {
+			return FS.statSync(PATH.join(SITE,file)).isDirectory()
 		})
 	},
 		
 	projectById({projectId}){
 		
 		console.log("projectById resolver...", projectId)
-		//read datafile within each folder
+		//read DATAFILE within each folder
 		var data={}
 		try {
-			var file=path.join(site, projectId, datafile)
-			data=JSON.parse(fs.readFileSync(file))
+			var file=PATH.join(SITE, projectId, DATAFILE)
+			data=JSON.parse(FS.readFileSync(file))
 		} catch(e) {
 			console.log("error:",e)
 		}
@@ -98,13 +101,12 @@ exports.resolvers={
 		//code to create dir...
 		var dir=projectId
 		
-		return Object.assign(Project, {projectId:projectId})
+		return Object.assign(PROJECT, {projectId:projectId})
 	},
 	
 	projectUpdate({projectId}){
 		console.log("projectUpdate resolver...", projectId)
 		
-		
-		return Project
+		return PROJECT
 	}
 }
