@@ -6,7 +6,7 @@ MIT License
 const FS = require("fs")
 const PATH = require("path")
 
-const SITE=path.join(global.appRoot, global.casite)
+const SITE=PATH.join(global.appRoot, global.casite)
 const DATAFILE="__projectData.json"
 
 //to do...
@@ -68,12 +68,12 @@ input ProjectInput{
 	contractor:String
 	permit:String
 	status:ProjectStatus
-}
-`
+}`
+
+//Note below how it's posible to define an object of functions without keys.
+//https://www.apollographql.com/docs/tutorial/resolvers
 
 exports.resolvers={
-	//Note below how it's posible to define an object of functions without keys.
-	//https://www.apollographql.com/docs/tutorial/resolvers
 	projectIds(args){
 		console.log("projectId resolver...")
 		//project numbers are the dir names (filtered from array of file and dirs in site) 

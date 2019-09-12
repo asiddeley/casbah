@@ -3,9 +3,9 @@ CASBAH* *Contract Admin System Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
-const FS = require("FS")
+const FS = require("fs")
 //const FSP = require("FS-plus")
-const PATH = require("PATH")
+const PATH = require("path")
 
 exports.addDays=function(date, days) {
   var result = new Date(date);

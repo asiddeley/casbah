@@ -6,7 +6,7 @@ MIT License
 const FS = require("fs")
 const FSP = require("fs-plus")
 const PATH = require("path")
-const PROJECT = require("projectSchema").current
+const PROJECT = require("./projectSchema").current
 const CRYPTO = require('crypto')
 
 //console codes
@@ -25,7 +25,7 @@ const FOLDER_PHOTOS="photos"
 
 ////////////////////
 // support functions
-const {addDays, dirCountPlus, getOwn} = require(path.join(__dirname,"support"))
+const {addDays, dirCountPlus, getOwn} = require(PATH.join(__dirname,"support"))
 
 const EXTEND=function(fn, fnSuperClass){
 	/*****	
@@ -72,7 +72,7 @@ function cryptoId(item){
 function jsonFiler(path){
 	//initialize
 	path=path||this.path
-	if (FSP.existsSync(path){
+	if (FSP.existsSync(path)){
 		this.deserialize(path)	
 	} else {
 		FS.mkdirSync(PATH.dirname(path))
@@ -121,7 +121,7 @@ function imageFiler(dir, list){
 	const EXTS=["JPG", "PNG"]
 	// update list with info on images in dir...
 	var images
-	if (FSP.existsSync(dir){
+	if (FSP.existsSync(dir)){
 		// image folder exists so proceed...
 		images=FS.readdirSync(dir).filter(function (file) {
 			return (
@@ -512,73 +512,6 @@ const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
 //Resolvers
 //function names relate to queryField names
 
-exports.resolvers={
-
-	drrIds(projectId){
-		console.log("drrId resolver...", projectId)
-		//drrId are the folder names 
-		//read datafile within each folder
-		var ids=[]
-
-		try {
-			var p=PATH.join(CASITE, projectId, BRANCH)
-			ids=FS.readdirSync(p).filter(function (file) {
-				return FS.statSync(PATH.join(p,file)).isDirectory()
-			})			
-		} catch(e) {
-			console.log("Error...", e)
-		}
-		return ids		
-	},
-	
-	drrHead(projectId, drrId){
-		console.log("drrHead resolver...")
-		var data
-		try {
-			var p=PATH.join(CASITE,	projectId, BRANCH, drrId, FILENAME_HEAD)
-			console.log("trying FS.readFileSync...", p)
-			data=JSON.parse(FS.readFileSync(p))
-		} catch(e) {
-			console.log("error:",e)
-			//data={err:e, msg:"invalid projectId or drrId"}
-			//testing only
-			data=(new DrrHead(projectId, drrId)).getData()
-		}
-		return data
-	},
-
-	drrNotes(projectId, drrId){
-		console.log("drrNotes resolver...")		
-		var data
-		try {
-			var p=PATH.join(CASITE, projectId, BRANCH, drrId, FILENAME_NOTES)
-			console.log("trying FS.readFileSync...", p)
-			data=JSON.parse(FS.readFileSync(p))
-		} catch(e) {
-			console.log("error:",e)
-			//data={err:e, msg:"invalid projectId or drrId"}
-			//testing only
-			data=(new DrrNote(projectId, drrId)).getData()
-		}
-		return data
-	},
-
-	createDrr(projectId){
-		console.log("drrCreate resolver...")
-		var	result
-		try {
-			var drr=new Drr(projectId, null)
-			drr.serialize()
-			result=drr.getOwn()
-		} 
-		catch(e){
-			console.log("error:",e)	
-			result={err:e}			
-		}
-		//return default data
-		return result
-
-	}
-}
+exports.resolvers=require("./DRRresolversFS").resolvers
 
 
