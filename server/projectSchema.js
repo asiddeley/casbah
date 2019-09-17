@@ -5,27 +5,25 @@ MIT License
 ********************************/
 const FS = require("fs")
 const PATH = require("path")
-
 const SITE=PATH.join(global.appRoot, global.casite)
 const DATAFILE="__projectData.json"
 
-//to do...
-//const {gql2obj}=require(path(__dirname,"server","utilities"))
-//const {Project}=gql2json(exports.typeDefs)
-//instead of...
+var {getOwn}=require("./support")
 
-const PROJECT={	
-	projectId:"PRO-001",
-	name:"Casbah Building",
-	address:"101 Desert Way",
-	owner:"Casbah Client",
-	contractor:"CasbahCon",
-	permit:"19 123456 00 00 BA"
+
+function Project(projectId){	
+	this.projectId=projectId||"PRO-001"
+	this.name="Casbah Building"
+	this.address="101 Desert Way"
+	this.owner="Casbah Client"
+	this.contractor="CasbahCon"
+	this.permit="19 123456 00 00 BA"
 }
+Project.prototype.getData=getOwn
 
-exports.current=PROJECT
-
-
+exports.create=function(){
+	return new Project()	
+}
 
 exports.mutationFields=`
 	projectCreate(projectId:String!):Project
@@ -73,9 +71,10 @@ input ProjectInput{
 //Note below how it's posible to define an object of functions without keys.
 //https://www.apollographql.com/docs/tutorial/resolvers
 
-exports.resolvers={
+
+const rFS={
 	projectIds(args){
-		console.log("projectId resolver...")
+		console.log("projectId resolver FS...")
 		//project numbers are the dir names (filtered from array of file and dirs in site) 
 		return FS.readdirSync(SITE).filter(function (file) {
 			return FS.statSync(PATH.join(SITE,file)).isDirectory()
@@ -110,3 +109,6 @@ exports.resolvers={
 		return PROJECT
 	}
 }
+
+
+exports.resolvers=require("./projectGoogleDrive").resolvers
