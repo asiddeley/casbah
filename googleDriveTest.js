@@ -1,15 +1,16 @@
-// https://developers.google.com/drive/api/v3/quickstart/nodejs
-
+const fs = require('fs');
+const readline = require('readline');
+const {google} = require('googleapis');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = './dist/token.json';
 
 // Load client secrets from a local file.
-FS.readFile('./dist/googleDriveCredentials.json', (err, content) => {
+fs.readFile('./dist/googleDriveCredentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
   // Authorize a client with credentials, then call the Google Drive API.
   authorize(JSON.parse(content), listFiles);
@@ -27,7 +28,7 @@ function authorize(credentials, callback) {
       client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
-  FS.readFile(TOKEN_PATH, (err, token) => {
+  fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) return getAccessToken(oAuth2Client, callback);
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client);
@@ -56,7 +57,7 @@ function getAccessToken(oAuth2Client, callback) {
       if (err) return console.error('Error retrieving access token', err);
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
-      FS.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
         if (err) return console.error(err);
         console.log('Token stored to', TOKEN_PATH);
       });
@@ -80,94 +81,12 @@ function listFiles(auth) {
     if (files.length) {
       console.log('Files:');
       files.map((file) => {
+		console.log("///////////////////")  
         console.log(`${file.name} (${file.id})`);
+		console.log(JSON.stringify(file));
       });
     } else {
       console.log('No files found.');
     }
   });
 }
-
-/**********************************
-CASBAH = Contract Admin System + Be Architectural Heroes
-Copyright (c) 2018, 2019 Andrew Siddeley
-MIT License
-********************************/
-
-const FS = require("fs")
-const readline = require('readline');
-const {google} = require('googleapis');
-
-////////////////////////////////
-//Resolvers
-//function names relate to queryField names
-exports.resolvers={
-
-	drrIds(projectId){
-		console.log("drrId resolver...", projectId)
-		//drrId are the folder names 
-		//read datafile within each folder
-		var ids=[]
-
-		try {
-			varr p=PATH.join(CASITE, projectId, BRANCH)
-			ids=FS.readdirSync(p).filter(function (file) {
-				return FS.statSync(PATH.join(p,file)).isDirectory()
-			})			
-		} catch(e) {
-			console.log("Error...", e)
-		}
-		return ids		
-	},
-	
-	drrHead(projectId, drrId){
-		console.log("drrHead resolver...")
-		var data
-		try {
-			var p=PATH.join(CASITE,	projectId, BRANCH, drrId, FILENAME_HEAD)
-			console.log("trying FS.readFileSync...", p)
-			data=JSON.parse(FS.readFileSync(p))
-		} catch(e) {
-			console.log("error:",e)
-			//data={err:e, msg:"invalid projectId or drrId"}
-			//testing only
-			data=(new DrrHead(projectId, drrId)).getData()
-		}
-		return data
-	},
-
-	drrNotes(projectId, drrId){
-		console.log("drrNotes resolver...")		
-		var data
-		try {
-			var p=PATH.join(CASITE, projectId, BRANCH, drrId, FILENAME_NOTES)
-			console.log("trying FS.readFileSync...", p)
-			data=JSON.parse(FS.readFileSync(p))
-		} catch(e) {
-			console.log("error:",e)
-			//data={err:e, msg:"invalid projectId or drrId"}
-			//testing only
-			data=(new DrrNote(projectId, drrId)).getData()
-		}
-		return data
-	},
-
-	createDrr(projectId){
-		console.log("drrCreate resolver...")
-		var	result
-		try {
-			var drr=new Drr(projectId, null)
-			drr.serialize()
-			result=drr.getOwn()
-		} 
-		catch(e){
-			console.log("error:",e)	
-			result={err:e}			
-		}
-		//return default data
-		return result
-
-	}
-}
-
-

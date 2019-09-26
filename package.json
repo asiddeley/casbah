@@ -6,7 +6,7 @@
   "scripts": {
     "cas": "node index.js",
     "dist": "browserify client/casbah.js -o dist/casbah.dist.js",
-	"test": "mocha test/array.js"
+    "test": "mocha test/array.js"
   },
   "keywords": [
     "Architect",
@@ -29,6 +29,8 @@
     "express-graphql": "^0.8.0",
     "fs-extra": "^6.0.1",
     "fs-plus": "^3.1.1",
+    "google-spreadsheet": "^2.0.8",
+    "googleapis": "^43.0.0",
     "graphql": "^14.3.0",
     "graphql-tools": "^4.0.4",
     "image-size": "^0.6.2",
