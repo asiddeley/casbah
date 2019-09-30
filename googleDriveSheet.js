@@ -30,8 +30,8 @@ readline        = require('readline'),
 request         = require('request'),
 GoogleSheet 	= require('google-spreadsheet'),
 secret          = require('./dist/client_secret.json'),
-app             = express(),
-async			= require("async");
+app             = express()
+//async			= require("async");
 
 
 //CASBAH project spreadsheet key in googledrive
@@ -40,6 +40,7 @@ async			= require("async");
 var prj = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4");
 
 //async.series(TaskArray, thenCallback(err,results){})
+/*
 async.series([
 	function(done){prj.useServiceAccountAuth(secret, done)}, 
 	function(done){prj.getInfo(done)}, 
@@ -48,6 +49,22 @@ async.series([
 	], print)
 	
 console.log("...after async.series")
+*/
+
+async function series(){
+	var rows
+	console.log("async step 1")
+	await new Promise(done => {prj.useServiceAccountAuth(secret, done)})
+	console.log("async step 2")
+	await new Promise(done => {getRows(1, function(err,r){rows=r; done()}) })  
+	console.log("async step 3")
+	console.log(rows[0])
+}	
+console.log("before async series...")
+series()
+console.log("...after async series")
+
+
 
 function print(err, results){
 	
