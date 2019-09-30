@@ -5,44 +5,64 @@ MIT License
 ********************************/
 const FS = require("fs")
 const PATH = require("path")
-const SITE=PATH.join(global.appRoot, global.casite)
-const DATAFILE="__projectData.json"
 
-var {getOwn}=require("./support")
+var {getOwn, cryptoId}=require("./support").getOwn
 
-
-function Project(projectId){	
-	this.projectId=projectId||"PRO-001"
-	this.name="Casbah Building"
+//project record with default values
+function Project({projectno, projectcode}){	
+	var today=new Date()
+	var future=addDays(today, days||365)
+	//random id with high probability of uniquness
+	this.projrctid=cryptoId()
+	this.projectno=projectno||"PRO-001"
+	this.projectcode=projectcode||"CASA"
+	this.project="Casbah Building"
+	this.subprojectcode=projectcode||"TV"
+	this.subproject="The Ville"
 	this.address="101 Desert Way"
-	this.owner="Casbah Client"
-	this.contractor="CasbahCon"
+	this.ownercode="Casbah"
+	this.contractorcode="CasbahCon"
+	this.start=today.toString().substring(0,15)
+	this.finish=future.toString().substring(0,15)
+	this.status="ongoing"
 	this.permit="19 123456 00 00 BA"
+	this.occupancy="TBD"
+	this.areasm="TBD"
+	this.cost="TBD"
+	this.about="TBD"
 }
+//returns an object with only the above keys:values
 Project.prototype.getData=getOwn
 
-exports.create=function(){
-	return new Project()	
-}
+//factory
+exports.create=function(options){return new Project(options)}
 
 exports.mutationFields=`
-	projectCreate(projectId:String!):Project
-	projectUpdate(projectId:String!, project:ProjectInput!):Project
+	projectCreate(projectcode:String!):Project
+	projectUpdate(projectcode:String!, project:ProjectInput!):Project
 `
 
 exports.queryFields=`
-	projectIds:[String]
-	projectById(projectId:String!):Project
+	subprojectCodes:[String]
+	bySubprojectCode(projectId:String!):Project
 `
 exports.typeDefs=`
 type Project {
-	projectId:String
-	name:String
+	projectid:String
+	projectno:String
+	project:String
+	subprojectcode:String
+	subproject:String
 	address:String
-	owner:String
-	contractor:String
+	ownercode:String
+	contractorcode:String
+	started:Date
+	finished:Date
+	projectstatus:ProjectStatus
 	permit:String
-	status:ProjectStatus
+	areasm:Number
+	cost:Number
+	about:String
 }
 
 enum ProjectStatus{
@@ -68,47 +88,7 @@ input ProjectInput{
 	status:ProjectStatus
 }`
 
-//Note below how it's posible to define an object of functions without keys.
-//https://www.apollographql.com/docs/tutorial/resolvers
 
+//exports.resolvers=require("./projectResolversFS").resolvers
 
-const rFS={
-	projectIds(args){
-		console.log("projectId resolver FS...")
-		//project numbers are the dir names (filtered from array of file and dirs in site) 
-		return FS.readdirSync(SITE).filter(function (file) {
-			return FS.statSync(PATH.join(SITE,file)).isDirectory()
-		})
-	},
-		
-	projectById({projectId}){
-		
-		console.log("projectById resolver...", projectId)
-		//read DATAFILE within each folder
-		var data={}
-		try {
-			var file=PATH.join(SITE, projectId, DATAFILE)
-			data=JSON.parse(FS.readFileSync(file))
-		} catch(e) {
-			console.log("error:",e)
-		}
-		return data
-	},	
-
-	projectCreate({projectId}){
-		console.log("projectCreate resolver...", projectId)
-		//code to create dir...
-		var dir=projectId
-		
-		return Object.assign(PROJECT, {projectId:projectId})
-	},
-	
-	projectUpdate({projectId}){
-		console.log("projectUpdate resolver...", projectId)
-		
-		return PROJECT
-	}
-}
-
-
-exports.resolvers=require("./projectGoogleDrive").resolvers
+exports.resolvers=require("./projectResolversGS").resolvers

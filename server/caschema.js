@@ -4,8 +4,8 @@ Copyright (c) 2018, 2019 Andrew Siddeley
 MIT License
 ********************************/
 
-
 //Using .queryFields because graphql hasn't yet implemented 'extend type query{}' 
+//Combine typeDefs
 exports.typeDefs="type Query{ hello:String " +
 	require("./projectSchema").queryFields +
 	require("./DRRschema").queryFields +
@@ -16,16 +16,6 @@ exports.typeDefs="type Query{ hello:String " +
 	" } " +
 	require("./projectSchema").typeDefs +
 	require("./DRRschema").typeDefs 
-	
-/* 
-// EXPERIMENTAL
-const {Project}=require("./projectSchema")
-const project=new Project()
-exports.typeDefs+=project.mutationFields()
-exports.typeDefs+=project.queryFields()
-exports.typeDefs=project.typeDefs()
-exports.typeDefs=project.resolvers()
-*/
 
 //Combine resolvers
 exports.resolvers=Object.assign(

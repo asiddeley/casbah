@@ -24,8 +24,12 @@ SOFTWARE.
 const EXPRESS = require("express")
 const APP = EXPRESS()
 const PATH = require("path")
+const CASCHEMA = require(PATH.join(__dirname,"server","caschema"))
+
+/*
 const GRAPHQL_HTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
+*/
 
 // Site path
 if (typeof global.appRoot=="undefined") {global.appRoot=PATH.resolve(__dirname)}
@@ -38,14 +42,16 @@ APP.get('/', function (req, res) {res.sendFile(PATH.join(__dirname,"client","cas
 APP.use(EXPRESS.static(__dirname))
 if (__dirname!=global.appRoot) {APP.use(EXPRESS.static(global.appRoot))}
 
-const { typeDefs, resolvers } = require(PATH.join(__dirname,"server","caschema"))
-
 
 APP.use('/graphql', GRAPHQL_HTTP({
-  schema: buildSchema(typeDefs),
-  rootValue: resolvers,
-  graphiql: true,
+	schema:buildSchema(CASCHEMA.typeDefs),
+	rootValue:CASCHEMA.resolvers,
+	graphiql:true
 }));
+
+
+// APP.get('/', require(PATH.join(__dirname,"server","caserver")).handler)
+
 
 APP.listen(4000, function(){
 	console.log('Casbah site... http://localhost:4000')

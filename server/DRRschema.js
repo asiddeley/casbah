@@ -144,7 +144,7 @@ Deficiencies.prototype.getData=function(){
 	return {
 		projectId:this.projectId,
 		drrId:this.drrId,
-		items:this.items.map(i->i.getData())
+		items:this.items.map(i=>i.getData())
 	}	
 }
 
@@ -282,7 +282,7 @@ const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
 // function names relate to queryField names
 // choose the storage...
 
-// exports.resolvers=require("./DRRfs").resolvers
-exports.resolvers=require("./DRRgoogleDrive").resolvers
+// exports.resolvers=require("./DRRresolversFS").resolvers
+exports.resolvers=require("./DRRresolversGS").resolvers
 
 

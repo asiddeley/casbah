@@ -266,6 +266,7 @@ exports.handler=function (req, res) {
 	
 	switch (req.body.action){
 		
+		/*
 		// Camel
 		//case "CAMEL VIEW":camel_view(req, res); break;	
 		case "VIEWER":viewer(req, res); break;	
@@ -275,6 +276,9 @@ exports.handler=function (req, res) {
 		//case "SELECT":select.foldersFiles(req, res); break; //needs testing
 		case "SELECT":select.dff(req, res); break; //needs testing
 		case "UPLOAD":upload.files(req, res); break; //needs testing
+		*/
+		
+		
 	
 	} 
 }

@@ -111,9 +111,8 @@ var View=function(options){
 	this.el$.attr("id", prefix+this.name);
 	this.el$.appendTo(this.casdo$);
 
-	//casbah document instance OR vue component instance
+	//casdoi = casbah document instance OR vue component instance
 	this.casdoi=casbah.creators[this.options.casdok](view);
-	//this.casdoi=casbah.creator(this.options.casdok)(view);
 	
 	//update list of all instantiated views names.  Ensure it comes after name$ is defined
 	updateNamesHTML();
@@ -194,10 +193,9 @@ exports.menuShow=function(ev, m$){
 exports.unView=function(name){
 	//remove view by name
 	views=views.filter(function(v){return (v.name!=name);});
-	//recalculate the CASBAH admin tab camel list
+	//redo the CASBAH admin tab view list
 	updateNamesHTML();
 };
-
 
 //view manager
 exports.show=function(arg, add){
@@ -213,13 +211,14 @@ exports.show=function(arg, add){
 		if (add) {
 			//create a new View copying current options, view updated automatically
 			new View(new Options(view.options));
-		} else {
- 			// create new instance of vue or Casbah Document Instance, but clear() first!
+		} 
+		else {
+ 			//create new instance of vue or Casbah Document Instance, but clear() first!
 			view.setVue(casbah.creators[arg](view.clear()));
 		}
 		//isolate the current vue
 		views.forEach(function(v){if (v==view){v.show();} else {v.hide();}});	
-		//if not a vue then call its renderer
+		//if not a vue then call its renderer for legacy items
 		if (typeof view.casdoi.render=="function"){view.casdoi.render();}			
 	} 
 	else if (isViewName(arg)) {
@@ -233,12 +232,13 @@ exports.show=function(arg, add){
 				view=v;
 			}
 			else {v.hide();}
-		});	
-	} else {console.log("viewer.show()...  unknown argument.");}
+		});
+	}
+	else {console.log("viewer.show()...  unknown argument.");}
 };
 
 var isDoctype=function(casdok){
-	// returns true of arg is a casdoc key
+	// returns true if arg is a casdoc key
 	return (typeof casdok=="string" && Object.keys(casbah.creators).includes(casdok));
 };
 

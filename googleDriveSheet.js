@@ -28,39 +28,120 @@ fs              = require('fs'),
 readline        = require('readline'),
 {google}        = require('googleapis'),
 request         = require('request'),
-GoogleSpreadsheet = require('google-spreadsheet'),
-creds             = require('./dist/client_secret.json'),
-app               = express();
+GoogleSheet 	= require('google-spreadsheet'),
+secret          = require('./dist/client_secret.json'),
+app             = express(),
+async			= require("async");
+
+
+//CASBAH project spreadsheet key in googledrive
+//1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4
+
+var prj = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4");
+
+//async.series(TaskArray, thenCallback(err,results){})
+async.series([
+	function(done){prj.useServiceAccountAuth(secret, done)}, 
+	function(done){prj.getInfo(done)}, 
+	function(done){getRows(1, done)},
+	function(done){getRows(2, done)}
+	], print)
+	
+console.log("...after async.series")
+
+function print(err, results){
+	
+	console.log("/////////////////////////////")
+	console.log("// INFO...")
+	console.log(results[1])
+	
+	console.log("/////////////////////////////")
+	console.log("// INDEX...")
+	results[2].forEach(function (row){
+		console.log("---------------------------")
+		console.log(row)
+	})
+
+	console.log("/////////////////////////////")
+	console.log("// DIR...")
+	results[3].forEach(function (row){
+		console.log("---------------------------")
+		console.log(row)
+	})
+	
+}
 
 
 
+function getRows(n, done){
+	var badkeys=["_xml","id","app:edited","_links","save","del"]
+	var rows
+	prj.getRows(n,	function (err, raws){
+		//raws includes spreadsheet row objects {field:value} mixed with badkey objects 
+		if (err){
+			console.log("err:", err)
+			done(err)
+		} else {
+			rows=raws.map(function(raw){
+				var row={}
+				Object.keys(raw).forEach(function(key){
+					//filter out the badkey objects
+					if (!badkeys.includes(key)){ row[key]=raw[key] }
+				})
+				return row
+			})
+			done(null, rows)
+		}
+	})
+}
 
-var doc = new GoogleSpreadsheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4");
-//https://docs.google.com/spreadsheets/d/1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4/edit?usp=sharing
+/*************
+// accessing google sheets with nested callbacks i.e. without async.series
 
-doc.useServiceAccountAuth(creds, function (err) {
-	doc.getCells(1,	function callback(err, cells){
-		console.log("err:",err)
-		console.log("////////////////")
-		cells.map(function(cell){
-			console.log("row:"+cell.row+", col:"+cell.col+" = "+cell._value)
+function getCellsBasic(){
+	prj.useServiceAccountAuth(creds, function (err) {
+		prj.getCells(1,	function callback(err, cells){
+			console.log("err:",err)
+			console.log("////////////////")
+			cells.map(function(cell){
+				console.log("row:"+cell.row+", col:"+cell.col+" = "+cell._value)
 
+			})
+		})
+	}) 
+}
+
+
+function getRowsBasic(){
+	var ignore=["_xml","id","app:edited","_links","save","del"]
+	var prj
+	prj.useServiceAccountAuth(creds, function (err) {
+		prj.getRows(1,	function (err, rows){
+			if (err){console.log("err:", err); return;}
+			rows.map(function(row){
+				console.log("-----------------------------------------")
+				for (var key in row){
+					if (ignore.includes(key)) continue;
+					console.log(key, row[key])					
+				}
+			})
 		})
 	})
-});  
+}
+****/
 
 
 /**
 app.get("/google-spreadsheet", function(req, res){
   
   // Identifying which document we'll be accessing/reading from
-  var doc = new GoogleSpreadsheet('1UIV4RkOx8KJK2zQYig0klH5_f8FCOdwIWV8YF2VyF8I');
+  var prj = new GoogleSpreadsheet('1UIV4RkOx8KJK2zQYig0klH5_f8FCOdwIWV8YF2VyF8I');
 
   // Authentication
-  doc.useServiceAccountAuth(creds, function (err) {
+  prj.useServiceAccountAuth(creds, function (err) {
   
   // Adding a row in tab #4 with the date and the number 1
-  doc.addRow(4, { date: "=today()", progress: "1" }, callback)
+  prj.addRow(4, { date: "=today()", progress: "1" }, callback)
   
   function callback(err) {
     if(err) {
@@ -75,5 +156,7 @@ app.get("/google-spreadsheet", function(req, res){
 
   });  
 });
+
+
 
 **/
