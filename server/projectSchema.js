@@ -38,11 +38,13 @@ Project.prototype.getData=getOwn
 exports.create=function(options){return new Project(options)}
 
 exports.mutationFields=`
-	projectCreate(projectcode:String!):Project
-	projectUpdate(projectcode:String!, project:ProjectInput!):Project
+	createProject(projectcode:String!):Project
+	updateProject(projectcode:String!, project:ProjectInput!):Project
+	deleteProject(projectcode:String!):Project
 `
 
 exports.queryFields=`
+	readProjects:[Project]
 	subprojectCodes:[String]
 	bySubprojectCode(projectId:String!):Project
 `
@@ -56,12 +58,12 @@ type Project {
 	address:String
 	ownercode:String
 	contractorcode:String
-	started:Date
-	finished:Date
+	started:String
+	finished:String
 	projectstatus:ProjectStatus
 	permit:String
-	areasm:Number
-	cost:Number
+	areasm:String
+	cost:String
 	about:String
 }
 

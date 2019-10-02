@@ -26,10 +26,10 @@ const APP = EXPRESS()
 const PATH = require("path")
 const CASCHEMA = require(PATH.join(__dirname,"server","caschema"))
 
-/*
+
 const GRAPHQL_HTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
-*/
+
 
 // Site path
 if (typeof global.appRoot=="undefined") {global.appRoot=PATH.resolve(__dirname)}

@@ -10,7 +10,7 @@ const PROJECT = require("./projectSchema")
 // console codes
 const BLUE="\x1b[34m", RESET="\x1b[0m"
 // support
-const {addDays, dirCountPlus, getOwn, EXTEND, MIXIN, cryptoId} = require(PATH.join(__dirname,"support"))
+const {addDays, dirCountPlus, getOwn, EXTEND, MIXINS, cryptoId} = require(PATH.join(__dirname,"support"))
 
 
 //////////////////////////////////////////////////
@@ -154,7 +154,7 @@ type Deficiency {
 	deficId:String
 	desc:String
 	refId:String
-	status:DrrStatus
+	status:String
 }`
 
 function Deficiency(){
@@ -191,7 +191,7 @@ DrrPlans.prototype.getData=function(){
 	return {
 		projectId:this.projectId,
 		drrId:this.drrId,
-		plans:this.plans.map(p->p.getData())
+		plans:this.plans.map(p=>p.getData())
 	}
 }
 //deprecated, implement in resolvers
@@ -217,7 +217,7 @@ function DrrPlan(title, checklist){
 	//this field initialized by imageFiler from images in image folder
 	this.image=""
 }
-MIXINS(DrrPlan, getData)
+MIXINS(DrrPlan, getOwn)
 
 //////////////////////////////////////////
 //DrrPhoto Data Structure & default values
@@ -242,7 +242,7 @@ function DrrPhotos(projectId, drrId){
 }
 
 //MIXINS(DrrPhotos, jsonFiler, imageFiler)
-MIXINS(DrrPhotos, getData)
+MIXINS(DrrPhotos, getOwn)
 
 exports.typeDefs+=`
 type DrrPhoto {
@@ -271,7 +271,6 @@ enum DeficiencyStatus {
 	CRITICAL
 	DROPPED
 	INFO
-	OPEN
 }`
 
 const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
@@ -283,6 +282,6 @@ const DRR_STATUS=["Closed", "Critical", "Dropped", "Info", "Open"]
 // choose the storage...
 
 // exports.resolvers=require("./DRRresolversFS").resolvers
-exports.resolvers=require("./DRRresolversGS").resolvers
+//exports.resolvers=require("./DRRresolversGS").resolvers
 
 

@@ -9,8 +9,10 @@ MIT License
 const {google}=require('googleapis')
 //request=require('request')
 const GoogleSheet=require('google-spreadsheet')
-const SECRET=require('./dist/client_secret.json')
-const ASYNC=require('async')
+//console.log("__dirname:",__dirname)
+const PATH=require("path")
+const SECRET=require("../dist/client_secret.json")
+//const ASYNC=require('async')
 
 //CASBAH project spreadsheet key in googledrive
 //1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4
@@ -18,13 +20,10 @@ const ASYNC=require('async')
 const PROJECT=new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4");
 
 
-
 exports.resolvers={
-	subprojectCodes(args){
-		console.log("resolving subprojectCodes...")
-		var r
-
-		return r
+	readProjects(args){
+		console.log("resolving readProjects...", args)
+		return readProjects()
 	},
 		
 	projectById({projectId}){
@@ -56,7 +55,7 @@ exports.resolvers={
 	}
 }
 
-
+/*
 function getProjects(){
 	var data
 	ASYNC.series([
@@ -66,6 +65,33 @@ function getProjects(){
 	)
 	return data
 }
+*/
+
+async function readProjects(){
+	var raws, rows
+	var nonfields=["_xml","id","app:edited","_links","save","del"]
+	
+	await new Promise(function(done){
+		PROJECT.useServiceAccountAuth(SECRET, done)
+	})
+	await new Promise(function(done){
+		PROJECT.getRows(1, function(err, data){
+			raws=data
+			done()
+		})
+	})
+	//filter data
+	rows=raws.map(function(raw){
+		var row={}
+		Object.keys(raw).forEach(function(key){
+			//filter out the badkey objects
+			if (!nonfields.includes(key)){ row[key]=raw[key] }
+		})
+		return row
+	})	
+	return rows
+}
+
 
 
 function getRows(n, done){

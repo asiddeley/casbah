@@ -110,7 +110,7 @@ exports.resolvers={
 		var ids=[]
 
 		try {
-			varr p=PATH.join(CASITE, projectId, BRANCH)
+			var p=PATH.join(CASITE, projectId, BRANCH)
 			ids=FS.readdirSync(p).filter(function (file) {
 				return FS.statSync(PATH.join(p,file)).isDirectory()
 			})			

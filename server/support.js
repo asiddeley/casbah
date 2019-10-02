@@ -95,7 +95,7 @@ exports.MIXINS=function(){
 				throw("Error in MIXINS(), argument not a function.")
 			}
 			subClass.prototype=Object.assign(mixin.prototype)
-			fn.prototype.constructor=subClass
+			//fn.prototype.constructor=subClass
 		}
 	}
 }
