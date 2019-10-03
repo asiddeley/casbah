@@ -45,8 +45,8 @@ exports.mutationFields=`
 
 exports.queryFields=`
 	readProjects:[Project]
-	subprojectCodes:[String]
-	bySubprojectCode(projectId:String!):Project
+	byProjectid(projectid:String!):Project
+	bySubprojectcode(subprojectcode:String!):Project
 `
 exports.typeDefs=`
 type Project {
