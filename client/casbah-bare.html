@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+
+<head>
+<script src="offline/jquery.js"></script>
+<script src="desktop.dist.js"></script>
+<link rel="stylesheet" type="text/css" href="desktop.css">
+
+
+
+<script>
+//prevent accidental image drop
+$(window).on({
+	"drop": function(e){ e=e||event; e.preventDefault(); false;},
+	"dragover":function(e){ e=e||event; e.preventDefault(); false;}
+});
+
+//inhibit the browser's right-click context menu
+$(document).on("contextmenu", false);
+
+//console.log($.find('#welcome-template'))
+
+$(function(){ 
+  window.desktop.activate({
+	welcome:$('template.welcome').html(),
+	wallpaper:$('template.wallpaper').html()
+  })
+  
+})
+  
+</script>
+</head>
+
+<body>
+
+<template class="welcome">
+
+<center class="logobox casbah col-md-2 ">
+<div>* C-A *</div>
+<div>S B A H</div>
+</center><br>
+
+</template>  
+
+<template class="wallpaper">
+<img src="mountainHutt.jpg" class="wallpaper">
+</template>  
+
+
+</body>
+</html>
