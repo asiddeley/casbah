@@ -4,6 +4,7 @@
   "description": "Contract Administration Site Be Architecural Heroes",
   "main": "index.js",
   "scripts": {
+    "case": "electron main.js",
     "cas": "node index.js",
     "dist": "browserify client/casbah.js -o dist/casbah.dist.js",
     "test": "mocha test/array.js"
@@ -25,6 +26,8 @@
     "apollo-server-express": "^2.5.0",
     "async": "^3.1.0",
     "body-parser": "^1.18.2",
+    "electron": "^6.0.12",
+    "electron-window-manager": "^1.0.6",
     "express": "^4.16.2",
     "express-fileupload": "^0.4.0",
     "express-graphql": "^0.8.0",
@@ -36,6 +39,7 @@
     "graphql-tools": "^4.0.4",
     "image-size": "^0.6.2",
     "mocha": "^6.2.0",
+    "remote": "^0.2.6",
     "vue": "^2.6.10"
   }
 }

@@ -1,0 +1,14 @@
+{
+	"home": { 
+		"title": "Home", 
+		"url": "file://electron/home.html", 
+		"setup": {
+			'width': 600,
+			'height': 450,
+			'position': 'topLeft',
+			'layout': 'simple',
+			'showDevTools': true,
+			'resizable': true
+		}
+	}	
+}

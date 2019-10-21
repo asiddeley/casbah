@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="bootstrapCSS"></style>
+<style id="casbahCSS"></style>
+<script>
+	var remote = require('remote');
+    //var windowManager = remote.require('electron-window-manager');
+	var fs=require('fs');
+	var $=require('../offline/jquery.js');
+
+	//ready
+	$(function(){
+		$("#bootstrapCSS").text(fs.readFileSync("offline/bootstrap.css"));	
+		$("#casbahCSS").text(fs.readFileSync("client/casbah.css"));	
+	
+	});
+    // Create a new window
+    //var win2 = windowManager.createNew('win2', 'Windows #2');
+   // win2.loadURL('/electron/home.html');
+    //win2.onReady( ... );
+   // win2.open();
+</script>
+
+
+</head>
+
+
+
+<body>
+
+	<div class="container" >
+	<br>
+	<div class="row">
+	<div class="col-md-1"></div>
+	<center class="col-md-4 logobox casbah jumbo">* C-A *<br>S B A H</center>
+	<div class="col-md-2 welcome">Contract<br>Administration<br>System<br></div>
+	<div class="col-md-1 welcome"></div>
+	<div class="col-md-2 welcome">Be<br>Architectural<br>Heroes</div>
+	<div class="col-md-2"></div>	
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-md-1"></div>
+		<div class="col-md-4 tan">
+			<strong>Project Numbers:</strong>
+			<div class="scrollbox100">
+				<div class="white" 
+				onmouseenterNOT="$(this).addClass('lowlite')"
+				onmouseleaveNOT="$(this).removeClass('lowlite')"
+				v-on:click="pronumChange" 
+				title="click to make current"
+				v-for="p in projects">{{p}}</div>
+			</div>
+		</div>
+		<div class="col-md-2 tan"><strong>Project No.:</strong><br>{{pronum}}</div>
+		<div class="col-md-1"></div>
+		<div class="col-md-2 tan"><strong>View name:</strong><br>{{vname}}</div>
+	</div>
+	<br>
+
+	
+</body>
+</html>
