@@ -4,22 +4,26 @@
 <style id="bootstrapCSS"></style>
 <style id="casbahCSS"></style>
 <script>
-	var remote = require('remote');
-    //var windowManager = remote.require('electron-window-manager');
+	var remote = require('electron').remote;
+	//console.log("REMOTE...", remote);
+    var windowManager = remote.require('electron-window-manager');
+	//console.log("WM...", windowManager);
 	var fs=require('fs');
-	var $=require('../offline/jquery.js');
+	var $=require('jquery');
+	$("#bootstrapCSS").text(fs.readFileSync("node_modules/bootstrap/dist/css/bootstrap.css"));	
+	$("#casbahCSS").text(fs.readFileSync("client/casbah.css"));
+	
 
-	//ready
 	$(function(){
-		$("#bootstrapCSS").text(fs.readFileSync("offline/bootstrap.css"));	
-		$("#casbahCSS").text(fs.readFileSync("client/casbah.css"));	
+		
+		//var win2 = windowManager.createNew('win2', 'Windows #2');
+		//win2.loadURL('home.html');
+		//win2.onReady( ... );
+		//win2.open();		
+		
 	
 	});
-    // Create a new window
-    //var win2 = windowManager.createNew('win2', 'Windows #2');
-   // win2.loadURL('/electron/home.html');
-    //win2.onReady( ... );
-   // win2.open();
+
 </script>
 
 
