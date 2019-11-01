@@ -33,16 +33,15 @@ var windowOptions={
 	width: 1200,
 	height: 400,
 	position: 'topLeft',
-	layout: 'simple',
 	resizable:true,
-	showDevTools: false,
+	showDevTools: true,
 	frame:true,
 	webPreferences: {nodeIntegration: true}
 }
 
 app.on('ready', function(){
 	console.log("Electron app ready...")
-	windowManager.open('home', 'CASBAH', `file://${__dirname}/electron/home.html`, false, windowOptions)
+	windowManager.open('home', 'CASBAH', `file://${__dirname}/electron/casbah.html`, false, windowOptions)
 	
 
 	
