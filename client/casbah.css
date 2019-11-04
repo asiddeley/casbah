@@ -99,3 +99,5 @@ textarea {font-size:11pt; font-family:'segoe ui'; background-color:silver;}
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;          /* Likely future */      
 }
+
+.striped{background-color:silver;}

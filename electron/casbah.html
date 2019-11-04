@@ -5,36 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title id="browser_tab" >CASBAH</title>
 
-<!--script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script-->
-<!--script src="../node_modules/jquery/dist/jquery.js"/></script-->
 
 <script type="text/javascript">let $=require('jquery');</script>
 <script type="text/javascript">require('popper.js');</script>
 <script type="text/javascript">require('bootstrap');</script>
 <link rel="stylesheet" href="../client/casbah.css">
-<!--link rel="stylesheet" href="../offline/bootstrap.min.css"-->
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 
-
 <script type="text/javascript">
-
-	var remote = require('electron').remote;
-    var windowManager = remote.require('electron-window-manager');
-	//var fs=require('fs');
-
-	var view=function(a){alert(a);};
-
-	$(function() { 
-		//bumper shoves the top of the content area down to prevent navbar from covering it
-		$("#BUMPER").height($("#NAVBAR").innerHeight());
-		$(window).on("resize",function(){$("#BUMPER").height($("#NAVBAR").innerHeight());});
-	}); 
-
-
+	var {ready, view}=require('../electron/casbah.js')
+	$(function(){ready()})
 </script>
 
 </head>
+
 <body class="user-select-none">
+<div class="container-fluid">
 <nav id="NAVBAR" class="navbar navbar-default navbar-fixed-top" >
 	<div class="container-fluid">
 
@@ -138,9 +124,6 @@
 		>Reports<span class="caret"></span></a>
 		<ul class="dropdown-menu">
 		<li class="disabled" id="rpllog-btn"><a href="#">General Deficiencies</a></li>
-		<!--li onclick="casbah.view('deficiency_sheets_log.html')"><a href="#">Room Deficiencies</a></li>
-		<li onclick="casbah.view('site_review_log.html')"><a href="#">Site Visit Review</a></li>
-		<li class="divider"><li-->
 		<li onclick="view('rdr')"><a href="#">Room Deficiency Review</a></li>
 		<li onclick="view('svr')"><a href="#">Site Visit Report</a></li>
 		<li class="divider"><li>
@@ -152,7 +135,6 @@
 		<a id="shopstab" class="dropdown-toggle" href="#" data-toggle="dropdown"
 		>Submittals<span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<!--li class="disabled"><a href="#">Submittal</a></li-->
 			<li class="disabled"><a href="#">SDI Log</a></li>
 			<li class="disabled"><a href="#">O &amp; M Manual Review</a></li>
 			<li class="divider"><li>
@@ -161,8 +143,7 @@
 		</li>
 
 		<li class="dropdown">
-		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown" 
-		onclick="open('welcome');"
+		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown"
 		>Welcome<span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 			<li class="disabled"><a href="#">About</a></li>
@@ -178,42 +159,32 @@
 	</div>
 </nav>
 
-<div id="BUMPER" >bumper</div>
-<!--div id="VIEW">view-placeholder</div-->
-<div id="VIEWER-PLACEHOLDER"></div>
-<!--div id="casdoc-placeholder">casdoc placeholder</div-->
-<!--keep-alive>
-<component id="current-casdoc" bv-bind:is="currentCasdoc"></component>
-</keep-alive -->
 
-<div id="project_modal" class="modal fade" role="dialog" >
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Project Numbers</h4>
-			</div>
-			<div id="project_modal_content" class="modal-body" >
-				<p>Placeholder for a small modal.</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div >
+<div id='PROJECT-PICKER' class='container'>
 
-<template id="project-idlist-template" type="text/x-handlebars-template">
-	<ul class="list-group">
-	{{#each ids}}
-	<li class="list-group-item"
-		onmouseenter="casbah.hi.light(this);" 
-		onmouseleave="casbah.hi.dark(this);"	
-		onclick="localStorage.setItem('project_id', $(event.target).text()); $('#project_modal').modal('hide');"
-	>{{this}}</li>
-	{{/each}}
-	</ul>
-</template>
+<div class='row striped'>
+<strong class='col-md-2'>Project No.</strong>
+<strong class='col-md-4'>Project</strong>
+<strong class='col-md-2'>Subproject Code</strong>
+<strong class='col-md-4'>Subproject</strong>
+</div>
+
+<div v-for='(row, index) in rows' 
+	class='row' 
+	v-bind:class='{striped: isOdd(index)}'
+	v-add-class-hover="'highlight'"
+>
+<span class='col-md-2' :title='title'>{{row.projectno}}</span>
+<span class='col-md-4' :title='hoverText'>{{row.project}}</span>
+<span class='col-md-2' :title='hoverText'>{{row.subprojectcode}}</span>
+<span class='col-md-4' :title='hoverText'>{{row.subproject}}</span>
+</div>
+
+
+</div REM='PROJECT-PICKER'>
+
+
+</div>
 
 
 

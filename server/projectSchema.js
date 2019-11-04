@@ -6,14 +6,14 @@ MIT License
 const FS = require("fs")
 const PATH = require("path")
 
-var {getOwn, cryptoId}=require("./support").getOwn
+var {getOwn, cryptoId, addDays}=require("./support.js")
 
 //project record with default values
-function Project({projectno, projectcode}){	
+function Project({projectno, projectcode, days}){	
 	var today=new Date()
 	var future=addDays(today, days||365)
 	//random id with high probability of uniquness
-	this.projrctid=cryptoId()
+	this.projectid=cryptoId()
 	this.projectno=projectno||"PRO-001"
 	this.projectcode=projectcode||"CASA"
 	this.project="Casbah Building"
