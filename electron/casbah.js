@@ -80,17 +80,24 @@ Vue.directive('add-class-hover', {
 	}
 })
 
-exports.ready=function(){ 	
+exports.ready=function(cm$){ 	
 	projectPicker=new Vue({
 		el:'#PROJECT-PICKER',
 		data:{
 			title:'click',
 			hoverText:'click to select',
 			rows:[new Project({}), new Project({}), new Project({})],
-			isMouseover:false
+			isMouseover:false,
+			HIGHLIGHT_CLASS:'highlight',
+			CM$:cm$
 		},	
 		methods:{
-			isOdd:function(i){return (i%2===1)}
+			isOdd:function(i){return (i%2===1)},
+			contextMenu:function(ev, pn){
+				//alert(pn)
+				console.log("CM...", pn)
+				this.CM$.show().position({my:'left top',at:'left top',of:ev})	
+			}
 		}		
 	});
 	//googleAuth();

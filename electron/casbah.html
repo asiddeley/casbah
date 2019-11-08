@@ -6,15 +6,33 @@
 <title id="browser_tab" >CASBAH</title>
 
 
-<script type="text/javascript">let $=require('jquery');</script>
-<script type="text/javascript">require('popper.js');</script>
-<script type="text/javascript">require('bootstrap');</script>
+<script type="text/javascript">let $=require('jquery'); let jQuery=$</script>
+<script type="text/javascript">require('popper.js')</script>
+<script type="text/javascript">require('bootstrap')</script>
 <link rel="stylesheet" href="../client/casbah.css">
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 
+<script type="text/javascript" src="../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.theme.css">
+<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.structure.css">
+
+
 <script type="text/javascript">
 	var {ready, view}=require('../electron/casbah.js')
-	$(function(){ready()})
+	var CM$
+	/*
+	function contextMenu(ev, pn){
+		console.log('contextMenu...', pn)
+		CM$.show().position({my:'left top',at:'left top',of:ev})	
+	}
+	*/
+	
+	$(function(){
+		CM$=$('#CONTEXT-MENU')
+		CM$.menu().css("position","absolute", "width", "200px").hide();
+		ready(CM$)
+	})
 </script>
 
 </head>
@@ -161,32 +179,40 @@
 
 
 <div id='PROJECT-PICKER' class='container'>
-
 <div class='row striped'>
 <strong class='col-md-2'>Project No.</strong>
 <strong class='col-md-4'>Project</strong>
 <strong class='col-md-2'>Subproject Code</strong>
 <strong class='col-md-4'>Subproject</strong>
 </div>
-
-<div v-for='(row, index) in rows' 
+<div 
 	class='row' 
+	v-for='(row, index) in rows' 
 	v-bind:class='{striped: isOdd(index)}'
-	v-add-class-hover="'highlight'"
+	v-add-class-hover='HIGHLIGHT_CLASS'
+	REMoncontextmenu='contextMenu(event)'
+	v-on:contextmenu='contextMenu($event, row.projectno)'
 >
 <span class='col-md-2' :title='title'>{{row.projectno}}</span>
 <span class='col-md-4' :title='hoverText'>{{row.project}}</span>
 <span class='col-md-2' :title='hoverText'>{{row.subprojectcode}}</span>
 <span class='col-md-4' :title='hoverText'>{{row.subproject}}</span>
 </div>
-
-
 </div REM='PROJECT-PICKER'>
 
+</div REM='CONTAINER'>
 
-</div>
 
-
+<ul id='CONTEXT-MENU' onmouseleave='CM$.hide()'>
+	<li onclick='alert("context menu 1");CM$.hide()'><div>1</div></li>
+	<li onclick='alert("context menu 2");CM$.hide()'><div>2</div></li>
+	<li onclick='alert("context menu 3");CM$.hide()'><div>3</div></li>
+	<li onclick='alert("context menu 4");CM$.hide()'><div>4</div></li>
+	<li>--</li>
+	<li onclick='alert("context menu 4");CM$.hide()'><div>5</div></li>
+	<li>--</li>
+	<li onclick='CM$.hide()'><div>Exit</div></li>
+</ul>
 
 
 </body>
