@@ -12,26 +12,13 @@
 <link rel="stylesheet" href="../client/casbah.css">
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 
-<script type="text/javascript" src="../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
-<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.theme.css">
-<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.structure.css">
-
-
 <script type="text/javascript">
 	var {ready, view}=require('../electron/casbah.js')
 	var CM$
-	/*
-	function contextMenu(ev, pn){
-		console.log('contextMenu...', pn)
-		CM$.show().position({my:'left top',at:'left top',of:ev})	
-	}
-	*/
 	
 	$(function(){
 		CM$=$('#CONTEXT-MENU')
-		CM$.menu().css("position","absolute", "width", "200px").hide();
-		ready(CM$)
+		ready()
 	})
 </script>
 
@@ -60,7 +47,7 @@
 			<li class="disabled"><a href="#">Project Status</a></li>
 			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
 			<li class="disabled"><a href="#">Outstanding Shops</a></li>
-			<li class="divider"><li>
+			<li class="divider">--<li>
 			<li class="divider"><li>
 		</ul>
 		</li>
@@ -190,7 +177,6 @@
 	v-for='(row, index) in rows' 
 	v-bind:class='{striped: isOdd(index)}'
 	v-add-class-hover='HIGHLIGHT_CLASS'
-	REMoncontextmenu='contextMenu(event)'
 	v-on:contextmenu='contextMenu($event, row.projectno)'
 >
 <span class='col-md-2' :title='title'>{{row.projectno}}</span>
@@ -203,15 +189,15 @@
 </div REM='CONTAINER'>
 
 
-<ul id='CONTEXT-MENU' onmouseleave='CM$.hide()'>
-	<li onclick='alert("context menu 1");CM$.hide()'><div>1</div></li>
-	<li onclick='alert("context menu 2");CM$.hide()'><div>2</div></li>
-	<li onclick='alert("context menu 3");CM$.hide()'><div>3</div></li>
-	<li onclick='alert("context menu 4");CM$.hide()'><div>4</div></li>
-	<li>--</li>
-	<li onclick='alert("context menu 4");CM$.hide()'><div>5</div></li>
-	<li>--</li>
-	<li onclick='CM$.hide()'><div>Exit</div></li>
+<ul id='CONTEXT-MENU' onmouseleave='CM$.hide()' class='dropdown-menu' role='menu'>
+	<li onclick='alert("context menu 1");CM$.hide()'><a tabindex='-1' href='#'>Action 1</a></li>
+	<li onclick='alert("context menu 2");CM$.hide()'><a tabindex='-1' href='#'>Action 2</a></li>
+	<li onclick='alert("context menu 3");CM$.hide()'><a tabindex='-1' href='#'>Action 3</a></li>
+	<li onclick='alert("context menu 4");CM$.hide()'><a tabindex='-1' href='#'>Action 4</a></li>
+	<li class='divider'><hr/></li>
+	<li onclick='alert("context menu 4");CM$.hide()'><a tabindex='-1' href='#'>Action 5</a></li>
+	<li class='divider'><hr/></li>
+	<li onclick='CM$.hide()'><a tabindex='-1' href='#'>Exit</a></li>
 </ul>
 
 

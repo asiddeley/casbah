@@ -80,7 +80,8 @@ Vue.directive('add-class-hover', {
 	}
 })
 
-exports.ready=function(cm$){ 	
+exports.ready=function(){
+	const WIN$=$(window)
 	projectPicker=new Vue({
 		el:'#PROJECT-PICKER',
 		data:{
@@ -88,15 +89,33 @@ exports.ready=function(cm$){
 			hoverText:'click to select',
 			rows:[new Project({}), new Project({}), new Project({})],
 			isMouseover:false,
-			HIGHLIGHT_CLASS:'highlight',
-			CM$:cm$
+			HIGHLIGHT_CLASS:'highlight'
 		},	
 		methods:{
-			isOdd:function(i){return (i%2===1)},
+			isOdd(i){return (i%2===1)},
 			contextMenu:function(ev, pn){
-				//alert(pn)
 				console.log("CM...", pn)
-				this.CM$.show().position({my:'left top',at:'left top',of:ev})	
+				function menuX(mouse){
+					var win=WIN$['width'](), 
+					menu=CM$['width'](),
+					scroll=WIN$['scrollLeft'](),
+					position = mouse + scroll
+					return (mouse + menu > win && menu < mouse)? position - menu : position
+				}
+				function menuY(mouse){
+					var win=WIN$['height'](), 
+					menu=CM$['height'](),
+					scroll=WIN$['scrollTop'](),
+					position = mouse + scroll
+					return (mouse + menu > win && menu < mouse)? position - menu : position
+				}			
+
+				CM$.show().css({
+					position:'absolute',
+					left:menuX(ev.pageX),
+					top:menuY(ev.pageY)
+				})
+				return false
 			}
 		}		
 	});
