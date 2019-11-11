@@ -13,12 +13,16 @@
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 
 <script type="text/javascript">
-	var {ready, view}=require('../electron/casbah.js')
+	var {ready, googleAuth, view, Project}=require('../electron/casbah.js')
+	//project record
+	var project=new Project({})
 	var CM$
 	
 	$(function(){
 		CM$=$('#CONTEXT-MENU')
-		ready()
+		var {projectPicker} = ready()
+		//need to access CM$ from directives (v-on:contectmenu) so add it to data...
+		projectPicker.CM$=CM$
 	})
 </script>
 
@@ -166,7 +170,7 @@
 
 
 <div id='PROJECT-PICKER' class='container'>
-<div class='row striped'>
+<div class='row zebra'>
 <strong class='col-md-2'>Project No.</strong>
 <strong class='col-md-4'>Project</strong>
 <strong class='col-md-2'>Subproject Code</strong>
@@ -175,30 +179,46 @@
 <div 
 	class='row' 
 	v-for='(row, index) in rows' 
-	v-bind:class='{striped: isOdd(index)}'
-	v-add-class-hover='HIGHLIGHT_CLASS'
-	v-on:contextmenu='contextMenu($event, row.projectno)'
+	v-bind:class='{currentProject:isCurrentProject(row.projectid), zebra:isOdd(index)}'
+	v-class-hover='"hover"'
+	rem='// note that $event is a Vue built-in instance property'
+	v-on:contextmenu='CM$.data(row);CM$.showAtMouse($event);'
+	v-on:click='currentproject( row.projectid )'
 >
-<span class='col-md-2' :title='title'>{{row.projectno}}</span>
-<span class='col-md-4' :title='hoverText'>{{row.project}}</span>
-<span class='col-md-2' :title='hoverText'>{{row.subprojectcode}}</span>
-<span class='col-md-4' :title='hoverText'>{{row.subproject}}</span>
-</div>
-</div REM='PROJECT-PICKER'>
+<span class='col-md-2' :title='titleText(row.projectid)'>{{row.projectno}}</span>
+<span class='col-md-4' :title='titleText(row.projectid)'>{{row.project}}</span>
+<span class='col-md-2' :title='titleText(row.projectid)'>{{row.subprojectcode}}</span>
+<span class='col-md-4' :title='titleText(row.projectid)'>{{row.subproject}}</span>
+</div rem='// End of repeating row'>
 
-</div REM='CONTAINER'>
-
+</div rem='// End of PROJECT-PICKER'>
 
 <ul id='CONTEXT-MENU' onmouseleave='CM$.hide()' class='dropdown-menu' role='menu'>
-	<li onclick='alert("context menu 1");CM$.hide()'><a tabindex='-1' href='#'>Action 1</a></li>
-	<li onclick='alert("context menu 2");CM$.hide()'><a tabindex='-1' href='#'>Action 2</a></li>
-	<li onclick='alert("context menu 3");CM$.hide()'><a tabindex='-1' href='#'>Action 3</a></li>
-	<li onclick='alert("context menu 4");CM$.hide()'><a tabindex='-1' href='#'>Action 4</a></li>
+	<li onclick='googleAuth();CM$.hide();'><a tabindex='-1' href='#'
+	>Google Auth</a></li>
+	<li onclick='alert("Create record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
+	>Create record</a></li>
+	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
+	>Read record</a></li>
+	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
+	>Update record</a></li>
+	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
+	>Delete record</a></li>
 	<li class='divider'><hr/></li>
-	<li onclick='alert("context menu 4");CM$.hide()'><a tabindex='-1' href='#'>Action 5</a></li>
-	<li class='divider'><hr/></li>
-	<li onclick='CM$.hide()'><a tabindex='-1' href='#'>Exit</a></li>
+	<li onclick='alert("Delete record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
+	>Hide record</a></li>
+	<li onclick='alert("Unhide record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
+	>Unhide record</a></li>
+	<li onclick='alert("Show hidden records");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
+	>Show hidden records</a></li>
+	<li onclick='alert("Show unhidden records");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
+	>Show unhidden records</a></li>
 </ul>
+
+</div rem='// End of CONTAINER'>
+
+
+
 
 
 </body>

@@ -52,7 +52,7 @@ fieldset {border: 0;}
 .small {font-size:xx-small;}
 
 /*colours - forground*/
-.tan {color:tan;}
+.tan {color:tan; !important;}
 .white{color:white;}
 
 label {display: block;  margin: 30px 0 0 0; }
@@ -75,7 +75,7 @@ select {width: 200px; }
 
 .zebra-stripetan {background-color:tan;}
 .zebra-stripegrey {background-color:#e0e0e0;}
-.zebra {background-color:#e8e8e8;}
+
 
 
 p {font-size:11pt; font-family:'segoe UI'; height:100% !important;}
@@ -100,4 +100,8 @@ textarea {font-size:11pt; font-family:'segoe ui'; background-color:silver;}
   user-select: none;          /* Likely future */      
 }
 
-.striped{background-color:silver;}
+/*ELECTRON*/
+.currentProject {border-color:tan; border-width:2px; border-style:solid;}
+.stripe {background-color:silver;}
+.zebra {background-color:#e8e8e8;}
+.hover {background-color:rgb(91,192,222) }

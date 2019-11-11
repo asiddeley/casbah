@@ -1,0 +1,156 @@
+<!doctype html>
+
+
+
+<div class="container">
+	<div id="project-header-placeholder">placeholder</div>
+	<div id="project-placeholder">placeholder</div>
+	<br><br><br><br>
+</div>
+
+
+<template id="project-template" type="text/x-handlebars-template">
+	<div class="row marz row__"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		title="Right-click for menu..."
+		pronum="PRJ-001"
+		oncontextmenu="camel.showMenu(event)"> 
+		<small class="col-xs-1 row-head marz">0</small>
+		<div class="border-left col-xs-11 marz">
+			<span class="col-xs-2 row-head marz">Project count: {{projects.length}}</span>
+		</div>
+	</div>
+
+	{{#each projects}}
+	
+	<div class="row marz row zebra" >
+		<small class="col-xs-1 row-head marz">{{plusOne @index}}</small>
+		<div class="border-left col-xs-11 marz" >
+			<span class="col-xs-2 row-head marz">Project No.</span>
+			<span class="col-xs-3 row-head marz">Project</span>
+			<span class="col-xs-2 row-head marz">Owner</span>
+			<span class="col-xs-2 row-head marz">Date</span>
+			<span class="col-xs-2 row-head marz">GC</span>
+		</div>	
+	</div>	
+	
+	<div class="row marz"
+		project_id="{{dir}}"
+		oncontextmenuold="casbah.showMenu(project.menu, event)"
+		oncontextmenu="camel.showMenu(event)">
+	<p 	class="col-xs-1 marz"></p>		
+	<div class="border-left col-xs-11 marz" >
+	<p 	class="col-xs-2 marz"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		title="Click to make current"
+		field="pronum"
+		rowid="{{rowid}}"
+		onclick="camel.getCDI().current(this);">{{project_id}}</p>
+		
+	<p 	class="col-xs-3 marz"
+		pid="{{project_id}}"
+		field="project_name"
+		title="Click to edit"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{project_name}}</p>
+	
+	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
+		field="client"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{owner}}</p>
+	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
+		field="date"
+		title="Click to edit"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{date}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		pid="{{project_id}}"
+		field="contractor"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{contractor}}</p>
+	</div>	
+	</div>
+	
+	<div class="row marz">
+	<p class="col-xs-1 row-head marz">&nbsp;</p>
+	<div class="border-left col-xs-11 marz" >
+	
+	<p class="col-xs-2 row-head marz">Permit</p>
+	<p class="col-xs-3 row-head marz">Address</p>
+	<p class="col-xs-2 row-head marz">Status</p>
+	<p class="col-xs-2 row-head marz">Date Done</p>
+	<p class="col-xs-2 row-head marz">xdata</p>
+	</div>	
+	</div>
+	
+	<div class="row marz"
+		project_id="{{dir}}"
+		oncontextmenu="camel.showMenu(event)">
+
+	<p class="col-xs-1 marz ">&nbsp;</p>
+	<div class="border-left marz col-xs-11">
+	<p 	class="col-xs-2 marz"
+		pronum="{{project_id}}"
+		field="permit"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{permit}}</p>	
+			
+	<p 	class="col-xs-3 marz"
+		pronum="{{project_id}}"
+		field="address"
+		title="Click to edit"
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{address}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		pronum="{{project_id}}"
+		field="date_closed"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{date_closed}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		pronum="{{project_id}}"
+		field="status"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{status}}</p>
+		
+	<p 	class="col-xs-2 marz"
+		pronum="{{project_id}}"
+		field="xdata"
+		title="Click to edit"	
+		onmouseenter="$(this).addClass('highlight')"
+		onmouseleave="$(this).removeClass('highlight')"
+		onclick="camel.getCDI().edit(this);">{{xdata}}</p>
+	</div>		
+	</div>
+	{{/each}}	
+</template>
+
+
+<!-- MENUS -->
+<ul id="project-menu" onmouseleave="camel.getCDI().m$.hide()" class="hide9999">
+<li onclick="camel.getCDI().create();camel.getCDI().m$.hide()">New Project</li>
+<li onclick="camel.getCDI().current();camel.getCDI().m$.hide()">Make Current</li>
+<li onclick="camel.getCDI().view();camel.getCDI().m$.hide()">Refresh Page</li>
+<li onclick="camel.getCDI().m$.hide()">Exit Menu</li>
+</ul >
+
+
