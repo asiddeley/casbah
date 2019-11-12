@@ -32,7 +32,8 @@ var Vue=require('../node_modules/vue/dist/vue.common.js')
 var GoogleSheet	= require('google-spreadsheet')	
 var googleCASBAH = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
 var secret = require('../private/client_secret.json')
-var {getOwn, cryptoId, addDays}=require("../server/support.js")
+//var {getOwn, cryptoId, addDays, LocalStore}=require("../server/support.js")
+var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 var projectPicker
 
 function googleAuth(){
@@ -44,23 +45,6 @@ function googleAuth(){
 		})
 	})	
 }	
-
-function LocalStore(path){
-	var localstore={}
-	try { localstore = require(path)}
-	catch(err){	console.log('Error reading JSON... ', err) }	
-	
-	this.currentprojectid=localstore.currentprojectid||'0'
-	console.log('settings.currentprojectid:',this.currentprojectid)
-	this.hidden=[]
-	this.stringify=function(data){return JSON.stringify(this)}
-	this.set=function(name, val){
-		if (name && val){this[name]=val}
-		//save to local json
-		console.log("Saving settings to: ", path)
-		FSP.writeFileSync(path, this.stringify())
-	}
-}
 
 function Project({projectno, projectcode, days}){	
 	var today=new Date()
@@ -131,7 +115,11 @@ Vue.directive('class-hover', {
 exports.ready=function(){
 
 	///// get local settings
-	var settings = new LocalStore(PATH.join(__dirname,'../private/settings.json'))
+	var settings = new LocalStore(
+		PATH.join(__dirname,'../private/settings.json'),
+		// contents
+		{currentprojectid:'0', hidden:[]}		
+	)
 	
 	projectPicker=new Vue({
 		el:'#PROJECT-PICKER',
@@ -144,19 +132,18 @@ exports.ready=function(){
 				new Project({projectno:'P-103'})
 			],
 			isMouseover:false,
+			contextMenu:false,
 			currentprojectid:0
 		},	
 		methods:{
 			isOdd(i){return (i%2===1)},
 			isCurrentProject(id){
-				//if (typeof id=='number') {id=Number(id).toString()}
-				console.log('compare...', this.currentprojectid, '->', id)
+				//console.log('compare...', this.currentprojectid, '->', id)
 				return this.currentprojectid==id
 			},
-			currentproject(id){
-				//remember to save and retrieve from localstorage during lifecycle
+			currentProject(id){
 				this.currentprojectid=id
-				//keep local copy
+				//update local store
 				settings.set('currentprojectid', id)
 			},
 			titleText(id){

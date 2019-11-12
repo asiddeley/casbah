@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title id="browser_tab" >CASBAH</title>
 
-
 <script type="text/javascript">let $=require('jquery'); let jQuery=$</script>
 <script type="text/javascript">require('popper.js')</script>
 <script type="text/javascript">require('bootstrap')</script>
@@ -14,10 +13,11 @@
 
 <script type="text/javascript">
 	var {ready, googleAuth, view, Project}=require('../electron/casbah.js')
-	//project record
+	//project instance used for its prototype functions ie. project.toString(data) 
 	var project=new Project({})
+	//global access to contextMenu
 	var CM$
-	
+	//ready...
 	$(function(){
 		CM$=$('#CONTEXT-MENU')
 		var {projectPicker} = ready()
@@ -181,9 +181,10 @@
 	v-for='(row, index) in rows' 
 	v-bind:class='{currentProject:isCurrentProject(row.projectid), zebra:isOdd(index)}'
 	v-class-hover='"hover"'
-	rem='// note that $event is a Vue built-in instance property'
+	REM='// note that $event is a Vue built-in instance property'
 	v-on:contextmenu='CM$.data(row);CM$.showAtMouse($event);'
-	v-on:click='currentproject( row.projectid )'
+	REMv-on:contextmenu='contextMenu=true;'
+	v-on:click='currentProject( row.projectid )'
 >
 <span class='col-md-2' :title='titleText(row.projectid)'>{{row.projectno}}</span>
 <span class='col-md-4' :title='titleText(row.projectid)'>{{row.project}}</span>
@@ -193,7 +194,12 @@
 
 </div rem='// End of PROJECT-PICKER'>
 
-<ul id='CONTEXT-MENU' onmouseleave='CM$.hide()' class='dropdown-menu' role='menu'>
+<ul id='CONTEXT-MENU' 
+	onmouseleave='CM$.hide()' 
+	REMv-if='contextMenu'
+	REMv-on:mouseleave='contextMenu=false'
+	class='dropdown-menu'
+	role='menu'>
 	<li onclick='googleAuth();CM$.hide();'><a tabindex='-1' href='#'
 	>Google Auth</a></li>
 	<li onclick='alert("Create record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
@@ -214,6 +220,8 @@
 	<li onclick='alert("Show unhidden records");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
 	>Show unhidden records</a></li>
 </ul>
+
+
 
 </div rem='// End of CONTAINER'>
 
