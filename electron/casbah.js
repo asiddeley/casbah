@@ -24,38 +24,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ********************************/
 
-var remote = require('electron').remote
-var windowManager = remote.require('electron-window-manager')
 const FSP=require('fs-plus')
 const PATH=require('path')
+var remote = require('electron').remote
+var windowManager = remote.require('electron-window-manager')
 var Vue=require('../node_modules/vue/dist/vue.common.js')
 var GoogleSheet	= require('google-spreadsheet')	
 var googleCASBAH = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
 var secret = require('../private/client_secret.json')
 var {getOwn, cryptoId, addDays}=require("../server/support.js")
-
-///// get local settings
-var settings = new Settings()
-
-
-function Settings(){
-	var local={}
-	try { local = require('../private/settings.json')}
-	catch(err){	}	
-	
-	this.currentprojectid=local.currentprojectid||0
-	console.log('settings.currentprojectid:',this.currentprojectid)
-	this.hidden=[]
-	this.stringify=function(data){return JSON.stringify(this)}
-	this.set=function(name, val){
-		if (name && val){this[name]=val}
-		//save to local json
-		var path=PATH.join(__dirname,'../private/settings.json')
-		console.log("Saving settings to: ",path)
-		FSP.writeFileSync(path, this.stringify())
-	}
-}
-
+var projectPicker
 
 function googleAuth(){
 	googleCASBAH.useServiceAccountAuth(secret, function(){
@@ -67,12 +45,27 @@ function googleAuth(){
 	})	
 }	
 
-
+function LocalStore(path){
+	var localstore={}
+	try { localstore = require(path)}
+	catch(err){	console.log('Error reading JSON... ', err) }	
+	
+	this.currentprojectid=localstore.currentprojectid||'0'
+	console.log('settings.currentprojectid:',this.currentprojectid)
+	this.hidden=[]
+	this.stringify=function(data){return JSON.stringify(this)}
+	this.set=function(name, val){
+		if (name && val){this[name]=val}
+		//save to local json
+		console.log("Saving settings to: ", path)
+		FSP.writeFileSync(path, this.stringify())
+	}
+}
 
 function Project({projectno, projectcode, days}){	
 	var today=new Date()
 	var future=addDays(today, days||365)
-	//random id with high probability of uniquness
+	//random id with high probability of uniqueness
 	this.projectid=cryptoId()
 	this.projectno=projectno||"PRO-001"
 	this.projectcode=projectcode||"CASA"
@@ -137,7 +130,10 @@ Vue.directive('class-hover', {
 ///// EXPORTS
 exports.ready=function(){
 
-	var projectPicker=new Vue({
+	///// get local settings
+	var settings = new LocalStore(PATH.join(__dirname,'../private/settings.json'))
+	
+	projectPicker=new Vue({
 		el:'#PROJECT-PICKER',
 		data:{
 			title:'click',
@@ -152,7 +148,11 @@ exports.ready=function(){
 		},	
 		methods:{
 			isOdd(i){return (i%2===1)},
-			isCurrentProject(id){return this.currentprojectid===id},
+			isCurrentProject(id){
+				//if (typeof id=='number') {id=Number(id).toString()}
+				console.log('compare...', this.currentprojectid, '->', id)
+				return this.currentprojectid==id
+			},
 			currentproject(id){
 				//remember to save and retrieve from localstorage during lifecycle
 				this.currentprojectid=id
@@ -166,7 +166,7 @@ exports.ready=function(){
 			}
 		}
 	})
-	projectPicker.currentprojectid=settings.currentProjectid
+	projectPicker.currentprojectid=settings.currentprojectid
 	
 	//console.log("Current Project: ", projectPicker.currentprojectid)
 	return {projectPicker:projectPicker}
