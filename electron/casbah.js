@@ -24,33 +24,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ********************************/
 
+///// IMPORTS
 const FSP=require('fs-plus')
 const PATH=require('path')
+
 var remote = require('electron').remote
 var windowManager = remote.require('electron-window-manager')
+
 var Vue=require('../node_modules/vue/dist/vue.common.js')
+var BootstrapVue=require('../node_modules/bootstrap-vue/dist/bootstrap-vue.common.js')
+Vue.use(BootstrapVue)
+
 var GoogleSheet	= require('google-spreadsheet')	
 var googleCASBAH = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
 var secret = require('../private/client_secret.json')
-//var {getOwn, cryptoId, addDays, LocalStore}=require("../server/support.js")
+
 var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
-var projectPicker
+var casbahVue
 
 function googleAuth(){
 	googleCASBAH.useServiceAccountAuth(secret, function(){
 		//authenticated so proceed
 		googleCASBAH.getRows(1, function(err, rows){
 			//update vue model...
-			projectPicker.rows=rows;
+			casbahVue.rows=rows;
 		})
 	})	
 }	
 
-function Project({projectno, projectcode, days}){	
+function Project({projectid, projectno, projectcode, days}){	
 	var today=new Date()
 	var future=addDays(today, days||365)
 	//random id with high probability of uniqueness
-	this.projectid=cryptoId()
+	this.projectid=projectid||cryptoId()
 	this.projectno=projectno||"PRO-001"
 	this.projectcode=projectcode||"CASA"
 	this.project="Casbah Building"
@@ -75,27 +81,25 @@ Project.prototype.toString=function(data){
 		return (val + ' -> ' + project[val])
 	}).join('\n')
 }
+//project instance used for its prototype functions ie. project.toString(data) 
+var project=new Project({})
 
 
-
-///// Extend jQuery
-$.fn.showAtMouse=function(ev){
-	var win$=$(window)
-	var wx=win$['width'](), wy=win$['height'](), sx=win$['scrollLeft'](), sy=win$['scrollTop']()
-	return this.each(function(){
-		var menu$=$(this)
-		var mx=menu$['width'](), my=menu$['height']()
-		menu$.show().css({
-			position:'absolute', 
-			// Horizontally flips menu if too close to bottom
-			left:(ev.pageX + mx > wx && mx < ev.pageX)?ev.pageX+sx-mx:ev.pageX+sx,
-			// Vertically flips menu if too close to right 
-			top:(ev.pageY + my > wy && my < ev.pageY)?ev.pageY+sy-my:ev.pageY+sy
-		})
-		return false
-	})
+function menuShow(e, row) {
+	e.preventDefault()	
+	casbahVue.menuData=row||{}
+	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
+	var menu = document.getElementById("CONTEXT-MENU")
+	//var mx=menu.clientWidth, my=menu.clientHeight
+	var mx=menu.scrollWidth, my=menu.scrollHeight
+	//console.log('menu mx, my:', mx, my, menu)
+	//menu.style.left = e.pageX + 'px'
+	menu.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
+	//menu.style.top = e.pageY + 'px'
+	menu.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
+	menu.style.display = 'block'
+		
 }
-
 
 ///// Custom Vue Directive
 Vue.directive('class-hover', {
@@ -114,28 +118,29 @@ Vue.directive('class-hover', {
 ///// EXPORTS
 exports.ready=function(){
 
-	///// get local settings
-	var settings = new LocalStore(
+	var settings = new LocalStore(		
 		PATH.join(__dirname,'../private/settings.json'),
-		// contents
 		{currentprojectid:'0', hidden:[]}		
 	)
 	
-	projectPicker=new Vue({
-		el:'#PROJECT-PICKER',
+	casbahVue=new Vue({
+		el:'#CASBAH',
 		data:{
 			title:'click',
 			hoverText:'click to select',
 			rows:[
-				new Project({projectno:'P-101'}), 
-				new Project({projectno:'P-102'}),
-				new Project({projectno:'P-103'})
+				new Project({projectid:'101', projectno:'P-101'}), 
+				new Project({projectid:'102', projectno:'P-102'}),
+				new Project({projectid:'103', projectno:'P-103'})
 			],
-			isMouseover:false,
-			contextMenu:false,
-			currentprojectid:0
+			currentprojectid:settings.currentprojectid,
+			menuData:{},
+			//utility
+			project:project
 		},	
 		methods:{
+			alert(msg){alert(msg)},
+			googleAuth(){googleAuth()},
 			isOdd(i){return (i%2===1)},
 			isCurrentProject(id){
 				//console.log('compare...', this.currentprojectid, '->', id)
@@ -150,13 +155,16 @@ exports.ready=function(){
 				return (id==this.currentprojectid)?
 				'Current project ( '+id+' )':
 				'Click to set as current project'
-			}
+			},
+			menuShow:menuShow,
+			menuHide:function () {
+				document.getElementById("CONTEXT-MENU").style.display = "none"
+			}			
+			
 		}
 	})
-	projectPicker.currentprojectid=settings.currentprojectid
-	
-	//console.log("Current Project: ", projectPicker.currentprojectid)
-	return {projectPicker:projectPicker}
+
+	return {casbahVue:casbahVue}
 } 
 
 exports.googleAuth=googleAuth

@@ -5,231 +5,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title id="browser_tab" >CASBAH</title>
 
-<script type="text/javascript">let $=require('jquery'); let jQuery=$</script>
-<script type="text/javascript">require('popper.js')</script>
-<script type="text/javascript">require('bootstrap')</script>
-<link rel="stylesheet" href="../client/casbah.css">
+<!--script type="text/javascript">let $=require('jquery'); let jQuery=$</script-->
+<!--script type="text/javascript">require('popper.js')</script-->
+<!--script type="text/javascript">require('bootstrap')</script-->
+
+
+<link rel="stylesheet" href="../electron/casbah.css">
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet" href="../node_modules/bootstrap-vue/dist/bootstrap-vue.css">
+
 
 <script type="text/javascript">
-	var {ready, googleAuth, view, Project}=require('../electron/casbah.js')
-	//project instance used for its prototype functions ie. project.toString(data) 
-	var project=new Project({})
-	//global access to contextMenu
-	var CM$
-	//ready...
-	$(function(){
-		CM$=$('#CONTEXT-MENU')
-		var {projectPicker} = ready()
-		//need to access CM$ from directives (v-on:contectmenu) so add it to data...
-		projectPicker.CM$=CM$
-	})
+
+	var {ready}=require('../electron/casbah.js')
+	document.addEventListener('DOMContentLoaded', function(event){
+		var {casbahVue} = ready()
+	})	
+	
 </script>
 
 </head>
 
-<body class="user-select-none">
-<div class="container-fluid">
-<nav id="NAVBAR" class="navbar navbar-default navbar-fixed-top" >
-	<div class="container-fluid">
+<body>
+<div id='CASBAH'>
+	<b-navbar toggleable='lg' type='dark' variant='primary'>
 
-		<center class="logobox cazbar col-md-2">
-		<div>* C-A *</div>
-		<div>S B A H</div>
-		</center><br>
+		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
 
-		<!-- Nav tabs -->
-		<ul class="nav nav-tabs">
-		
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Admin<span class="caret"></span></a>
-		<ul id="VIEW-LIST"  class="dropdown-menu">
-			<li onclick="view('prolog')"><a href="#">Project Log</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Action Items</a></li>
-			<li class="disabled"><a href="#">Project Status</a></li>
-			<li class="disabled"><a href="#">Outstanding RFIs</a></li>
-			<li class="disabled"><a href="#">Outstanding Shops</a></li>
-			<li class="divider">--<li>
-			<li class="divider"><li>
-		</ul>
-		</li>
+		<b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Billing<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Allowance Authorization Certificate</a></li>
-			<li class="disabled"><a href="#">Billing (GC progress draws)</a></li>
-			<li class="disabled"><a href="#">Certificates of Payment</a></li>
-			<li class="disabled"><a href="#">Progress Summary</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>
-		</li>
+		<b-collapse id="nav-collapse" is-nav>
+			<b-navbar-nav class="ml-auto">
+			
+			<b-nav-item-dropdown text='Admin'>
+			<b-dropdown-item>Action Items</b-dropdown-item>
+			<b-dropdown-item>Project Status</b-dropdown-item>
+			<b-dropdown-item>Outstanding RFIs</b-dropdown-item>	
+			<b-dropdown-item>Outstanding Shops</b-dropdown-item>
+			</b-nav-item-dropdown>
+				
+			<b-nav-item-dropdown text='Billing'>
+			<b-dropdown-item>Allowance Auth. Cert.</b-dropdown-item>
+			<b-dropdown-item>Billing GC Invices</b-dropdown-item>
+			<b-dropdown-item>Cert. of Payments</b-dropdown-item>
+			<b-dropdown-item>Progress Summary</b-dropdown-item>
+			</b-nav-item-dropdown>			
+			
+			<b-nav-item-dropdown text='Contract'>
+			<b-dropdown-item>Condract Doc. List</b-dropdown-item>
+			<b-dropdown-item>Contract</b-dropdown-item>
+			<b-dropdown-item>Addendums</b-dropdown-item>
+			<b-dropdown-item>Bidder Q&amp;A</b-dropdown-item>
+			<b-dropdown-item>Drawings</b-dropdown-item>
+			<b-dropdown-item>Specifications</b-dropdown-item>
+			<b-dropdown-item>Changes Contemplated</b-dropdown-item>
+			<b-dropdown-item>Change Orders</b-dropdown-item>
+			<b-dropdown-item>Change Directieves</b-dropdown-item>
+			<b-dropdown-item>Specifications</b-dropdown-item>
+			</b-nav-item-dropdown>				
 
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Contract<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Contract Doc. List</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Contract</a></li>
-			<li class="disabled"><a href="#">Addendums</a></li>
-			<li class="disabled"><a href="#">Bidder's Q&amp;A</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Drawings</a></li>
-			<li class="disabled"><a href="#">Specifications</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Change Log</a></li>
-			<li class="disabled"><a href="#">Change Contemplated</a></li>
-			<li class="disabled"><a href="#">Change Order</a></li>
-			<li class="disabled"><a href="#">Change Directive</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>
-		</li>
+			<b-nav-item-dropdown text='Gallery'>
+			<b-dropdown-item>Photo Collections</b-dropdown-item>
+			<b-dropdown-item>Sketches</b-dropdown-item>
+			</b-nav-item-dropdown>				
+
+			<b-nav-item-dropdown text='Letters'>
+			<b-dropdown-item>Confromance</b-dropdown-item>
+			<b-dropdown-item>RFIs &amp; Responses</b-dropdown-item>
+			<b-dropdown-item>Site Memos</b-dropdown-item>
+			<b-dropdown-item>Site Instructions</b-dropdown-item>
+			</b-nav-item-dropdown>	
+				
+			<b-nav-item-dropdown text='Meetings'>
+			<b-dropdown-item>Action Items</b-dropdown-item>
+			<b-dropdown-item>Conference Reports</b-dropdown-item>
+			</b-nav-item-dropdown>	
+				
+			<b-nav-item-dropdown text='Reports'>
+			<b-dropdown-item>Construction Review Report</b-dropdown-item>
+			<b-dropdown-item>Deficiency Review Report</b-dropdown-item>
+			<b-dropdown-item>Deficiency Review per Room</b-dropdown-item>
+			</b-nav-item-dropdown>					
 	
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Gallery<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li onclick="open('collection.html')"><a href="#">Photo Collections</a></li>
-			<li class="disabled"><a href="#">Sketches</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>
-		</li>
+			<b-nav-item-dropdown text='Submittals'>
+			<b-dropdown-item>Submittal Log</b-dropdown-item>
+			<b-dropdown-item>O &amp; M Manual Review</b-dropdown-item>
+			</b-nav-item-dropdown>		
 
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Letters<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Letters</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">Conformance Letters</a></li>
-			<li class="disabled" id="rfilog-btn"><a href="#">RFIs &amp; Responses</a></li>
-			<li class="disabled"><a href="#">Site Memos</a></li>
-			<li class="disabled"><a href="#">Supplemental Instructions</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>
-		</li>
+			<b-nav-item-dropdown text='Welcome'>
+			<b-dropdown-item>About</b-dropdown-item>
+			<b-dropdown-item>Help</b-dropdown-item>
+			<b-dropdown-item>Welcome+</b-dropdown-item>
+			<b-dropdown-item>Wiki</b-dropdown-item>
+			</b-nav-item-dropdown>	
+				
+			</b-navbar-nav>
+		</b-collapse>
+	</b-navbar>	
+	
+	
+	<div id='PROJECT-PICKER' class='container'>
+		<div class='row zebra'>
+		<strong class='col-md-2'>Project No.</strong>
+		<strong class='col-md-4'>Project</strong>
+		<strong class='col-md-2'>Subproject Code</strong>
+		<strong class='col-md-4'>Subproject</strong>
+		</div>
+		<div 
+			class='row' 
+			v-for='(row, index) in rows' 
+			v-bind:class='{currentProject:isCurrentProject(row.projectid), zebra:isOdd(index)}'
+			v-class-hover='"hover"'
+			REM='// note that $event is a Vue built-in instance property'
+			v-on:contextmenu='menuShow($event, row);'
+			v-on:click='currentProject( row.projectid )'
+		>
+		<span class='col-md-2' :title='titleText(row.projectid)'>{{row.projectno}}</span>
+		<span class='col-md-4' :title='titleText(row.projectid)'>{{row.project}}</span>
+		<span class='col-md-2' :title='titleText(row.projectid)'>{{row.subprojectcode}}</span>
+		<span class='col-md-4' :title='titleText(row.projectid)'>{{row.subproject}}</span>
+		</div rem='// End of repeating row'>
 
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Meetings<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">Action log</a></li>
-			<li class="disabled"><a href="#">Conference Reports</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>		
-		</li>
+	</div rem='// End of PROJECT-PICKER'>
 
-		<li class="dropdown">
-		<a class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Reports<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-		<li class="disabled" id="rpllog-btn"><a href="#">General Deficiencies</a></li>
-		<li onclick="view('rdr')"><a href="#">Room Deficiency Review</a></li>
-		<li onclick="view('svr')"><a href="#">Site Visit Report</a></li>
-		<li class="divider"><li>
-		<li onclick="view('drr')"><a href="#">Deficiency Review Report</a></li>
-		</ul>	
-		</li>
-		
-		<li class="dropdown">
-		<a id="shopstab" class="dropdown-toggle" href="#" data-toggle="dropdown"
-		>Submittals<span class="caret"></span></a>
-		<ul class="dropdown-menu">
-			<li class="disabled"><a href="#">SDI Log</a></li>
-			<li class="disabled"><a href="#">O &amp; M Manual Review</a></li>
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>		
-		</ul>
-		</li>
-
-		<li class="dropdown">
-		<a class="dropdown-toggle" id="welcometab"  href="#" data-toggle="dropdown"
-		>Welcome<span class="caret"></span></a>
-			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-			<li class="disabled"><a href="#">About</a></li>
-			<li class="disabled"><a href="#">Help</a></li>
-			<li onclick="view('welcome');"><a href="#">welcome</a></li>
-			<li onclick="view('welcome',1);"><a href="#">welcome+</a></li>
-			<li onclick="view('wiki')"><a href="#">Wiki</a></li>	
-			<li class="divider"><li>
-			<li class="disabled"><a href="#">...</a></li>	
-			</ul>
-		</li>
-		</ul>
+	<div id='CONTEXT-MENU' 
+		v-on:mouseleave='menuHide'
+		class='dropdown-menu'
+		role='menu'>
+		<b-dd-item v-on:click='googleAuth();menuHide;'><a href='#'>Google Auth</a></b-dd-item>
+		<b-dd-item v-on:click='alert("Create record");menuHide' href='#'><a href='#'>Create record</a></b-dd-item>
+		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Read record</a></b-dd-item>
+		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Update record</a></b-dd-item>
+		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Delete record</a></b-dd-item>
+		<li><hr/></li>
+		<b-dd-item v-on:click='alert("Delete record");menuHide'>Hide record</b-dd-item>
+		<b-dd-item v-on:click='alert("Unhide record");menuHide'>Unhide record</b-dd-item>
+		<b-dd-item v-on:click='alert("Show hidden records");menuHide'>Show hidden records</b-dd-item>
+		<b-dd-item v-on:click='alert("Show unhidden records");menuHide'>Show unhidden records</b-dd-item>
 	</div>
-</nav>
 
-
-<div id='PROJECT-PICKER' class='container'>
-<div class='row zebra'>
-<strong class='col-md-2'>Project No.</strong>
-<strong class='col-md-4'>Project</strong>
-<strong class='col-md-2'>Subproject Code</strong>
-<strong class='col-md-4'>Subproject</strong>
-</div>
-<div 
-	class='row' 
-	v-for='(row, index) in rows' 
-	v-bind:class='{currentProject:isCurrentProject(row.projectid), zebra:isOdd(index)}'
-	v-class-hover='"hover"'
-	REM='// note that $event is a Vue built-in instance property'
-	v-on:contextmenu='CM$.data(row);CM$.showAtMouse($event);'
-	REMv-on:contextmenu='contextMenu=true;'
-	v-on:click='currentProject( row.projectid )'
->
-<span class='col-md-2' :title='titleText(row.projectid)'>{{row.projectno}}</span>
-<span class='col-md-4' :title='titleText(row.projectid)'>{{row.project}}</span>
-<span class='col-md-2' :title='titleText(row.projectid)'>{{row.subprojectcode}}</span>
-<span class='col-md-4' :title='titleText(row.projectid)'>{{row.subproject}}</span>
-</div rem='// End of repeating row'>
-
-</div rem='// End of PROJECT-PICKER'>
-
-<ul id='CONTEXT-MENU' 
-	onmouseleave='CM$.hide()' 
-	REMv-if='contextMenu'
-	REMv-on:mouseleave='contextMenu=false'
-	class='dropdown-menu'
-	role='menu'>
-	<li onclick='googleAuth();CM$.hide();'><a tabindex='-1' href='#'
-	>Google Auth</a></li>
-	<li onclick='alert("Create record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
-	>Create record</a></li>
-	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
-	>Read record</a></li>
-	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
-	>Update record</a></li>
-	<li onclick='alert(project.toString(CM$.data()));CM$.hide()'><a tabindex='-1' href='#'
-	>Delete record</a></li>
-	<li class='divider'><hr/></li>
-	<li onclick='alert("Delete record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
-	>Hide record</a></li>
-	<li onclick='alert("Unhide record");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
-	>Unhide record</a></li>
-	<li onclick='alert("Show hidden records");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
-	>Show hidden records</a></li>
-	<li onclick='alert("Show unhidden records");CM$.hide()' class='disabled'><a tabindex='-1' href='#'
-	>Show unhidden records</a></li>
-</ul>
-
-
-
-</div rem='// End of CONTAINER'>
-
-
-
-
-
+	</div rem='// End of CASBAH'>
 </body>
-
 </html>
 
