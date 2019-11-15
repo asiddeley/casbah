@@ -103,7 +103,7 @@
 		</b-collapse>
 	</b-navbar>	
 	
-	
+	<!--
 	<div id='PROJECT-PICKER' class='container'>
 		<div class='row zebra'>
 		<strong class='col-md-2'>Project No.</strong>
@@ -127,7 +127,13 @@
 		</div rem='// End of repeating row'>
 
 	</div rem='// End of PROJECT-PICKER'>
-
+	-->
+	<template>
+	<b-table striped hover small :items='rows' NOTclass='currentProject:isCurrentProject(item.projectid)'
+	
+	></b-table>
+	</template>
+	
 	<div id='CONTEXT-MENU' 
 		v-on:mouseleave='menuHide'
 		class='dropdown-menu'
