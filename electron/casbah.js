@@ -73,6 +73,7 @@ function Project({projectid, projectno, projectcode, days}){
 	this.areasm="TBD"
 	this.cost="TBD"
 	this.about="TBD"
+	this._rowVariant=''
 }
 
 Project.prototype.toString=function(data){
@@ -84,8 +85,8 @@ Project.prototype.toString=function(data){
 //project instance used for its prototype functions ie. project.toString(data) 
 var project=new Project({})
 
-
-function menuShow(e, row) {
+function menuShow(row, index, e) {
+	//console.log('CONTEXT MENU',e)	
 	e.preventDefault()	
 	casbahVue.menuData=row||{}
 	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
@@ -100,20 +101,6 @@ function menuShow(e, row) {
 	menu.style.display = 'block'
 		
 }
-
-///// Custom Vue Directive
-Vue.directive('class-hover', {
-	bind(el, binding, vnode) {    
-		const { value='' } = binding
-		el.addEventListener('mouseenter',()=> {el.classList.add(value)})
-		el.addEventListener('mouseleave',()=> {el.classList.remove(value)})
-	},
-	unbind(el, binding, vnode) {
-		el.removeEventListener('mouseenter')
-		el.removeEventListener('mouseleave')
-	}
-})
-
 
 ///// EXPORTS
 exports.ready=function(){
@@ -133,23 +120,37 @@ exports.ready=function(){
 				new Project({projectid:'102', projectno:'P-102'}),
 				new Project({projectid:'103', projectno:'P-103'})
 			],
+			fields:[
+				{key:'projectno', sortable:true},
+				{key:'project', sortable:true},
+				{key:'subprojectcode', sortable:true},
+				{key:'subproject', dortable:true}
+			],
 			currentprojectid:settings.currentprojectid,
+			
 			menuData:{},
 			//utility
 			project:project
 		},	
 		methods:{
 			alert(msg){alert(msg)},
-			googleAuth(){googleAuth()},
-			isOdd(i){return (i%2===1)},
-			isCurrentProject(id){
-				//console.log('compare...', this.currentprojectid, '->', id)
-				return this.currentprojectid==id
-			},
-			currentProject(id){
-				this.currentprojectid=id
+			googleAuth(){googleAuth()},			
+			makeProjectCurrent(row, index, event){
+				//turn off previous highlight
+				var that=this
+				var oldCurrent=this.rows.find(function(r){return r.projectid==that.currentprojectid})
+				if(oldCurrent){oldCurrent._rowVariant=''}
+				//console.log('oldCURRENT:', oldCurrent)
+				
+				//highlight currently clicked row
+				var current=this.rows.find(function(r){return r.projectid==row.projectid})
+				if(current){current._rowVariant='primary'}
+				//console.log('CURRENT:', current)		
+				
+				//update model
+				this.currentprojectid=row.projectid
 				//update local store
-				settings.set('currentprojectid', id)
+				settings.set('currentprojectid', row.projectid)
 			},
 			titleText(id){
 				return (id==this.currentprojectid)?
@@ -163,7 +164,12 @@ exports.ready=function(){
 			
 		}
 	})
-
+	
+	//highlight current project
+	casbahVue.rows.forEach(function(r){
+		if (r.projectid==settings.currentprojectid) {casbahVue.makeProjectCurrent(r)}
+	})
+	
 	return {casbahVue:casbahVue}
 } 
 
