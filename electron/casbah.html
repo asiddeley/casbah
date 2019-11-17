@@ -3,27 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title id="browser_tab" >CASBAH</title>
+<title id='BROWSER-TITLE' >CASBAH</title>
 
 <!--script type="text/javascript">let $=require('jquery'); let jQuery=$</script-->
 <!--script type="text/javascript">require('popper.js')</script-->
 <!--script type="text/javascript">require('bootstrap')</script-->
+<!--script type='text/javascript'>require('../node_modules/vue/dist/vue.common.js')</script-->
+<!--load these here to avoid  multiple Vue instances warning -->
+<script type='text/javascript' src='../node_modules/vue/dist/vue.min.js'></script>
+<script type='text/javascript' src='../node_modules/bootstrap-vue/dist/bootstrap-vue.min.js'></script>
 
 
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 <link rel="stylesheet" href="../node_modules/bootstrap-vue/dist/bootstrap-vue.css">
 
 <style>
-.REMcurrentProject {border-color:tan; border-width:2px; border-style:solid;}
-.REMstripe {background-color:silver;}
-.REMzebra {background-color:#e8e8e8;}
-.REMhover {background-color:rgb(91,192,222) }
 
 .brandbox {
 	font-size:medium;
 	font-weight:bold;
 	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-	line-height:95%;
+	/* line-height:95%; */
 	border-radius:10px;
 	border-style:solid;
 	border-width:1px;
@@ -39,10 +39,10 @@
 
 <script type="text/javascript">
 
-	var {ready}=require('../electron/casbah.js')
-	document.addEventListener('DOMContentLoaded', function(event){
-		var {casbahVue} = ready()
-	})	
+document.addEventListener('DOMContentLoaded', function(event){
+	Vue.use(BootstrapVue)	
+	require('../electron/casbah.js').ready()
+})	
 	
 </script>
 
@@ -50,6 +50,7 @@
 
 <body>
 <div id='CASBAH'>
+
 	<b-navbar toggleable='lg' type='dark' variant='primary'>
 
 		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
@@ -59,11 +60,14 @@
 		<b-collapse id="nav-collapse" is-nav>
 			<b-navbar-nav class="ml-auto">
 			
-			<b-nav-item-dropdown text='Admin'>
+			<b-nav-item-dropdown text='About'>
+			<b-dropdown-item>About</b-dropdown-item>
+			<b-dropdown-item @click='caProjects=!caProjects'>Projects</b-dropdown-item>
 			<b-dropdown-item>Action Items</b-dropdown-item>
-			<b-dropdown-item>Project Status</b-dropdown-item>
 			<b-dropdown-item>Outstanding RFIs</b-dropdown-item>	
 			<b-dropdown-item>Outstanding Shops</b-dropdown-item>
+			<b-dropdown-item>Help</b-dropdown-item>
+			<b-dropdown-item>Welcome</b-dropdown-item>
 			</b-nav-item-dropdown>
 				
 			<b-nav-item-dropdown text='Billing'>
@@ -86,11 +90,6 @@
 			<b-dropdown-item>Specifications</b-dropdown-item>
 			</b-nav-item-dropdown>				
 
-			<b-nav-item-dropdown text='Gallery'>
-			<b-dropdown-item>Photo Collections</b-dropdown-item>
-			<b-dropdown-item>Sketches</b-dropdown-item>
-			</b-nav-item-dropdown>				
-
 			<b-nav-item-dropdown text='Letters'>
 			<b-dropdown-item>Confromance</b-dropdown-item>
 			<b-dropdown-item>RFIs &amp; Responses</b-dropdown-item>
@@ -98,42 +97,32 @@
 			<b-dropdown-item>Site Instructions</b-dropdown-item>
 			</b-nav-item-dropdown>	
 				
-			<b-nav-item-dropdown text='Meetings'>
-			<b-dropdown-item>Action Items</b-dropdown-item>
-			<b-dropdown-item>Conference Reports</b-dropdown-item>
-			</b-nav-item-dropdown>	
-				
 			<b-nav-item-dropdown text='Reports'>
+			<b-dropdown-item>Conference Reports</b-dropdown-item>
 			<b-dropdown-item>Construction Review Report</b-dropdown-item>
 			<b-dropdown-item>Deficiency Review Report</b-dropdown-item>
 			<b-dropdown-item>Deficiency Review per Room</b-dropdown-item>
+			<b-dropdown-item>Photo Collections</b-dropdown-item>
+			<b-dropdown-item>Sketches</b-dropdown-item>			
 			</b-nav-item-dropdown>					
 	
 			<b-nav-item-dropdown text='Submittals'>
 			<b-dropdown-item>Submittal Log</b-dropdown-item>
 			<b-dropdown-item>O &amp; M Manual Review</b-dropdown-item>
 			</b-nav-item-dropdown>		
-
-			<b-nav-item-dropdown text='Welcome'>
-			<b-dropdown-item>About</b-dropdown-item>
-			<b-dropdown-item>Help</b-dropdown-item>
-			<b-dropdown-item>Welcome+</b-dropdown-item>
-			<b-dropdown-item>Wiki</b-dropdown-item>
-			</b-nav-item-dropdown>	
 				
 			</b-navbar-nav>
 		</b-collapse>
 	</b-navbar>	
 	
-	<b-table 
-		striped 
-		hover 
-		small 
-		:items='rows' 
+	
+	<ca-projects
+		v-show='caProjects'
+		:rows='rows'
 		:fields='fields'
-		@row-clicked='makeProjectCurrent'
-		@row-contextmenu='menuShow'
-	></b-table>
+		:menu='menuShow'	
+		:click='makeProjectCurrent'
+	></ca-projects>
 
 	
 	<div id='CONTEXT-MENU' 
