@@ -36,19 +36,37 @@ SOFTWARE.
 //var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 
 
-///// CASBAH Documents
-var caProject=require('../electron/caProject.js')
+///// CA Docs
+const CADOCS=[
+	require('../electron/caProject.js').name,
+	require('../electron/caCRR.js').name
+]
 
 ///// EXPORTS
 exports.ready=function(){
 	
-	casbahVue=new Vue({
+	new Vue({
 		el:'#CASBAH',
 		data:{
-			caProjects:true,
+			caProject:true,
+			caCRR:false,
+			caCR:false,
+			caDRR:false,
+			caRFI:false,
+			navbarTheme:'BCpurple',
+			navbarType:'dark'
+		},
+		methods:{
+			switchTo(cadoc){
+				for (var i in CADOCS){
+					console.log('switchTo:', cadoc, i, CADOCS[i])
+					//show cadoc requested else hide
+					if (cadoc==CADOCS[i]){this[CADOCS[i]]=true}
+					else {this[CADOCS[i]]=false}
+				}				
+			}			
 		}		
 	})
-		
-	return {casbahVue:casbahVue}
+
 } 
 

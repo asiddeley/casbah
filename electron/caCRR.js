@@ -25,26 +25,16 @@ SOFTWARE.
 ********************************/
 
 ///// IMPORTS
-//const FSP=require('fs-plus')
 const PATH=require('path')
-
-var GoogleSheet	= require('google-spreadsheet')	
-var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
-var secret = require('../private/client_secret.json')
+//var GoogleSheet	= require('google-spreadsheet')	
+//var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
+//var secret = require('../private/client_secret.json')
 
 var {getOwn, cryptoId, addDays, LocalStore, showAtPointer}=require("../electron/support.js")
 
-function googleAuth(vue){
-	gsProjects.useServiceAccountAuth(secret, function(){
-		//authenticated so proceed
-		gsProjects.getRows(1, function(err, rows){
-			rows.forEach(function(r){r._rowVariant=''})
-			vue.rows=rows
-		})
-	})	
-}	
 
-function CaProject({projectid, projectno, projectcode, days}){	
+
+function CaCRR({projectid, projectno, projectcode, days}){	
 	var today=new Date()
 	var future=addDays(today, days||365)
 	//random id with high probability of uniqueness
@@ -68,41 +58,35 @@ function CaProject({projectid, projectno, projectcode, days}){
 	this._rowVariant=''
 }
 
-CaProject.prototype.toString=function(data){
+CaCRR.prototype.toString=function(data){
 	var project=data||this
 	return Object.getOwnPropertyNames(this).map(function (val, index, array) {
 		return (val + ' -> ' + project[val])
 	}).join('\n')
 }
 
-
-
-
-var settings = new LocalStore(		
-	PATH.join(__dirname,'../private/caProjects.json'),
-	{projectid:'0', hidden:[]}		
-)
+var settings = new LocalStore(PATH.join(__dirname,'../private/CaCRR.json'), {projectid:'0', hidden:[]})
 
 //make caProject instance when mounted, accessible so caProjectMenu
-var caProjects
-Vue.component('ca-project', {
+var caCRR
+Vue.component('ca-crr', {
 	data:function(){return {
 		rows:[
-			new CaProject({projectid:'104', projectno:'P-104'}), 
-			new CaProject({projectid:'105', projectno:'P-105'}),
-			new CaProject({projectid:'106', projectno:'P-106'})
+			new CaCRR({projectid:'100', projectno:'P-100'}), 
+			new CaCRR({projectid:'100', projectno:'P-100'}),
+			new CaCRR({projectid:'100', projectno:'P-100'})
 		],
 		fields:[
-			{key:'projectno', sortable:true},
-			{key:'project', sortable:true},
-			{key:'subprojectcode', sortable:true},
-			{key:'subproject', sortable:true}
+			//{key:'projectno', sortable:true},
+			//{key:'project', sortable:true},
+			//{key:'subprojectcode', sortable:true},
+			//{key:'subproject', sortable:true}
 		],	
 	}},
 	props:[],
 	template:`
 		<div>
-			<h1>All Projects</h1>
+			<h1>Construction Review Report</h1>
 			<b-table 
 				striped 
 				hover 
@@ -112,7 +96,7 @@ Vue.component('ca-project', {
 				@row-clicked='makeProjectCurrent' 
 				@row-contextmenu='menuShow'
 			></b-table>			
-			<ca-project-menu></ca-project-menu>
+			<ca-crr-menu></ca-crr-menu>
 		</div>`,
 	methods:{
 		makeProjectCurrent(row, index, event){
@@ -144,7 +128,7 @@ Vue.component('ca-project', {
 		menuShow(row, rows, e){showAtPointer(menu, e)}
 	},
 	mounted(){
-		caProjects=this
+		caCRR=this
 		//highlight current project
 		this.rows.forEach(function(r){
 			if (r.projectid==settings.projectid) {
@@ -156,7 +140,7 @@ Vue.component('ca-project', {
 
 // menu is assigned when component caProjectsMenu is mounted
 var menu
-Vue.component('ca-project-menu', {
+Vue.component('ca-crr-menu', {
 	data(){return{
 		visible:false
 	}},
@@ -184,4 +168,4 @@ Vue.component('ca-project-menu', {
 })
 
 ///// EXPORTS
-exports.name='caProject'
+exports.name='caCRR'

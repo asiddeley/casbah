@@ -115,5 +115,12 @@ exports.LocalStore=function(path, content){
 }
 
 
-
+exports.showAtPointer=function(menu, e) {
+	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
+	menu.$el.style.display = 'block'
+	//var mx=menu.clientWidth, my=menu.clientHeight
+	var mx=menu.$el.scrollWidth, my=menu.$el.scrollHeight
+	menu.$el.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
+	menu.$el.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
+}
 

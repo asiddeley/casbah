@@ -23,7 +23,6 @@
 	font-size:medium;
 	font-weight:bold;
 	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-	/* line-height:95%; */
 	border-radius:10px;
 	border-style:solid;
 	border-width:1px;
@@ -32,6 +31,8 @@
 	margin:5px 5px 0px 0px;
 	color:white;
 }
+
+.BCpurple {background-color:purple; font-weight:bold;}
 
 </style>
 
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 <body>
 <div id='CASBAH'>
 
-	<b-navbar toggleable='lg' type='dark' variant='primary'>
+	<b-navbar toggleable='sm' :type='navbarType' REMvariant='primary' :class='navbarTheme'>
 
 		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
 
@@ -60,55 +61,51 @@ document.addEventListener('DOMContentLoaded', function(event){
 		<b-collapse id="nav-collapse" is-nav>
 			<b-navbar-nav class="ml-auto">
 			
-			<b-nav-item-dropdown text='About'>
-			<b-dropdown-item>About</b-dropdown-item>
-			<b-dropdown-item @click='caProjects=!caProjects'>Projects</b-dropdown-item>
-			<b-dropdown-item>Action Items</b-dropdown-item>
-			<b-dropdown-item>Outstanding RFIs</b-dropdown-item>	
-			<b-dropdown-item>Outstanding Shops</b-dropdown-item>
-			<b-dropdown-item>Help</b-dropdown-item>
-			<b-dropdown-item>Welcome</b-dropdown-item>
-			</b-nav-item-dropdown>
-				
-			<b-nav-item-dropdown text='Billing'>
-			<b-dropdown-item>Allowance Auth. Cert.</b-dropdown-item>
-			<b-dropdown-item>Billing GC Invices</b-dropdown-item>
-			<b-dropdown-item>Cert. of Payments</b-dropdown-item>
-			<b-dropdown-item>Progress Summary</b-dropdown-item>
-			</b-nav-item-dropdown>			
-			
 			<b-nav-item-dropdown text='Contract'>
-			<b-dropdown-item>Condract Doc. List</b-dropdown-item>
-			<b-dropdown-item>Contract</b-dropdown-item>
-			<b-dropdown-item>Addendums</b-dropdown-item>
-			<b-dropdown-item>Bidder Q&amp;A</b-dropdown-item>
-			<b-dropdown-item>Drawings</b-dropdown-item>
-			<b-dropdown-item>Specifications</b-dropdown-item>
-			<b-dropdown-item>Changes Contemplated</b-dropdown-item>
-			<b-dropdown-item>Change Orders</b-dropdown-item>
-			<b-dropdown-item>Change Directieves</b-dropdown-item>
-			<b-dropdown-item>Specifications</b-dropdown-item>
-			</b-nav-item-dropdown>				
-
-			<b-nav-item-dropdown text='Letters'>
-			<b-dropdown-item>Confromance</b-dropdown-item>
-			<b-dropdown-item>RFIs &amp; Responses</b-dropdown-item>
-			<b-dropdown-item>Site Memos</b-dropdown-item>
-			<b-dropdown-item>Site Instructions</b-dropdown-item>
+			<b-dropdown-item><a href='#'>Addendums</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Bidder Q&amp;A</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Contract</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Drawings</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Changes Contemplated</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Change Orders</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Change Directieves</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Specifications</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
-				
-			<b-nav-item-dropdown text='Reports'>
-			<b-dropdown-item>Conference Reports</b-dropdown-item>
-			<b-dropdown-item>Construction Review Report</b-dropdown-item>
-			<b-dropdown-item>Deficiency Review Report</b-dropdown-item>
-			<b-dropdown-item>Deficiency Review per Room</b-dropdown-item>
-			<b-dropdown-item>Photo Collections</b-dropdown-item>
-			<b-dropdown-item>Sketches</b-dropdown-item>			
+			
+			<b-nav-item-dropdown text='Admin'>
+			<b-dropdown-item @click='switchTo("caProject")'><a href='#'>All Projects</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Action Items</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Another CASBAH</a></b-dropdown-item>	
+			</b-nav-item-dropdown>
+			
+			<b-nav-item-dropdown text='Site'>
+			<b-dropdown-item><a href='#'>Conference Reports</a></b-dropdown-item>
+			<b-dropdown-item @click='switchTo("caCRR")'><a href='#'>Construction Review Report</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Deficiency Review Report</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Photo Gallery</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Sketch Collections</a></b-dropdown-item>			
+			<b-dropdown-item><a href='#'>Site Memos</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Site Instructions</a></b-dropdown-item>	
 			</b-nav-item-dropdown>					
+				
+			<b-nav-item-dropdown text='Be'>
+			<b-dropdown-item><a href='#'>Allowance Certificates</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Builder's Invoices</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Certificate of Payments</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Progress Summary</a></b-dropdown-item>
+			</b-nav-item-dropdown>			
+
+			<b-nav-item-dropdown text='Architectural'>
+			<b-dropdown-item><a href='#'>Confromance Letters</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>RFI Log</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Submittal Log</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Close-out Log</a></b-dropdown-item>
+			</b-nav-item-dropdown>	
 	
-			<b-nav-item-dropdown text='Submittals'>
-			<b-dropdown-item>Submittal Log</b-dropdown-item>
-			<b-dropdown-item>O &amp; M Manual Review</b-dropdown-item>
+			<b-nav-item-dropdown text='Heros'>
+			<b-dropdown-item><a href='#'>About</a></b-dropdown-item>			
+			<b-dropdown-item><a href='#'>Help</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Lessons Learned</a></b-dropdown-item>
 			</b-nav-item-dropdown>		
 				
 			</b-navbar-nav>
@@ -116,8 +113,8 @@ document.addEventListener('DOMContentLoaded', function(event){
 	</b-navbar>	
 	
 	
-	<ca-projects v-show='caProjects'></ca-projects>
-
+	<ca-project v-show='caProject'></ca-project>
+	<ca-crr v-show='caCRR'></ca-crr>
 
 
 	</div rem='// End of CASBAH'>
