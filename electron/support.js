@@ -105,10 +105,7 @@ exports.LocalStore=function(path, content){
 	try { content = require(path)}
 	catch(err){	console.log('Error reading JSON from (path):', path) }	
 	Object.assign(this, content)
-	console.log('localStore:',this)
-	//this.currentprojectid=localstore.currentprojectid||'0'
-	//console.log('settings.currentprojectid:',this.currentprojectid)
-	//this.hidden=[]
+	//console.log('localStore:',this)
 	this.stringify=function(){return JSON.stringify(this)}
 	this.set=function(name, val){
 		if (name && val){this[name]=val}

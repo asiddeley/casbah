@@ -116,30 +116,9 @@ document.addEventListener('DOMContentLoaded', function(event){
 	</b-navbar>	
 	
 	
-	<ca-projects
-		v-show='caProjects'
-		:rows='rows'
-		:fields='fields'
-		:menu='menuShow'	
-		:click='makeProjectCurrent'
-	></ca-projects>
+	<ca-projects v-show='caProjects'></ca-projects>
 
-	
-	<div id='CONTEXT-MENU' 
-		v-on:mouseleave='menuHide'
-		class='dropdown-menu'
-		role='menu'>
-		<b-dd-item v-on:click='googleAuth();menuHide;'><a href='#'>Google Auth</a></b-dd-item>
-		<b-dd-item v-on:click='alert("Create record");menuHide' href='#'><a href='#'>Create record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Read record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Update record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Delete record</a></b-dd-item>
-		<li><hr/></li>
-		<b-dd-item v-on:click='alert("Delete record");menuHide'>Hide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Unhide record");menuHide'>Unhide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Show hidden records");menuHide'>Show hidden records</b-dd-item>
-		<b-dd-item v-on:click='alert("Show unhidden records");menuHide'>Show unhidden records</b-dd-item>
-	</div>
+
 
 	</div rem='// End of CASBAH'>
 </body>
