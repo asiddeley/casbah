@@ -132,7 +132,7 @@ Vue.component('ca-crr', {
 		//highlight current project
 		this.rows.forEach(function(r){
 			if (r.projectid==settings.projectid) {
-				caProjects.makeProjectCurrent(r)
+				caCRR.makeProjectCurrent(r)
 			}
 		})		
 	}

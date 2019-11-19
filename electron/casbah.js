@@ -28,13 +28,26 @@ SOFTWARE.
 ///// IMPORTS
 //const FSP=require('fs-plus')
 //const PATH=require('path')
-//var remote = require('electron').remote
-//var windowManager = remote.require('electron-window-manager')
+var remote = require('electron').remote
+var windowManager = remote.require('electron-window-manager')
+var windowSpecs=windowManager.sharedData.fetch('windowSpecs')||require('../electron/windowSpecs.js')
+
+
 //var GoogleSheet	= require('google-spreadsheet')	
 //var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
 //var secret = require('../private/client_secret.json')
 //var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 
+
+var windowOptions={
+	width: 1200,
+	height: 400,
+	position: 'topLeft',
+	resizable:true,
+	showDevTools: true,
+	frame:true,
+	webPreferences: {nodeIntegration: true}
+}
 
 ///// CA Docs
 const CADOCS=[
@@ -43,7 +56,7 @@ const CADOCS=[
 ]
 
 ///// EXPORTS
-exports.ready=function(){
+exports.ready=function(callback){
 	
 	new Vue({
 		el:'#CASBAH',
@@ -64,9 +77,19 @@ exports.ready=function(){
 					if (cadoc==CADOCS[i]){this[CADOCS[i]]=true}
 					else {this[CADOCS[i]]=false}
 				}				
+			},
+			anotherCASBAH(){
+				var file=`file://${__dirname}/casbah.html`
+				var name=windowSpecs.names[windowSpecs.index++]
+				//update shared data 
+				windowManager.sharedData.set('windowSpecs', windowSpecs)
+				var win2 = windowManager.createNew(name, name, file , false, windowOptions)
+				//win2.loadURL('casbah.html')
+				//win2.onReady(function(){})
+				win2.open()
 			}			
 		}		
 	})
-
+	if (typeof callback=='function'){callback()}
 } 
 

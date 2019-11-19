@@ -41,7 +41,7 @@ var windowOptions={
 
 app.on('ready', function(){
 	console.log("Electron app ready...")
-	windowManager.open('home', 'CAS-BAH', `file://${__dirname}/electron/casbah.html`, false, windowOptions)
+	windowManager.open('home', 'CASBAH', `file://${__dirname}/electron/casbah.html`, false, windowOptions)
 	
 
 	

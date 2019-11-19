@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title id='BROWSER-TITLE' >CASBAH</title>
+<title id='BROWSER-TITLE'>CASBAH</title>
 
 <!--script type="text/javascript">let $=require('jquery'); let jQuery=$</script-->
 <!--script type="text/javascript">require('popper.js')</script-->
@@ -40,9 +40,17 @@
 
 <script type="text/javascript">
 
+var remote = require('electron').remote
+var windowManager = remote.require('electron-window-manager')
+var wins=windowManager.sharedData.fetch('windowSpecs')||require('../electron/windowSpecs.js')
+
 document.addEventListener('DOMContentLoaded', function(event){
 	Vue.use(BootstrapVue)	
-	require('../electron/casbah.js').ready()
+	require('../electron/casbah.js').ready(function(){
+		document.title=wins.names[wins.index]	
+		document.getElementById('NAVBAR').style['background-color']=wins.colours[wins.index]
+	})
+
 })	
 	
 </script>
@@ -52,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 <body>
 <div id='CASBAH'>
 
-	<b-navbar toggleable='sm' :type='navbarType' REMvariant='primary' :class='navbarTheme'>
+	<b-navbar id='NAVBAR' toggleable='sm' :type='navbarType' REM:class='navbarTheme'>
 
 		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
 
@@ -68,44 +76,42 @@ document.addEventListener('DOMContentLoaded', function(event){
 			<b-dropdown-item><a href='#'>Drawings</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Changes Contemplated</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Change Orders</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Change Directieves</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Change Directives</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Specifications</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
 			
 			<b-nav-item-dropdown text='Admin'>
 			<b-dropdown-item @click='switchTo("caProject")'><a href='#'>All Projects</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Action Items</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Another CASBAH</a></b-dropdown-item>	
+			<b-dropdown-item>Action Items</b-dropdown-item>
+			<b-dropdown-item @click='anotherCASBAH'><a href='#'>Another CASBAH</a></b-dropdown-item>	
 			</b-nav-item-dropdown>
 			
 			<b-nav-item-dropdown text='Site'>
-			<b-dropdown-item><a href='#'>Conference Reports</a></b-dropdown-item>
-			<b-dropdown-item @click='switchTo("caCRR")'><a href='#'>Construction Review Report</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Deficiency Review Report</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Photo Gallery</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Sketch Collections</a></b-dropdown-item>			
+			<b-dropdown-item><a href='#'>Site Visit Reports</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Site Memos</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Site Instructions</a></b-dropdown-item>	
+			<b-dropdown-item><a href='#'>Sketches</a></b-dropdown-item>			
+			<b-dropdown-item><a href='#'>Punch Lists</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Photo Gallery</a></b-dropdown-item>			<b-dropdown-item><a href='#'>Meeting Minutes</a></b-dropdown-item>
 			</b-nav-item-dropdown>					
 				
 			<b-nav-item-dropdown text='Be'>
-			<b-dropdown-item><a href='#'>Allowance Certificates</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Builder's Invoices</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Certificate of Payments</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Progress Summary</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Billing Progress</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Cash Allowances</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Certificates of Payment</a></b-dropdown-item>
 			</b-nav-item-dropdown>			
 
 			<b-nav-item-dropdown text='Architectural'>
-			<b-dropdown-item><a href='#'>Confromance Letters</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>RFI Log</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Submittal Log</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Close-out Log</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Conformance Letters</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>RFIs</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Submittals</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>Close-outs</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
 	
 			<b-nav-item-dropdown text='Heros'>
-			<b-dropdown-item><a href='#'>About</a></b-dropdown-item>			
 			<b-dropdown-item><a href='#'>Help</a></b-dropdown-item>
 			<b-dropdown-item><a href='#'>Lessons Learned</a></b-dropdown-item>
+			<b-dropdown-item><a href='#'>About</a></b-dropdown-item>			
 			</b-nav-item-dropdown>		
 				
 			</b-navbar-nav>
