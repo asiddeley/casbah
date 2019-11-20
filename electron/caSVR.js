@@ -68,8 +68,8 @@ CaCRR.prototype.toString=function(data){
 var settings = new LocalStore(PATH.join(__dirname,'../private/CaCRR.json'), {projectid:'0', hidden:[]})
 
 //make caProject instance when mounted, accessible so caProjectMenu
-var caCRR
-Vue.component('ca-crr', {
+var caSVR
+Vue.component('ca-svr', {
 	data:function(){return {
 		rows:[
 			new CaCRR({projectid:'100', projectno:'P-100'}), 
@@ -86,7 +86,7 @@ Vue.component('ca-crr', {
 	props:[],
 	template:`
 		<div>
-			<h1>Construction Review Report</h1>
+			<h1>Site Visit Report</h1>
 			<b-table 
 				striped 
 				hover 
@@ -168,4 +168,4 @@ Vue.component('ca-crr-menu', {
 })
 
 ///// EXPORTS
-exports.name='caCRR'
+exports.name='caSVR'

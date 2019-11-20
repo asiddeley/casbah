@@ -25,11 +25,9 @@
 	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
 	border-radius:10px;
 	border-style:solid;
-	border-width:1px;
-	border-color:white; 
+	border-width:2px;
 	padding:5px 20px 5px 20px;
 	margin:5px 5px 0px 0px;
-	color:white;
 }
 
 .BCpurple {background-color:purple; font-weight:bold;}
@@ -40,16 +38,9 @@
 
 <script type="text/javascript">
 
-var remote = require('electron').remote
-var windowManager = remote.require('electron-window-manager')
-var wins=windowManager.sharedData.fetch('windowSpecs')||require('../electron/windowSpecs.js')
-
 document.addEventListener('DOMContentLoaded', function(event){
 	Vue.use(BootstrapVue)	
-	require('../electron/casbah.js').ready(function(){
-		document.title=wins.names[wins.index]	
-		document.getElementById('NAVBAR').style['background-color']=wins.colours[wins.index]
-	})
+	require('../electron/casbah.js').ready(function(){})
 
 })	
 	
@@ -60,67 +51,73 @@ document.addEventListener('DOMContentLoaded', function(event){
 <body>
 <div id='CASBAH'>
 
-	<b-navbar id='NAVBAR' toggleable='sm' :type='navbarType' REM:class='navbarTheme'>
+	<b-navbar toggleable='sm' :type='navbarType' :style='navbarStyle'>
 
 		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
 
 		<b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
 		<b-collapse id="nav-collapse" is-nav>
-			<b-navbar-nav class="ml-auto">
+		<b-navbar-nav>
 			
 			<b-nav-item-dropdown text='Contract'>
-			<b-dropdown-item><a href='#'>Addendums</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Bidder Q&amp;A</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Contract</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Drawings</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Changes Contemplated</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Change Orders</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Change Directives</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Specifications</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Addendums</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Bidder Q&amp;As</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Contract</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Drawings</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Changes Contemplated</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Change Orders</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Change Directives</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Specifications</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
 			
 			<b-nav-item-dropdown text='Admin'>
 			<b-dropdown-item @click='switchTo("caProject")'><a href='#'>All Projects</a></b-dropdown-item>
-			<b-dropdown-item>Action Items</b-dropdown-item>
-			<b-dropdown-item @click='anotherCASBAH'><a href='#'>Another CASBAH</a></b-dropdown-item>	
+			<b-dropdown-item disabled><a href='#'>Action Items</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Billing Progress</a></b-dropdown-item>
+			<b-dropdown-item disabled title='Cash Allowance Authorization'><a href='#'>CAAs</a></b-dropdown-item>
+			<b-dropdown-item disabled title='Certificate of Payment'><a href='#'>COPs</a></b-dropdown-item>
+			<b-dropdown-item disabled title='Substantial Completion Letter'><a href='#'>SCL</a></b-dropdown-item>
+			<b-dropdown-item @click='anotherWindow'><a href='#'>New Window</a></b-dropdown-item>
 			</b-nav-item-dropdown>
 			
 			<b-nav-item-dropdown text='Site'>
 			<b-dropdown-item><a href='#'>Site Visit Reports</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Site Memos</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Site Instructions</a></b-dropdown-item>	
-			<b-dropdown-item><a href='#'>Sketches</a></b-dropdown-item>			
-			<b-dropdown-item><a href='#'>Punch Lists</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Photo Gallery</a></b-dropdown-item>			<b-dropdown-item><a href='#'>Meeting Minutes</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Site Memos</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Site Instructions</a></b-dropdown-item>	
+			<b-dropdown-item disabled><a href='#'>Sketches</a></b-dropdown-item>			
+			<b-dropdown-item disabled><a href='#'>Punch Lists</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Photos</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Meeting Minutes</a></b-dropdown-item>
 			</b-nav-item-dropdown>					
 				
-			<b-nav-item-dropdown text='Be'>
-			<b-dropdown-item><a href='#'>Billing Progress</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Cash Allowances</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Certificates of Payment</a></b-dropdown-item>
-			</b-nav-item-dropdown>			
+			<b-nav-item>Be</b-nav-item>			
 
 			<b-nav-item-dropdown text='Architectural'>
-			<b-dropdown-item><a href='#'>Conformance Letters</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>RFIs</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Submittals</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Close-outs</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Letters</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>RFI</a></b-dropdown-item>
+			<b-dropdown-item disabled title='Shop Drawing &amp; Information'><a href='#'>SDI</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Close-outs</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
 	
 			<b-nav-item-dropdown text='Heros'>
-			<b-dropdown-item><a href='#'>Help</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>Lessons Learned</a></b-dropdown-item>
-			<b-dropdown-item><a href='#'>About</a></b-dropdown-item>			
-			</b-nav-item-dropdown>		
-				
-			</b-navbar-nav>
+			<b-dropdown-item disabled><a href='#'>Hello</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>Help</a></b-dropdown-item>			
+			<b-dropdown-item @click='anotherWindow'><a href='#'>New Window</a></b-dropdown-item>
+			
+			</b-nav-item-dropdown>
+			
+			<b-nav-form>
+			  <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+			</b-nav-form>			
+			
+		</b-navbar-nav>
 		</b-collapse>
 	</b-navbar>	
 	
 	
 	<ca-project v-show='caProject'></ca-project>
-	<ca-crr v-show='caCRR'></ca-crr>
+	<ca-svr v-show='caSVR'></ca-svr>
 
 
 	</div rem='// End of CASBAH'>

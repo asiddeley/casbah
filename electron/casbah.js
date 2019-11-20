@@ -30,7 +30,10 @@ SOFTWARE.
 //const PATH=require('path')
 var remote = require('electron').remote
 var windowManager = remote.require('electron-window-manager')
-var windowSpecs=windowManager.sharedData.fetch('windowSpecs')||require('../electron/windowSpecs.js')
+var ws=windowManager.sharedData.fetch('windowStatic')||require('../electron/windowStatic.js')
+//var windowName=windowStatic.getName()
+//what about reloading page, will just pull last windowName rather than its 
+var windowName=ws.names[ws.index]
 
 
 //var GoogleSheet	= require('google-spreadsheet')	
@@ -52,7 +55,7 @@ var windowOptions={
 ///// CA Docs
 const CADOCS=[
 	require('../electron/caProject.js').name,
-	require('../electron/caCRR.js').name
+	require('../electron/caSVR.js').name
 ]
 
 ///// EXPORTS
@@ -62,13 +65,17 @@ exports.ready=function(callback){
 		el:'#CASBAH',
 		data:{
 			caProject:true,
-			caCRR:false,
+			caSVR:false,
 			caCR:false,
 			caDRR:false,
 			caRFI:false,
-			navbarTheme:'BCpurple',
-			navbarType:'dark'
 		},
+		computed:{
+			navbarStyle(){return {'background-color':ws.background[ws.index]}},
+			navbarType() {return ws.foreground[ws.index]}
+			//navbarStyle(){return {'background-color':windowStatic.getBackground()}},
+			//navbarType() {return windowStatic.getForeground()}
+		},		
 		methods:{
 			switchTo(cadoc){
 				for (var i in CADOCS){
@@ -77,18 +84,23 @@ exports.ready=function(callback){
 					if (cadoc==CADOCS[i]){this[CADOCS[i]]=true}
 					else {this[CADOCS[i]]=false}
 				}				
-			},
-			anotherCASBAH(){
+			},		
+			anotherWindow(){
 				var file=`file://${__dirname}/casbah.html`
-				var name=windowSpecs.names[windowSpecs.index++]
+				//var name=windowStatic.nextName()
+				var name=ws.names[ws.index++]
 				//update shared data 
-				windowManager.sharedData.set('windowSpecs', windowSpecs)
-				var win2 = windowManager.createNew(name, name, file , false, windowOptions)
-				//win2.loadURL('casbah.html')
-				//win2.onReady(function(){})
-				win2.open()
-			}			
-		}		
+				windowManager.sharedData.set('windowStatic', ws)
+				var anotherWindow=windowManager.createNew(name, name, file , false, windowOptions)
+				anotherWindow.open()
+			},
+			onreloadWindow(){
+				
+			}
+		},
+		mounted(){
+			document.title=windowName		
+		}
 	})
 	if (typeof callback=='function'){callback()}
 } 
