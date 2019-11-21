@@ -30,10 +30,10 @@ SOFTWARE.
 //const PATH=require('path')
 var remote = require('electron').remote
 var windowManager = remote.require('electron-window-manager')
-var ws=windowManager.sharedData.fetch('windowStatic')||require('../electron/windowStatic.js')
-//var windowName=windowStatic.getName()
-//what about reloading page, will just pull last windowName rather than its 
-var windowName=ws.names[ws.index]
+var ws=require('../electron/windowStatic.js')
+var wsd=windowManager.sharedData.fetch('wsd')||ws.data
+windowManager.sharedData.set('wsd', wsd)
+var windowName=ws.getName(wsd)
 
 
 //var GoogleSheet	= require('google-spreadsheet')	
@@ -45,7 +45,8 @@ var windowName=ws.names[ws.index]
 var windowOptions={
 	width: 1200,
 	height: 400,
-	position: 'topLeft',
+	//position: 'topLeft',
+	position:[20, 20],
 	resizable:true,
 	showDevTools: true,
 	frame:true,
@@ -71,10 +72,10 @@ exports.ready=function(callback){
 			caRFI:false,
 		},
 		computed:{
-			navbarStyle(){return {'background-color':ws.background[ws.index]}},
-			navbarType() {return ws.foreground[ws.index]}
-			//navbarStyle(){return {'background-color':windowStatic.getBackground()}},
-			//navbarType() {return windowStatic.getForeground()}
+			//navbarStyle(){return {'background-color':wsd.backgrounds[wsd.index]}},
+			//navbarType() {return wsd.foregrounds[wsd.index]}
+			navbarStyle(){return {'background-color':ws.getBackground(wsd)}},
+			navbarType() {return ws.getForeground(wsd)}
 		},		
 		methods:{
 			switchTo(cadoc){
@@ -87,15 +88,17 @@ exports.ready=function(callback){
 			},		
 			anotherWindow(){
 				var file=`file://${__dirname}/casbah.html`
-				//var name=windowStatic.nextName()
-				var name=ws.names[ws.index++]
+				//get latest window shared data
+				wsd=windowManager.sharedData.fetch('wsd')
+				var name=ws.nextName(wsd)
 				//update shared data 
-				windowManager.sharedData.set('windowStatic', ws)
+				windowManager.sharedData.set('wsd', wsd)
+				ws.positionCascade(wsd, windowOptions, 20, 20)
 				var anotherWindow=windowManager.createNew(name, name, file , false, windowOptions)
 				anotherWindow.open()
 			},
-			onreloadWindow(){
-				
+			onBeforeUnloaded(){
+				ws.onBeforeUnloaded(wsd, windowName)
 			}
 		},
 		mounted(){
