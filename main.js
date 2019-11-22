@@ -23,12 +23,18 @@ SOFTWARE.
 **/
 
 
-const {app, BrowserWindow} = require('electron')
-const windowManager = require('electron-window-manager');
+//const {app, BrowserWindow} = require('electron')
+const APP=require('electron').app
+const PATH=require('path')
+//const windowManager = require('electron-window-manager');
+const WME=require(PATH.join(__dirname, 'electron', 'windowManagerExtra.js'))
+
+
+
 //const PATH = require("path")
 //const FS = require('fs')
 //const FSP = require('fs-plus')
-
+/*
 var windowOptions={
 	width: 1200,
 	height: 400,
@@ -38,14 +44,11 @@ var windowOptions={
 	frame:true,
 	webPreferences: {nodeIntegration: true}
 }
-
-app.on('ready', function(){
+*/
+APP.on('ready', function(){
 	console.log("Electron app ready...")
-	windowManager.open('home', 'CASBAH', `file://${__dirname}/electron/casbah.html`, false, windowOptions)
-	
-
-	
-	
+	//windowManager.open('home', 'CASBAH', `file://${__dirname}/electron/casbah.html`, false, windowOptions)
+	WME.open()	
 })
 
 

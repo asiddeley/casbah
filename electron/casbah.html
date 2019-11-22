@@ -75,13 +75,13 @@ document.addEventListener('DOMContentLoaded', function(event){
 		<b-dropdown-item disabled><a href='#'>Action Items</a></b-dropdown-item>
 		<b-dropdown-item disabled><a href='#'>Billing Progress</a></b-dropdown-item>
 		<b-dd-item :title='caProjectTitle '@click='switchTo("caProject")'><a href='#'>CA Projects</a></b-dd-item>
-		<b-dropdown-item :title='"Cash Allowance Authorization"'><a href='#'>CAAs</a></b-dropdown-item>
-		<b-dropdown-item disabled :title='"Certificate of Payment"'><a href='#'>COPs</a></b-dropdown-item>
+		<b-dropdown-item :title='"Cash Allowance Authorization"'><a href='#'>CAA</a></b-dropdown-item>
+		<b-dropdown-item disabled :title='"Certificate of Payment"'><a href='#'>COP</a></b-dropdown-item>
 		<b-dropdown-item disabled :title='"Substantial Completion Letter"'><a href='#'>SCL</a></b-dropdown-item>
 		</b-nav-item-dropdown>
 			
 			<b-nav-item-dropdown text='Site'>
-			<b-dd-item :title='caSVRTitle' @click='switchTo("caSVR")'><a href='#'>SVRs</a></b-dd-item>
+			<b-dd-item :title='caSVRTitle' @click='switchTo("caSVR")'><a href='#'>SVR</a></b-dd-item>
 			<b-dropdown-item disabled><a href='#'>Site Memos</a></b-dropdown-item>
 			<b-dropdown-item disabled><a href='#'>Site Instructions</a></b-dropdown-item>	
 			<b-dropdown-item disabled><a href='#'>Sketches</a></b-dropdown-item>			
@@ -92,18 +92,19 @@ document.addEventListener('DOMContentLoaded', function(event){
 				
 			<b-nav-item-dropdown text='Be'>
 			<b-dropdown-item disabled>Best Examples</b-dropdown-item>
+			<b-dropdown-item disabled>Blog Experience</b-dropdown-item>
 			<b-dropdown-item disabled>Box Express</b-dropdown-item>	
 			<b-dropdown-item @click='anotherWindow'>Boom+</b-dropdown-item>				
 			</b-nav-item-dropdown>
 				
 			<b-nav-item-dropdown text='Architectural'>
 			<b-dropdown-item disabled><a href='#'>Letters</a></b-dropdown-item>
-			<b-dropdown-item disabled><a href='#'>RFI</a></b-dropdown-item>
+			<b-dropdown-item disabled><a href='#'>RFIs</a></b-dropdown-item>
 			<b-dropdown-item disabled title='Shop Drawing &amp; Information'><a href='#'>SDI</a></b-dropdown-item>
 			<b-dropdown-item disabled><a href='#'>Close-outs</a></b-dropdown-item>
 			</b-nav-item-dropdown>	
 	
-			<b-nav-item-dd text='Heros'>
+			<b-nav-item-dd text='Hero'>
 			<b-dd-item disabled><a href='#'>Hello</a></b-dd-item>
 			<b-dd-item disabled><a href='#'>Help</a></b-dd-item>			
 			<b-dd-item ><a href='#'>Home</a></b-dd-item>
