@@ -26,15 +26,10 @@ SOFTWARE.
 
 
 ///// IMPORTS
-//const FSP=require('fs-plus')
-//const PATH=require('path')
+const PATH=require('path')
 var remote = require('electron').remote
-var windowManager = remote.require('electron-window-manager')
-var ws=require('../electron/windowStatic.js')
-
-var wsd=windowManager.sharedData.fetch('wsd')||ws.data
-windowManager.sharedData.set('wsd', wsd)
-var windowName=ws.getName(wsd)
+var wm = remote.require(PATH.join(__dirname,'windowManagerExtra.js'))
+var windowName=wm.getWindowName()
 
 
 //var GoogleSheet	= require('google-spreadsheet')	
@@ -43,67 +38,52 @@ var windowName=ws.getName(wsd)
 //var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 
 
-var windowOptions={
-	width: 1200,
-	height: 400,
-	//position: 'topLeft',
-	position:[20, 20],
-	resizable:true,
-	showDevTools: true,
-	frame:true,
-	webPreferences: {nodeIntegration: true}
-}
-
 ///// CA Modules or Document Types
 const caMods=[
 	require('../electron/caProject.js'),
-	require('../electron/caSVR.js')
+	require('../electron/caSVR.js'),
+	require('../electron/caDrr.js')
 ]
 
+//component visibility properties eg. caProject:true, caSVR:false
+function propsForShow(caMods){
+	var d={}, firstOne=true
+	for (var i in caMods){
+		d[caMods[i].name]=firstOne?true:false
+		firstOne=false
+	}
+	return d
+}
 
+//titles or hover popups eg. caPtojectTitle:'verbage...' <n-dd-item :title='caProjectTitle'>
+function propsForTitle(caMods){	
+	var d={}
+	for (var i in caMods){d[caMods[i].name+'Title']=caMods[i].title}
+	return d
+}
 
 ///// EXPORTS
 exports.ready=function(callback){
 	
 	new Vue({
 		el:'#CASBAH',
-		data(){
-			var d={}, firstOne=true
-			//component visibility properties eg. caProject:true, caSVR:false
-			for (var i in caMods){
-				d[caMods[i].name]=firstOne?true:false
-				firstOne=false
-			}
-			//titles or hover popups eg. caPtojectTitle:'verbage...' <n-dd-item :title='caProjectTitle'>
-			for (var i in caMods){
-				d[caMods[i].name+'Title']=caMods[i].title
-			}	
-			return d
-		},
+		data:Object.assign(
+			propsForShow(caMods), 
+			propsForTitle(caMods)	
+		),
 		computed:{
-			navbarStyle(){return {'background-color':ws.getBackground(wsd)}},
-			navbarType() {return ws.getForeground(wsd)}
+			navbarStyle(){return {'background-color':wm.getBackground(windowName)}},
+			navbarType() {return wm.getForeground(windowName)}
 		},		
 		methods:{
 			switchTo(caMod){
+				//show cadoc requested else hide
 				for (var i in caMods){
-					//console.log('switchTo:', caMod, i, caMods[i].name)
-					//show cadoc requested else hide
 					if (caMod==caMods[i].name){this[caMods[i].name]=true}
 					else {this[caMods[i].name]=false}
 				}				
 			},		
-			anotherWindow(){
-				var file=`file://${__dirname}/casbah.html`
-				//get latest window shared data
-				wsd=windowManager.sharedData.fetch('wsd')
-				var name=ws.nextName(wsd)
-				//update shared data 
-				windowManager.sharedData.set('wsd', wsd)
-				ws.positionCascade(wsd, windowOptions, 20, 20)
-				var anotherWindow=windowManager.createNew(name, name, file , false, windowOptions)
-				anotherWindow.open()
-			},
+			anotherWindow(){wm.open()},
 			onBeforeUnloaded(){
 				ws.onBeforeUnloaded(wsd, windowName)
 			}

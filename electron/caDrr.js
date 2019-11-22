@@ -1,6 +1,8 @@
 /**********************************
-CASBAH* *Contract Admin Site Be Architectural Heroes
+CASBAH
+Contract Admin Site Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
+
 MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,17 +22,50 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-**/
+********************************/
 
+///// IMPORTS
 const PATH=require('path')
-const APP=require('electron').app
-const WM=require(PATH.join(__dirname, 'electron', 'windowManagerExtra.js'))
 
-APP.on('ready', function(){
-	console.log("Electron App Ready...")
-	WM.open()	
+
+//var settings = new LocalStore(PATH.join(__dirname,'../private/CaCRR.json'), {projectid:'0', hidden:[]})
+
+CaDrr=function(){
+	this.item=1
+	this.description='Rough paint on door frame'
+	this.locale='Room 101'
+	this.status='open'	
+}
+
+
+//make caProject instance when mounted, accessible so caProjectMenu
+var caDrr
+Vue.component('ca-drr', {
+	data:function(){return {
+		rows:[
+			new CaDrr(),
+			new CaDrr(),
+			new CaDrr(),
+			new CaDrr(),
+			new CaDrr()
+		]	
+	}},
+	props:[],
+	template:`
+		<div>
+			<h2>Deficiency Review Report</h2>
+			<b-table 
+				striped 
+				hover 
+				small 
+				:items='rows' 
+			></b-table>			
+		</div>`,
+	methods:{	},
+	mounted(){caDrr=this}
 })
 
 
-
-
+///// EXPORTS
+exports.name='caDrr'
+exports.title='Punch List / Deficiency Review Report'

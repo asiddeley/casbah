@@ -52,11 +52,8 @@ document.addEventListener('DOMContentLoaded', function(event){
 <div id='CASBAH'>
 
 	<b-navbar toggleable='sm' :type='navbarType' :style='navbarStyle'>
-
 		<b-navbar-brand href='#' class='brandbox'>* C-A *<br>S B A H</b-navbar-brand>
-
 		<b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
 		<b-collapse id="nav-collapse" is-nav>
 		<b-navbar-nav>
 			
@@ -65,10 +62,10 @@ document.addEventListener('DOMContentLoaded', function(event){
 		<b-dd-item disabled><a href='#'>Bidder Q&amp;As</a></b-dd-item>
 		<b-dd-item disabled><a href='#'>Contract</a></b-dd-item>
 		<b-dd-item disabled><a href='#'>Drawings</a></b-dd-item>
-		<b-dd-item disabled><a href='#'>Changes Contemplated</a></b-dd-item>
-		<b-dd-item disabled><a href='#'>Change Orders</a></b-dd-item>
-		<b-dd-item disabled><a href='#'>Change Directives</a></b-dd-item>
 		<b-dd-item disabled><a href='#'>Specifications</a></b-dd-item>
+		<b-dd-item :title='"Change Directive"'><a href='#'>CD</a></b-dd-item>
+		<b-dd-item :title='"Contemplated Change Notice"'><a href='#'>CCN</a></b-dd-item>
+		<b-dd-item :title='"Change Order"'><a href='#'>CO</a></b-dd-item>
 		</b-nav-item-dd>	
 		
 		<b-nav-item-dropdown text='Admin'>
@@ -81,28 +78,29 @@ document.addEventListener('DOMContentLoaded', function(event){
 		</b-nav-item-dropdown>
 			
 			<b-nav-item-dropdown text='Site'>
-			<b-dd-item :title='caSVRTitle' @click='switchTo("caSVR")'><a href='#'>SVR</a></b-dd-item>
-			<b-dropdown-item disabled><a href='#'>Site Memos</a></b-dropdown-item>
-			<b-dropdown-item disabled><a href='#'>Site Instructions</a></b-dropdown-item>	
-			<b-dropdown-item disabled><a href='#'>Sketches</a></b-dropdown-item>			
-			<b-dropdown-item disabled><a href='#'>Punch Lists</a></b-dropdown-item>
-			<b-dropdown-item disabled><a href='#'>Photos</a></b-dropdown-item>
+			<b-dd-item :title='caSvrTitle' @click='switchTo("caSvr")'><a href='#'>SVR</a></b-dd-item>
+			<b-dropdown-item :title='"Site Instruction"'><a href='#'>SI</a></b-dropdown-item>	
+			<b-dropdown-item :title='"Site Memo"'><a href='#'>SM</a></b-dropdown-item>
+			<b-dropdown-item :title='"Sketch"'><a href='#'>SK</a></b-dropdown-item>			
+			<b-dd-item :title='caDrrTitle' @click='switchTo("caDrr")'><a href='#'>Punch Lists</a></b-dd-item>
+			<b-dd-item disabled><a href='#'>Site Photos</a></b-dd-item>
 			<b-dropdown-item disabled><a href='#'>Meeting Minutes</a></b-dropdown-item>
 			</b-nav-item-dropdown>					
 				
-			<b-nav-item-dropdown text='Be'>
-			<b-dropdown-item disabled>Best Examples</b-dropdown-item>
-			<b-dropdown-item disabled>Blog Experience</b-dropdown-item>
-			<b-dropdown-item disabled>Box Express</b-dropdown-item>	
-			<b-dropdown-item @click='anotherWindow'>Boom+</b-dropdown-item>				
-			</b-nav-item-dropdown>
+			<b-nav-item-dd text='Be'>
+			<b-dd-item :title='"Blog for Lessons Learned"'>Blog Examples</b-dd-item>
+			<b-dd-item :title='"Blog for Daily Site Activies"'>Blog Experience</b-dd-item>
+			<b-dd-item :title='"BIM Light for the Site"'>Bimm Express</b-dd-item>
+			<b-dd-item :title='"Box-IN-Out File Storage"'>Bino Exchange</b-dd-item>
+			<b-dd-item :title='"Open Another CASBAH Window"' @click='anotherWindow'>Boom Extra</b-dd-item>				
+			</b-nav-item-dd>
 				
-			<b-nav-item-dropdown text='Architectural'>
-			<b-dropdown-item disabled><a href='#'>Letters</a></b-dropdown-item>
-			<b-dropdown-item disabled><a href='#'>RFIs</a></b-dropdown-item>
-			<b-dropdown-item disabled title='Shop Drawing &amp; Information'><a href='#'>SDI</a></b-dropdown-item>
-			<b-dropdown-item disabled><a href='#'>Close-outs</a></b-dropdown-item>
-			</b-nav-item-dropdown>	
+			<b-nav-item-dd text='Architectural'>
+			<b-dd-item disabled><a href='#'>Letters</a></b-dd-item>
+			<b-dd-item :title='"Request for Information"'><a href='#'>RFIs</a></b-dd-item>
+			<b-dd-item disabled title='Shop Drawing &amp; Information'><a href='#'>SDI</a></b-dd-item>
+			<b-dd-item disabled><a href='#'>Close-outs</a></b-dd-item>
+			</b-nav-item-dd>	
 	
 			<b-nav-item-dd text='Hero'>
 			<b-dd-item disabled><a href='#'>Hello</a></b-dd-item>
@@ -113,17 +111,17 @@ document.addEventListener('DOMContentLoaded', function(event){
 			</b-nav-item-dd>
 			
 			<b-nav-form>
-			  <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+			  <b-form-input size="sm" class="mr-sm-2" placeholder="Command"></b-form-input>
 			</b-nav-form>			
 			
 		</b-navbar-nav>
+		
 		</b-collapse>
-	</b-navbar>	
-	
-	
-	<ca-project v-show='caProject'></ca-project>
-	<ca-svr v-show='caSVR'></ca-svr>
 
+	</b-navbar>	
+	<ca-project v-show='caProject'></ca-project>
+	<ca-svr v-show='caSvr'></ca-svr>
+	<ca-drr v-show='caDrr'></ca-drr>
 
 	</div rem='// End of CASBAH'>
 </body>
