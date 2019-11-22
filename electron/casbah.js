@@ -31,6 +31,7 @@ SOFTWARE.
 var remote = require('electron').remote
 var windowManager = remote.require('electron-window-manager')
 var ws=require('../electron/windowStatic.js')
+
 var wsd=windowManager.sharedData.fetch('wsd')||ws.data
 windowManager.sharedData.set('wsd', wsd)
 var windowName=ws.getName(wsd)
@@ -53,37 +54,43 @@ var windowOptions={
 	webPreferences: {nodeIntegration: true}
 }
 
-///// CA Docs
-const CADOCS=[
-	require('../electron/caProject.js').name,
-	require('../electron/caSVR.js').name
+///// CA Modules or Document Types
+const caMods=[
+	require('../electron/caProject.js'),
+	require('../electron/caSVR.js')
 ]
+
+
 
 ///// EXPORTS
 exports.ready=function(callback){
 	
 	new Vue({
 		el:'#CASBAH',
-		data:{
-			caProject:true,
-			caSVR:false,
-			caCR:false,
-			caDRR:false,
-			caRFI:false,
+		data(){
+			var d={}, firstOne=true
+			//component visibility properties eg. caProject:true, caSVR:false
+			for (var i in caMods){
+				d[caMods[i].name]=firstOne?true:false
+				firstOne=false
+			}
+			//titles or hover popups eg. caPtojectTitle:'verbage...' <n-dd-item :title='caProjectTitle'>
+			for (var i in caMods){
+				d[caMods[i].name+'Title']=caMods[i].title
+			}	
+			return d
 		},
 		computed:{
-			//navbarStyle(){return {'background-color':wsd.backgrounds[wsd.index]}},
-			//navbarType() {return wsd.foregrounds[wsd.index]}
 			navbarStyle(){return {'background-color':ws.getBackground(wsd)}},
 			navbarType() {return ws.getForeground(wsd)}
 		},		
 		methods:{
-			switchTo(cadoc){
-				for (var i in CADOCS){
-					console.log('switchTo:', cadoc, i, CADOCS[i])
+			switchTo(caMod){
+				for (var i in caMods){
+					//console.log('switchTo:', caMod, i, caMods[i].name)
 					//show cadoc requested else hide
-					if (cadoc==CADOCS[i]){this[CADOCS[i]]=true}
-					else {this[CADOCS[i]]=false}
+					if (caMod==caMods[i].name){this[caMods[i].name]=true}
+					else {this[caMods[i].name]=false}
 				}				
 			},		
 			anotherWindow(){

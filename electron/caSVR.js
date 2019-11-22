@@ -169,3 +169,4 @@ Vue.component('ca-crr-menu', {
 
 ///// EXPORTS
 exports.name='caSVR'
+exports.title='Site Visit Report'

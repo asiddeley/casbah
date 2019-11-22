@@ -185,3 +185,4 @@ Vue.component('ca-project-menu', {
 
 ///// EXPORTS
 exports.name='caProject'
+exports.title='CA Project Log'

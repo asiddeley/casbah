@@ -5,20 +5,27 @@ Copyright (c) 2018 Andrew Siddeley
 MIT License
 *****/
 
+
+
+
+
 var colours=[
 	'purple','beige', 'orange','orangered','cyan','royalblue',
-	'yellow','gold','green','olive','tan','brown','gray']
+	'yellow','gold','green','olive','tan','brown','gray'
+]
 	
 var foregrounds=[
 	'dark','light','light','light', 'light', 'dark', 'light',
-	'light', 'dark','dark','light','dark','dark']
+	'light', 'dark','dark','light','dark','dark'
+]
 
 var names=[
 	"Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", 
 	"Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", 
 	"Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", 
 	"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray",
-	"Yankee", "Zulu"]
+	"Yankee", "Zulu"
+]
 
 exports.backgrounds=colours
 exports.foregrounds=foregrounds
