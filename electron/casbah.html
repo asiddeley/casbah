@@ -101,9 +101,9 @@ document.addEventListener('DOMContentLoaded', function(event){
 
 </b-navbar>	
 
-<ca-project v-show='caProject'></ca-project>
-<ca-svr v-show='caSvr'></ca-svr>
-<ca-drr v-show='caDrr'></ca-drr>
+
+<component :is='CAMEL' ></component>
+
 
 </div rem='// End of CASBAH'>
 </body>

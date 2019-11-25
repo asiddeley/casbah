@@ -29,24 +29,15 @@ const PATH=require('path')
 const REMOTE = require('electron').remote
 const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 
-const CAMODS=[
+// CA Modules
+const CAMS=[
 	require('../electron/caProject.js'),
 	require('../electron/caSvr.js'),
 	require('../electron/caDrr.js')
 ]
 
-///// MODULE SCOPE
-//var nodeConsole = require('console');
-//var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-//myConsole.log('Hello World!');
-
-var reloaded=WM.getReloaded()
-//console.log('RELOADED:', reloaded)
-
-//var windowName=WM.getWindowName()
 var windowName=WM.getCurrent().name
 //console.log('CURRENT WIN:', windowName)
-
 
 window.addEventListener('beforeunload', function(e){
 	//reload or window close may have been called
@@ -60,58 +51,47 @@ window.addEventListener('close', function(e){
 	return false
 }, false)	
 
-//var GoogleSheet	= require('google-spreadsheet')	
+//var GoogleSheet = require('google-spreadsheet')	
 //var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
 //var secret = require('../private/client_secret.json')
 //var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 
 
 
-
-//component visibility properties eg. vm.caProject:true, caSVR:false
-function propsForShow(){
-	var d={}, firstOne=true
-	for (var i in CAMODS){
-		d[CAMODS[i].name]=firstOne?true:false
-		firstOne=false
-	}
-	return d
-}
-
 //component title properties eg. vm.caProjectTitle:'Ca Project Log' <n-dd-item :title='caProjectTitle'>
 function propsForTitle(){	
 	var d={}
-	for (var i in CAMODS){d[CAMODS[i].name+'Title']=CAMODS[i].title}
+	for (var i in CAMS){d[CAMS[i].name+'Title']=CAMS[i].title}
 	return d
 }
-
-
-
 
 
 ///// EXPORTS
 exports.ready=function(callback){
 	
+	//register the 1st ca component as default
+	CAMS[0].register()
+	//console.log('default camel:', CAMS[0].name)
+	
 	new Vue({
 		el:'#CASBAH',
 		data:Object.assign(
-			propsForShow(), 
-			propsForTitle()	
+			propsForTitle(),
+			{CAMEL:CAMS[0].element}
 		),
 		computed:{
-			//navbarStyle is deprecated
-			//navbarStyle(){return {'background-color':WM.getColour(windowName)}},
 			navbarClass() {return windowName},
 			navbarType() {return WM.getForeground(windowName)}
 		},
 		methods:{
-			switchTo(caMod){
-				//show requested component and hide the rest
-				for (var i in CAMODS){
-					if (caMod==CAMODS[i].name){this[CAMODS[i].name]=true}
-					else {this[CAMODS[i].name]=false}
-				}				
-			},		
+			switchTo(camName){
+				//find ca module given module name
+				var cam=CAMS.find(function(i){return i.name==camName})
+				//register module's Vue component if not allready 
+				var registered=Object.keys(Vue.options.components)
+				if (!registered.includes(camName)){cam.register()}
+				this.CAMEL=cam.element				
+			},			
 			anotherWindow(){
 				//windowName is optional, means new window will be cascaded from current
 				WM.open(windowName)
@@ -119,6 +99,7 @@ exports.ready=function(callback){
 		},
 		mounted(){
 			//document.title=windowName	
+			
 		}
 	})
 	if (typeof callback=='function'){callback()}

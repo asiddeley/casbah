@@ -36,69 +36,69 @@ var {getOwn, cryptoId, addDays, LocalStore, showAtPointer}=require("../electron/
 
 function CaSvr({projectid, projectno, projectcode, days}){	
 	var today=new Date()
-	var future=addDays(today, days||365)
-	//random id with high probability of uniqueness
-	this.projectid=projectid||cryptoId()
-	this.projectno=projectno||"PRO-001"
-	this.projectcode=projectcode||"CASA"
-	this.project="Casbah Building"
-	this.subprojectcode=projectcode||"TV"
-	this.subproject="The Ville"
-	this.address="101 Desert Way"
-	this.ownercode="Casbah"
-	this.contractorcode="CasbahCon"
-	this.start=today.toString().substring(0,15)
-	this.finish=future.toString().substring(0,15)
-	this.status="ongoing"
-	this.permit="19 123456 00 00 BA"
-	this.occupancy="TBD"
-	this.areasm="TBD"
-	this.cost="TBD"
-	this.about="TBD"
-	this._rowVariant=''
+	var future=addDays(today, days||7)
+	this.projectid=projectid
+	this.visitdates=[today]
+	this.reviewer=''
+	this.reportdate=future
+	this.notes=[
+		new CaSvrNote('1.0', 'GENERAL', 'REF'),
+		new CaSvrNote('1.1', 'Refer also to Consultant Electrical, Mechanical and Structural reports issued separately', '--'),
+		new CaSvrNote('2.0', 'OBSERVATIONS AND COMMENTS', 'REF'),
+		new CaSvrNote('2.1', 'Concrete pour ongoing...', '--'),
+	]
+	//this.photos=[new CASvrPhoto()]
 }
 
+function CaSvrNote(item, desc, ref){
+	this.item=item||'1.1'
+	this.desc=desc||'description'
+	this.ref=ref||'--'	
+}
 
 
 //var settings = new LocalStore(PATH.join(__dirname,'../private/CaSvr.json'), {projectid:'0', hidden:[]})
 
 //make caProject instance when mounted, accessible so caProjectMenu
-var caSvr
-Vue.component('ca-svr', {
-	data:function(){return {
-		rows:[
-			new CaSvr({projectid:'100', projectno:'P-100'}), 
-			new CaSvr({projectid:'100', projectno:'P-100'}),
-			new CaSvr({projectid:'100', projectno:'P-100'})
-		],
-		fields:[
-			{key:'projectno', sortable:true},
-			{key:'project', sortable:true},
-			{key:'subprojectcode', sortable:true},
-			{key:'subproject', sortable:true}
-		],	
-	}},
-	props:[],
-	template:`
-		<div>
-			<h2>Site Visit Report</h2>
-			<b-table 
-				striped 
-				hover 
-				small 
-				:items='rows' 
-				:fields='fields'
-			></b-table>			
-		</div>`,
-	methods:{
-		menuShow(row, rows, e){showAtPointer(menu, e)}
-	},
-	mounted(){
-		caSvr=this		
-	}
-})
+var caSvr=new CaSvr({})
 
+function register(){
+	Vue.component('ca-svr', {
+		data:function(){return {
+			rows:caSvr.notes,
+			fields:[],
+			caproject:{projectno:'101', subprojectcode:'TV'}
+		}},
+		props:[],
+		template:`
+			<div>
+				<h2>Site Visit Report</h2>
+				
+				<row><strong class='col-sm-6'>Project no.:{{caproject.projectno}}</strong>
+				<strong class='col-sm-6'>Sub-project no.:{{caproject.subprojectcode}}</strong></row>
+				
+				<b-table 
+					striped 
+					hover 
+					small 
+					:items='rows' 
+					:fields='fields'
+				></b-table>			
+			</div>`,
+		methods:{
+			menuShow(row, rows, e){showAtPointer(menu, e)}
+		},
+		computed:{
+			
+		},
+		mounted(){
+			//caSvr=this		
+		}
+	})
+}
 
 ///// EXPORTS
+exports.element='ca-svr'
 exports.name='caSvr'
 exports.title='Site Visit Report'
+exports.register=register

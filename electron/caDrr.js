@@ -37,35 +37,38 @@ CaDrr=function(){
 	this.status='open'	
 }
 
-
-//make caProject instance when mounted, accessible so caProjectMenu
 var caDrr
-Vue.component('ca-drr', {
-	data:function(){return {
-		rows:[
-			new CaDrr(),
-			new CaDrr(),
-			new CaDrr(),
-			new CaDrr(),
-			new CaDrr()
-		]	
-	}},
-	props:[],
-	template:`
-		<div>
-			<h2>Deficiency Review Report</h2>
-			<b-table 
-				striped 
-				hover 
-				small 
-				:items='rows' 
-			></b-table>			
-		</div>`,
-	methods:{	},
-	mounted(){caDrr=this}
-})
 
+function register(){
+	Vue.component('ca-drr', {
+		data:function(){return {
+			rows:[
+				new CaDrr(),
+				new CaDrr(),
+				new CaDrr(),
+				new CaDrr(),
+				new CaDrr()
+			]	
+		}},
+		props:[],
+		template:`
+			<div>
+				<h2>Deficiency Review Report</h2>
+				<b-table 
+					striped 
+					hover 
+					small 
+					:items='rows' 
+				></b-table>			
+			</div>`,
+		methods:{	},
+		mounted(){caDrr=this}
+	})
+}
 
 ///// EXPORTS
+exports.element='ca-drr'
 exports.name='caDrr'
 exports.title='Punch List / Deficiency Review Report'
+exports.register=register
+

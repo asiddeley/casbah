@@ -24,19 +24,19 @@ var colours=[
 ]
 
 var foregrounds=[
-	//'dark',
-	//'light','light','light', 'dark', 'dark', 'light',
-	//'dark','dark','light','dark','dark', 'dark',
-	//'dark','dark','dark','dark','dark', 'dark',
+	'dark',
+	'light','light','light', 'dark', 'dark', 'light',
+	'light','dark','dark','dark','dark', 'dark',
+	'dark','dark','dark','dark','dark', 'dark',
 	'light','light','light','light','light', 'light',
 	'dark'
 ]
 
 var names=[
-	//"Alpha", 
-	//"Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", 
-	//"Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", 
-	//"November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", 
+	"Alpha", 
+	"Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", 
+	"Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", 
+	"November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", 
 	"Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", 
 	"Zulu"
 ]
@@ -60,16 +60,16 @@ var reuse=[]
 var windex=-1
 
 function getNextWindowName(){
-	if (reuse.length>0) {
+	//if (reuse.length>0) {
 		//means a window reload occured so return that window's name instead of assigning a new name
-		return reuse.shift()
-	}
-	else {
+		//return reuse.shift()
+	//}
+	//else {
 		//assign a new name from the list
 		windex+=1
 		if(windex<names.length){return names[windex]}
 		else{return ( prefix + windex.toString() ) }
-	}
+	//}
 }
 
 //DEPRECATED use getCurrent().name instead
