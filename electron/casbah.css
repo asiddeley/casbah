@@ -1,0 +1,40 @@
+
+.brandbox {
+	font-size:medium;
+	font-weight:bold;
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	border-radius:10px;
+	border-style:solid;
+	border-width:2px;
+	padding:5px 20px 5px 20px;
+	margin:5px 5px 0px 0px;
+}
+
+.Alpha {background:purple;}
+
+.Bravo {background:white;}
+.Charlie {background:orange;}
+.Delta {background:linear-gradient(90deg, orange 80%, blue 80%);}
+.Echo {background:blue;}
+.Foxtrot {background:linear-gradient(90deg, blue 80%, gold 80%);}
+.Golf {background:gold;}
+.Hotel {background:linear-gradient(90deg, gold 80%, green 80%);}
+.India {background:green;}
+.Juliet {background:linear-gradient(90deg, green 80%, brown 80%);}
+.Mike {background:brown;}
+
+.November {background:black;}
+.Oscar {background:linear-gradient(90deg, black 80%, gold 90%, black 95%);}
+.Papa {background:linear-gradient(90deg, black 70%, gold 75% 85%, black 90%);}
+.Quebec {background:linear-gradient(90deg, black 60%, gold 65% 90%, black 95%);}
+.Romeo {background:linear-gradient(90deg, black 50%, gold 55% 90%, black 95%);}
+.Sierra {background:linear-gradient(90deg, black 40%, gold 45% 90%, black 95%);}
+
+.Tango {background:linear-gradient(90deg, grey 40%, gold 45% 90%, grey 95%);}
+.Uniform {background:linear-gradient(90deg, darkgrey 50%, gold 55% 90%, darkgrey 95%);}
+.Victor {background:linear-gradient(90deg, silver 60%, gold 65% 90%, silver 95%);}
+.Whiskey {background:linear-gradient(90deg, beige 70%, gold 75% 90%, beige 95%);}
+.Xray {background:linear-gradient(90deg, white 80%, gold 85% 90%, white 95%);}
+
+.Yankee {background:linear-gradient(90deg, plum 80%, gold 85% 90%, plum 95%);}
+.Zulu {background:linear-gradient(90deg, purple 80%, gold 85% 90%, purple 95%);}

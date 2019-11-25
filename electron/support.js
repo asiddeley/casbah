@@ -103,14 +103,18 @@ exports.MIXINS=function(){
 exports.LocalStore=function(path, content){
 	content=content||{}
 	try { content = require(path)}
-	catch(err){	console.log('Error reading JSON from (path):', path) }	
+	catch(err){
+		//console.log('Error reading JSON from (path):', path)
+	}	
 	Object.assign(this, content)
 	//console.log('localStore:',this)
 	this.stringify=function(){return JSON.stringify(this)}
 	this.set=function(name, val){
 		if (name && val){this[name]=val}
 		try{FSP.writeFileSync(path, this.stringify())}
-		catch(err){console.log('Error saving JSON to (path): ', path)}
+		catch(err){
+			console.log('Error saving JSON to (path): ', path)
+		}
 	}
 }
 

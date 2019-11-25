@@ -26,8 +26,10 @@ const PATH=require('path')
 const APP=require('electron').app
 const WM=require(PATH.join(__dirname, 'electron', 'windowManagerExtra.js'))
 
+//APP.commandLine.appendSwitch('--enable-logging')
+
 APP.on('ready', function(){
-	console.log("Electron App Ready...")
+	console.log('Electron App Ready...')
 	WM.open()	
 })
 

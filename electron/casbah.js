@@ -24,13 +24,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ********************************/
 
-
 ///// IMPORTS
 const PATH=require('path')
-var remote = require('electron').remote
-var wm = remote.require(PATH.join(__dirname,'windowManagerExtra.js'))
-var windowName=wm.getWindowName()
+const REMOTE = require('electron').remote
+const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 
+const CAMODS=[
+	require('../electron/caProject.js'),
+	require('../electron/caSvr.js'),
+	require('../electron/caDrr.js')
+]
+
+///// MODULE SCOPE
+//var nodeConsole = require('console');
+//var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
+//myConsole.log('Hello World!');
+
+var reloaded=WM.getReloaded()
+//console.log('RELOADED:', reloaded)
+
+//var windowName=WM.getWindowName()
+var windowName=WM.getCurrent().name
+//console.log('CURRENT WIN:', windowName)
+
+
+window.addEventListener('beforeunload', function(e){
+	//reload or window close may have been called
+	WM.onBeforeUnload(windowName)
+})
+
+window.addEventListener('close', function(e){
+	//window close definately called
+	WM.onClose(windowName)
+	e.preventDefault()
+	return false
+}, false)	
 
 //var GoogleSheet	= require('google-spreadsheet')	
 //var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
@@ -38,29 +66,28 @@ var windowName=wm.getWindowName()
 //var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
 
 
-///// CA Modules or Document Types
-const caMods=[
-	require('../electron/caProject.js'),
-	require('../electron/caSVR.js'),
-	require('../electron/caDrr.js')
-]
 
-//component visibility properties eg. caProject:true, caSVR:false
-function propsForShow(caMods){
+
+//component visibility properties eg. vm.caProject:true, caSVR:false
+function propsForShow(){
 	var d={}, firstOne=true
-	for (var i in caMods){
-		d[caMods[i].name]=firstOne?true:false
+	for (var i in CAMODS){
+		d[CAMODS[i].name]=firstOne?true:false
 		firstOne=false
 	}
 	return d
 }
 
-//titles or hover popups eg. caPtojectTitle:'verbage...' <n-dd-item :title='caProjectTitle'>
-function propsForTitle(caMods){	
+//component title properties eg. vm.caProjectTitle:'Ca Project Log' <n-dd-item :title='caProjectTitle'>
+function propsForTitle(){	
 	var d={}
-	for (var i in caMods){d[caMods[i].name+'Title']=caMods[i].title}
+	for (var i in CAMODS){d[CAMODS[i].name+'Title']=CAMODS[i].title}
 	return d
 }
+
+
+
+
 
 ///// EXPORTS
 exports.ready=function(callback){
@@ -68,30 +95,33 @@ exports.ready=function(callback){
 	new Vue({
 		el:'#CASBAH',
 		data:Object.assign(
-			propsForShow(caMods), 
-			propsForTitle(caMods)	
+			propsForShow(), 
+			propsForTitle()	
 		),
 		computed:{
-			navbarStyle(){return {'background-color':wm.getBackground(windowName)}},
-			navbarType() {return wm.getForeground(windowName)}
-		},		
+			//navbarStyle is deprecated
+			//navbarStyle(){return {'background-color':WM.getColour(windowName)}},
+			navbarClass() {return windowName},
+			navbarType() {return WM.getForeground(windowName)}
+		},
 		methods:{
 			switchTo(caMod){
-				//show cadoc requested else hide
-				for (var i in caMods){
-					if (caMod==caMods[i].name){this[caMods[i].name]=true}
-					else {this[caMods[i].name]=false}
+				//show requested component and hide the rest
+				for (var i in CAMODS){
+					if (caMod==CAMODS[i].name){this[CAMODS[i].name]=true}
+					else {this[CAMODS[i].name]=false}
 				}				
 			},		
-			anotherWindow(){wm.open()},
-			onBeforeUnloaded(){
-				ws.onBeforeUnloaded(wsd, windowName)
-			}
+			anotherWindow(){
+				//windowName is optional, means new window will be cascaded from current
+				WM.open(windowName)
+			}		
 		},
 		mounted(){
-			document.title=windowName		
+			//document.title=windowName	
 		}
 	})
 	if (typeof callback=='function'){callback()}
 } 
+
 
