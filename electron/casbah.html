@@ -13,7 +13,7 @@
 <!--load these here to avoid  multiple Vue instances warning -->
 <script type='text/javascript' src='../node_modules/vue/dist/vue.min.js'></script>
 <script type='text/javascript' src='../node_modules/bootstrap-vue/dist/bootstrap-vue.min.js'></script>
-
+<script type='text/javascript' src='../node_modules/vuex/dist/vuex.min.js'></script>
 
 <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 <link rel="stylesheet" href="../node_modules/bootstrap-vue/dist/bootstrap-vue.css">
@@ -23,6 +23,7 @@
 
 document.addEventListener('DOMContentLoaded', function(event){
 	Vue.use(BootstrapVue)	
+	Vue.use(Vuex)
 	require('../electron/casbah.js').ready()
 })	
 	

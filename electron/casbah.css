@@ -20,9 +20,9 @@
 .Golf {background:gold;}
 .Hotel {background:linear-gradient(90deg, gold 80%, green 85%);}
 .India {background:green;}
-.Juliet {background:linear-gradient(90deg, green 80%, brown 85%);}
-.Lima {background:brown;}
-.Kilo {background:black;}
+.Juliet {background:linear-gradient(90deg, green 80%, saddlebrown 85%);}
+.Kilo {background:saddlebrown;}
+.Lima {background:black;}
 
 .Mike {background:linear-gradient(90deg, black 80%, gold 90%, black 95%);}
 .November {background:linear-gradient(90deg, black 70%, gold 75% 85%, black 90%);}

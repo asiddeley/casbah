@@ -85,15 +85,16 @@ exports.ready=function(callback){
 		},
 		methods:{
 			switchTo(camName){
-				//find ca module given module name
+				//find ca module given the module name
 				var cam=CAMS.find(function(i){return i.name==camName})
-				//register module's Vue component if not allready 
+				//Get an array of components registered in Vue 
 				var registered=Object.keys(Vue.options.components)
+				//register the ca component if not already 
 				if (!registered.includes(camName)){cam.register()}
 				this.CAMEL=cam.element				
 			},			
 			anotherWindow(){
-				//windowName is optional, means new window will be cascaded from current
+				//if windowName is provided, the new window's position will be cascaded from it
 				WM.open(windowName)
 			}		
 		},
