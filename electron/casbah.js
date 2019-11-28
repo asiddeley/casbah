@@ -29,6 +29,7 @@ const PATH=require('path')
 const REMOTE = require('electron').remote
 const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 
+
 // CA Modules
 const CAMS=[
 	require('../electron/caProject.js'),
@@ -39,10 +40,13 @@ const CAMS=[
 var windowName=WM.getCurrent().name
 //console.log('CURRENT WIN:', windowName)
 
+
+/* DEPRECATED
 window.addEventListener('beforeunload', function(e){
 	//reload or window close may have been called
 	WM.onBeforeUnload(windowName)
 })
+
 
 window.addEventListener('close', function(e){
 	//window close definately called
@@ -50,13 +54,7 @@ window.addEventListener('close', function(e){
 	e.preventDefault()
 	return false
 }, false)	
-
-//var GoogleSheet = require('google-spreadsheet')	
-//var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
-//var secret = require('../private/client_secret.json')
-//var {getOwn, cryptoId, addDays, LocalStore}=require("../electron/support.js")
-
-
+*/
 
 //component title properties eg. vm.caProjectTitle:'Ca Project Log' <n-dd-item :title='caProjectTitle'>
 function propsForTitle(){	
@@ -77,6 +75,7 @@ exports.ready=function(callback){
 		el:'#CASBAH',
 		data:Object.assign(
 			propsForTitle(),
+			//current CA Module ELement ie. <ca-project></ca-project>
 			{CAMEL:CAMS[0].element}
 		),
 		computed:{

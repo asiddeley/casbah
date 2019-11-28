@@ -36,14 +36,19 @@ function register(){
 ///// IMPORTS
 //const FSP=require('fs-plus')
 const PATH=require('path')
+const REMOTE = require('electron').remote
+const STORE=require('../electron/storage').store
+const SECRET = require('../private/client_secret.json')
+const SETTINGS=require('../private/settings.json')
+const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
+const windowName=WM.getCurrent().name
 
-
+//required for store state, mutations
 var GoogleSheet	= require('google-spreadsheet')	
-var gsProjects = new GoogleSheet("1tKvabqktU80rAFZ2PEC6-iDQwI2DwG3xKLcKLoI16N4")
-var secret = require('../private/client_secret.json')
+var gsProjects = new GoogleSheet(SETTINGS.gsProjectsKey)
+
 
 var {getOwn, cryptoId, addDays, LocalStore, showAtPointer}=require("../electron/support.js")
-
 
 
 function googleAuth(vue){
@@ -56,16 +61,34 @@ function googleAuth(vue){
 	})	
 }	
 
-function CaProject({projectid, projectno, projectcode, days}){	
+
+const local=new LocalStore(
+	//path per windowName
+	PATH.join(__dirname, '../private', ('/'+windowName+'.json')),
+	//object or Constructor
+	{projectid:'0', hidden:[], windowName:windowName}		
+)
+
+//DEPRECATED
+var settings = new LocalStore(		
+	PATH.join(__dirname,'../private/caProjects.json'),
+	{project:{}, hidden:[]}		
+)
+
+
+
+
+// caProject SCHEMA
+function CaProject({projectid, projectno, projectcode, days, index}){	
 	var today=new Date()
 	var future=addDays(today, days||365)
 	//random id with high probability of uniqueness
 	this.projectid=projectid||cryptoId()
-	this.projectno=projectno||"PRO-001"
-	this.projectcode=projectcode||"CASA"
-	this.project="Casbah Building"
+	this.projectno=projectno||['PRO-001', 'PRO-001', 'PRO-002', 'PRO-003'][index %4]
+	this.projectcode=projectcode||['CB', 'CB', 'MB', 'OB'][index % 4]
+	this.project=['Casbah Bldg', 'Casbah Bldg', 'My Bldg', 'Other Bldg'][index % 4] 
 	this.subprojectcode=projectcode||"TV"
-	this.subproject="The Ville"
+	this.subproject='The Ville'
 	this.address="101 Desert Way"
 	this.ownercode="Casbah"
 	this.contractorcode="CasbahCon"
@@ -87,51 +110,55 @@ CaProject.prototype.toString=function(data){
 	}).join('\n')
 }
 
+function CaProjects(no){
+	no=no||5
+	this.caProjects=[]
+	for (var i=0; i<no; i++){
+		this.caProjects[i]=new CaProject({index:i})
+	}
+	this.toArray=function(){return this.caProjects}	
+}
 
-var settings = new LocalStore(		
-	PATH.join(__dirname,'../private/caProjects.json'),
-	{projectid:'0', hidden:[]}		
-)
-
-
-///////////////////////////////
-// Init Storage with Vuex 
-const STORE=new Vuex.Store({
+///////////////
+// STORE
+STORE.registerModule('caProject',{
 	state:{
-		projectid:function(){
-			//get from private/caProjects.json
-			return "101"
-		}	
+		//current project 
+		project:local.project||{}
 		
 	},
+	getters:{},
 	mutations:{
+		project(state, project){
+			state.project=project
+			local.set('project', project)
+		}
+		// we can use the ES2015 computed property name feature
+		// to use a constant as the function name
+		//[SOME_MUTATION] (state) { }	
 		
 		
-		
-	}		
-	
-})
+	},
+	actions:{}		
+})	
+console.log ('STORE', STORE)
 
 /////////////////////////////
 //Register ca-project-menu
 //caProject initialized when mounted, accessible to ca-project-menu
-var caProjects 
+var model 
 Vue.component('ca-project', {
-	data:function(){return {
-		rows:[
-			new CaProject({projectid:'104', projectno:'P-104'}), 
-			new CaProject({projectid:'105', projectno:'P-105'}),
-			new CaProject({projectid:'106', projectno:'P-106'})
-		],
+	data:{
+		rows:new CaProjects(5).toArray(),
 		fields:[
 			{key:'projectno', sortable:true},
 			{key:'project', sortable:true},
 			{key:'subprojectcode', sortable:true},
 			{key:'subproject', sortable:true}
-		],
-		projectid:'',
-		project:{}
-	}},
+		]
+		//projectid:'',
+		//project:{}
+	},
 	STORE,
 	props:[],
 	template:`
@@ -150,8 +177,22 @@ Vue.component('ca-project', {
 			></b-table>			
 			<ca-project-menu></ca-project-menu>
 		</div>`,
+	computed:{		
+		project(){
+			console.log('MODEL', this)
+			return STORE.state.caProject.project
+		}
+		
+	},
 	methods:{
-		makeProjectCurrent(row, index, event){
+		makeProjectCurrent(row, index, ev){
+			//find currently clicked row
+			var current=this.rows.find(function(r){return r.projectid==row.projectid})
+			//update store
+			STORE.commit('project', current||{})
+			
+		},		
+		DEPmakeProjectCurrent(row, index, event){
 			//turn off previous highlight
 			var that=this
 			var oldCurrent=this.rows.find(function(r){
@@ -159,8 +200,9 @@ Vue.component('ca-project', {
 			})
 			if(oldCurrent){oldCurrent._rowVariant=''}
 			
-			//highlight currently clicked row
+			//find currently clicked row
 			var current=this.rows.find(function(r){return r.projectid==row.projectid})
+			//highlight currently clicked row			
 			if(current){current._rowVariant='primary'}
 			
 			//update model
@@ -184,11 +226,11 @@ Vue.component('ca-project', {
 		menuShow(row, rows, e){showAtPointer(menu, e)}
 	},
 	mounted(){
-		caProjects=this
+		model=this
 		//highlight current project
 		this.rows.forEach(function(r){
 			if (r.projectid==settings.projectid) {
-				caProjects.makeProjectCurrent(r)
+				model.makeProjectCurrent(r)
 			}
 		})		
 	}
