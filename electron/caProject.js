@@ -28,10 +28,7 @@ SOFTWARE.
 exports.element='ca-project'
 exports.name='caProject'
 exports.title='CA Project Log'
-exports.register=register
-
-
-function register(){
+exports.register=function(){
 	
 ///// IMPORTS
 //const FSP=require('fs-plus')
@@ -66,15 +63,10 @@ const local=new LocalStore(
 	//path per windowName
 	PATH.join(__dirname, '../private', ('/'+windowName+'.json')),
 	//object or Constructor
-	{projectid:'0', hidden:[], windowName:windowName}		
+	{project:{}, hidden:[], windowName:windowName}		
 )
-
-//DEPRECATED
-var settings = new LocalStore(		
-	PATH.join(__dirname,'../private/caProjects.json'),
-	{project:{}, hidden:[]}		
-)
-
+//force a local save
+local.set()
 
 
 
@@ -116,7 +108,9 @@ function CaProjects(no){
 	for (var i=0; i<no; i++){
 		this.caProjects[i]=new CaProject({index:i})
 	}
-	this.toArray=function(){return this.caProjects}	
+	this.toArray=function(){
+		//console.log('CaProjects.toArray:', this.caProjects)
+		return this.caProjects}	
 }
 
 ///////////////
@@ -129,38 +123,25 @@ STORE.registerModule('caProject',{
 	},
 	getters:{},
 	mutations:{
-		project(state, project){
+		setCurrentProject(state, project){
 			state.project=project
 			local.set('project', project)
 		}
-		// we can use the ES2015 computed property name feature
-		// to use a constant as the function name
-		//[SOME_MUTATION] (state) { }	
-		
+	
 		
 	},
-	actions:{}		
+	actions:{		
+	}		
 })	
-console.log ('STORE', STORE)
+
 
 /////////////////////////////
 //Register ca-project-menu
 //caProject initialized when mounted, accessible to ca-project-menu
 var model 
 Vue.component('ca-project', {
-	data:{
-		rows:new CaProjects(5).toArray(),
-		fields:[
-			{key:'projectno', sortable:true},
-			{key:'project', sortable:true},
-			{key:'subprojectcode', sortable:true},
-			{key:'subproject', sortable:true}
-		]
-		//projectid:'',
-		//project:{}
-	},
-	STORE,
-	props:[],
+	//Vuex STORE replaces Vue data property
+	STORE, 
 	template:`
 		<div>
 			<h1>All Projects</h1>
@@ -172,7 +153,7 @@ Vue.component('ca-project', {
 				small 
 				:items='rows' 
 				:fields='fields'
-				@row-clicked='makeProjectCurrent' 
+				@row-clicked='setCurrentProject' 
 				@row-contextmenu='menuShow'
 			></b-table>			
 			<ca-project-menu></ca-project-menu>
@@ -181,16 +162,32 @@ Vue.component('ca-project', {
 		project(){
 			console.log('MODEL', this)
 			return STORE.state.caProject.project
-		}
+		},
+		rows(){
+			return (new CaProjects(4).toArray())
+			
+		},
+		fields(){return[
+			{key:'projectno', sortable:true},
+			{key:'project', sortable:true},
+			{key:'subprojectcode', sortable:true},
+			{key:'subproject', sortable:true}
+		]}
 		
 	},
 	methods:{
-		makeProjectCurrent(row, index, ev){
+		highlightCurrent(){
+			this.rows.forEach(function(r){
+				if (r.projectid==local.project.projectid){r._rowVariant='primary'}
+				else {r._rowVariant=''}
+			})	
+		},
+		setCurrentProject(row, index, ev){
 			//find currently clicked row
 			var current=this.rows.find(function(r){return r.projectid==row.projectid})
 			//update store
-			STORE.commit('project', current||{})
-			
+			STORE.commit('setCurrentProject', current||{})
+			this.highlightCurrent()	
 		},		
 		DEPmakeProjectCurrent(row, index, event){
 			//turn off previous highlight
@@ -228,11 +225,7 @@ Vue.component('ca-project', {
 	mounted(){
 		model=this
 		//highlight current project
-		this.rows.forEach(function(r){
-			if (r.projectid==settings.projectid) {
-				model.makeProjectCurrent(r)
-			}
-		})		
+
 	}
 })
 
