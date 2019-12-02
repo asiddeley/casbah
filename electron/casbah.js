@@ -40,22 +40,6 @@ const CAMS=[
 var windowName=WM.getCurrent().name
 //console.log('CURRENT WIN:', windowName)
 
-
-/* DEPRECATED
-window.addEventListener('beforeunload', function(e){
-	//reload or window close may have been called
-	WM.onBeforeUnload(windowName)
-})
-
-
-window.addEventListener('close', function(e){
-	//window close definately called
-	WM.onClose(windowName)
-	e.preventDefault()
-	return false
-}, false)	
-*/
-
 //component title properties eg. vm.caProjectTitle:'Ca Project Log' <n-dd-item :title='caProjectTitle'>
 function propsForTitle(){	
 	var d={}
@@ -69,7 +53,6 @@ exports.ready=function(callback){
 	
 	//register the 1st ca component as default
 	CAMS[0].register()
-	//console.log('default camel:', CAMS[0].name)
 	
 	new Vue({
 		el:'#CASBAH',
@@ -97,10 +80,7 @@ exports.ready=function(callback){
 				WM.open(windowName)
 			}		
 		},
-		mounted(){
-			//document.title=windowName	
-			
-		}
+		mounted(){}
 	})
 	if (typeof callback=='function'){callback()}
 } 

@@ -10,33 +10,33 @@
 	margin:5px 5px 0px 0px;
 }
 
-.Alpha {background:purple;}
+.Alpha, .table-Alpha {background:aquamarine !important;} /*aqua, aquamarine, azure, #A000A0*/
+.Bravo, .table-Bravo {background:blueviolet !important;} /*blueviolet, bisque, blue, brown, beige, */
+.Charlie, .table-Charlie {background:coral !important;} /*Chartreuse coral*/
+.Delta, .table-Delta {background:deepskyblue !important;} /*dimgray, darkslategray, deepskyblue, dogerblue*/
+.Echo, .table-Echo {background:#E000E0 !important;} 
 
-.Bravo {background:white;}
-.Charlie {background:orange;}
-.Delta {background:linear-gradient(90deg, orange 80%, blue 85%);}
-.Echo {background:blue;}
-.Foxtrot {background:linear-gradient(90deg, blue 80%, gold 85%);}
-.Golf {background:gold;}
-.Hotel {background:linear-gradient(90deg, gold 80%, green 85%);}
-.India {background:green;}
-.Juliet {background:linear-gradient(90deg, green 80%, saddlebrown 85%);}
-.Kilo {background:saddlebrown;}
-.Lima {background:black;}
+.Foxtrot {background:white;}
+.Golf {background:orange;}
+.Hotel{background:linear-gradient(90deg, orange 80%, blue 85%);}
+.India {background:blue;}
+.Juliet {background:linear-gradient(90deg, blue 80%, gold 85%);}
+.Kilo {background:gold;}
+.Lima  {background:linear-gradient(90deg, gold 80%, green 85%);}
 
-.Mike {background:linear-gradient(90deg, black 80%, gold 90%, black 95%);}
-.November {background:linear-gradient(90deg, black 70%, gold 75% 85%, black 90%);}
-.Oscar {background:linear-gradient(90deg, black 60%, gold 65% 90%, black 95%);}
-.Papa {background:linear-gradient(90deg, black 50%, gold 55% 90%, black 95%);}
-.Quebec {background:linear-gradient(90deg, black 40%, gold 45% 90%, black 95%);}
+.Mike {background:green;}
+.November {background:linear-gradient(90deg, green 80%, saddlebrown 85%);}
+.Oscar {background:saddlebrown;}
+.Papa {background:linear-gradient(90deg, saddlebrown 80%, black 85%);}
+.Quebec {background:linear-gradient(90deg, black 80%, gold 90%, black 95%);}
 
-.Romeo {background:linear-gradient(90deg, grey 40%, gold 45% 90%, grey 95%);}
-.Sierra {background:linear-gradient(90deg, darkgrey 50%, gold 55% 90%, darkgrey 95%);}
-.Tango {background:linear-gradient(90deg, silver 60%, gold 65% 90%, silver 95%);}
-.Uniform {background:linear-gradient(90deg, beige 70%, gold 75% 90%, beige 95%);}
-.Victor {background:linear-gradient(90deg, white 80%, gold 85% 90%, white 95%);}
-.Whiskey 
-.Xray 
+.Romeo {background:linear-gradient(90deg, black 70%, gold 75% 85%, black 90%);}
+.Sierra  {background:linear-gradient(90deg, black 60%, gold 65% 90%, black 95%);}
+.Tango {background:linear-gradient(90deg, black 50%, gold 55% 90%, black 95%);}
+.Uniform {background:linear-gradient(90deg, black 40%, gold 45% 90%, black 95%);}
+.Victor {background:linear-gradient(90deg, grey 40%, gold 45% 90%, grey 95%);}
+.Whiskey {background:linear-gradient(90deg, darkgrey 50%, gold 55% 90%, darkgrey 95%);}
+.Xray {background:linear-gradient(90deg, silver 60%, gold 65% 90%, silver 95%);}
 
-.Yankee {background:linear-gradient(90deg, plum 80%, gold 85% 90%, plum 95%);}
-.Zulu {background:linear-gradient(90deg, purple 80%, gold 85% 90%, purple 95%);}
+.Yankee {background:linear-gradient(90deg, beige 70%, gold 75% 90%, beige 95%);}
+.Zulu {background:linear-gradient(90deg, white 80%, gold 85% 90%, white 95%);}

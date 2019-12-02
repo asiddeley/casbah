@@ -14,6 +14,19 @@ exports.addDays=function(date, days) {
   return result;
 }
 
+
+exports.getSamples=function(Fn, no){
+	no=no||5
+	var samples=[]
+	for (var i=0; i<no; i++){
+		//console.log('getSamples this:',this)
+		samples[i]=new Fn({index:i})
+	}
+	return samples	
+}	
+
+
+
 exports.cryptoId=function(item){
 	return CRYPTO.randomBytes(10).toString('hex')
 }
@@ -100,9 +113,14 @@ exports.MIXINS=function(){
 	}
 }
 
-exports.LocalStore=function(path, content){
-	content=content||{}
-	try { content = require(path)}
+exports.LocalStore=function(path, defaultContent, defaultContentRules){
+	if (arguments.length < 3){
+		throw('LocalStore requires 3 arguments')
+	}
+	content=defaultContent||{}
+	try { 
+		if(!defaultContentRules) {content = require(path)}
+	}
 	catch(err){
 		//console.log('Error reading JSON from (path):', path)
 	}	
@@ -111,12 +129,14 @@ exports.LocalStore=function(path, content){
 	this.stringify=function(){return JSON.stringify(this)}
 	this.set=function(name, val){
 		if (name && val){this[name]=val}
-		try{FSP.writeFileSync(path, this.stringify())}
+		try {FSP.writeFileSync(path, this.stringify())}
 		catch(err){
 			console.log('Error saving JSON to (path): ', path)
 		}
 	}
 }
+
+
 
 
 exports.showAtPointer=function(menu, e) {

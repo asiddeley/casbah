@@ -39,13 +39,15 @@ const SECRET = require('../private/client_secret.json')
 const SETTINGS=require('../private/settings.json')
 const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 const windowName=WM.getCurrent().name
+const LOCALSTORE=PATH.join(__dirname, '../private', ('/'+windowName+'.json'))
+
 
 //required for store state, mutations
 var GoogleSheet	= require('google-spreadsheet')	
 var gsProjects = new GoogleSheet(SETTINGS.gsProjectsKey)
 
 
-var {getOwn, cryptoId, addDays, LocalStore, showAtPointer}=require("../electron/support.js")
+var {addDays, getSamples, cryptoId, getOwn, LocalStore, showAtPointer}=require("../electron/support.js")
 
 
 function googleAuth(vue){
@@ -57,17 +59,6 @@ function googleAuth(vue){
 		})
 	})	
 }	
-
-
-const local=new LocalStore(
-	//path per windowName
-	PATH.join(__dirname, '../private', ('/'+windowName+'.json')),
-	//object or Constructor
-	{project:{}, hidden:[], windowName:windowName}		
-)
-//force a local save
-local.set()
-
 
 
 // caProject SCHEMA
@@ -102,130 +93,104 @@ CaProject.prototype.toString=function(data){
 	}).join('\n')
 }
 
-function CaProjects(no){
-	no=no||5
-	this.caProjects=[]
-	for (var i=0; i<no; i++){
-		this.caProjects[i]=new CaProject({index:i})
-	}
-	this.toArray=function(){
-		//console.log('CaProjects.toArray:', this.caProjects)
-		return this.caProjects}	
-}
+
+//////////
+// LOCAL CACHE
+const local=new LocalStore(
+	//localstore path based on windowName, ie. separate cache for each window
+	LOCALSTORE,
+	//default content object or Constructor
+	{
+		windowName:windowName, 
+		projectindex:0, 
+		projects:getSamples(CaProject, 5), 
+		hidden:[]
+	},
+	true
+)
+
+local.set() //force a local save
+
 
 ///////////////
 // STORE
 STORE.registerModule('caProject',{
 	state:{
-		//current project 
-		project:local.project||{}
-		
+		projectindex:local.projectindex||3,
+		projects:local.projects||[]
 	},
-	getters:{},
+	getters:{
+		//project(){return this.state.project},
+		//projects(){return this.state.projects}		
+	},
 	mutations:{
-		setCurrentProject(state, project){
-			state.project=project
-			local.set('project', project)
-		}
-	
-		
+		setProject(state, projectindex){
+			state.projectindex=projectindex
+			local.set('projectindex', projectindex)
+		},
 	},
-	actions:{		
+	actions:{	
+
+
+
+	
 	}		
 })	
 
 
-/////////////////////////////
-//Register ca-project-menu
+/////////////////////
+//Register ca-project
 //caProject initialized when mounted, accessible to ca-project-menu
 var model 
 Vue.component('ca-project', {
 	//Vuex STORE replaces Vue data property
 	STORE, 
-	template:`
-		<div>
-			<h1>All Projects</h1>
-			<row><strong class='col-sm-4'>Project no.:{{project.projectno}}</strong>
-			<strong class='col-sm-4'>Sub-project code:{{project.subprojectcode}}</strong></row>
-			<b-table 
-				striped 
-				hover 
-				small 
-				:items='rows' 
-				:fields='fields'
-				@row-clicked='setCurrentProject' 
-				@row-contextmenu='menuShow'
-			></b-table>			
-			<ca-project-menu></ca-project-menu>
-		</div>`,
+	template:
+	`<div>
+		<h2>CA Projects</h2>
+		<b-table striped hover small 
+			:items='projects' 
+			:fields='fields'
+			@row-clicked='setProject' 
+			@row-contextmenu='menuShow'
+		></b-table>			
+		<ca-project-menu></ca-project-menu>
+	</div>`,
 	computed:{		
 		project(){
-			console.log('MODEL', this)
-			return STORE.state.caProject.project
+			//console.log('MODEL', this)
+			var i=STORE.state.caProject.projectindex
+			return STORE.state.caProject.projects[i]
 		},
-		rows(){
-			return (new CaProjects(4).toArray())
-			
-		},
+		projects(){return STORE.state.caProject.projects},
 		fields(){return[
-			{key:'projectno', sortable:true},
-			{key:'project', sortable:true},
-			{key:'subprojectcode', sortable:true},
-			{key:'subproject', sortable:true}
-		]}
-		
+			{key:'projectno', label:'Project Code', sortable:true},
+			{key:'project', label:'Project Name', sortable:true},
+			{key:'subprojectcode', label:'Sub Code', sortable:true},
+			{key:'subproject', label:'Sub Name', sortable:true}
+		]}		
 	},
 	methods:{
 		highlightCurrent(){
-			this.rows.forEach(function(r){
-				if (r.projectid==local.project.projectid){r._rowVariant='primary'}
-				else {r._rowVariant=''}
-			})	
-		},
-		setCurrentProject(row, index, ev){
-			//find currently clicked row
-			var current=this.rows.find(function(r){return r.projectid==row.projectid})
-			//update store
-			STORE.commit('setCurrentProject', current||{})
-			this.highlightCurrent()	
-		},		
-		DEPmakeProjectCurrent(row, index, event){
-			//turn off previous highlight
-			var that=this
-			var oldCurrent=this.rows.find(function(r){
-				return r.projectid==that.projectid
+			this.projects.forEach(function(p,i){
+				if (i==STORE.state.caProject.projectindex){p._rowVariant=windowName}
+				else {p._rowVariant=''}
 			})
-			if(oldCurrent){oldCurrent._rowVariant=''}
-			
-			//find currently clicked row
-			var current=this.rows.find(function(r){return r.projectid==row.projectid})
-			//highlight currently clicked row			
-			if(current){current._rowVariant='primary'}
-			
-			//update model
-			this.projectid=row.projectid
-			this.project=current
-			
-			//this.$emit('caproject', current)
-			
-			//update local store
-			settings.set('projectid', row.projectid)
-			
-			//update browser title
-			//document.getElementsByTagName('title')[0].innerText='CASBAH ' +
-			//'('+row.projectno + '/' + row.projectcode + '/' + row.subprojectcode +')'
+		},
+		setProject(row, index, ev){
+			STORE.commit('setProject', index)
+			this.highlightCurrent()	
 		},
 		titleText(id){
 			return (id==this.projectid)?
 			'Current project ( '+id+' )':
 			'Click to set as current project'
 		},
-		menuShow(row, rows, e){showAtPointer(menu, e)}
+		menuShow(row, rows, e){menu.project=row; showAtPointer(menu, e)}
 	},
 	mounted(){
 		model=this
-		//highlight current project
-
+		this.highlightCurrent()
 	}
 })
 
@@ -235,27 +200,32 @@ Vue.component('ca-project', {
 var menu
 Vue.component('ca-project-menu', {
 	data(){return{
-		visible:false
+		//visible:false,
+		project:{}
 	}},
 	props:[],
-	template:`
-	<div class='dropdown-menu' v-on:mouseleave='menuHide'>
+	template:
+	`<div class='dropdown-menu' v-on:mouseleave='menuHide'>
 		<b-dd-item v-on:click='googleAuth();menuHide;'><a href='#'>Google Auth</a></b-dd-item>
-		<b-dd-item v-on:click='alert("Create record");menuHide' href='#'><a href='#'>Create record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Read record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Update record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString(menuData));menuHide'><a href='#'>Delete record</a></b-dd-item>
+		<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create record</a></b-dd-item>
+		<b-dd-item v-on:click='alert(project.toString());menuHide'><a href='#'>Read record</a></b-dd-item>
+		<b-dd-item v-on:click='alert("update...");menuHide'><a href='#'>Update record</a></b-dd-item>
+		<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete record</a></b-dd-item>
 		<li><hr/></li>
-		<b-dd-item v-on:click='alert("Delete record");menuHide'>Hide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Unhide record");menuHide'>Unhide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Show hidden records");menuHide'>Show hidden records</b-dd-item>
-		<b-dd-item v-on:click='alert("Show unhidden records");menuHide'>Show unhidden records</b-dd-item>
+		<b-dd-item v-on:click='alert("Hide...");menuHide'>Hide record</b-dd-item>
+		<b-dd-item v-on:click='alert("Unhide...");menuHide'>Unhide record</b-dd-item>
+		<b-dd-item v-on:click='alert("Show hidden...");menuHide'>Show hidden records</b-dd-item>
+		<b-dd-item v-on:click='alert("Show unhidden...");menuHide'>Show unhidden records</b-dd-item>
 	</div>`,
 
 	methods:{			
 		alert(msg){alert(msg)},
 		menuHide(){this.$el.style.display = "none"},
 		googleAuth(){googleAuth(caProjects)}
+	},
+	computed:{
+		project(){}
+		
 	},
 	mounted(){menu=this}
 })
