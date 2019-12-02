@@ -34,7 +34,8 @@ const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 const CAMS=[
 	require('../electron/caProject.js'),
 	require('../electron/caSvr.js'),
-	require('../electron/caDrr.js')
+	require('../electron/caDrr.js'),
+	require('../electron/caQuickForm.js')
 ]
 
 var windowName=WM.getCurrent().name
@@ -51,37 +52,44 @@ function propsForTitle(){
 ///// EXPORTS
 exports.ready=function(callback){
 	
-	//register the 1st ca component as default
-	CAMS[0].register()
 	
 	new Vue({
 		el:'#CASBAH',
 		data:Object.assign(
+			{CAMEL:'h2'}, //wraps Welcome...
 			propsForTitle(),
-			//current CA Module ELement ie. <ca-project></ca-project>
-			{CAMEL:CAMS[0].element}
+			{shared:{}}
 		),
 		computed:{
 			navbarClass() {return windowName},
 			navbarType() {return WM.getForeground(windowName)}
 		},
 		methods:{
-			switchTo(camName){
+			switchTo(camel, data){
 				//find ca module given the module name
-				var cam=CAMS.find(function(i){return i.name==camName})
+				var cam=CAMS.find(function(i){return i.element==camel})
 				//Get an array of components registered in Vue 
 				var registered=Object.keys(Vue.options.components)
 				//register the ca component if not already 
-				if (!registered.includes(camName)){cam.register()}
+				if (!registered.includes(camel)){cam.register(this)}
 				this.CAMEL=cam.element				
 			},			
 			anotherWindow(){
 				//if windowName is provided, the new window's position will be cascaded from it
 				WM.open(windowName)
-			}		
+			}
 		},
-		mounted(){}
+		mounted(){
+			//allow Welcome... to linger for 1000ms then switch   
+			//CA Module ELement (AKA CAMEL) to <ca-project> through <component :is='CAMEL'> 
+			var that=this
+			setTimeout(function(){			
+				CAMS[0].register(that)
+				that.CAMEL=CAMS[0].element
+			}, 100)
+		}
 	})
+	
 	if (typeof callback=='function'){callback()}
 } 
 

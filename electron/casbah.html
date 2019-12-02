@@ -52,14 +52,14 @@ document.addEventListener('DOMContentLoaded', function(event){
 	<b-nav-item-dropdown text='Admin'>
 	<b-dd-item disabled><a href='#'>Action Items</a></b-dd-item>
 	<b-dd-item disabled><a href='#'>Billing Progress</a></b-dd-item>
-	<b-dd-item :title='caProjectTitle '@click='switchTo("caProject")'><a href='#'>CA Projects</a></b-dd-item>
+	<b-dd-item :title='caProjectTitle '@click='switchTo("ca-project")'><a href='#'>CA Projects</a></b-dd-item>
 	<b-dropdown-item :title='"Cash Allowance Authorization"'><a href='#'>CAA</a></b-dropdown-item>
 	<b-dropdown-item disabled :title='"Certificate of Payment"'><a href='#'>COP</a></b-dropdown-item>
 	<b-dropdown-item disabled :title='"Substantial Completion Letter"'><a href='#'>SCL</a></b-dropdown-item>
 	</b-nav-item-dropdown>
 		
 	<b-nav-item-dropdown text='Site'>
-	<b-dd-item :title='caSvrTitle' @click='switchTo("caSvr")'><a href='#'>SVR</a></b-dd-item>
+	<b-dd-item :title='caSvrTitle' @click='switchTo("ca-svr")'><a href='#'>SVR</a></b-dd-item>
 	<b-dd-item :title='"Site Instruction"'><a href='#'>SI</a></b-dd-item>	
 	<b-dd-item :title='"Site Memo"'><a href='#'>SM</a></b-dd-item>
 	<b-dd-item :title='"Sketch"'><a href='#'>SK</a></b-dd-item>			
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 </b-navbar>	
 
 
-<component :is='CAMEL' ></component>
+<component :is='CAMEL' >Welcome...</component>
 
 
 </div rem='// End of CASBAH'>

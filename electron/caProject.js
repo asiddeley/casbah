@@ -28,10 +28,9 @@ SOFTWARE.
 exports.element='ca-project'
 exports.name='caProject'
 exports.title='CA Project Log'
-exports.register=function(){
+exports.register=function(casbahVue){
 	
 ///// IMPORTS
-//const FSP=require('fs-plus')
 const PATH=require('path')
 const REMOTE = require('electron').remote
 const STORE=require('../electron/storage').store
@@ -40,14 +39,11 @@ const SETTINGS=require('../private/settings.json')
 const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 const windowName=WM.getCurrent().name
 const LOCALSTORE=PATH.join(__dirname, '../private', ('/'+windowName+'.json'))
-
+const SUPPORT=require("../electron/support.js")
 
 //required for store state, mutations
 var GoogleSheet	= require('google-spreadsheet')	
 var gsProjects = new GoogleSheet(SETTINGS.gsProjectsKey)
-
-
-var {addDays, getSamples, cryptoId, getOwn, LocalStore, showAtPointer}=require("../electron/support.js")
 
 
 function googleAuth(vue){
@@ -64,9 +60,9 @@ function googleAuth(vue){
 // caProject SCHEMA
 function CaProject({projectid, projectno, projectcode, days, index}){	
 	var today=new Date()
-	var future=addDays(today, days||365)
+	var future=SUPPORT.addDays(today, days||365)
 	//random id with high probability of uniqueness
-	this.projectid=projectid||cryptoId()
+	this.projectid=projectid||SUPPORT.cryptoId()
 	this.projectno=projectno||['PRO-001', 'PRO-001', 'PRO-002', 'PRO-003'][index %4]
 	this.projectcode=projectcode||['CB', 'CB', 'MB', 'OB'][index % 4]
 	this.project=['Casbah Bldg', 'Casbah Bldg', 'My Bldg', 'Other Bldg'][index % 4] 
@@ -96,14 +92,14 @@ CaProject.prototype.toString=function(data){
 
 //////////
 // LOCAL CACHE
-const local=new LocalStore(
+const local=new SUPPORT.LocalStore(
 	//localstore path based on windowName, ie. separate cache for each window
 	LOCALSTORE,
 	//default content object or Constructor
 	{
 		windowName:windowName, 
 		projectindex:0, 
-		projects:getSamples(CaProject, 5), 
+		projects:SUPPORT.getSamples(CaProject, 5), 
 		hidden:[]
 	},
 	true
@@ -147,18 +143,18 @@ Vue.component('ca-project', {
 	STORE, 
 	template:
 	`<div>
-		<h2>CA Projects</h2>
+		<h2>Ca Project</h2>
 		<b-table striped hover small 
 			:items='projects' 
 			:fields='fields'
 			@row-clicked='setProject' 
-			@row-contextmenu='menuShow'
+			@row-contextmenu='showMenu'
+			@row-dblclicked='editProject'
 		></b-table>			
 		<ca-project-menu></ca-project-menu>
 	</div>`,
 	computed:{		
 		project(){
-			//console.log('MODEL', this)
 			var i=STORE.state.caProject.projectindex
 			return STORE.state.caProject.projects[i]
 		},
@@ -186,7 +182,13 @@ Vue.component('ca-project', {
 			'Current project ( '+id+' )':
 			'Click to set as current project'
 		},
-		menuShow(row, rows, e){menu.project=row; showAtPointer(menu, e)}
+		showMenu(row, rows, e){menu.project=row; SUPPORT.showAtPointer(menu, e)},
+		editProject(row, rows, e){
+			casbahVue.shared.quickFormData=row
+			casbahVue.shared.quickFormReturn='ca-project'
+			casbahVue.shared.quickFormOk=function(){console.log('HI')}
+			casbahVue.switchTo('ca-quick-form')
+		}  
 	},
 	mounted(){
 		model=this
@@ -199,10 +201,9 @@ Vue.component('ca-project', {
 //menu is assigned when component caProjectsMenu is mounted
 var menu
 Vue.component('ca-project-menu', {
-	data(){return{
-		//visible:false,
+	data:{
 		project:{}
-	}},
+	},
 	props:[],
 	template:
 	`<div class='dropdown-menu' v-on:mouseleave='menuHide'>
@@ -223,16 +224,9 @@ Vue.component('ca-project-menu', {
 		menuHide(){this.$el.style.display = "none"},
 		googleAuth(){googleAuth(caProjects)}
 	},
-	computed:{
-		project(){}
-		
-	},
+	computed:{	},
 	mounted(){menu=this}
 })
-
-
-
-
 
 	
 } //REGISTER

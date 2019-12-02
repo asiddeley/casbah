@@ -24,36 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ********************************/
 
-
-
-//exports.setWindowName=function(name){windowName=name}
-
-
-
 ///// IMPORTS
-/*
-const SECRET = require('../private/client_secret.json')
-const SETTINGS=require('../private/settings.json')
-
-const PATH=require('path')
-const {cryptoId, addDays, LocalStore}=require("../electron/support.js")
-
-//API
-const GoogleSheet = require('google-spreadsheet')	
-const gsProjects = new GoogleSheet(SETTINGS.gsProjectskey)
-
-
-
-function googleAuth(vue){
-	gsProjects.useServiceAccountAuth(SECRET, function(){
-		//authenticated so proceed
-		gsProjects.getRows(1, function(err, rows){
-			rows.forEach(function(r){r._rowVariant=''})
-			vue.rows=rows
-		})
-	})	
-}
-*/
 
 
 ///////////////////////////////
@@ -73,20 +44,14 @@ const STORE=new Vuex.Store({
 	
 })
 
-
-
 function register(options){
-	
 	//To do...
 	//register Vue component for storage settings
-	
-	
 }
 
 ///// EXPORTS
 exports.element='ca-storage'
 exports.name='caStorage'
-exports.title='CA Storage Settings'
-//register Vue element
+exports.title='Ca Storage Settings'
 exports.register=register
 exports.store=STORE
