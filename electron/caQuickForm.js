@@ -30,21 +30,13 @@ exports.name='caQuickForm'
 exports.title='Ca Quick Form'
 exports.register=function(casbahVue){
 
+const SF=require('../electron/support.js')
 
 Vue.component('ca-quick-form', {
 	
 	data(){
-		//get data placed by calling module
-		var data=casbahVue.shared.quickFormData||{Item1:'undefined', item2:'undefined'}
-		//map object to array of Heading/Content pairs for <b-table>
-		var rows=Object.keys(data).map(function(k){
-			var o={}
-			o['Heading']=k
-			o['Content']=data[k]
-			return o
-		})
 		return {
-			rows:rows,
+			rows:SF.pivot(casbahVue.shared.quickFormData, 'Heading', 'Content'),
 			fields:[
 				{key:'Heading', sortable:true},
 				{key:'Content', sortable:true}
@@ -61,35 +53,23 @@ Vue.component('ca-quick-form', {
 			></b-form-input>
 		</template>		
 		</b-table>	
-		<b-button v-on:click='save'>Save</b-button>
-		<b-button v-on:click='cancel'>Cancel</b-button>
+		<b-button v-on:click='save' variant='success'>Save</b-button>
+		<b-button v-on:click='cancel' variant='secondary'>Cancel</b-button>
 	</div>`,
 	methods:{			
 		alert(msg){alert(msg)},
 		change(ev, data){
-			var target=this.rows.find(function(r){
-				return r.Heading==data.item.Heading
-			})
-			//console.log('change:', target.Content, 'to:', ev)
-			target.Content=ev
+			var target=this.rows.find(function(r){return r['Heading']==data.item['Heading']})
+			target['Content']=ev
 		},
 		cancel(){
-			var camel=casbahVue.shared.quickFormReturn||'ca-project'
-			casbahVue.switchTo(camel)			
+			var cancel=casbahVue.shared.quickFormCancel
+			if (typeof cancel=='function'){cancel()}			
 		},
 		save(){
-			var camel=casbahVue.shared.quickFormReturn||'ca-project'
-			var callback=casbahVue.shared.quickFormOk
-			console.log(this.getResult())
-			//console.log('CALLBACK:', callback)
-			//casbahVue.switchTo(camel)
-		},
-		getResult(){
-			//unmap array of Heading/Content pairs to object...
-			var result={}
-			this.rows.forEach(function(row){result[row.Heading]=row.Content})
-			return result			
-		},	
+			var ok=casbahVue.shared.quickFormOk
+			if (typeof ok=='function') {ok (SF.pivotBack(this.rows, 'Heading', 'Content'))}
+		}	
 	}, 
 	computed:{},
 	mounted(){}

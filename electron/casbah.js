@@ -51,8 +51,7 @@ function propsForTitle(){
 
 ///// EXPORTS
 exports.ready=function(callback){
-	
-	
+
 	new Vue({
 		el:'#CASBAH',
 		data:Object.assign(
@@ -86,7 +85,7 @@ exports.ready=function(callback){
 			setTimeout(function(){			
 				CAMS[0].register(that)
 				that.CAMEL=CAMS[0].element
-			}, 100)
+			}, 200)
 		}
 	})
 	

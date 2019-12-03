@@ -120,10 +120,20 @@ STORE.registerModule('caProject',{
 		//projects(){return this.state.projects}		
 	},
 	mutations:{
-		setProject(state, projectindex){
+		setProjectindex(state, projectindex){
 			state.projectindex=projectindex
 			local.set('projectindex', projectindex)
 		},
+		updateProject(state, projectMutation){
+			//find matching project by id and merge
+			state.projects.forEach(function(project){
+				if (project.projectid==projectMutation.projectid){
+					//console.log('Changing...', project.projectid)
+					Object.assign(project, projectMutation)
+					local.set('projects', state.projects)
+				}				
+			})		
+		}
 	},
 	actions:{	
 
@@ -147,7 +157,7 @@ Vue.component('ca-project', {
 		<b-table striped hover small 
 			:items='projects' 
 			:fields='fields'
-			@row-clicked='setProject' 
+			@row-clicked='setProjectindex' 
 			@row-contextmenu='showMenu'
 			@row-dblclicked='editProject'
 		></b-table>			
@@ -169,12 +179,12 @@ Vue.component('ca-project', {
 	methods:{
 		highlightCurrent(){
 			this.projects.forEach(function(p,i){
-				if (i==STORE.state.caProject.projectindex){p._rowVariant=windowName}
+				if (i==STORE.state.caProject.projectindex){p._rowVariant='primary'}
 				else {p._rowVariant=''}
 			})
 		},
-		setProject(row, index, ev){
-			STORE.commit('setProject', index)
+		setProjectindex(row, index, ev){
+			STORE.commit('setProjectindex', index)
 			this.highlightCurrent()	
 		},
 		titleText(id){
@@ -185,8 +195,12 @@ Vue.component('ca-project', {
 		showMenu(row, rows, e){menu.project=row; SUPPORT.showAtPointer(menu, e)},
 		editProject(row, rows, e){
 			casbahVue.shared.quickFormData=row
-			casbahVue.shared.quickFormReturn='ca-project'
-			casbahVue.shared.quickFormOk=function(){console.log('HI')}
+			casbahVue.shared.quickFormOk=function(result){
+				//console.log('RESULT:', result)
+				STORE.commit('updateProject', result)
+				casbahVue.switchTo('ca-project')
+			}
+			casbahVue.shared.quickFormCancel=function(result){casbahVue.switchTo('ca-project')}
 			casbahVue.switchTo('ca-quick-form')
 		}  
 	},

@@ -136,7 +136,39 @@ exports.LocalStore=function(path, defaultContent, defaultContentRules){
 	}
 }
 
+exports.pivot=function(row, keyName, valName){
+	//map an object representing a row eg. {key1:val1, key2, val2...} 
+	//to an array of key, val pairs eg. [{keyName:key1, valName:val1}, {keyName:key2, valName:val2}...}
 
+	if (arguments.length<3){throw('pivot function requires min 3 arguments')}
+	row=row||{Item1:'undefined', item2:'undefined'}
+	keyName=keyName||'Heading'
+	valName=valName||'Content'
+	
+	var table=Object.keys(row).map(function(k){
+		var o={}
+		o[keyName]=k
+		o[valName]=row[k]
+		return o
+	})
+	return table
+}
+
+exports.pivotBack=function(rows, keyName, valName){
+	//reverse operation as pivot
+	
+	if (arguments.length<3){throw('pivot function requires min 3 arguments')}
+	keyName=keyName||'Heading'
+	valName=valName||'Content'
+	rows=rows||[{keyName:'undefined', valName:'undefined'}]
+	
+	var result={}
+	rows.forEach(function(row){
+		result[row[keyName]]=row[valName]}
+	)
+	return result
+}
+		
 
 
 exports.showAtPointer=function(menu, e) {
