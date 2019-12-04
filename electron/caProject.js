@@ -34,16 +34,28 @@ exports.register=function(casbahVue){
 const PATH=require('path')
 const REMOTE = require('electron').remote
 const STORE=require('../electron/storage').store
-const SECRET = require('../private/client_secret.json')
-const SETTINGS=require('../private/settings.json')
+
+//try {
+	const SETTINGS=require('../private/settings.json')
+//}
+//catch(err){
+//	casbahVue.switchTo('ca-error',{msg:'missing '})
+//	return false
+//}	
+
 const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
 const windowName=WM.getCurrent().name
 const LOCALSTORE=PATH.join(__dirname, '../private', ('/'+windowName+'.json'))
 const SUPPORT=require("../electron/support.js")
+const GS=require('google-spreadsheet')	
+const gsProjects = new GS(SETTINGS.gsProjectsKey)
 
-//required for store state, mutations
-var GoogleSheet	= require('google-spreadsheet')	
-var gsProjects = new GoogleSheet(SETTINGS.gsProjectsKey)
+try {const SECRET = require('../private/client_secret.json')}
+catch(err){
+	casbahVue.switchTo('ca-error',{msg:'client_secret.json missing, see setup page'})
+	return false
+}
+
 
 
 function googleAuth(vue){
@@ -102,7 +114,7 @@ const local=new SUPPORT.LocalStore(
 		projects:SUPPORT.getSamples(CaProject, 5), 
 		hidden:[]
 	},
-	true
+	false
 )
 
 local.set() //force a local save
@@ -157,9 +169,10 @@ Vue.component('ca-project', {
 		<b-table striped hover small 
 			:items='projects' 
 			:fields='fields'
-			@row-clicked='setProjectindex' 
-			@row-contextmenu='showMenu'
-			@row-dblclicked='editProject'
+			@row-clicked='showMenu' 
+			DEProw-clicked='setProjectindex' 
+			DEProw-contextmenu='showMenu'
+			DEProw-dblclicked='editProject'
 		></b-table>			
 		<ca-project-menu></ca-project-menu>
 	</div>`,
@@ -183,26 +196,12 @@ Vue.component('ca-project', {
 				else {p._rowVariant=''}
 			})
 		},
-		setProjectindex(row, index, ev){
-			STORE.commit('setProjectindex', index)
-			this.highlightCurrent()	
-		},
 		titleText(id){
 			return (id==this.projectid)?
 			'Current project ( '+id+' )':
 			'Click to set as current project'
 		},
-		showMenu(row, rows, e){menu.project=row; SUPPORT.showAtPointer(menu, e)},
-		editProject(row, rows, e){
-			casbahVue.shared.quickFormData=row
-			casbahVue.shared.quickFormOk=function(result){
-				//console.log('RESULT:', result)
-				STORE.commit('updateProject', result)
-				casbahVue.switchTo('ca-project')
-			}
-			casbahVue.shared.quickFormCancel=function(result){casbahVue.switchTo('ca-project')}
-			casbahVue.switchTo('ca-quick-form')
-		}  
+		showMenu(row, rows, e){menu.row=row; SUPPORT.showAtPointer(menu, e)},
 	},
 	mounted(){
 		model=this
@@ -216,16 +215,19 @@ Vue.component('ca-project', {
 var menu
 Vue.component('ca-project-menu', {
 	data:{
-		project:{}
+		//project:{},
+		row:{},
+		rows:[]
 	},
 	props:[],
 	template:
-	`<div class='dropdown-menu' v-on:mouseleave='menuHide'>
-		<b-dd-item v-on:click='googleAuth();menuHide;'><a href='#'>Google Auth</a></b-dd-item>
-		<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create record</a></b-dd-item>
-		<b-dd-item v-on:click='alert(project.toString());menuHide'><a href='#'>Read record</a></b-dd-item>
-		<b-dd-item v-on:click='alert("update...");menuHide'><a href='#'>Update record</a></b-dd-item>
-		<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete record</a></b-dd-item>
+	`<div class='dropdown-menu' size='sm' text='small' v-on:mouseleave='menuHide'>
+		<b-dd-item v-on:click='authenticate();menuHide;'><a href='#'>Authenticate</a></b-dd-item>
+		<b-dd-item v-on:click='activeProject();menuHide' href='#'><a href='#'>Active Project</a></b-dd-item>
+		<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create</a></b-dd-item>
+		<b-dd-item v-on:click='read();menuHide'><a href='#'>Read</a></b-dd-item>
+		<b-dd-item v-on:click='update(); menuHide'><a href='#'>Update</a></b-dd-item>
+		<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete</a></b-dd-item>
 		<li><hr/></li>
 		<b-dd-item v-on:click='alert("Hide...");menuHide'>Hide record</b-dd-item>
 		<b-dd-item v-on:click='alert("Unhide...");menuHide'>Unhide record</b-dd-item>
@@ -236,7 +238,24 @@ Vue.component('ca-project-menu', {
 	methods:{			
 		alert(msg){alert(msg)},
 		menuHide(){this.$el.style.display = "none"},
-		googleAuth(){googleAuth(caProjects)}
+		authenticate(){googleAuth(caProjects)},
+		activeProject(){
+			var index=STORE.state.caProject.projects.indexOf(this.row)
+			//console.log('INDEX:',index)
+			STORE.commit('setProjectindex', index)
+			model.highlightCurrent()	
+		},
+		read(){alert(this.row.toString())},
+		update(){
+			casbahVue.switchTo('ca-quick-form',{
+				row:this.row,				
+				onSave:function(result){
+					STORE.commit('updateProject', result)
+					casbahVue.switchTo('ca-project')
+				},
+				onCancel:function(){casbahVue.switchTo('ca-project')}
+			})
+		}		
 	},
 	computed:{	},
 	mounted(){menu=this}

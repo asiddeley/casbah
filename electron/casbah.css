@@ -10,11 +10,11 @@
 	margin:5px 5px 0px 0px;
 }
 
-.Alpha, .table-Alpha {background:aquamarine !important;} /*aqua, aquamarine, azure, #A000A0*/
-.Bravo, .table-Bravo {background:blueviolet !important;} /*blueviolet, bisque, blue, brown, beige, */
-.Charlie, .table-Charlie {background:coral !important;} /*Chartreuse coral*/
-.Delta, .table-Delta {background:deepskyblue !important;} /*dimgray, darkslategray, deepskyblue, dogerblue*/
-.Echo, .table-Echo {background:#E000E0 !important;} 
+.Alpha {background:aquamarine;} /*aqua, aquamarine, azure, #A000A0*/
+.Bravo {background:blueviolet;} /*blueviolet, bisque, blue, brown, beige*/
+.Charlie  {background:coral;} /*chartreuse coral crimson cyan cadetblue*/
+.Delta {background:darkmagenta;} /*dimgray, darkslategray, deepskyblue, dogerblue, darkmagenta*/
+.Echo {background:#00EEEE;} /*magenta*/
 
 .Foxtrot {background:white;}
 .Golf {background:orange;}

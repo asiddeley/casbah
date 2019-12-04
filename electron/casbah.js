@@ -35,7 +35,8 @@ const CAMS=[
 	require('../electron/caProject.js'),
 	require('../electron/caSvr.js'),
 	require('../electron/caDrr.js'),
-	require('../electron/caQuickForm.js')
+	require('../electron/caQuickForm.js'),
+	require('../electron/caAlert.js')
 ]
 
 var windowName=WM.getCurrent().name
@@ -47,6 +48,22 @@ function propsForTitle(){
 	for (var i in CAMS){d[CAMS[i].name+'Title']=CAMS[i].title}
 	return d
 }
+
+function switchTo(vm, camel, options){
+	if (typeof camel=='string'){
+		//find ca module given the module name
+		var cam=CAMS.find(function(i){return i.element==camel})
+		//Get an array of components registered in Vue 
+		var registered=Object.keys(Vue.options.components)
+		//register the ca component if not already 
+		if (cam && !registered.includes(camel)){cam.register(vm)}
+		//place options in shared location for that module to access
+		vm.shared[camel]=options||{}
+		//set component to camel for display
+		if (cam){vm.CAMEL=cam.element}
+		else {switchTo(vm, 'ca-alert', {msg:'Missing CAMEL, ' + camel})}
+	}
+}				
 
 
 ///// EXPORTS
@@ -64,15 +81,7 @@ exports.ready=function(callback){
 			navbarType() {return WM.getForeground(windowName)}
 		},
 		methods:{
-			switchTo(camel, data){
-				//find ca module given the module name
-				var cam=CAMS.find(function(i){return i.element==camel})
-				//Get an array of components registered in Vue 
-				var registered=Object.keys(Vue.options.components)
-				//register the ca component if not already 
-				if (!registered.includes(camel)){cam.register(this)}
-				this.CAMEL=cam.element				
-			},			
+			switchTo(camel, options){switchTo(this, camel, options)},			
 			anotherWindow(){
 				//if windowName is provided, the new window's position will be cascaded from it
 				WM.open(windowName)

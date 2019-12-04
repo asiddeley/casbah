@@ -15,7 +15,7 @@ var closed=[]
 
 //deprecated, use <.. :class=windowName> instead
 var colours=[
-	'aquamarine', 'blueviolet', 'coral', 'deepskyblue', 'purple',
+	'aquamarine', 'blueviolet', 'coral', 'darkmagenta', 'cyan',
 	'white', 'orange', 'orange', 'blue', 'blue', 'gold',
 	'gold', 'green', 'green', 'brown', 'brown', 'black',
 	'black', 'black', 'black', 'black', 'black', 'purple',
@@ -24,7 +24,7 @@ var colours=[
 ]
 
 var foregrounds=[
-	'light','dark','light','dark','dark',
+	'light','dark','light','dark','light',
 	'light','light','light', 'dark', 'dark', 'light',
 	'light','dark','dark','dark','dark', 'dark',
 	'dark','dark','dark','dark','dark', 'dark',

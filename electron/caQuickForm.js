@@ -36,7 +36,7 @@ Vue.component('ca-quick-form', {
 	
 	data(){
 		return {
-			rows:SF.pivot(casbahVue.shared.quickFormData, 'Heading', 'Content'),
+			rows:SF.pivot(casbahVue.shared['ca-quick-form'].row, 'Heading', 'Content'),
 			fields:[
 				{key:'Heading', sortable:true},
 				{key:'Content', sortable:true}
@@ -63,11 +63,11 @@ Vue.component('ca-quick-form', {
 			target['Content']=ev
 		},
 		cancel(){
-			var cancel=casbahVue.shared.quickFormCancel
+			var cancel=casbahVue.shared['ca-quick-form'].onCancel
 			if (typeof cancel=='function'){cancel()}			
 		},
 		save(){
-			var ok=casbahVue.shared.quickFormOk
+			var ok=casbahVue.shared['ca-quick-form'].onSave
 			if (typeof ok=='function') {ok (SF.pivotBack(this.rows, 'Heading', 'Content'))}
 		}	
 	}, 
