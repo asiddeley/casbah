@@ -1,6 +1,8 @@
 /**********************************
-CASBAH* *Contract Admin Site Be Architectural Heroes
+CASBAH
+Contract Admin Site Be Architectural Heroes
 Copyright (c) 2018, 2019 Andrew Siddeley
+
 MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,19 +22,47 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-**/
+********************************/
 
-const PATH=require('path')
-const APP=require('electron').app
-const WM=require(PATH.join(__dirname, 'electron', 'windowMaster.js'))
+///// EXPORTS
+exports.element='ca-quick-table'
+exports.name='caQuickTable'
+exports.title='Ca Quick Table'
+exports.register=function(casbahVue){
 
-//APP.commandLine.appendSwitch('--enable-logging')
+const SF=require('../electron/support.js')
 
-APP.on('ready', function(){
-	console.log('Electron App Ready...')
-	WM.open()	
+Vue.component('ca-quick-table', {
+	
+	data(){
+		return {
+			rows:casbahVue.shared['ca-quick-table'].rows
+		}	
+	},
+	template:
+	`<div>
+		<h3 v-if='title'>{{title}}</h3>
+		<b-table striped small :items='rows' @row-clicked=onRowClick>
+		</b-table>	
+		<b-button v-on:click='ok' variant='success'>Return</b-button>
+	</div>`,
+	methods:{
+		onRowClick(){
+			var rowClick=casbahVue.shared['ca-quick-table'].onRowClick
+			if (typeof click=='function') {rowClick (rows[index], index)}
+		},
+		ok(){
+			var ok=casbahVue.shared['ca-quick-table'].onOk
+			if (typeof ok=='function') {ok ()}
+		}	
+	}, 
+	computed:{
+		title(){return casbahVue.shared['ca-quick-table'].title}
+	},
+	mounted(){}
 })
 
-
+	
+} //REGISTER
 
 

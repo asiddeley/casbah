@@ -27,7 +27,7 @@ SOFTWARE.
 ///// IMPORTS
 const PATH=require('path')
 const REMOTE = require('electron').remote
-const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
+const WM = REMOTE.require(PATH.join(__dirname,'windowMaster.js'))
 
 
 // CA Modules
@@ -36,7 +36,8 @@ const CAMS=[
 	require('../electron/caSvr.js'),
 	require('../electron/caDrr.js'),
 	require('../electron/caQuickForm.js'),
-	require('../electron/caAlert.js')
+	require('../electron/caAlert.js'),
+	require('../electron/caQuickTable.js')
 ]
 
 var windowName=WM.getCurrent().name
@@ -61,7 +62,7 @@ function switchTo(vm, camel, options){
 		vm.shared[camel]=options||{}
 		//set component to camel for display
 		if (cam){vm.CAMEL=cam.element}
-		else {switchTo(vm, 'ca-alert', {msg:'Missing CAMEL, ' + camel})}
+		else {switchTo(vm, 'ca-alert', {msg:'Missing camel: ' + camel})}
 	}
 }				
 
@@ -78,17 +79,24 @@ exports.ready=function(callback){
 		),
 		computed:{
 			navbarClass() {return windowName},
-			navbarType() {return WM.getForeground(windowName)}
+			navbarType() {return WM.getTheme(windowName)}
 		},
 		methods:{
-			switchTo(camel, options){switchTo(this, camel, options)},			
-			anotherWindow(){
-				//if windowName is provided, the new window's position will be cascaded from it
-				WM.open(windowName)
+			switchTo(camel, options){switchTo(this, camel, options)},
+			//Open a window with the next free name and cascade it from this window
+			homeOpen(){WM.open(windowName)},
+			homeAlone(){WM.isolate(windowName)},
+			homeList(){
+				var camelBack=this.CAMEL, that=this
+				switchTo(this, 'ca-quick-table', {
+					//title:'Open Homes',
+					rows:WM.list('Open Homes'),				
+					onOk:function(result){switchTo(that, camelBack)}
+				})
 			}
 		},
 		mounted(){
-			//allow Welcome... to linger for 1000ms then switch   
+			//allow Welcome... to linger for 1000ms then switch camel  
 			//CA Module ELement (AKA CAMEL) to <ca-project> through <component :is='CAMEL'> 
 			var that=this
 			setTimeout(function(){			

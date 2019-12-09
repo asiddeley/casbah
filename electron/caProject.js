@@ -43,7 +43,7 @@ const STORE=require('../electron/storage').store
 //	return false
 //}	
 
-const WM = REMOTE.require(PATH.join(__dirname,'windowManagerExtra.js'))
+const WM = REMOTE.require(PATH.join(__dirname,'windowMaster.js'))
 const windowName=WM.getCurrent().name
 const LOCALSTORE=PATH.join(__dirname, '../private', ('/'+windowName+'.json'))
 const SUPPORT=require("../electron/support.js")
@@ -55,7 +55,6 @@ catch(err){
 	casbahVue.switchTo('ca-error',{msg:'client_secret.json missing, see setup page'})
 	return false
 }
-
 
 
 function googleAuth(vue){
@@ -166,14 +165,8 @@ Vue.component('ca-project', {
 	template:
 	`<div>
 		<h2>Ca Project</h2>
-		<b-table striped hover small 
-			:items='projects' 
-			:fields='fields'
-			@row-clicked='showMenu' 
-			DEProw-clicked='setProjectindex' 
-			DEProw-contextmenu='showMenu'
-			DEProw-dblclicked='editProject'
-		></b-table>			
+		<b-table striped hover small :items='projects' :fields='fields' @row-clicked='showMenu'>
+		</b-table>			
 		<ca-project-menu></ca-project-menu>
 	</div>`,
 	computed:{		

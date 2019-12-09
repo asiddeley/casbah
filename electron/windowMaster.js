@@ -23,7 +23,7 @@ var colours=[
 	'black'
 ]
 
-var foregrounds=[
+var themes=[
 	'light','dark','light','dark','light',
 	'light','light','light', 'dark', 'dark', 'light',
 	'light','dark','dark','dark','dark', 'dark',
@@ -66,6 +66,14 @@ function getNextWindowName(){
 	else{return ( prefix + windex.toString() ) }
 }
 
+function getFreeWindowName(name){
+	
+	return names.find(function(n){
+		return !windowManager.get(n)
+	})
+	
+}
+
 ///// Exports 
 exports.get=function(name){return windowManager.get(name)}
 
@@ -80,17 +88,32 @@ exports.getColour=function(name){
 	else { return colours[0] }
 }
 
-exports.getForeground=function(name){
+exports.getTheme=function(name){
 	var i=names.indexOf(name)
-	if (i!=-1){ return foregrounds[(i % foregrounds.length)] }
-	else { return foregrounds[0] }
+	if (i!=-1){ return themes[(i % themes.length)] }
+	else { return themes[0] }
 }
 
 exports.getReloaded=function(){	
 	return Object.create({reuse:reuse, closed:closed})
 }
 
-//exports.getNextName=getNextName
+exports.isolate=function(name){
+	names.forEach(function(n){
+		var win=windowManager.get(n)		
+		if (win!=name && name!=null){windowManager.close(win)}		
+	})	
+}
+
+exports.list=function(key){
+	var openWindows=[]
+	key=key||'Name'
+	names.forEach(function(n){
+		var o={}, win=windowManager.get(n)		
+		if (win){o[key]=n; openWindows.push(o)}	
+	})
+	return openWindows
+}
 
 exports.onBeforeUnload=function(windowName){
 	reuse.push(windowName)
@@ -111,14 +134,13 @@ exports.open=function(callingWindowName){
 			return v+positionDelta[i]
 		})
 	}
-	var name=getNextWindowName()
+	var name=getFreeWindowName()
 	var html=`file://${__dirname}/casbah.html`
 
 	if (names.includes(name)){
 		windowManager.open(name, name, html, false, Object.assign(options,{position:pos}))
 		return true
-	} else {return 'CASBAH window limit reached.'}
-	
+	} else { return 'CASBAH window limit reached.'}
 }
 
 

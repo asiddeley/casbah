@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 		
 	<b-nav-item-dd text='Contract'>
 	<b-dd-item disabled><a href='#'>Addendums</a></b-dd-item>
-	<b-dd-item disabled><a href='#'>Bidder Q&amp;As</a></b-dd-item>
+	<b-dd-item disabled><a href='#'>Bidder Q&amp;A</a></b-dd-item>
 	<b-dd-item disabled><a href='#'>Contract</a></b-dd-item>
 	<b-dd-item disabled><a href='#'>Drawings</a></b-dd-item>
 	<b-dd-item disabled><a href='#'>Specifications</a></b-dd-item>
@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function(event){
 	<b-dd-item :title='"CASBAH Settings"'><a href='#'>Hack</a></b-dd-item>			
 	<b-dd-item :title='"Make Alpha Window Current"'><a href='#'>Home Alpha</a></b-dd-item>
 	<b-dd-item :title='"Close Other Windows"'><a href='#'>Home Alone</a></b-dd-item>
-	<b-dd-item :title='"Open Another Window"' @click='anotherWindow'><a href='#'>Home Open</a></b-dd-item>
+	<b-dd-item :title='"List Windows"' @click='homeList'><a href='#'>Home List</a></b-dd-item>
+	<b-dd-item :title='"Open Another Window"' @click='homeOpen'><a href='#'>Home Open</a></b-dd-item>
 	
 	</b-nav-item-dd>
 	
