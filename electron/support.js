@@ -188,7 +188,7 @@ exports.pivotBack=function(rows, keyName, valName){
 		
 
 
-exports.showAtPointer=function(menu, e) {
+exports.DEPshowAtPointer=function(menu, e) {
 	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
 	menu.$el.style.display = 'block'
 	//var mx=menu.clientWidth, my=menu.clientHeight
@@ -197,3 +197,11 @@ exports.showAtPointer=function(menu, e) {
 	menu.$el.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
 }
 
+exports.showAtPointer=function(menu$, e) {
+	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
+	menu$.style.display = 'block'
+	//var mx=menu.clientWidth, my=menu.clientHeight
+	var mx=menu$.scrollWidth, my=menu$.scrollHeight
+	menu$.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
+	menu$.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
+}

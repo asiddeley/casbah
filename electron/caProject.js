@@ -125,6 +125,8 @@ STORE.registerModule('caProject',{
 	state:{
 		projectindex:local.projectindex||3,
 		projects:local.projects||[]
+	
+		
 	},
 	getters:{
 		//project(){return this.state.project},
@@ -157,17 +159,28 @@ STORE.registerModule('caProject',{
 
 /////////////////////
 //Register ca-project
-//caProject initialized when mounted, accessible to ca-project-menu
-var model 
-Vue.component('ca-project', {
+
+Vue.component(exports.element, {
 	//Vuex STORE replaces Vue data property
 	STORE, 
 	template:
 	`<div>
 		<h2>Ca Project</h2>
-		<b-table striped hover small :items='projects' :fields='fields' @row-clicked='showMenu'>
+		<b-table striped hover small :items='projects' :fields='fields' @row-clicked='menu'>
 		</b-table>			
-		<ca-project-menu></ca-project-menu>
+		<div class='dropdown-menu' size='sm' text='small' v-on:mouseleave='menuHide'  ref='ca-project-menu'>
+			<b-dd-item v-on:click='authenticate();menuHide;'><a href='#'>Authenticate</a></b-dd-item>
+			<b-dd-item v-on:click='activeProject();menuHide' href='#'><a href='#'>Active Project</a></b-dd-item>
+			<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create</a></b-dd-item>
+			<b-dd-item v-on:click='read();menuHide'><a href='#'>Read</a></b-dd-item>
+			<b-dd-item v-on:click='update(); menuHide'><a href='#'>Update</a></b-dd-item>
+			<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete</a></b-dd-item>
+			<li><hr/></li>
+			<b-dd-item v-on:click='alert("Hide...");menuHide'>Hide record</b-dd-item>
+			<b-dd-item v-on:click='alert("Unhide...");menuHide'>Unhide record</b-dd-item>
+			<b-dd-item v-on:click='alert("Show hidden...");menuHide'>Show hidden records</b-dd-item>
+			<b-dd-item v-on:click='alert("Show unhidden...");menuHide'>Show unhidden records</b-dd-item>
+		</div>	
 	</div>`,
 	computed:{		
 		project(){
@@ -180,7 +193,9 @@ Vue.component('ca-project', {
 			{key:'project', label:'Project Name', sortable:true},
 			{key:'subprojectcode', label:'Sub Code', sortable:true},
 			{key:'subproject', label:'Sub Name', sortable:true}
-		]}		
+		]},
+		//menuStyle(){return {display:'none', 'z-index':999}},
+		//menuRow:{}	
 	},
 	methods:{
 		highlightCurrent(){
@@ -194,64 +209,43 @@ Vue.component('ca-project', {
 			'Current project ( '+id+' )':
 			'Click to set as current project'
 		},
-		showMenu(row, rows, e){menu.row=row; SUPPORT.showAtPointer(menu, e)},
-	},
-	mounted(){
-		model=this
-		this.highlightCurrent()
-	}
-})
-
-/////////////////////////////
-//Register ca-project-menu
-//menu is assigned when component caProjectsMenu is mounted
-var menu
-Vue.component('ca-project-menu', {
-	data:{
-		//project:{},
-		row:{},
-		rows:[]
-	},
-	props:[],
-	template:
-	`<div class='dropdown-menu' size='sm' text='small' v-on:mouseleave='menuHide'>
-		<b-dd-item v-on:click='authenticate();menuHide;'><a href='#'>Authenticate</a></b-dd-item>
-		<b-dd-item v-on:click='activeProject();menuHide' href='#'><a href='#'>Active Project</a></b-dd-item>
-		<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create</a></b-dd-item>
-		<b-dd-item v-on:click='read();menuHide'><a href='#'>Read</a></b-dd-item>
-		<b-dd-item v-on:click='update(); menuHide'><a href='#'>Update</a></b-dd-item>
-		<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete</a></b-dd-item>
-		<li><hr/></li>
-		<b-dd-item v-on:click='alert("Hide...");menuHide'>Hide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Unhide...");menuHide'>Unhide record</b-dd-item>
-		<b-dd-item v-on:click='alert("Show hidden...");menuHide'>Show hidden records</b-dd-item>
-		<b-dd-item v-on:click='alert("Show unhidden...");menuHide'>Show unhidden records</b-dd-item>
-	</div>`,
-
-	methods:{			
-		alert(msg){alert(msg)},
-		menuHide(){this.$el.style.display = "none"},
+		menu(row, rows, e){
+			this.menuAtRow=row
+			SUPPORT.showAtPointer(this.$refs['ca-project-menu'], e)
+		},
+		menuHide(){			
+			//this.menuStyle.display = "none"
+			this.$refs['ca-project-menu'].style.display='none'
+		},
 		authenticate(){googleAuth(caProjects)},
 		activeProject(){
-			var index=STORE.state.caProject.projects.indexOf(this.row)
+			var index=STORE.state.caProject.projects.indexOf(this.menuAtRow)
 			//console.log('INDEX:',index)
 			STORE.commit('setProjectindex', index)
-			model.highlightCurrent()	
+			this.highlightCurrent()	
 		},
-		read(){alert(this.row.toString())},
+		read(){
+			var that=this
+			casbahVue.switchTo('ca-quick-table',{
+				rows:SUPPORT.pivot(that.menuAtRow,'Heading','Content'),		
+				onReturn:function(){casbahVue.switchTo('ca-project')}
+			})
+		},
 		update(){
+			var that=this
 			casbahVue.switchTo('ca-quick-form',{
-				row:this.row,				
+				row:that.menuAtRow,			
 				onSave:function(result){
 					STORE.commit('updateProject', result)
 					casbahVue.switchTo('ca-project')
 				},
 				onCancel:function(){casbahVue.switchTo('ca-project')}
 			})
-		}		
+		}
 	},
-	computed:{	},
-	mounted(){menu=this}
+	mounted(){
+		this.highlightCurrent()
+	}
 })
 
 	

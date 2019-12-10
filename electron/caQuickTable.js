@@ -52,8 +52,9 @@ Vue.component('ca-quick-table', {
 			if (typeof click=='function') {rowClick (rows[index], index)}
 		},
 		ok(){
-			var ok=casbahVue.shared['ca-quick-table'].onOk
-			if (typeof ok=='function') {ok ()}
+			var shared=casbahVue.shared['ca-quick-table']
+			var ok=shared.onOk||shared.onReturn||function(){}
+			ok ()
 		}	
 	}, 
 	computed:{
