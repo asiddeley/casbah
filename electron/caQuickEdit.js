@@ -5,43 +5,38 @@ Copyright (c) 2018 Andrew Siddeley
 MIT License
 *****/
 
-//////////////////////////////////
-// TEXTEDITOR
-// init...
-// var ed=new Editor();
-// example (icTV is a casbah TableView obj)
-// <div onclick="ed.text(this, function(){icTV.update(ed.row(), ed.rowid()); ed.hide();})" ...>
-
 exports.element='ca-quick-edit'
 exports.name='caQuickEdit'
 exports.title='general purpose text editor'
+exports.getEditor=function(){return EDITOR}
 exports.register=function(casbahVue){
+	
+//singleton
+const EDITOR
 
 
-function fit(){
-	if (this.e$==null){return}
-	that.x$.show()
-	//fit textarea to element	
-	that.x$.width(that.e$.width())
-	that.x$.css("height","auto")
-	that.x$.css("padding-left", that.e$.css("padding-left"))
-	if (that.x$[0].scrollHeight > 0) {that.x$.css("height", that.x$[0].scrollHeight);}
-	//element to match textarea height
-	that.e$.height(that.x$.height()+5);
-	//Position needs to be done last per trial-and-error
-	that.x$.position({my:'left top', at:'left top', of:that.e$});
-	//progress backup of edited value
-	that.e$.attr("newval", that.x$.val());
-}
-
-
+// DEPRECATED
 function Editor(){
 	
 	var that=this;
-	
+	this.fit=function(){
+		//e$ = target element, x$ = editor element
+		if (this.e$==null){return}
+		x$.style.display = 'block'//x$.show()
+		//fit textarea to element	
+		x$.style.width=e$.style.width
+		x$.style.height='auto'
+		x$.style['padding-left']=e$.style['padding-left']
+		if (x$.scrollHeight > 0) {that.x$.css("height", that.x$[0].scrollHeight);}
+		//element to match textarea height
+		that.e$.height(that.x$.height()+5);
+		//Position needs to be done last per trial-and-error
+		that.x$.position({my:'left top', at:'left top', of:that.e$});
+		//progress backup of edited value
+		that.e$.attr("newval", that.x$.val());
+	}	
 	this.e$=null; //editee - initialized by this.text()
 	
-	this.fit=function()
 	
 	this.hide=function(){
 		that.x$.hide();
@@ -122,35 +117,46 @@ function Editor(){
 		that.x$.hide();
 	});
 	
-};
+}; //Editor DEPRECATED
+
 
 // Register as component
 Vue.component(exports.element, {
-	data:{},
+	data:{css:{'z-index':999, 'display':'none'}},
 	props:[],
 	template:`
-	
-	`,
+	<div @mouseleave='hide()'>
+	<textarea 
+		v-bind:style='css'
+		@click='showOver()'
+		@keyup='showOver()'
+		@dblclick='done()'
+	></textarea>
+	</div>`,
 	methods:{
-		
-		
+		showOver(e$){
+			//e$ - target element
+			this.css.display = 'block' 
+			this.css.width=e$.style.width 
+			this.css.height='auto'
+			this.css['padding-left']=e$.style['padding-left']
+			if (this.scrollHeight > 0){this.css.height=this.scrollHeight}
+			this.css.top=e$.style.top
+			this.css.left=e$.style.left
+		},
+		hide(){this.css.display='none'},
+		done(){}
 	},
 	computed:{
 		
 		
-	}	
+	},
+	mounted:{
+		EDITOR=this
+	}
 	
 })
 
 
 
-
-
-
-
-
-
-
-
-
-} //REGISTER
+}() //REGISTER - automatically run when required

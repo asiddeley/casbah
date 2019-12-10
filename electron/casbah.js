@@ -94,7 +94,7 @@ exports.ready=function(callback){
 					rows:WM.list('Open Homes'),				
 					onOk:function(result){switchTo(that, camelBack)}
 				})
-			}
+			},
 			switchTo(camel, options){switchTo(this, camel, options)}			
 		},
 		mounted(){
