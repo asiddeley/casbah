@@ -29,7 +29,6 @@ const PATH=require('path')
 const REMOTE = require('electron').remote
 const WM = REMOTE.require(PATH.join(__dirname,'windowMaster.js'))
 
-
 // CA Modules
 const CAMS=[
 	require('../electron/caProject.js'),
@@ -66,7 +65,6 @@ function switchTo(vm, camel, options){
 	}
 }				
 
-
 ///// EXPORTS
 exports.ready=function(callback){
 
@@ -82,7 +80,10 @@ exports.ready=function(callback){
 			navbarType() {return WM.getTheme(windowName)}
 		},
 		methods:{
-			switchTo(camel, options){switchTo(this, camel, options)},
+			getCAM(camel){
+				camel=camel||this.CAMEL
+				return CAMS.find(function(cam){return cam.element==camel})
+			},
 			//Open a window with the next free name and cascade it from this window
 			homeOpen(){WM.open(windowName)},
 			homeAlone(){WM.isolate(windowName)},
@@ -94,6 +95,7 @@ exports.ready=function(callback){
 					onOk:function(result){switchTo(that, camelBack)}
 				})
 			}
+			switchTo(camel, options){switchTo(this, camel, options)}			
 		},
 		mounted(){
 			//allow Welcome... to linger for 1000ms then switch camel  
@@ -109,4 +111,6 @@ exports.ready=function(callback){
 	if (typeof callback=='function'){callback()}
 } 
 
+const getCAM=function(){
 
+}

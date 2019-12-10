@@ -62,32 +62,32 @@ function CaSvr({projectid, projectno, projectcode, days}){
 //make caProject instance when mounted, accessible so caProjectMenu
 var caSvr=new CaSvr({})
 
-	Vue.component('ca-svr', {
-		data:function(){return {
-			rows:caSvr.notes,
-			fields:caSvr.fields,
-			caproject:{projectno:'101', subprojectcode:'TV'}
-		}},
-		props:[],
-		template:`
-			<div>
-				<h2>Site Visit Report</h2>
-				
-				<row><strong class='col-sm-6'>Project no.:{{caproject.projectno}}</strong>
-				<strong class='col-sm-6'>Sub-project no.:{{caproject.subprojectcode}}</strong></row>
-				
-				<b-table striped hover small :items='rows' :fields='fields'>
-				</b-table>			
-			</div>`,
-		methods:{
-			menuShow(row, rows, e){SF.showAtPointer(menu, e)}
-		},
-		computed:{
+Vue.component('ca-svr', {
+	data:function(){return {
+		rows:caSvr.notes,
+		fields:caSvr.fields,
+		caproject:{projectno:'101', subprojectcode:'TV'}
+	}},
+	props:[],
+	template:`
+		<div>
+			<h2>Site Visit Report</h2>
 			
-		},
-		mounted(){
-			//caSvr=this		
-		}
-	})
+			<row><strong class='col-sm-6'>Project no.:{{caproject.projectno}}</strong>
+			<strong class='col-sm-6'>Sub-project no.:{{caproject.subprojectcode}}</strong></row>
+			
+			<b-table striped hover small :items='rows' :fields='fields'>
+			</b-table>			
+		</div>`,
+	methods:{
+		menuShow(row, rows, e){SF.showAtPointer(menu, e)}
+	},
+	computed:{
+		
+	},
+	mounted(){
+		//caSvr=this		
+	}
+})
 	
 } //REGISTER
