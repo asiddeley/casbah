@@ -66,7 +66,8 @@ Vue.component('ca-svr', {
 	data:function(){return {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
-		caproject:{projectno:'101', subprojectcode:'TV'}
+		caproject:{projectno:'101', subprojectcode:'TV'},
+		editable:false
 	}},
 	props:[],
 	template:`
@@ -77,6 +78,9 @@ Vue.component('ca-svr', {
 			<strong class='col-sm-6'>Sub-project no.:{{caproject.subprojectcode}}</strong></row>
 			
 			<b-table striped hover small :items='rows' :fields='fields'>
+			<template v-if='editable' v-slot:cell()='data'>
+				<p contenteditable >{{data.value}}</p>
+			</template>				
 			</b-table>			
 		</div>`,
 	methods:{
@@ -86,7 +90,7 @@ Vue.component('ca-svr', {
 		
 	},
 	mounted(){
-		//caSvr=this		
+	
 	}
 })
 	

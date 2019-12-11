@@ -91,8 +91,8 @@ exports.ready=function(callback){
 				var camelBack=this.CAMEL, that=this
 				switchTo(this, 'ca-quick-table', {
 					//title:'Open Homes',
-					rows:WM.list('Open Homes'),				
-					onOk:function(result){switchTo(that, camelBack)}
+					rows:WM.list('Open Windows'),				
+					onReturn:function(result){switchTo(that, camelBack)}
 				})
 			},
 			switchTo(camel, options){switchTo(this, camel, options)}			

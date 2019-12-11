@@ -58,7 +58,8 @@ Vue.component('ca-quick-table', {
 		}	
 	}, 
 	computed:{
-		title(){return casbahVue.shared['ca-quick-table'].title}
+		title(){return casbahVue.shared['ca-quick-table'].title},
+		content(){}
 	},
 	mounted(){}
 })
