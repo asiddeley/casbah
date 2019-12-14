@@ -186,22 +186,21 @@ exports.pivotBack=function(rows, keyName, valName){
 	return result
 }
 		
-
-
-exports.DEPshowAtPointer=function(menu, e) {
+exports.showAtPointer=function(menu, e) {
 	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
-	menu.$el.style.display = 'block'
+	menu.style.display = 'block'
 	//var mx=menu.clientWidth, my=menu.clientHeight
-	var mx=menu.$el.scrollWidth, my=menu.$el.scrollHeight
-	menu.$el.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
-	menu.$el.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
+	var mx=menu.scrollWidth, my=menu.scrollHeight
+	menu.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
+	menu.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
 }
 
-exports.showAtPointer=function(menu$, e) {
-	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
-	menu$.style.display = 'block'
-	//var mx=menu.clientWidth, my=menu.clientHeight
-	var mx=menu$.scrollWidth, my=menu$.scrollHeight
-	menu$.style.left=((e.pageX + mx > wx && mx < e.pageX)?e.pageX+sx-mx:e.pageX+sx )+'px'
-	menu$.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
+exports.showAtRow=function(menu, e) {
+	menu.style.display = 'block'
+	menu.style.position = 'absolute'
+	var r=e.srcElement.getBoundingClientRect()
+	var m=menu.getBoundingClientRect()
+	menu.style.top=r.top-m.height-1 + 'px'
 }
+
+

@@ -29,7 +29,7 @@ const PATH=require('path')
 const REMOTE = require('electron').remote
 const WM = REMOTE.require(PATH.join(__dirname,'windowMaster.js'))
 
-// CA Modules
+// CA Modules Switchables - loaded as required
 const CAMS=[
 	require('../electron/caProject.js'),
 	require('../electron/caSvr.js'),
@@ -38,6 +38,7 @@ const CAMS=[
 	require('../electron/caAlert.js'),
 	require('../electron/caQuickTable.js')
 ]
+
 
 var windowName=WM.getCurrent().name
 //console.log('CURRENT WIN:', windowName)
@@ -66,6 +67,7 @@ function switchTo(vm, camel, options){
 }				
 
 ///// EXPORTS
+
 exports.ready=function(callback){
 
 	new Vue({
@@ -111,6 +113,3 @@ exports.ready=function(callback){
 	if (typeof callback=='function'){callback()}
 } 
 
-const getCAM=function(){
-
-}

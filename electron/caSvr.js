@@ -31,6 +31,8 @@ exports.register=function(casbahVue){
 
 ///// IMPORTS
 const SF=require("../electron/support.js")
+const TH=require("../electron/toolbarHtml.js")
+TH.register(casbahVue)
 
 
 
@@ -67,24 +69,30 @@ Vue.component('ca-svr', {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
 		caproject:{projectno:'101', subprojectcode:'TV'},
-		editable:false
+		editable:true,
+		toolbarVisible:true,
+		toolbarAtRow:{}
 	}},
 	props:[],
 	template:`
 		<div>
+			<div class='dropdown-menu 'ref='toolbar-html-ref'><toolbar-html v-if='toolbarVisible' /></div>
 			<h2>Site Visit Report</h2>
-			
-			<row><strong class='col-sm-6'>Project no.:{{caproject.projectno}}</strong>
-			<strong class='col-sm-6'>Sub-project no.:{{caproject.subprojectcode}}</strong></row>
-			
-			<b-table striped hover small :items='rows' :fields='fields'>
+			<b-table striped hover small :items='rows' :fields='fields' @row-clicked='toolbar'>
 			<template v-if='editable' v-slot:cell()='data'>
 				<p contenteditable >{{data.value}}</p>
 			</template>				
-			</b-table>			
+			</b-table>
 		</div>`,
 	methods:{
-		menuShow(row, rows, e){SF.showAtPointer(menu, e)}
+		//menuShow(row, rows, e){SF.showAtPointer(menu, e)}
+		toolbar(row, rows, e){
+			console.log('srcElement:', e)
+			if (e.srcElement.tagName=='P'){
+				this.toolbarAtRow=row
+				SF.showAtRow(this.$refs['toolbar-html-ref'], e)				
+			}
+		}
 	},
 	computed:{
 		
