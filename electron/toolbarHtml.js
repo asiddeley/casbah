@@ -5,13 +5,11 @@ Copyright (c) 2018 Andrew Siddeley
 MIT License
 *****/
 
-
 ///// EXPORTS
 exports.element='toolbar-html'
 exports.name='toolbarHtml'
 exports.title='HTML edit toolbar'
-//exports.getEditor=function(){return EDITOR}
-exports.register=function(casbahVue){
+exports.register=function(CVM){
 
 var oDoc, sDefTxt;
 
@@ -65,18 +63,6 @@ function printDoc() {
   oPrntWin.document.close();
 }
 
-function onSubmit(self){
-	if(validateMode()){
-		self.myDoc.value=oDoc.innerHTML
-		return true
-	}
-	return false
-}
-
-function onChangeFormatting(){
-	formatDoc('formatblock',this[this.selectedIndex].value)
-	this.selectedIndex=0
-}
 
 function onChangeFont(){
 	formatDoc('fontname',this[this.selectedIndex].value)
@@ -103,25 +89,31 @@ const template=`
 <b-button-toolbar>
 <b-button-group>
 
-	<b-dropdown text='formatting' onchange='' size='sm'>
-	<b-dropdown-item value="h1">Title 1 &lt;h1&gt;</b-dropdown-item>
-	<b-dropdown-item value="h2">Title 2 &lt;h2&gt;</b-dropdown-item>
-	<b-dropdown-item value="h3">Title 3 &lt;h3&gt;</b-dropdown-item>
-	<b-dropdown-item value="h4">Title 4 &lt;h4&gt;</b-dropdown-item>
-	<b-dropdown-item value="h5">Title 5 &lt;h5&gt;</b-dropdown-item>
-	<b-dropdown-item value="h6">Subtitle &lt;h6&gt;</b-dropdown-item>
-	<b-dropdown-item value="p">Paragraph &lt;p&gt;</b-dropdown-item>
-	<b-dropdown-item value="pre">Preformatted &lt;pre&gt;</b-dropdown-item>
-	</b-dropdown>
+	<b-form-select v-model='formatting' v-on:change='onChangeFormatting' size='sm'>
+		<option value="h1">Title 1 &lt;h1&gt;</option>
+		<option value="h2">Title 2 &lt;h2&gt;</option>
+		<option value="h3">Title 3 &lt;h3&gt;</option>
+		<option value="h4">Title 4 &lt;h4&gt;</option>
+		<option value="h5">Title 5 &lt;h5&gt;</option>
+		<option value="h6">Subtitle &lt;h6&gt;</option>
+		<option value="p">Paragraph &lt;p&gt;</option>
+		<option value="pre">Preformatted &lt;pre&gt;</option>
+	</b-form-select>
 
-	<b-dropdown text='Font' onchange='' size='sm'>
+	<b-dropdown text='Font' onchange='' size='sm'
+    split
+    split-variant="outline-default"
+    variant="default">
 	<b-dropdown-item>Arial</b-dropdown-item>
 	<b-dropdown-item>Arial Black</b-dropdown-item>
 	<b-dropdown-item>Courier New</b-dropdown-item>
 	<b-dropdown-item>Times New Roman</b-dropdown-item>
 	</b-dropdown>
 	
-	<b-dropdown text='Size' onchange='' size='sm'>
+	<b-dropdown text='Size' onchange='' size='sm'
+	split
+    split-variant="outline-default"
+    variant="default">
 	<b-dropdown-item value="1" size='sm'>Very small</b-dropdown-item>
 	<b-dropdown-item value="2" size='sm'>A bit small</b-dropdown-item>
 	<b-dropdown-item value="3" size='sm'>Normal</b-dropdown-item>
@@ -133,22 +125,28 @@ const template=`
 	
 </b-button-group><b-button-group>
 	
-	<b-dropdown text='Forground' onchange='' size='sm'>
+	<b-dropdown text='Forground' onchange='' size='sm'
+	split
+    split-variant="outline-default"
+    variant="default">
 	<b-dropdown-item value="red" size='sm'>Red</b-dropdown-item>
 	<b-dropdown-item value="blue" size='sm'>Blue</b-dropdown-item>
 	<b-dropdown-item value="green" size='sm'>Green</b-dropdown-item>
 	<b-dropdown-item value="black" size='sm'>Black</b-dropdown-item>
 	</b-dropdown>
 	
-	<b-dropdown text='background' onchange="" size='sm'>
+	<b-dropdown text='background' onchange="" size='sm'
+	split
+    split-variant="outline-default"
+    variant="default">
 	<b-dropdown-item value="red">Red</b-dropdown-item>
 	<b-dropdown-item value="green">Green</b-dropdown-item>
 	<b-dropdown-item value="black">Black</b-dropdown-item>
 	</b-dropdown>
-	
+
 </b-button-group><b-button-group>
-	<b-button size='sm' variant='success'>Save</b-button>
-	<b-button size='sm' >Cancel</b-button>
+	<b-button size='sm' variant='light' v-on:click='save()'>Save</b-button>
+	<b-button size='sm' variant='default' v-on:click='close()'>Close</b-button>
 </b-button-group>	
 
 </b-button-toolbar>
@@ -208,39 +206,40 @@ const template=`
 
 </b-button-group>
 </b-button-toolbar>
-<b-card style='display:none' id="textBox" contenteditable="true"><p>Lorem ipsum</p></b-card>
 </div>
 `
+//<b-card id="textBox" contenteditable="true"><p>Lorem ipsum</p></b-card>
 
 
 // Register as component
 Vue.component(exports.element, {
 	data(){return {
-		css:{'z-index':999, 'display':'none'},
-	
+		//css:{'z-index':999, 'display':'none'},
+		formatting:''
 	}},
 	props:[],
 	template:template,
 	methods:{
-		showOver(e$){
-			//e$ - target element
-			this.css.display = 'block' 
-			this.css.width=e$.style.width 
-			this.css.height='auto'
-			this.css['padding-left']=e$.style['padding-left']
-			if (this.scrollHeight > 0){this.css.height=this.scrollHeight}
-			this.css.top=e$.style.top
-			this.css.left=e$.style.left
+		save(){
+			var options=CVM.shared[exports.element]||{}
+			var target=options.target||{}
+			if (typeof options.onSave=='function'){options.onSave(target.innerText)}
 		},
-		hide(){this.css.display='none'},
-		done(){}
+		close(){
+			var options=CVM.shared[exports.element]||{}
+			if (typeof options.onClose=='function'){options.onClose()}
+		},
+		onChangeFormatting(){
+			//console.log('Formatting:', this.formatting)
+			document.execCommand('formatblock', false, this.formatting)
+		}
 	},
 	computed:{
 		
 		
 	},
 	mounted(){
-		initDoc()
+		//initDoc()
 	}
 	
 })

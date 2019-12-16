@@ -186,7 +186,7 @@ exports.pivotBack=function(rows, keyName, valName){
 	return result
 }
 		
-exports.showAtPointer=function(menu, e) {
+exports.menuAtPointer=function(menu, e) {
 	var wx=window.innerWidth, wy=window.innerHeight, sx=window.scrollX, sy=window.scrollY
 	menu.style.display = 'block'
 	//var mx=menu.clientWidth, my=menu.clientHeight
@@ -195,12 +195,13 @@ exports.showAtPointer=function(menu, e) {
 	menu.style.top=((e.pageY + my > wy && my < e.pageY)?e.pageY+sy-my:e.pageY+sy)+'px'
 }
 
-exports.showAtRow=function(menu, e) {
+exports.menuAtRow=function(menu, row) {
 	menu.style.display = 'block'
 	menu.style.position = 'absolute'
-	var r=e.srcElement.getBoundingClientRect()
+	var r=row.getBoundingClientRect()
 	var m=menu.getBoundingClientRect()
 	menu.style.top=r.top-m.height-1 + 'px'
 }
 
+exports.menuHide=function(menu){menu.style.display = 'none'}
 

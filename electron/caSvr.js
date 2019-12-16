@@ -27,12 +27,12 @@ SOFTWARE.
 exports.element='ca-svr'
 exports.name='caSvr'
 exports.title='Site Visit Report'
-exports.register=function(casbahVue){
+exports.register=function(CVM){
 
 ///// IMPORTS
 const SF=require("../electron/support.js")
 const TH=require("../electron/toolbarHtml.js")
-TH.register(casbahVue)
+TH.register(CVM)
 
 
 
@@ -64,34 +64,53 @@ function CaSvr({projectid, projectno, projectcode, days}){
 //make caProject instance when mounted, accessible so caProjectMenu
 var caSvr=new CaSvr({})
 
-Vue.component('ca-svr', {
+Vue.component(exports.element, {
 	data:function(){return {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
 		caproject:{projectno:'101', subprojectcode:'TV'},
 		editable:true,
-		toolbarVisible:true,
+		//toolbarVisible:false,
 		toolbarAtRow:{}
 	}},
 	props:[],
 	template:`
 		<div>
-			<div class='dropdown-menu 'ref='toolbar-html-ref'><toolbar-html v-if='toolbarVisible' /></div>
+			<div class='dropdown-menu' ref='toolbar-div'>
+			<toolbar-html/>
+			</div>
 			<h2>Site Visit Report</h2>
-			<b-table striped hover small :items='rows' :fields='fields' @row-clicked='toolbar'>
+			<b-table striped hover small :items='rows' :fields='fields' NOTrow-clicked='toolbar'>
 			<template v-if='editable' v-slot:cell()='data'>
-				<p contenteditable >{{data.value}}</p>
+				<p contenteditable v-on:click='toolbar()' >{{data.value}}</p>
 			</template>				
 			</b-table>
 		</div>`,
 	methods:{
-		//menuShow(row, rows, e){SF.showAtPointer(menu, e)}
-		toolbar(row, rows, e){
-			console.log('srcElement:', e)
-			if (e.srcElement.tagName=='P'){
+		toolbar(ev){
+			ev=ev||event
+			var row=ev.target
+			//make sure element that is the 
+			if (row.$attrs && row.$attrs.contenteditable){
+				//var row= //not reliable, may be a nested element?
+				console.log('element?', row)
+				var self=this
+				//set <toolbat-html> options...
+				CVM.shared['toolbar-html']={
+					target:row,
+					onSave:function(result){
+						console.log('RESULT:', result||'<empty>')
+						//self.toolbarVisible=false
+						self.$refs['toolbar-div'].style.display='none'
+					},
+					onClose:function(result){
+						//self.toolbarVisible=false
+						self.$refs['toolbar-div'].style.display='none'
+					}
+				}
 				this.toolbarAtRow=row
-				SF.showAtRow(this.$refs['toolbar-html-ref'], e)				
-			}
+				SF.menuAtRow(this.$refs['toolbar-div'], row)
+			}			
 		}
 	},
 	computed:{

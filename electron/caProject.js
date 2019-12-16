@@ -46,7 +46,7 @@ const STORE=require('../electron/storage').store
 const WM = REMOTE.require(PATH.join(__dirname,'windowMaster.js'))
 const windowName=WM.getCurrent().name
 const LOCALSTORE=PATH.join(__dirname, '../private', ('/'+windowName+'.json'))
-const SUPPORT=require("../electron/support.js")
+const SF=require("../electron/support.js")
 const GS=require('google-spreadsheet')	
 const gsProjects = new GS(SETTINGS.gsProjectsKey)
 
@@ -71,9 +71,9 @@ function googleAuth(vue){
 // caProject SCHEMA
 function CaProject({projectid, projectno, projectcode, days, index}){	
 	var today=new Date()
-	var future=SUPPORT.addDays(today, days||365)
+	var future=SF.addDays(today, days||365)
 	//random id with high probability of uniqueness
-	this.projectid=projectid||SUPPORT.cryptoId()
+	this.projectid=projectid||SF.cryptoId()
 	this.projectno=projectno||['PRO-001', 'PRO-001', 'PRO-002', 'PRO-003'][index %4]
 	this.projectcode=projectcode||['CB', 'CB', 'MB', 'OB'][index % 4]
 	this.project=['Casbah Bldg', 'Casbah Bldg', 'My Bldg', 'Other Bldg'][index % 4] 
@@ -103,14 +103,14 @@ CaProject.prototype.toString=function(data){
 
 //////////
 // LOCAL CACHE
-const local=new SUPPORT.LocalStore(
+const local=new SF.LocalStore(
 	//localstore path based on windowName, ie. separate cache for each window
 	LOCALSTORE,
 	//default content object or Constructor
 	{
 		windowName:windowName, 
 		projectindex:0, 
-		projects:SUPPORT.getSamples(CaProject, 5), 
+		projects:SF.getSamples(CaProject, 5), 
 		hidden:[]
 	},
 	false
@@ -211,7 +211,7 @@ Vue.component(exports.element, {
 		},
 		menu(row, rows, e){
 			this.menuAtRow=row
-			SUPPORT.showAtPointer(this.$refs['ca-project-menu'], e)
+			SF.menuAtPointer(this.$refs['ca-project-menu'], e)
 		},
 		menuHide(){			
 			//this.menuStyle.display = "none"
@@ -227,7 +227,7 @@ Vue.component(exports.element, {
 		read(){
 			var that=this
 			casbahVue.switchTo('ca-quick-table',{
-				rows:SUPPORT.pivot(that.menuAtRow,'Heading','Content'),		
+				rows:SF.pivot(that.menuAtRow,'Heading','Content'),		
 				onReturn:function(){casbahVue.switchTo('ca-project')}
 			})
 		},
