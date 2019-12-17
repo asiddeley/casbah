@@ -34,8 +34,6 @@ const SF=require("../electron/support.js")
 const TH=require("../electron/toolbarHtml.js")
 TH.register(CVM)
 
-
-
 function CaSvr({projectid, projectno, projectcode, days}){	
 	var today=new Date()
 	var future=SF.addDays(today, days||7)
@@ -65,52 +63,50 @@ function CaSvr({projectid, projectno, projectcode, days}){
 var caSvr=new CaSvr({})
 
 Vue.component(exports.element, {
-	data:function(){return {
+	data:function(){
+		console.log('Navbar Class:', CVM.navbarClass)
+		return {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
-		caproject:{projectno:'101', subprojectcode:'TV'},
+		//caproject:{projectno:'101', subprojectcode:'TV'},
 		editable:true,
-		//toolbarVisible:false,
-		toolbarAtRow:{}
+		//toolbarAtRow:{}
+		navbarclass:CVM.navbarClass
 	}},
 	props:[],
 	template:`
-		<div>
-			<div class='dropdown-menu' ref='toolbar-div'>
+	<div>
+		<div class="dropdown-menu ${CVM.navbarClass}" ref='toolbar-div' style='width:100%;'>
 			<toolbar-html/>
-			</div>
-			<h2>Site Visit Report</h2>
-			<b-table striped hover small :items='rows' :fields='fields' NOTrow-clicked='toolbar'>
-			<template v-if='editable' v-slot:cell()='data'>
-				<p contenteditable v-on:click='toolbar()' >{{data.value}}</p>
-			</template>				
-			</b-table>
-		</div>`,
+		</div>
+		<h2>Site Visit Report</h2>
+		<b-table striped hover small :items='rows' :fields='fields'>
+		<template v-if='editable' v-slot:cell()='data'>
+			<p contenteditable 
+			v-on:click='toolbar(data.field.key+data.index)' 
+			v-bind:ref='data.field.key+data.index' 
+		>{{data.value}}</p>
+		</template>				
+		</b-table>
+	</div>`,
 	methods:{
-		toolbar(ev){
-			ev=ev||event
-			var row=ev.target
-			//make sure element that is the 
-			if (row.$attrs && row.$attrs.contenteditable){
-				//var row= //not reliable, may be a nested element?
-				console.log('element?', row)
-				var self=this
-				//set <toolbat-html> options...
-				CVM.shared['toolbar-html']={
-					target:row,
-					onSave:function(result){
-						console.log('RESULT:', result||'<empty>')
-						//self.toolbarVisible=false
-						self.$refs['toolbar-div'].style.display='none'
-					},
-					onClose:function(result){
-						//self.toolbarVisible=false
-						self.$refs['toolbar-div'].style.display='none'
-					}
+		toolbar(id){
+			//var element=event.target //...is not reliable, because it could return a nested element
+			//console.log('Element Id:',id)
+			var element=this.$refs[id]
+			var self=this
+			//set <toolbat-html> options...
+			CVM.shared['toolbar-html']={
+				target:element,
+				onSave:function(){
+					//console.log('RESULT:', element||'<empty>')
+					self.$refs['toolbar-div'].style.display='none'
+				},
+				onClose:function(){
+					self.$refs['toolbar-div'].style.display='none'
 				}
-				this.toolbarAtRow=row
-				SF.menuAtRow(this.$refs['toolbar-div'], row)
-			}			
+			}
+			SF.menuAtRow(this.$refs['toolbar-div'], element)		
 		}
 	},
 	computed:{
