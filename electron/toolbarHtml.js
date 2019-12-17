@@ -137,66 +137,71 @@ const template=`
 		<option value="green">Green</option>
 		<option value="black">Black</option>
 	</b-form-select>
-	
-	
 </b-button-group>	
-
-<b-button-group>
-	<b-button size='sm' variant='light' v-on:click='save()'>Save</b-button>
-	<b-button size='sm' variant='light' v-on:click='close()'>Close</b-button>
-</b-button-group>
-
-
 </b-button-toolbar>
 
-<b-button-toolbar >
-<b-button-group class='bg-light'>
-
-	<b-img title="Clean" onclick="if(validateMode()&&confirm('Are you sure?')){oDoc.innerHTML=sDefTxt};" 
-	src='${ICON.clean}'/>
-	<b-img title="Print" onclick="printDoc();" src='${ICON.print}'/>
-	<b-img title="Undo" onclick="formatDoc('undo');" src='${ICON.undo}'/>
-	<b-img title="Redo" onclick="formatDoc('redo');" src='${ICON.redo}'/>
-	<b-img title="Remove formatting" onclick="formatDoc('removeFormat')" src='${ICON.unformat}'/>
-
-</b-button-group>
-<b-button-group class='bg-light'>
-
-	<b-img variant='light' title="Bold" onclick="formatDoc('bold');" src="${ICON.bold}" />
-	<b-img title="Italic" onclick="formatDoc('italic');" src="${ICON.italic}" />
-	<b-img title="Underline" onclick="formatDoc('underline');" src="${ICON.underline}" />
-
-</b-button-group>
-<b-button-group class='bg-light'>
-
-	<b-img title="Left align" onclick="formatDoc('justifyleft');" src="${ICON.left}" />
-	<b-img title="Center align" onclick="formatDoc('justifycenter');" src="${ICON.centre}" />
-	<b-img title="Right align" onclick="formatDoc('justifyright');" src="${ICON.right}" />
-
-</b-button-group>
-<b-button-group class='bg-light'>
-
-	<img title="Numbered list" onclick="formatDoc('insertorderedlist');" src="${ICON.numbered}" />
-	<img title="Dotted list" onclick="formatDoc('insertunorderedlist');" src="${ICON.dotted}" />
-
-</b-button-group>
-<b-button-group class='bg-light'>
-
-	<b-img title="Quote" onclick="formatDoc('formatblock','blockquote');" src="${ICON.quote}" />
-	<b-img title="Delete indentation" onclick="formatDoc('outdent');" src="${ICON.unindent}" />
-	<b-img title="Add indentation" onclick="formatDoc('indent');" src="${ICON.indent}" />
-	<b-img title="Hyperlink" onclick="var sLnk=prompt('Write the URL here','http:\/\/');if(sLnk&&sLnk!=''&&sLnk!='http://'){formatDoc('createlink',sLnk)}" 
-src="${ICON.hyperlink}" />
-
-</b-button-group>
-<b-button-group class='bg-light'>
-
-	<b-img title="Cut" onclick="formatDoc('cut');" src="${ICON.cut}" />
-	<b-img title="Copy" onclick="formatDoc('copy');" src="${ICON.copy}" />
-	<b-img title="Paste" onclick="formatDoc('paste');" src="${ICON.paste}" />
-
+<b-button-toolbar>
+<b-button-group>
+	<b-button class='mdi mdi-delete-sweep' title="Clean" variant='light' size='sm'
+		@click="if(validateMode()&&confirm('Are you sure?')){oDoc.innerHTML=sDefTxt};" 
+	></b-button>
+	<b-button class='mdi mdi-print' title="Print" variant='light' size='sm' 
+		@click="printDoc();"></b-button>
+	<b-button class='mdi mdi-undo' title="Undo" variant='light' size='sm'
+		@click="formatDoc('undo');"></b-button>
+	<b-button class='mdi mdi-redo' title="Redo" variant='light' size='sm' 
+		@click="formatDoc('redo');"></b-button>
+	<b-button class='mdi mdi-format-clear' title="Format clear" variant='light' size='sm'
+		@click="formatDoc('removeFormat')"></b-button>
 </b-button-group>
 
+<b-button-group>
+	<b-button class='mdi mdi-format-bold' title="Bold" variant='light' variant='light' size='sm'
+		@click="formatDoc('bold');"></b-button>
+	<b-button class='mdi mdi-format-italic' title="Italic" variant='light' size='sm'
+		@click="formatDoc('italic');"></b-button>
+	<b-button class='mdi mdi-format-underlined' title="Underlined" variant='light' size='sm'
+		@click="formatDoc('underline');"></b-button>
+</b-button-group>
+
+<b-button-group>
+	<b-button class='mdi mdi-format-align-left' title="Left align" variant='light' size='sm'
+		@click="formatDoc('justifyleft');"></b-button>
+	<b-button class='mdi mdi-format-align-center' title="Center align" variant='light' size='sm'
+		@click="formatDoc('justifycenter');" ></b-button>
+	<b-button class='mdi mdi-format-align-right' title="Right align" variant='light' size='sm'
+		@click="formatDoc('justifyright');"></b-button>
+</b-button-group>
+
+<b-button-group>
+	<b-button class='mdi mdi-format-list-numbered'  title="Numbered list" variant='light' size='sm'
+		@click="formatDoc('insertorderedlist');"></b-button>
+	<b-button class='mdi mdi-format-list-bulleted'  title="Bulleted list" variant='light' size='sm'
+		@click="formatDoc('insertunorderedlist');"></b-button>
+</b-button-group>
+
+<b-button-group class='bg-light'>
+	<b-button class='mdi mdi-format-quote' title="Quote" variant='light' 
+		@click="formatDoc('formatblock','blockquote');"></b-button>
+	<b-button class='mdi mdi-format-indent-decrease' title="indent increase" variant='light' size='sm'
+		@click="formatDoc('outdent');"></b-button>
+	<b-button class='mdi mdi-format-indent-increase' title="indent decrease" variant='light' size='sm'
+		@click="formatDoc('indent');"></b-button>
+	<b-button class='mdi mdi-link' title="Hyperlink" variant='light' size='sm' 
+		@click="var sLnk=prompt('Write the URL here','http:\/\/');if(sLnk&&sLnk!=''&&sLnk!='http://'){formatDoc('createlink',sLnk)}" 
+	></b-button>
+</b-button-group>
+
+<b-button-group class='bg-light'>
+	<b-button class='mdi mdi-content-cut' title="Cut" variant='light' size='sm' @click="formatDoc('cut')"></b-button>
+	<b-button class='mdi mdi-content-copy' title="Copy" variant='light' size='sm' @click="formatDoc('copy')"></b-button>
+	<b-button class='mdi mdi-content-paste' title="Paste" variant='light' size='sm' @click="formatDoc('paste')"></b-button>
+</b-button-group>
+
+<b-button-group>
+	<b-button class='mdi mdi-save' title='Save' variant='light' size='sm' @click='save()'></b-button>
+	<b-button class='mdi mdi-close' title='Close' variant='light' size='sm' @click='close()'></b-button>
+</b-button-group>
 
 </b-button-toolbar>
 </div>
@@ -228,6 +233,9 @@ Vue.component(exports.element, {
 		onChangeFormatting(){
 			//console.log('Formatting:', this.formatting)
 			document.execCommand('formatblock', false, this.formatting)
+		},
+		formatDoc(cmd, val){
+			document.execCommand(cmd, false, val)
 		}
 	},
 	computed:{
