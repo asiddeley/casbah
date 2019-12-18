@@ -83,30 +83,31 @@ Vue.component(exports.element, {
 		<b-table striped hover small :items='rows' :fields='fields'>
 		<template v-if='editable' v-slot:cell()='data'>
 			<p contenteditable 
-			v-on:click='toolbar(data.field.key+data.index)' 
-			v-bind:ref='data.field.key+data.index' 
-		>{{data.value}}</p>
-		</template>				
+				v-on:click='toolbar(data.index, data.field.key)' 
+				v-bind:ref='data.field.key+data.index' 
+			>{{data.value}}</p>
+			
 		</b-table>
 	</div>`,
 	methods:{
-		toolbar(id){
+		toolbar(index, key){
+			//console.log('REFS',this.$refs)
 			//var element=event.target //...is not reliable, because it could return a nested element
 			//console.log('Element Id:',id)
-			var element=this.$refs[id]
-			var self=this
+			var element=this.$refs[key+index]
+			var menu=this.$refs['toolbar-div']
 			//set <toolbat-html> options...
 			CVM.shared['toolbar-html']={
 				target:element,
 				onSave:function(){
 					//console.log('RESULT:', element||'<empty>')
-					self.$refs['toolbar-div'].style.display='none'
+					menu.style.display='none'
 				},
 				onClose:function(){
-					self.$refs['toolbar-div'].style.display='none'
+					menu.style.display='none'
 				}
 			}
-			SF.menuAtRow(this.$refs['toolbar-div'], element)		
+			SF.menuAtRow(menu, element)		
 		}
 	},
 	computed:{

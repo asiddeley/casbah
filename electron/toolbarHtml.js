@@ -11,9 +11,6 @@ exports.name='toolbarHtml'
 exports.title='HTML edit toolbar'
 exports.register=function(CVM){
 
-const ICON=require('../electron/icons.js')
-
-
 var oDoc, sDefTxt;
 
 function initDoc() {
@@ -90,10 +87,11 @@ function onChangeBackground(){
 const template=`
 <div>
 <b-button-toolbar>
-<b-button-group>
-
+	<b-input-group>
+	<b-input-group-prepend>
+	<b-button class='mdi mdi-title' title="Title" size='sm'></b-button>
+	</b-input-group-prepend>
 	<b-form-select v-model='formatting' v-on:change='onChangeFormatting' size='sm'>
-		<option :value="null">Formatting</option>
 		<option value="h1">Title 1 &lt;h1&gt;</option>
 		<option value="h2">Title 2 &lt;h2&gt;</option>
 		<option value="h3">Title 3 &lt;h3&gt;</option>
@@ -101,43 +99,59 @@ const template=`
 		<option value="h5">Title 5 &lt;h5&gt;</option>
 		<option value="h6">Subtitle &lt;h6&gt;</option>
 		<option value="p">Paragraph &lt;p&gt;</option>
-		<option value="pre">Preformatted &lt;pre&gt;</option>
+		<option value="pre">Pre &lt;pre&gt;</option>
 	</b-form-select>
-
+	</b-input-group>
+	
+	<b-input-group>
+	<b-input-group-prepend>
+	<b-button class='mdi mdi-text-format' title="Font" size='sm'></b-button>
+	</b-input-group-prepend>
 	<b-form-select v-model='font' v-on:change='' size='sm'>
-		<option :value='null'>Font</option>
 		<option>Arial</option>
 		<option>Arial Black</option>
 		<option>Courier New</option>
 		<option>Times New Roman</option>
 	</b-form-select>
-	
+	</b-input-group>
+
+	<b-input-group>
+	<b-input-group-prepend>
+	<b-button class='mdi mdi-format-size' title="Size" size='sm'></b-button>
+	</b-input-group-prepend>	
 	<b-form-select v-model='fontSize' v-on:change='' size='sm'>
-		<option :value="null" size='sm'>Size</option>	
-		<option value="1" size='sm'>Tiny</option>
-		<option value="2" size='sm'>Small</option>
-		<option value="3" size='sm'>Normal</option>
-		<option value="4" size='sm'>Medium</option>
-		<option value="5" size='sm'>Big</option>
-		<option value="6" size='sm'>Large</option>
-		<option value="7" size='sm'>Huge</option>
+		<option value="1" >Tiny</option>
+		<option value="2" >Small</option>
+		<option value="3" >Normal</option>
+		<option value="4" >Medium</option>
+		<option value="5" >Big</option>
+		<option value="6" >Large</option>
+		<option value="7" >Huge</option>
 	</b-form-select>
+	</b-input-group>
 	
+	<b-input-group>
+	<b-input-group-prepend>
+	<b-button class='mdi mdi-format-paint' title="colour" size='sm'></b-button>
+	</b-input-group-prepend>	
 	<b-form-select v-model='foreground' v-on:change='' size='sm'>
-		<option :value="null" size='sm'>Colour</option>	
 		<option value="red" size='sm'>Red</option>
 		<option value="blue" size='sm'>Blue</option>
 		<option value="green" size='sm'>Green</option>
 		<option value="black" size='sm'>Black</option>
 	</b-form-select>
+	</b-input-group>
 	
+	<b-input-group>
+	<b-input-group-prepend>
+	<b-button class='mdi mdi-format-color-fill' title="Fill colour" size='sm'></b-button>
+	</b-input-group-prepend>		
 	<b-form-select v-model='background' onchange="" size='sm'>
-		<option :value="null" size='sm'>Background</option>	
 		<option value="red">Red</option>
 		<option value="green">Green</option>
 		<option value="black">Black</option>
 	</b-form-select>
-</b-button-group>	
+</b-input-group>	
 </b-button-toolbar>
 
 <b-button-toolbar>
@@ -180,8 +194,8 @@ const template=`
 		@click="formatDoc('insertunorderedlist');"></b-button>
 </b-button-group>
 
-<b-button-group class='bg-light'>
-	<b-button class='mdi mdi-format-quote' title="Quote" variant='light' 
+<b-button-group>
+	<b-button class='mdi mdi-format-quote' title="Quote" variant='light' size='sm'
 		@click="formatDoc('formatblock','blockquote');"></b-button>
 	<b-button class='mdi mdi-format-indent-decrease' title="indent increase" variant='light' size='sm'
 		@click="formatDoc('outdent');"></b-button>
@@ -192,7 +206,7 @@ const template=`
 	></b-button>
 </b-button-group>
 
-<b-button-group class='bg-light'>
+<b-button-group>
 	<b-button class='mdi mdi-content-cut' title="Cut" variant='light' size='sm' @click="formatDoc('cut')"></b-button>
 	<b-button class='mdi mdi-content-copy' title="Copy" variant='light' size='sm' @click="formatDoc('copy')"></b-button>
 	<b-button class='mdi mdi-content-paste' title="Paste" variant='light' size='sm' @click="formatDoc('paste')"></b-button>
@@ -212,11 +226,11 @@ const template=`
 // Register as component
 Vue.component(exports.element, {
 	data(){return {
-		background:null,
-		formatting:null,
-		font:null,
-		fontSize:null,
-		foreground:null
+		background:'red',
+		formatting:'h1',
+		font:'Arial',
+		fontSize:'1',
+		foreground:'red'
 	}},
 	props:[],
 	template:template,
