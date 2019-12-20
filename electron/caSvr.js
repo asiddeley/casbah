@@ -51,7 +51,8 @@ function CaSvr({projectid, projectno, projectcode, days}){
 	this.fields=[
 		{key:'item', label:'Item'},
 		{key:'note', label:'Description'},
-		{key:'extra', label:'Ref.'}		
+		{key:'extra', label:'Ref.'},
+		{key:'show_details', label:'Edit'},		
 	]
 }
 
@@ -64,33 +65,49 @@ var caSvr=new CaSvr({})
 
 Vue.component(exports.element, {
 	data:function(){
-		console.log('Navbar Class:', CVM.navbarClass)
+		//console.log('Navbar Class:', CVM.navbarClass)
 		return {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
 		//caproject:{projectno:'101', subprojectcode:'TV'},
 		editable:true,
 		//toolbarAtRow:{}
-		navbarclass:CVM.navbarClass
+		navbarclass:CVM.navbarClass,
+		dup:null
 	}},
 	props:[],
 	template:`
 	<div>
-		<div class="dropdown-menu ${CVM.navbarClass}" ref='toolbar-div' style='width:100%;'>
+		<!-- div class="dropdown-menu ${CVM.navbarClass}" ref='toolbar-div' style='width:100%;'>
 			<toolbar-html/>
-		</div>
+		</div -->
 		<h2>Site Visit Report</h2>
 		<b-table striped hover small :items='rows' :fields='fields'>
+
 		<template v-if='editable' v-slot:cell()='data'>
 			<p contenteditable 
-				v-on:click='toolbar(data.index, data.field.key)' 
+				DEPclick='toolbar(data.index, data.field.key)' 
 				v-bind:ref='data.field.key+data.index' 
-			>{{data.value}}</p>
-			
+				>{{data.value}}</p>
+		</template>		
+
+		<template v-slot:cell(show_details)="item" >
+			<b-button 
+			class='mdi mdi-edit' title='edit' size="sm" class="mr-2"
+			notclass='{mdi-edit:!item.detailsShowing, mdi-done:item.detailsShowing}' 
+			@click='details(item)'>edit</b-button>
+		</template>
+
+		<template v-slot:row-details='item' >
+		<!-- div  :ref='"tb"+item.index' style='width:100%;' -->
+			<toolbar-html  class="${CVM.navbarClass}" />
+		<!-- /div -->
+		</template>
+		
 		</b-table>
 	</div>`,
 	methods:{
-		toolbar(index, key){
+		DEPtoolbar(index, key){
 			//console.log('REFS',this.$refs)
 			//var element=event.target //...is not reliable, because it could return a nested element
 			//console.log('Element Id:',id)
@@ -108,6 +125,14 @@ Vue.component(exports.element, {
 				}
 			}
 			SF.menuAtRow(menu, element)		
+		},
+		details(item){
+			item.toggleDetails()
+			//Ensures only one details row is open at a time in the table
+			if ((item != this.dup) && item.detailsShowing && this.dup && this.dup.detailsShowing){
+				this.dup.toggleDetails()
+			}
+			if (item.detailsShowing){this.dup=item} else {this.dup=null}
 		}
 	},
 	computed:{
