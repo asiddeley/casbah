@@ -36,17 +36,32 @@ exports.register=function(VM){
 		}},
 		props:[],
 		template:`
-		<b-alert show dismissible variant='warning'>
-		<strong>Alert</strong>
-		<br>{{message}}</b-alert>`,
-		methods:{},
+		<b-alert show dismissible variant='warning' @dismissed='close()'
+		><strong>Alert</strong><br>{{message}}
+		</b-alert>`,
+		methods:{
+			close(){
+				if (this.hasCallback){
+					VM.shared['ca-alert'].callback()
+				} else {
+					//default to ca-project page
+					VM.component('ca-project')
+				}
+			}		
+		},
 		computed:{
 			message(){
+				//console.log('message...')
 				var options=VM.shared['ca-alert'], msg='Unspecified'
 				if (typeof options=='string'){msg=options}
 				else if (typeof options=='object'){msg=options.msg||msg}
 				return msg
-			}			
+			},
+			hasCallback(){
+				//console.log('hasCalback...')
+				var options=VM.shared['ca-alert']
+				return (typeof options=='object' && typeof options.callback=='function')
+			}
 		},
 		mounted(){}
 	})

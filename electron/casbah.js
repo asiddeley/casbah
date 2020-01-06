@@ -50,8 +50,9 @@ function propsForTitle(){
 	return d
 }
 
-function switchTo(vm, camel, options){
-	if (typeof camel=='string'){
+function component(vm, camel, options){
+		//console.log('switchTo...', vm, camel, options)
+		if (typeof camel=='string'){
 		//find ca module given the module name
 		var cam=CAMS.find(function(i){return i.element==camel})
 		//Get an array of components registered in Vue 
@@ -75,7 +76,8 @@ exports.ready=function(callback){
 		data:Object.assign(
 			{CAMEL:'h2'}, //wraps Welcome...
 			propsForTitle(),
-			{shared:{}}
+			{shared:{}, textInput:false},
+			//DEP {navbarBackground:WM.getBackground(windowName)}
 		),
 		computed:{
 			navbarClass() {return windowName},
@@ -97,7 +99,8 @@ exports.ready=function(callback){
 					onReturn:function(result){switchTo(that, camelBack)}
 				})
 			},
-			switchTo(camel, options){switchTo(this, camel, options)}			
+			component(camel, options){component(this, camel, options)},
+			switchTo(camel, options){component(this, camel, options)},			
 		},
 		mounted(){
 			//allow Welcome... to linger for 1000ms then switch camel  

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 	<b-nav-item-dropdown text='Admin'>
 	<b-dd-item disabled><a href='#'>Action Items</a></b-dd-item>
 	<b-dd-item disabled><a href='#'>Billing Progress</a></b-dd-item>
-	<b-dd-item :title='caProjectTitle '@click='switchTo("ca-project")'><a href='#'>CA Projects</a></b-dd-item>
+	<b-dd-item :title='caProjectTitle '@click='component("ca-project")'><a href='#'>CA Projects</a></b-dd-item>
 	<b-dropdown-item :title='"Cash Allowance Authorization"'><a href='#'>CAA</a></b-dropdown-item>
 	<b-dropdown-item disabled :title='"Certificate of Payment"'><a href='#'>COP</a></b-dropdown-item>
 	<b-dropdown-item disabled :title='"Substantial Completion Letter"'><a href='#'>SCL</a></b-dropdown-item>
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function(event){
 	<b-dd-item :title='"Blog for Daily Site Activies"'>Blog Experience</b-dd-item>
 	<b-dd-item :title='"BIM Light for the Site"'>Bim  Express</b-dd-item>
 	<b-dd-item :title='"Box-IN-Out File Upload &amp; Storage"'>Bino Exchange</b-dd-item>
-	<b-dd-item :title='"Test Error Page"' @click='switchTo("ca-alert","Hello World!")'>Blow Error</b-dd-item>
+	<b-dd-item :title='"Test Error Page"' @click='component("ca-alert","Hello World!")'>Blow Error</b-dd-item>
 	
 	</b-nav-item-dd>
 			
@@ -89,15 +89,14 @@ document.addEventListener('DOMContentLoaded', function(event){
 	<b-dd-item :title='"CASBAH Splash Screen &amp; About Info"'><a href='#'>Hello</a></b-dd-item>
 	<b-dd-item :title='"Documentation and Tutorials"'><a href='#'>Help</a></b-dd-item>			
 	<b-dd-item :title='"CASBAH Settings"'><a href='#'>Hack</a></b-dd-item>			
-	<b-dd-item :title='"Make Alpha Window Current"'><a href='#'>Home Alpha</a></b-dd-item>
 	<b-dd-item :title='"Close Other Windows"'><a href='#'>Home Alone</a></b-dd-item>
 	<b-dd-item :title='"List Windows"' @click='homeList'><a href='#'>Home List</a></b-dd-item>
 	<b-dd-item :title='"Open Another Window"' @click='homeOpen'><a href='#'>Home Open</a></b-dd-item>
 	
 	</b-nav-item-dd>
 	
-	<b-nav-form>
-	  <b-form-input size="sm" class="mr-sm-2" placeholder="Command"></b-form-input>
+	<b-nav-form v-if='textInput'>
+	  <b-form-input size="sm" class="mr-sm-2" placeholder=""></b-form-input>
 	</b-nav-form>			
 		
 	</b-navbar-nav>

@@ -85,7 +85,7 @@ function onChangeBackground(){
 }
 	
 const template=`
-<div>
+<div style='{padding:5px;}'>
 <b-button-toolbar>
 	<b-input-group>
 	<b-input-group-prepend>

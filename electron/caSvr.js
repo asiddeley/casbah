@@ -31,8 +31,8 @@ exports.register=function(CVM){
 
 ///// IMPORTS
 const SF=require("../electron/support.js")
-const TH=require("../electron/toolbarHtml.js")
-TH.register(CVM)
+const TB=require("../electron/toolbarHtml.js")
+TB.register(CVM)
 
 function CaSvr({projectid, projectno, projectcode, days}){	
 	var today=new Date()
@@ -57,89 +57,77 @@ function CaSvr({projectid, projectno, projectcode, days}){
 }
 
 
-
-//var settings = new LocalStore(PATH.join(__dirname,'../private/CaSvr.json'), {projectid:'0', hidden:[]})
-
-//make caProject instance when mounted, accessible so caProjectMenu
 var caSvr=new CaSvr({})
 
 Vue.component(exports.element, {
 	data:function(){
-		//console.log('Navbar Class:', CVM.navbarClass)
 		return {
 		rows:caSvr.notes,
 		fields:caSvr.fields,
 		//caproject:{projectno:'101', subprojectcode:'TV'},
 		editable:true,
-		//toolbarAtRow:{}
-		navbarclass:CVM.navbarClass,
-		dup:null
+		showing:null,
 	}},
 	props:[],
 	template:`
 	<div>
-		<!-- div class="dropdown-menu ${CVM.navbarClass}" ref='toolbar-div' style='width:100%;'>
-			<toolbar-html/>
-		</div -->
 		<h2>Site Visit Report</h2>
-		<b-table striped hover small :items='rows' :fields='fields'>
+		<b-table striped hover small :items='rows' :fields='fields'
+			REM-tbody-tr-class='{${CVM.navbarClass}:rowShowing}'
+			@row-clicked='rowClicked'
+		>
 
 		<template v-if='editable' v-slot:cell()='data'>
-			<p contenteditable 
-				DEPclick='toolbar(data.index, data.field.key)' 
-				v-bind:ref='data.field.key+data.index' 
-				>{{data.value}}</p>
+			<div contenteditable 
+			:ref='data.field.label+data.index'
+			@click='detailsShow(data)'
+			>{{data.value}}</div>
 		</template>		
 
-		<template v-slot:cell(show_details)="item" >
-			<b-button 
-			class='mdi mdi-edit' title='edit' size="sm" class="mr-2"
-			notclass='{mdi-edit:!item.detailsShowing, mdi-done:item.detailsShowing}' 
-			@click='details(item)'>edit</b-button>
-		</template>
-
 		<template v-slot:row-details='item' >
-		<!-- div  :ref='"tb"+item.index' style='width:100%;' -->
-			<toolbar-html  class="${CVM.navbarClass}" />
-		<!-- /div -->
+			<toolbar-html/>
 		</template>
 		
 		</b-table>
 	</div>`,
 	methods:{
-		DEPtoolbar(index, key){
-			//console.log('REFS',this.$refs)
-			//var element=event.target //...is not reliable, because it could return a nested element
-			//console.log('Element Id:',id)
-			var element=this.$refs[key+index]
-			var menu=this.$refs['toolbar-div']
-			//set <toolbat-html> options...
-			CVM.shared['toolbar-html']={
-				target:element,
-				onSave:function(){
-					//console.log('RESULT:', element||'<empty>')
-					menu.style.display='none'
-				},
-				onClose:function(){
-					menu.style.display='none'
-				}
+		rowShowing(row){return (row.index==this.rowIndex)},
+		rowClicked(row, index){this.rowIndex=index},		
+		detailsShow(data){
+			var row=data.item
+			var ref=data.field.label+data.index
+			//hide previous 
+			if(this.showing){
+				this.$set(this.showing.row,'_showDetails', false)
 			}
-			SF.menuAtRow(menu, element)		
+			//show current 
+			this.$set(row,'_showDetails', true)
+			//log showing details
+			this.showing=(row._showDetails)?{row:row, ref:ref}:null
+			//focus that called this function is lost when table refreshed so get it back
+			var that=this
+			setTimeout(function(){that.$refs[ref].focus()},100)		
 		},
-		details(item){
-			item.toggleDetails()
-			//Ensures only one details row is open at a time in the table
-			if ((item != this.dup) && item.detailsShowing && this.dup && this.dup.detailsShowing){
-				this.dup.toggleDetails()
+		detailsHide(){
+			if (this.background){
+				this.background.classList.remove(CVM.navbarClass)
+				this.background=null
 			}
-			if (item.detailsShowing){this.dup=item} else {this.dup=null}
+			if (this.showing){
+				//this.$refs[this.showing.ref].classList.remove(CVM.navbarClass)
+				this.$set(this.showing.row,'_showDetails', false)
+			}
 		}
 	},
-	computed:{
-		
-	},
+	computed:{},
 	mounted(){
-	
+		var that=this
+		CVM.shared['toolbar-html']={
+			onSave:function(){that.detailsHide()},
+			onClose:function(){that.detailsHide()},
+			rowAdd:function(){},
+			rowDel:function(){}
+		}	
 	}
 })
 	

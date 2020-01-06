@@ -10,10 +10,11 @@ const windowManager = require('electron-window-manager')
 
 ///// Module Scope Variables
 
+//DEPRECATED
 //holds name of window that was closed
-var closed=[]
+//var closed=[]
 
-//deprecated, use <.. :class=windowName> instead
+//DEPRECATED, instead use <.. :class=windowName> 
 var colours=[
 	'aquamarine', 'blueviolet', 'coral', 'darkmagenta', 'cyan',
 	'white', 'orange', 'orange', 'blue', 'blue', 'gold',
@@ -54,39 +55,48 @@ var options={
 var prefix='CA'
 var positionDelta=[20,20]
 
+//DEPRECATED
 //names of windows to reuse beacuse of refresh or closed
-var reuse=[]
+//var reuse=[]
 
-var windex=-1
+//DEPRECATED
+//var windex=-1
 
-function getNextWindowName(){
+//function getNextWindowName(){
+	//DEPRECATED - Use getFreeWindowName instead
 	//assign a new name from the list
-	windex+=1
-	if(windex<names.length){return names[windex]}
-	else{return ( prefix + windex.toString() ) }
-}
+	//windex+=1
+	//if(windex<names.length){return names[windex]}
+	//else{return ( prefix + windex.toString() ) }
+//}
 
 function getFreeWindowName(name){
-	
 	return names.find(function(n){
 		return !windowManager.get(n)
-	})
-	
+	})	
 }
 
 ///// Exports 
 exports.get=function(name){return windowManager.get(name)}
 
+//exports.getBackground=function(name){
+	//NOT IMPLEMENTED
+	//var i=names.indexOf(name)
+	//modulus operation ensures backgrounds won't run out
+	//if (i!=-1){ return backgrounds[(i % backgrounds.length)]}
+	//else { return backgrounds[0] }
+//}
+
 //exports.getWindowName=getWindowName
 exports.getCurrent=function(){return windowManager.getCurrent()}
 
-//deprecated, use class instead 
-exports.getColour=function(name){
-	var i=names.indexOf(name)
+//exports.getColour=function(name){
+	//DEPRECATED, use class instead 
+	//var i=names.indexOf(name)
 	//modulus operation ensures colours won't run out
-	if (i!=-1){ return colours[(i % colours.length)]}
-	else { return colours[0] }
-}
+	//if (i!=-1){ return colours[(i % colours.length)]}
+	//else { return colours[0] }
+//}
 
 exports.getTheme=function(name){
 	var i=names.indexOf(name)
@@ -94,9 +104,10 @@ exports.getTheme=function(name){
 	else { return themes[0] }
 }
 
-exports.getReloaded=function(){	
-	return Object.create({reuse:reuse, closed:closed})
-}
+//exports.getReloaded=function(){	
+//DEPRECATED
+//	return Object.create({reuse:reuse, closed:closed})
+//}
 
 exports.isolate=function(name){
 	names.forEach(function(n){
@@ -115,14 +126,15 @@ exports.list=function(key){
 	return openWindows
 }
 
-exports.onBeforeUnload=function(windowName){
-	reuse.push(windowName)
-}
+//exports.onBeforeUnload=function(windowName){
+	//DEPRECATED
+	//reuse.push(windowName)
+//}
 
-//window onClose event listener not working
-exports.onClose=function(windowName){
-	closed.push(windowName)
-}
+//exports.onClose=function(windowName){
+	//DEPRECATED
+	//closed.push(windowName)
+//}
 
 exports.open=function(callingWindowName){
 	

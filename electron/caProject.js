@@ -52,7 +52,7 @@ const gsProjects = new GS(SETTINGS.gsProjectsKey)
 
 try {const SECRET = require('../private/client_secret.json')}
 catch(err){
-	casbahVue.switchTo('ca-error',{msg:'client_secret.json missing, see setup page'})
+	casbahVue.switchTo(casbahVue, 'ca-error',{msg:'client_secret.json missing, see setup page'})
 	return false
 }
 
@@ -124,14 +124,13 @@ local.set() //force a local save
 STORE.registerModule('caProject',{
 	state:{
 		projectindex:local.projectindex||3,
-		projects:local.projects||[]
-	
-		
+		projects:local.projects||[],
 	},
 	getters:{
 		//project(){return this.state.project},
 		//projects(){return this.state.projects}		
 	},
+	//commit('mutation'...)
 	mutations:{
 		setProjectindex(state, projectindex){
 			state.projectindex=projectindex
@@ -148,6 +147,7 @@ STORE.registerModule('caProject',{
 			})		
 		}
 	},
+	//dispatch('aciton'...)
 	actions:{	
 
 
@@ -171,7 +171,7 @@ Vue.component(exports.element, {
 		<div class='dropdown-menu' size='sm' text='small' v-on:mouseleave='menuHide'  ref='ca-project-menu'>
 			<b-dd-item v-on:click='authenticate();menuHide;'><a href='#'>Authenticate</a></b-dd-item>
 			<b-dd-item v-on:click='activeProject();menuHide' href='#'><a href='#'>Active Project</a></b-dd-item>
-			<b-dd-item v-on:click='alert("Create...");menuHide' href='#'><a href='#'>Create</a></b-dd-item>
+			<b-dd-item v-on:click='alert("Create...");menuHide();' href='#'><a href='#'>Create</a></b-dd-item>
 			<b-dd-item v-on:click='read();menuHide'><a href='#'>Read</a></b-dd-item>
 			<b-dd-item v-on:click='update(); menuHide'><a href='#'>Update</a></b-dd-item>
 			<b-dd-item v-on:click='alert("delete...");menuHide'><a href='#'>Delete</a></b-dd-item>
@@ -194,10 +194,17 @@ Vue.component(exports.element, {
 			{key:'subprojectcode', label:'Sub Code', sortable:true},
 			{key:'subproject', label:'Sub Name', sortable:true}
 		]},
+	
 		//menuStyle(){return {display:'none', 'z-index':999}},
 		//menuRow:{}	
 	},
 	methods:{
+		alert(msg){
+			casbahVue.component('ca-alert', {
+				msg:msg,			
+				callback:function(){casbahVue.component('ca-project')}
+			})
+		},		
 		highlightCurrent(){
 			this.projects.forEach(function(p,i){
 				if (i==STORE.state.caProject.projectindex){p._rowVariant='primary'}
@@ -210,16 +217,15 @@ Vue.component(exports.element, {
 			'Click to set as current project'
 		},
 		menu(row, rows, e){
-			this.menuAtRow=row
+			this.hotRow=row
 			SF.menuAtPointer(this.$refs['ca-project-menu'], e)
 		},
 		menuHide(){			
-			//this.menuStyle.display = "none"
 			this.$refs['ca-project-menu'].style.display='none'
 		},
 		authenticate(){googleAuth(caProjects)},
 		activeProject(){
-			var index=STORE.state.caProject.projects.indexOf(this.menuAtRow)
+			var index=STORE.state.caProject.projects.indexOf(this.hotRow)
 			//console.log('INDEX:',index)
 			STORE.commit('setProjectindex', index)
 			this.highlightCurrent()	
@@ -227,14 +233,14 @@ Vue.component(exports.element, {
 		read(){
 			var that=this
 			casbahVue.switchTo('ca-quick-table',{
-				rows:SF.pivot(that.menuAtRow,'Heading','Content'),		
+				rows:SF.pivot(that.hotRow,'Heading','Content'),		
 				onReturn:function(){casbahVue.switchTo('ca-project')}
 			})
 		},
 		update(){
 			var that=this
 			casbahVue.switchTo('ca-quick-form',{
-				row:that.menuAtRow,			
+				row:that.hotRow,			
 				onSave:function(result){
 					STORE.commit('updateProject', result)
 					casbahVue.switchTo('ca-project')
